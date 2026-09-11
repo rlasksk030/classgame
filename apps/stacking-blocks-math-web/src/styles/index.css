@@ -385,6 +385,10 @@ button {
   display: block;
 }
 
+.world-canvas-shell {
+  position: relative;
+}
+
 .world-ghost-note {
   font-size: 13px;
   color: var(--ink-soft);
@@ -453,7 +457,7 @@ button {
   position: absolute;
   z-index: 2;
   left: 50%;
-  bottom: 52px;
+  bottom: 12px;
   transform: translateX(-50%);
   padding: 4px 9px;
   border: 2px solid var(--sky-dark);
