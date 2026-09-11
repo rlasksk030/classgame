@@ -88,9 +88,10 @@
 ## 검증 결과 (2026-09-11)
 - `npm run typecheck` PASS
 - `npm run lint` PASS
-- `npm test` PASS (18개)
+- `npm test` PASS (19개)
 - `npm run typecheck:edge` PASS
 - `npm run build` PASS
+- `npm run test:security` PASS (PIN hash scope/session tamper test 1개)
 - `npm run test:e2e`는 로컬 webServer가 샌드박스에서 `listen EPERM 127.0.0.1:4173`로 시작하지 못해 실행 불가. 코드 우회나 승인 우회는 하지 않았다.
 
 ## Seed 문제 템플릿 다양화 (2026-09-11)
