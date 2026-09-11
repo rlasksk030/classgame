@@ -7,6 +7,8 @@ import type {
   ProblemAnswer,
   ProblemGiven,
   ProblemType,
+  DifficultyTier,
+  ProblemSourceType,
 } from "./types.ts";
 
 /**
@@ -19,6 +21,12 @@ import type {
 
 export interface SeedProblem {
   stage?: "concept" | "check" | "more";
+  templateId?: string;
+  seed?: number;
+  generatorVersion?: number;
+  difficultyTier?: DifficultyTier;
+  conceptTags?: string[];
+  sourceType?: ProblemSourceType;
   code: string;
   lesson: number;
   orderIndex: number;

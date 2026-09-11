@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { challengeGiven, challengeScore, EMPTY_BUILDING, validBuilding, validChallenge } from '../shared/activities.ts';
 import type { BlockCoord } from '../shared/types.ts';
-import { generatePracticeProblems, recommendedPracticeCount } from '../shared/practiceGenerator.ts';
+import { generatePracticeProblems, getProblemTemplates, recommendedPracticeCount, validateGeneratedProblem } from '../shared/practiceGenerator.ts';
 
 const ten: BlockCoord[] = Array.from({ length: 10 }, (_, x) => ({ x: x % 5, y: Math.floor(x / 5), z: 0 }));
 
@@ -43,4 +43,21 @@ test('practice generator is deterministic and scales by lesson', () => {
   assert.deepEqual(first[0].answer, second[0].answer);
   assert.equal(new Set(first.map(item => item.code)).size, 20);
   assert.ok(first.every(item => item.stage === 'more'));
+  assert.equal(first[0].generatorVersion, 1);
+  assert.ok(first[0].templateId);
+  assert.ok(first[0].conceptTags?.includes('HEIGHT_MAP'));
+});
+
+test('all practice lesson generators produce valid seeded problems', () => {
+  for (const lesson of [1,2,3,4,5,6,7,8,12]) {
+    assert.ok(getProblemTemplates(lesson).length > 0);
+    for (let seed = 0; seed < 50; seed++) {
+      const generated = generatePracticeProblems(lesson, 3, seed);
+      assert.equal(generated.length, 3);
+      for (const item of generated) {
+        assert.ok(validateGeneratedProblem(item));
+        assert.equal(item.sourceType, 'GENERATED_PRACTICE');
+      }
+    }
+  }
 });

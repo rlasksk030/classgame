@@ -98,6 +98,16 @@ export const BUILD_TYPES: readonly ProblemType[] = [
  */
 export type GradingMode = "exact" | "constraint";
 
+/** 문제집 생성·교사 통계에서 사용하는 공통 분류. */
+export type DifficultyTier = "BASIC" | "PRACTICE" | "APPLICATION" | "CHALLENGE";
+export type ProblemSourceType =
+  | "BUILT_IN_CONCEPT"
+  | "BUILT_IN_WORKBOOK_STYLE"
+  | "GENERATED_PRACTICE"
+  | "WORKSHEET_IMPORT"
+  | "TEACHER_CREATED"
+  | "PEER_CREATED";
+
 /** 2D 격자 답안. true = 칸이 채워짐. */
 export type Grid2D = boolean[][];
 
@@ -137,6 +147,12 @@ export type StudentSubmission =
 export interface StudentProblem {
   stage?: "concept" | "check" | "more";
   hasImage?: boolean;
+  templateId?: string;
+  seed?: number;
+  generatorVersion?: number;
+  difficultyTier?: DifficultyTier;
+  conceptTags?: string[];
+  sourceType?: ProblemSourceType;
   id: string;
   lesson: number;
   orderIndex: number;
