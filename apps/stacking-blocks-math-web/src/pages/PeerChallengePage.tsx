@@ -20,6 +20,7 @@ export default function PeerChallengePage() {
   const [code, setCode] = useState("");
   const [shared, setShared] = useState("");
   const [given, setGiven] = useState<ProblemGiven | null>(null);
+  const [hintGiven, setHintGiven] = useState<ProblemGiven | null>(null);
   const [state, setState] = useState<AttemptState & { score?: number }>(INITIAL_ATTEMPT);
   const [answer, setAnswer] = useState<BlockCoord[] | undefined>();
   const [message, setMessage] = useState("");
@@ -32,10 +33,10 @@ export default function PeerChallengePage() {
     finally { setBusy(false); }
   };
   const load = () => run(async () => {
-    const result = await activityApi<{ given: ProblemGiven; state: AttemptState & { score?: number }; answer: BlockCoord[] | null }>("challenge:get", { code });
-    setGiven(result.given); setState(result.state); setAnswer(result.answer ?? undefined); setBlocks([]); setMessage("친구가 만든 조건을 보고 쌓아 보세요.");
+    const result = await activityApi<{ given: ProblemGiven; hintGiven?: ProblemGiven; state: AttemptState & { score?: number }; answer: BlockCoord[] | null }>("challenge:get", { code });
+    setGiven(result.given); setHintGiven(result.hintGiven ?? null); setState(result.state); setAnswer(result.answer ?? undefined); setBlocks([]); setMessage("친구가 만든 조건을 보고 쌓아 보세요.");
   });
-  const startNew = () => { setGiven(null); setBlocks([]); setAnswer(undefined); setState(INITIAL_ATTEMPT); setShared(""); setHintType("heightMap"); setStep(1); setMessage(""); };
+  const startNew = () => { setGiven(null); setHintGiven(null); setBlocks([]); setAnswer(undefined); setState(INITIAL_ATTEMPT); setShared(""); setHintType("heightMap"); setStep(1); setMessage(""); };
   const previewGiven = challengeGiven(blocks, type);
 
   return <main className="screen app-max stack">
@@ -53,9 +54,9 @@ export default function PeerChallengePage() {
       <section className="panel stack">
         <h2>친구의 문제</h2><Representations given={given} />
         <p>오답 {state.wrongCount}회 · 놀이 점수 {state.score ?? 0} / 2점</p>
-        {state.hintShown && <p>힌트: 자리별 높이와 보이지 않는 블록을 살펴보세요.</p>}
-        <button className="btn btn-sm" disabled={busy || state.completed || state.hintShown} onClick={() => void run(async () => { const result = await activityApi<{ state: AttemptState & { score?: number }; hint: string }>("challenge:hint", { code }); setState(result.state); setMessage(result.hint); })}>힌트 보기 (보상 1점)</button>
-        <button className="btn btn-primary" disabled={busy || state.completed} onClick={() => void run(async () => { const result = await activityApi<{ outcome: AttemptOutcome; state: AttemptState & { score?: number }; answer: BlockCoord[] | null }>("challenge:attempt", { code, blocks }); setState(result.state); setAnswer(result.answer ?? undefined); setMessage(result.outcome.message + (result.state.score ? ` ${result.state.score}점` : "")); })}>정답 확인</button>
+        {state.hintShown && <><p>힌트: 친구가 만든 힌트 카드를 확인해 보세요.</p>{hintGiven && <Representations given={hintGiven} />}</>}
+        <button className="btn btn-sm" disabled={busy || state.completed || state.hintShown} onClick={() => void run(async () => { const result = await activityApi<{ state: AttemptState & { score?: number }; hint: string; hintGiven?: ProblemGiven }>("challenge:hint", { code }); setState(result.state); setHintGiven(result.hintGiven ?? null); setMessage(result.hint); })}>힌트 보기 (보상 1점)</button>
+        <button className="btn btn-primary" disabled={busy || state.completed} onClick={() => void run(async () => { const result = await activityApi<{ outcome: AttemptOutcome; state: AttemptState & { score?: number }; answer: BlockCoord[] | null; hintGiven?: ProblemGiven }>("challenge:attempt", { code, blocks }); setState(result.state); setHintGiven(result.hintGiven ?? null); setAnswer(result.answer ?? undefined); setMessage(result.outcome.message + (result.state.score ? ` ${result.state.score}점` : "")); })}>정답 확인</button>
         {state.answerRevealed && !state.completed && <button className="btn" onClick={() => setBlocks([])}>정답 모양대로 다시 쌓기</button>}
         <p role="status">{message}</p>
       </section>

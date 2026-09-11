@@ -23,7 +23,7 @@ Cloudflare는 개발자 계정 비용이 발생하지 않는 **순수 정적 호
 ## 버전 계약
 
 - 앱 버전은 `src/lib/config.ts`의 `APP_VERSION`(현재 `1.0.0`)에서 읽는다.
-- DB 계약 버전은 `SCHEMA_VERSION`(현재 `202609110012`)으로 표시한다.
+- DB 계약 버전은 `SCHEMA_VERSION`(현재 `202609110013`)으로 표시한다.
 - `getVersionState()`가 `currentAppVersion`, `requiredSchemaVersion`, `installedSchemaVersion`, `updateRequired`를 계산한다. 설치된 DB 버전이 부족하면 새 기능을 사용하기 전에 업데이트 필요 상태로 표시할 수 있다.
 - 기본 문제와 생성 문제는 기존의 안정적인 ID·`generatorVersion`·seed를 유지한다. 알고리즘을 바꿀 때는 새 generator version을 사용해 기존 학생의 문제가 바뀌지 않게 한다.
 
@@ -50,7 +50,7 @@ getInstallationStatus({
 
 모든 DB 변경은 `supabase/migrations/`의 순번 파일로 관리한다. migration은 `if not exists`·안전한 upsert를 사용하고 학생·PIN·진도·시도·보상·snapshot·친구 문제·건축물·교사 문제를 삭제하지 않는다. 각 교사의 Supabase 프로젝트에는 같은 migration을 순서대로 적용하며, 개발자의 프로젝트 ref를 코드에 넣지 않는다.
 
-현재 migration 버전은 001~012이다. 012는 문제 정확성 감사에서 확인된 기존 기본 문제의 정답·투영·시점 데이터를 보정하는 corrective migration이다. 기존 migration을 다시 실행하지 않고 설치된 DB에 순서대로 적용한다. 실제 새 프로젝트 적용 여부는 `SUPABASE_SETUP.md`와 작업 기록의 원격 점검 결과를 함께 확인한다.
+현재 migration 버전은 001~013이다. 012는 문제 정확성 감사에서 확인된 기존 기본 문제의 정답·투영·시점 데이터를 보정하고, 013은 친구 문제의 힌트 카드 유형을 저장한다. 기존 migration을 다시 실행하지 않고 설치된 DB에 순서대로 적용한다. 실제 새 프로젝트 적용 여부는 `SUPABASE_SETUP.md`와 작업 기록의 원격 점검 결과를 함께 확인한다.
 
 ## 진단 정보
 

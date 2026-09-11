@@ -23,10 +23,10 @@ export async function activityRequest(db:ReturnType<typeof serviceClient>, body:
   return error?fail(error.message.includes('VERSION_CONFLICT')?409:500,'SAVE_CONFLICT','다른 창에서 수정했거나 저장에 실패했습니다. 기기 기록을 보관했습니다. 서버 상태를 다시 확인해 주세요.'):ok({version:data});
  }
  if(action==='activity:challenge:create'){
-  const blocks=body.blocks as BlockCoord[],type=String(body.type);
+  const blocks=body.blocks as BlockCoord[],type=String(body.type),hintType=['views','heightMap','layers'].includes(String(body.hintType))?String(body.hintType):'heightMap';
   if(!validChallenge(blocks,type))return fail(400,'TEN_BLOCKS','쌓기나무를 정확히 10개 사용해 주세요.');
   const code=generateShareCode();
-  const {error}=await db.from('sb_shared_challenges').insert({class_id:student.classId,author_id:student.studentId,share_code:code,challenge_type:type,blocks:canonicalize(blocks),grid_width:5,grid_depth:5,max_height:3});
+  const {error}=await db.from('sb_shared_challenges').insert({class_id:student.classId,author_id:student.studentId,share_code:code,challenge_type:type,hint_type:hintType,blocks:canonicalize(blocks),grid_width:5,grid_depth:5,max_height:3});
   return error?fail(500,'SAVE_FAILED','문제 저장에 실패했습니다. 다시 시도해 주세요.'):ok({code});
  }
  if(action==='activity:challenge:get'||action==='activity:challenge:hint'||action==='activity:challenge:attempt'){
@@ -35,13 +35,14 @@ export async function activityRequest(db:ReturnType<typeof serviceClient>, body:
   const {data:prior}=await db.from('sb_challenge_solves').select('*').eq('challenge_id',c.id).eq('student_id',student.studentId).maybeSingle();
   const state={wrongCount:prior?.wrong_count??0,hintShown:prior?.used_hint??false,answerRevealed:prior?.answer_revealed??false,completed:prior?.correct??false,score:prior?.score??0};
   const given=challengeGiven(c.blocks,c.challenge_type as ChallengeType);
-  if(action==='activity:challenge:get')return ok({given,state,answer:state.answerRevealed?c.blocks:null});
+  const hintGiven=state.hintShown?challengeGiven(c.blocks,(c.hint_type as ChallengeType)??'heightMap'):undefined;
+  if(action==='activity:challenge:get')return ok({given,state,answer:state.answerRevealed?c.blocks:null,hintGiven});
   if(action==='activity:challenge:hint'){
    if(state.completed)return ok({state,hint:'이미 완료한 문제예요.'});
    const hinted={...state,hintShown:true};
    const {error:hintError}=await db.rpc('sb_submit_challenge',{p_student:student.studentId,p_challenge:c.id,p_previous:state.wrongCount,p_state:{...hinted,xp:0,score:0}});
    if(hintError)return fail(409,'SAVE_FAILED','힌트를 저장하지 못했습니다. 다시 시도해 주세요.');
-   return ok({state:hinted,hint:'각 자리의 높이와 보이지 않는 블록을 차례로 살펴보세요.'});
+   return ok({state:hinted,hint:'각 자리의 높이와 보이지 않는 블록을 차례로 살펴보세요.',hintGiven:challengeGiven(c.blocks,(c.hint_type as ChallengeType)??'heightMap')});
   }
   const blocks=body.blocks as BlockCoord[];
   if(!validStructure(blocks,ACTIVITY_GRID))return fail(400,'INVALID_BLOCKS','블록 위치를 확인해 주세요.');
@@ -50,7 +51,7 @@ export async function activityRequest(db:ReturnType<typeof serviceClient>, body:
   const score=challengeScore(outcome.state.hintShown,outcome.state.answerRevealed,outcome.state.completed);
   const {error:saveError}=await db.rpc('sb_submit_challenge',{p_student:student.studentId,p_challenge:c.id,p_previous:state.wrongCount,p_state:{...outcome.state,xp:outcome.xpEarned,score}});
   if(saveError)return fail(409,'SAVE_FAILED','시도를 저장하지 못했습니다. 문제를 다시 열어 주세요.');
-  return ok({outcome,state:{...outcome.state,score},answer:outcome.state.answerRevealed?c.blocks:null,hint:outcome.state.hintShown?'각 자리의 높이와 보이지 않는 블록을 차례로 살펴보세요.':null,score});
+  return ok({outcome,state:{...outcome.state,score},answer:outcome.state.answerRevealed?c.blocks:null,hint:outcome.state.hintShown?'각 자리의 높이와 보이지 않는 블록을 차례로 살펴보세요.':null,hintGiven:outcome.state.hintShown?challengeGiven(c.blocks,(c.hint_type as ChallengeType)??'heightMap'):undefined,score});
  }
  if(action==='activity:review:save'){
   const confidence=Number(body.confidence);
