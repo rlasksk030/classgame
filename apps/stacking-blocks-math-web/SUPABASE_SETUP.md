@@ -94,4 +94,4 @@ Supabase가 함수에 제공하는 `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABAS
 
 권한 SQL/Secret/교사 계정/인증 설정이 끝나기 전에는 수업 투입 준비 완료로 판단하지 않는다. `student-auth`는 `APP_SESSION_SECRET`으로 PIN 해시와 HMAC 학생 세션을 발급하고, `student-api`는 같은 Secret으로 세션 서명을 검증한다. Secret 자체는 브라우저 요청에 포함되지 않는다.
 
-`202609110011_practice_count.sql`을 적용하면 교사 설정의 5/10/15/20 추가 문제 수와 학생별 결정적 문제 seed가 서버에 저장된다. 이 migration은 기존 테이블에 두 컬럼만 추가하며 2026-09-11 새 Supabase 프로젝트에 적용 완료했다. `student-api`의 문제 생성 요청과 RLS는 실제 학생 세션을 준비한 뒤 다시 검증한다. 향후 학습지 배부(worksheet/assignment/submission/item)는 별도 migration과 Storage 정책으로 추가하며 이번 단계에서는 bucket을 만들지 않는다.
+`202609110011_practice_count.sql`을 적용하면 교사 설정의 5/10/15/20 추가 문제 수와 학생별 결정적 문제 seed가 서버에 저장된다. `202609110012_problem_accuracy.sql`은 문제 정확성 감사에서 확인된 기본 문제의 정답·투영·시점 데이터를 보정한다. 001~012를 순서대로 적용하며, 이미 적용한 migration은 다시 실행하지 않는다. 이 migration은 새 테이블이나 권한을 추가하지 않는다. `student-api`의 문제 생성 요청과 RLS는 실제 학생 세션을 준비한 뒤 다시 검증한다. 향후 학습지 배부(worksheet/assignment/submission/item)는 별도 migration과 Storage 정책으로 추가하며 이번 단계에서는 bucket을 만들지 않는다.
