@@ -136,6 +136,12 @@
 - `.env.local`은 실제 프로젝트 URL과 공개키가 있고 Secret 이름은 포함하지 않는 것을 값 비공개 형태로 점검했다. `APP_SESSION_SECRET`은 운영자 설정 완료 확인만 기록했으며 값은 저장하지 않았다.
 - 로컬 회귀: `npm test` 23개, `typecheck`, `lint`, `typecheck:edge`, `test:security`, `build` 모두 PASS.
 
+## 교사 로그인 실패 원인 진단 (2026-09-11)
+- `/teacher`의 Auth 경로는 `getSupabase().auth.signInWithPassword`이며 `/setup`은 교사 계정이나 profile을 만들지 않는다. 신규 Auth 교사는 로그인 뒤 학급이 0개일 수 있고, `teacher:class-upsert`로 첫 학급을 만든다. 별도 `sb_teacher_profiles` 레코드를 요구하는 코드는 없다.
+- 기존 화면이 모든 실패를 일반 문장으로 표시하던 문제를 고쳐 `AUTH_INVALID_CREDENTIALS`, `AUTH_EMAIL_UNCONFIRMED`, `SUPABASE_CONFIG_ERROR`, `TEACHER_PROFILE_MISSING`, `TEACHER_AUTH`, `TEACHER_BOOTSTRAP_ERROR`, `SUPABASE_NETWORK_ERROR`로 분류한다. 로그인 후 학급/교사 API 실패도 같은 코드로 표시한다.
+- 비밀번호나 토큰은 로그로 남기지 않는다. 실제 Auth 응답을 보지 못한 상태에서는 특정 원인을 PASS로 단정하지 않는다.
+- `npm test` 24개, typecheck, lint, build를 통과했다.
+
 ## Runtime/DB 버전 호환 계약 (2026-09-11)
 - `getVersionState()`에 `currentAppVersion`, `requiredSchemaVersion`, `installedSchemaVersion`, `updateRequired` 계산을 추가했다. 설치된 Supabase schema가 부족한 경우 업데이트 필요 상태로 표시할 수 있다.
 - production build에서 현재 `.env.local`의 특정 Supabase URL·Publishable Key가 `dist`에 포함되지 않는 것을 문자열 점검으로 확인했다. 런타임 설정이 없는 production은 `/setup`으로 진입한다.

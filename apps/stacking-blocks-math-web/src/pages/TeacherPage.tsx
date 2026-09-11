@@ -2,6 +2,7 @@ import TeacherActivities from "../features/activities/TeacherActivities";
 import { getSupabase } from "../lib/supabase";
 import { Link } from "react-router-dom";
 import { FormEvent, useEffect, useMemo, useState } from "react";
+import { classifyTeacherError } from "../lib/teacherErrors";
 
 import {
   teacherCreateStudent,
@@ -43,7 +44,8 @@ export default function TeacherPage() {
         setClassId(payload.classes[0].id);
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "교사용 목록을 불러오지 못했습니다.");
+      const info = classifyTeacherError(err);
+      setError(`${info.code}: ${info.message}`);
     }
   };
 
@@ -65,7 +67,7 @@ export default function TeacherPage() {
         setStudents(studentsPayload.students);
         setLessons(lessonPayload.lessons);
       } catch (err) {
-        if (!cancelled) setError(err instanceof Error ? err.message : "반 정보를 불러오지 못했습니다.");
+        if (!cancelled) { const info = classifyTeacherError(err); setError(`${info.code}: ${info.message}`); }
       } finally {
         if (!cancelled) setBusy(false);
       }

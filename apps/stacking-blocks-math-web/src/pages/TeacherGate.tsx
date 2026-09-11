@@ -1,5 +1,6 @@
 import { useEffect, useState, type ReactNode, type FormEvent } from 'react';
 import { getSupabase } from '../lib/supabase';
+import { classifyTeacherError } from '../lib/teacherErrors';
 
 export default function TeacherGate({ children }: { children: ReactNode }) {
   const [ready, setReady] = useState(false);
@@ -13,19 +14,19 @@ export default function TeacherGate({ children }: { children: ReactNode }) {
       void auth.getSession().then(({ data, error }) => {
         if (!active) return;
         setSignedIn(Boolean(data.session)); setReady(true);
-        if (error) setError('로그인 상태를 확인하지 못했습니다.');
+        if (error) { const info = classifyTeacherError(error); setError(`${info.code}: ${info.message}`); }
       });
       const { data } = auth.onAuthStateChange((_event, session) => { setSignedIn(Boolean(session)); setReady(true); });
       return () => { active = false; data.subscription.unsubscribe(); };
-    } catch { setReady(true); setError('서비스 연결 설정이 필요합니다. 배포 담당자에게 문의해 주세요.'); }
+    } catch (error) { setReady(true); const info = classifyTeacherError(error); setError(`${info.code}: ${info.message}`); }
   }, []);
   const login = async (event: FormEvent) => {
     event.preventDefault(); setBusy(true); setError('');
     try {
       const { error } = await getSupabase().auth.signInWithPassword({ email, password });
-      if (error) setError('이메일과 비밀번호를 확인해 주세요.');
+      if (error) { const info = classifyTeacherError(error); setError(`${info.code}: ${info.message}`); }
       setPassword('');
-    } catch { setError('로그인 서버에 연결하지 못했습니다.'); }
+    } catch (reason) { const info = classifyTeacherError(reason); setError(`${info.code}: ${info.message}`); }
     finally { setBusy(false); }
   };
   if (!ready) return <main className="screen app-max"><p role="status">로그인 확인 중…</p></main>;
