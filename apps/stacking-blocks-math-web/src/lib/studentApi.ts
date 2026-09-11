@@ -7,6 +7,7 @@ import type {
   GradeResult as SharedGradeResult,
 } from "@shared/types.ts";
 import type { BlockCoord } from "@shared/types.ts";
+import type { RewardDefinition, RewardMaterial, RewardTheme } from "@shared/rewards.ts";
 import {
   STUDENT_TOKEN_KEY,
   getResolvedSupabaseConfig,
@@ -91,6 +92,16 @@ export interface StudentHomeReward {
   totalStars: number;
   badges: unknown[];
   streak: number;
+  equippedMaterial?: RewardMaterial;
+  introTheme?: RewardTheme;
+  catalog?: Array<RewardDefinition & { unlocked: boolean }>;
+}
+
+export interface RewardWorkshopData {
+  xp: number;
+  equippedMaterial: RewardMaterial;
+  introTheme: RewardTheme;
+  catalog: Array<RewardDefinition & { unlocked: boolean }>;
 }
 
 export interface StudentHomeData {
@@ -225,6 +236,14 @@ export function loginStudent(params: {
 
 export function getStudentHome() {
   return callFunction<{ student: StudentHomeData }>("student-api", { action: "home" }, true).then((res) => res.student);
+}
+
+export function getRewardWorkshop() {
+  return callFunction<RewardWorkshopData>("student-api", { action: "rewards" }, true);
+}
+
+export function equipReward(material: RewardMaterial, theme: RewardTheme) {
+  return callFunction<RewardWorkshopData>("student-api", { action: "rewards:equip", material, theme }, true);
 }
 
 export function getLessonProblems(lesson: number) {

@@ -13,6 +13,7 @@ import { Mesh } from '@babylonjs/core/Meshes/mesh';
 import '@babylonjs/core/Culling/ray';
 import { canonicalize, columnHeight, moveBlock, placeOnColumn, canRemove, keyOf } from '../../../shared/blocks.ts';
 import type { BlockCoord, GridConfig, ViewPreset } from '../../../shared/types.ts';
+import type { RewardMaterial } from '../../../shared/rewards.ts';
 
 export interface SceneState {
   blocks: BlockCoord[];
@@ -22,6 +23,7 @@ export interface SceneState {
   answerGhost?: BlockCoord[];
   disabled?: boolean;
   allowRotate?: boolean;
+  appearance?: Record<string, RewardMaterial>;
 }
 export interface SceneCallbacks {
   change: (blocks: BlockCoord[]) => void;
@@ -38,6 +40,7 @@ export class BlockScene {
   private answers: Mesh[] = [];
   private frontMarker: Mesh[] = [];
   private material: StandardMaterial;
+  private blockMaterials = new Map<RewardMaterial, StandardMaterial>();
   private selectedMaterial: StandardMaterial;
   private ghostMaterial: StandardMaterial;
   private answerMaterial: StandardMaterial;
@@ -80,6 +83,10 @@ export class BlockScene {
       return m;
     };
     this.material = makeMaterial('wood', '#d8b07a');
+    this.blockMaterials.set('wood', this.material);
+    this.blockMaterials.set('pastel', makeMaterial('pastel', '#e9b8d1'));
+    this.blockMaterials.set('brick', makeMaterial('brick', '#c97b68'));
+    this.blockMaterials.set('tile', makeMaterial('tile', '#8eb8c9'));
     this.selectedMaterial = makeMaterial('selected', '#5d82c7');
     this.ghostMaterial = makeMaterial('placement', '#86d8c0', 0.48);
     this.answerMaterial = makeMaterial('answer', '#6c77d5', 0.28);
@@ -152,7 +159,8 @@ export class BlockScene {
         mesh.metadata = { block };
         this.cubes.set(key, mesh);
       }
-      mesh.material = state.selected && keyOf(state.selected) === key ? this.selectedMaterial : this.material;
+      const appearance = state.appearance?.[key] ?? 'wood';
+      mesh.material = state.selected && keyOf(state.selected) === key ? this.selectedMaterial : (this.blockMaterials.get(appearance) ?? this.material);
       mesh.setEnabled(this.visible(block));
     }
     this.answers.forEach(mesh => mesh.dispose());

@@ -13,6 +13,7 @@ import { SEED_PROBLEMS } from "../../../shared/seedProblems.ts";
 import { generatePracticeProblems, recommendedPracticeCount } from "../../../shared/practiceGenerator.ts";
 import { conceptTagsForProblemType } from "../../../shared/problemMetadata.ts";
 import { deriveProblemPresentation } from "../../../shared/problemPresentation.ts";
+import { REWARD_CATALOG, rewardUnlocked, sanitizeMaterial, sanitizeTheme, type RewardMaterial, type RewardTheme } from "../../../shared/rewards.ts";
 import { grade as gradeShared } from "../../../shared/grading.ts";
 import { serviceClient, requireTeacher, teacherOwnsClass } from "../_shared/db.ts";
 import {
@@ -37,6 +38,8 @@ type Action =
   | "home"
   | "lessonProblems"
   | "position"
+  | "rewards"
+  | "rewards:equip"
   | "practice:new-set"
   | "problem"
   | "attempt"
@@ -484,13 +487,13 @@ Deno.serve(async (req: Request) => {
   const action = text(body.action, 40) as Action;
 
   // 학생 동작
-  if (action === "asset" || action.startsWith("activity:") || action === "home" || action === "lessonProblems" || action === "practice:new-set" || action === "problem" || action === "attempt" || action === "snapshot" || action === "snapshot:get" || action === "position") {
+  if (action === "asset" || action.startsWith("activity:") || action === "home" || action === "rewards" || action === "rewards:equip" || action === "lessonProblems" || action === "practice:new-set" || action === "problem" || action === "attempt" || action === "snapshot" || action === "snapshot:get" || action === "position") {
     const studentSession = await requireStudent(req, db);
     if (studentSession instanceof Response) return studentSession;
 
     if (action.startsWith("activity:")) return activityRequest(db, body, studentSession);
 
-    if (action !== "home") {
+    if (action !== "home" && action !== "rewards" && action !== "rewards:equip") {
       let targetLesson = toInt(body.lesson);
       if (action !== "lessonProblems" && action !== "practice:new-set" && action !== "position") {
         const targetId = text(body.problemId, 80);
@@ -530,7 +533,7 @@ Deno.serve(async (req: Request) => {
           .from("sb_student_progress")
           .select("lesson, completed, stars")
           .eq("student_id", studentSession.studentId),
-        db.from("sb_student_rewards").select("total_xp,total_stars,badges,streak").eq("student_id", studentSession.studentId).maybeSingle(),
+        db.from("sb_student_rewards").select("total_xp,total_stars,badges,streak,equipped_material,intro_theme").eq("student_id", studentSession.studentId).maybeSingle(),
         db
           .from("sb_problems")
           .select(
@@ -559,11 +562,11 @@ Deno.serve(async (req: Request) => {
           : lessonSettings;
 
       const progressRows = (progressRes.data as Array<{ lesson: number; completed: boolean; stars: number }>) ?? [];
-      const reward = (rewardRes.data as { total_xp: number; total_stars: number; badges: unknown[]; streak: number } | null) ?? {
+      const reward = (rewardRes.data as { total_xp: number; total_stars: number; badges: unknown[]; streak: number; equipped_material?: RewardMaterial; intro_theme?: RewardTheme } | null) ?? {
         total_xp: 0,
         total_stars: 0,
         badges: [],
-        streak: 0,
+        streak: 0, equipped_material: 'wood' as RewardMaterial, intro_theme: 'blueprint' as RewardTheme,
       };
 
       const countByLesson = countProblemsFromRows(
@@ -605,10 +608,28 @@ Deno.serve(async (req: Request) => {
             totalStars: Number(reward.total_stars ?? 0),
             badges: progressRows.filter(p=>p.completed).map(p=>`${p.lesson}차시 완료`),
             streak: Number(reward.streak ?? 0),
+            equippedMaterial: reward.equipped_material ?? 'wood',
+            introTheme: reward.intro_theme ?? 'blueprint',
+            catalog: REWARD_CATALOG.map(item => ({ ...item, unlocked: rewardUnlocked(Number(reward.total_xp ?? 0) + activityXp, item.id) })),
           },
           lessons,
         },
       });
+    }
+
+    if (action === "rewards" || action === "rewards:equip") {
+      const rewardRes = await db.from("sb_student_rewards").select("total_xp,equipped_material,intro_theme").eq("student_id", studentSession.studentId).maybeSingle();
+      if (rewardRes.error) return fail(500, "REWARDS_LOAD_FAILED", "보상을 불러오지 못했어요.");
+      const xp = Number(rewardRes.data?.total_xp ?? 0);
+      if (action === "rewards:equip") {
+        const material = sanitizeMaterial(body.material) as RewardMaterial;
+        const theme = sanitizeTheme(body.theme) as RewardTheme;
+        const { data, error } = await db.rpc("sb_set_reward_loadout", { p_student: studentSession.studentId, p_material: material, p_theme: theme });
+        if (error) return fail(403, error.message === "REWARD_LOCKED" ? "REWARD_LOCKED" : "REWARD_EQUIP_FAILED", "아직 잠겨 있거나 사용할 수 없는 보상이에요.");
+        const row = Array.isArray(data) ? data[0] : data;
+        return ok({ xp, equippedMaterial: row?.equipped_material ?? material, introTheme: row?.intro_theme ?? theme, catalog: REWARD_CATALOG.map(item => ({ ...item, unlocked: rewardUnlocked(xp, item.id) })) });
+      }
+      return ok({ xp, equippedMaterial: rewardRes.data?.equipped_material ?? 'wood', introTheme: rewardRes.data?.intro_theme ?? 'blueprint', catalog: REWARD_CATALOG.map(item => ({ ...item, unlocked: rewardUnlocked(xp, item.id) })) });
     }
 
     if (action === "lessonProblems") {

@@ -3,6 +3,7 @@ import { canonicalize, validStructure } from '../../../shared/blocks.ts';
 import { grade } from '../../../shared/grading.ts';
 import { applyAttempt } from '../../../shared/attempts.ts';
 import type { BlockCoord } from '../../../shared/types.ts';
+import { sanitizeAppearance, sanitizeTheme, type RewardMaterial, type RewardTheme } from '../../../shared/rewards.ts';
 import { generateShareCode } from './security.ts';
 import { fail,ok,text } from './http.ts';
 import type { serviceClient } from './db.ts';
@@ -12,14 +13,16 @@ export async function activityRequest(db:ReturnType<typeof serviceClient>, body:
  const {data:lock,error:lockError}=await db.from('sb_lesson_settings').select('locked').eq('class_id',student.classId).eq('lesson',lesson).maybeSingle();
  if(lockError||lock?.locked!==false)return fail(403,'LESSON_LOCKED','선생님이 아직 열지 않은 차시예요.');
  if(action==='activity:project:get'){
-  const {data,error}=await db.from('sb_projects').select('building_name,reason,description,layer_notes,blocks,version,submitted,grid_width,grid_depth,max_height').eq('student_id',student.studentId).eq('class_id',student.classId).maybeSingle();
+ const {data,error}=await db.from('sb_projects').select('building_name,reason,description,layer_notes,blocks,block_appearance,intro_theme,version,submitted,grid_width,grid_depth,max_height').eq('student_id',student.studentId).eq('class_id',student.classId).maybeSingle();
   return error?fail(500,'LOAD_FAILED','설계를 불러오지 못했습니다.'):ok({building:data});
  }
  if(action==='activity:project:save'){
   const building=body.building as Building;
   if(building?.submitted&&lesson!==11)return fail(400,'SUBMIT_ON_LESSON_11','소개서 완성은 11차시에서 할 수 있습니다.');
   if(!building||!validBuilding(building,building.submitted)||!Number.isInteger(building.version))return fail(400,'INVALID_BUILDING','건축물 이름, 설계 이유, 3개 층의 설명과 3층 모양을 확인해 주세요.');
-  const {data,error}=await db.rpc('sb_save_building',{p_student:student.studentId,p_class:student.classId,p_version:building.version,p_data:{...building,blocks:canonicalize(building.blocks)}});
+  const appearance = sanitizeAppearance((building as Building & { block_appearance?: unknown }).block_appearance);
+  const theme = sanitizeTheme((building as Building & { intro_theme?: unknown }).intro_theme);
+  const {data,error}=await db.rpc('sb_save_building',{p_student:student.studentId,p_class:student.classId,p_version:building.version,p_data:{...building,blocks:canonicalize(building.blocks),block_appearance:appearance,intro_theme:theme}});
   return error?fail(error.message.includes('VERSION_CONFLICT')?409:500,'SAVE_CONFLICT','다른 창에서 수정했거나 저장에 실패했습니다. 기기 기록을 보관했습니다. 서버 상태를 다시 확인해 주세요.'):ok({version:data});
  }
  if(action==='activity:challenge:create'){

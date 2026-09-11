@@ -5,6 +5,7 @@ import type { BlockCoord } from '../shared/types.ts';
 import { generatePracticeProblems, getProblemTemplates, recommendedPracticeCount, validateGeneratedProblem } from '../shared/practiceGenerator.ts';
 import { equivalentDirections, projectionForDirection } from '../shared/spatialConventions.ts';
 import { clampProblemIndex, problemIndexForId } from '../shared/problemSession.ts';
+import { REWARD_CATALOG, levelForXp, rewardUnlocked, sanitizeAppearance } from '../shared/rewards.ts';
 
 const ten: BlockCoord[] = Array.from({ length: 10 }, (_, x) => ({ x: x % 5, y: Math.floor(x / 5), z: 0 }));
 
@@ -107,4 +108,21 @@ test('practice position restores by problem id and clamps safely', () => {
   assert.equal(clampProblemIndex(-2, problems.length), 0);
   assert.equal(clampProblemIndex(99, problems.length), 2);
   assert.equal(clampProblemIndex(0, 0), 0);
+});
+
+test('reward catalog unlocks usable materials and themes at deterministic XP thresholds', () => {
+  assert.equal(levelForXp(0), 1);
+  assert.equal(levelForXp(250), 3);
+  assert.equal(rewardUnlocked(49, 'material:pastel'), false);
+  assert.equal(rewardUnlocked(50, 'material:pastel'), true);
+  assert.equal(rewardUnlocked(249, 'theme:museum'), false);
+  assert.equal(rewardUnlocked(250, 'theme:museum'), true);
+  assert.ok(REWARD_CATALOG.every(item => item.useIn.length > 0));
+});
+
+test('appearance metadata is sanitized independently from mathematical coordinates', () => {
+  assert.deepEqual(sanitizeAppearance({ '0,0,0': 'brick', '1,0,0': 'unknown', bad: 'tile', '2,1,3': 'pastel' }), {
+    '0,0,0': 'brick', '1,0,0': 'wood', '2,1,3': 'pastel',
+  });
+  assert.deepEqual(sanitizeAppearance(null), {});
 });

@@ -23,7 +23,7 @@ Cloudflare는 개발자 계정 비용이 발생하지 않는 **순수 정적 호
 ## 버전 계약
 
 - 앱 버전은 `src/lib/config.ts`의 `APP_VERSION`(현재 `1.0.0`)에서 읽는다.
-- DB 계약 버전은 `SCHEMA_VERSION`(현재 `202609110015`)으로 표시한다.
+- DB 계약 버전은 `SCHEMA_VERSION`(현재 `202609110016`)으로 표시한다.
 - `getVersionState()`가 `currentAppVersion`, `requiredSchemaVersion`, `installedSchemaVersion`, `updateRequired`를 계산한다. 설치된 DB 버전이 부족하면 새 기능을 사용하기 전에 업데이트 필요 상태로 표시할 수 있다.
 - 기본 문제와 생성 문제는 기존의 안정적인 ID·`generatorVersion`·seed를 유지한다. 알고리즘을 바꿀 때는 새 generator version을 사용해 기존 학생의 문제가 바뀌지 않게 한다.
 

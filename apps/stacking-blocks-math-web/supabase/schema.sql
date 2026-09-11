@@ -202,6 +202,8 @@ create table if not exists public.sb_student_rewards (
   total_stars  int not null default 0,
   badges       jsonb not null default '[]'::jsonb,
   streak       int not null default 0,
+  equipped_material text not null default 'wood' check (equipped_material in ('wood','pastel','brick','tile')),
+  intro_theme  text not null default 'blueprint' check (intro_theme in ('blueprint','museum','sky')),
   updated_at   timestamptz not null default now()
 );
 
@@ -245,6 +247,8 @@ create table if not exists public.sb_projects (
   description   text not null default '',
   layer_notes   jsonb not null default '[]'::jsonb,
   blocks        jsonb not null default '[]'::jsonb,
+  block_appearance jsonb not null default '{}'::jsonb,
+  intro_theme   text not null default 'blueprint' check (intro_theme in ('blueprint','museum','sky')),
   grid_width    smallint not null default 5,
   grid_depth    smallint not null default 5,
   max_height    smallint not null default 5,

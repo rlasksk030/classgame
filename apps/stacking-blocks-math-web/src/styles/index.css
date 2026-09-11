@@ -535,6 +535,22 @@ button {
 .palette-cube span:nth-child(2) { width: 16px; height: 40px; left: 48px; top: 4px; transform: skewY(34deg); transform-origin: left top; background: var(--block-side); }
 .palette-cube span:nth-child(3) { width: 40px; height: 14px; left: 8px; top: 50px; transform: skewX(55deg); transform-origin: left top; background: var(--block-front); }
 .first-use-hint { margin: 4px 12px 0; color: var(--ink-soft); font-size: 13px; }
+.material-picker { display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+.material-picker strong { margin-right:2px; }
+.material-pastel { background:#f2d2df; color:#5d3b4b; }
+.material-brick { background:#d89a8d; color:#4d2620; }
+.material-tile { background:#b8d9e4; color:#173d4a; }
+.reward-card { display:flex; flex-direction:column; gap:8px; min-height:220px; }
+.reward-preview { width:64px; height:64px; display:grid; place-items:center; border:3px solid var(--block-outline); border-radius:10px; font-size:36px; }
+.reward-preview.material-wood { background:#d8b07a; }
+.reward-preview.material-pastel { background:#e9b8d1; }
+.reward-preview.material-brick { background:#c97b68; }
+.reward-preview.material-tile { background:#8eb8c9; }
+.reward-preview.theme-blueprint { background:#dfeaf5; color:#4b6680; }
+.reward-preview.theme-museum { background:#f0e1c4; color:#855c2d; }
+.reward-preview.theme-sky { background:#cceaf4; color:#2c7185; }
+.architecture-presentation.theme-museum { background:#fff8e9; border-color:#d9b978; }
+.architecture-presentation.theme-sky { background:#edfaff; border-color:#8ec7d8; }
 @media (min-width: 1000px) and (max-height: 800px) {
   .world-canvas { height: 42vh !important; min-height: 320px; }
 }

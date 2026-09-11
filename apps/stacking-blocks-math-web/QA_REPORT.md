@@ -84,3 +84,8 @@ npm run qa:visual
 npm run qa:renderer
 npm run test:e2e
 ```
+
+## XP 보상 공방 QA (2026-09-12)
+- 보상 카탈로그: 원목 0 XP, 파스텔 50 XP, 벽돌 150 XP, 타일 300 XP; 설계 도면 0 XP, 전시관 250 XP, 하늘 정원 450 XP.
+- 실제 사용 경로: `/world/rewards`에서 해금·미리보기·사용하기 → 10차시 블록 재료 → 11차시 소개서 테마. 프로젝트 저장 RPC가 외형 metadata와 테마를 보존한다.
+- 좌표 채점과 외형을 분리하고 순수 함수/단위 테스트를 통과시켰다. 원격 migration 적용과 실제 브라우저/Supabase 관통 검증은 이번 변경에서 수행하지 않았다.

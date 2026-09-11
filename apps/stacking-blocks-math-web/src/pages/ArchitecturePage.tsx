@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { ACTIVITY_GRID, ARCHITECTURE_GRID, EMPTY_BUILDING, validBuilding, type Building } from "../../shared/activities.ts";
 import { project, toLayers } from "../../shared/blocks.ts";
-import { activityApi, getStudentToken } from "../lib/studentApi";
+import { activityApi, getStudentHome, getStudentToken } from "../lib/studentApi";
 import { draftKey } from "../lib/snapshotDraft";
 import ActivityBuilder from "../features/activities/ActivityBuilder";
 import Representations from "../features/activities/Representations";
@@ -24,6 +24,8 @@ export default function ArchitecturePage() {
   const [busy, setBusy] = useState(false);
   const [activeFloor, setActiveFloor] = useState(0);
   const [showBuilder, setShowBuilder] = useState(isDesignLesson);
+  const [equippedMaterial, setEquippedMaterial] = useState<import('../../shared/rewards.ts').RewardMaterial>('wood');
+  const [rewardXp, setRewardXp] = useState(0);
   const current = useRef(building);
   const dirty = useRef(false);
   const saving = useRef(false);
@@ -59,8 +61,10 @@ export default function ArchitecturePage() {
   const saveRef = useRef(save); saveRef.current = save;
   useEffect(() => {
     let active = true; setReady(false);
-    void activityApi<{ building: Building | null }>("project:get", { lesson: lessonNumber }).then(({ building: server }) => {
+    void Promise.all([activityApi<{ building: Building | null }>("project:get", { lesson: lessonNumber }), getStudentHome()]).then(([{ building: server }, home]) => {
       if (!active) return;
+      setEquippedMaterial(home.rewards.equippedMaterial ?? 'wood');
+      setRewardXp(home.rewards.totalXp ?? 0);
       let draft: Building | null = null; try { draft = key ? JSON.parse(localStorage.getItem(key) ?? "null") : null; } catch { /* server remains available */ }
       const next = draft ?? server ?? EMPTY_BUILDING;
       const withGrid = next.grid_width && next.grid_depth && next.max_height ? next : { ...next, grid_width: builderGrid.gridWidth, grid_depth: builderGrid.gridDepth, max_height: builderGrid.maxHeight };
@@ -85,11 +89,14 @@ export default function ArchitecturePage() {
   const parsed = splitLayerNote(building.layer_notes[activeFloor] ?? "");
   const editFloor = <div className="stack"><div className="toolbar-row" role="tablist" aria-label="층 선택">{building.layer_notes.map((_, index) => <button key={index} type="button" role="tab" aria-selected={activeFloor === index} className={`btn btn-sm ${activeFloor === index ? "btn-primary" : ""}`} onClick={() => setActiveFloor(index)}>{index + 1}층</button>)}</div><strong>{activeFloor + 1}층 공간</strong><label>공간 이름<input className="field" maxLength={200} value={parsed.name} onChange={event => edit({ ...building, layer_notes: building.layer_notes.map((note, index) => index === activeFloor ? joinLayerNote(event.target.value, parsed.description) : note), submitted: false })} /></label><label>공간 설명<textarea className="field" maxLength={1800} value={parsed.description} onChange={event => edit({ ...building, layer_notes: building.layer_notes.map((note, index) => index === activeFloor ? joinLayerNote(parsed.name, event.target.value) : note), submitted: false })} /></label></div>;
   const projectionData = { projections: project(building.blocks, builderGrid), layers: toLayers(building.blocks, builderGrid) };
+  const appearance = building.block_appearance ?? {};
+  const allowedMaterials = (['wood','pastel','brick','tile'] as const).filter(material => material === 'wood' || (material === 'pastel' && rewardXp >= 50) || (material === 'brick' && rewardXp >= 150) || (material === 'tile' && rewardXp >= 300));
+  const onAppearanceChange = (next: Record<string, import('../../shared/rewards.ts').RewardMaterial>) => edit({ ...building, block_appearance: next, submitted: false });
 
   return <main className="screen app-max stack architecture-page">
     <h1>{isDesignLesson ? "10차시 · 나만의 건축물 설계하기" : "11차시 · 나만의 건축물 소개서 만들기"}</h1><Link to="/world">공간과 입체 월드</Link>
     <p role="status">{message || (!ready ? "설계를 불러오고 있어요." : isDesignLesson ? "건축물을 구상하고 설계해 보세요." : "10차시 설계를 다듬어 소개서를 완성해 보세요.")}</p>
-    {ready && isDesignLesson && <><div className="world-layout"><section className="stack"><p className="muted">② 3D 건축 설계 · {builderGrid.gridWidth}×{builderGrid.gridDepth} · 최대 3층</p><ActivityBuilder grid={builderGrid} blocks={building.blocks} onChange={blocks => edit({ ...building, blocks, submitted: false })} /></section><section className="panel stack"><h2>① 건축물 구상</h2>{editTextFields}<h2>③ 층별 공간 정하기</h2>{editFloor}<button className="btn" disabled={busy} onClick={() => void save()}>10차시 설계 저장</button></section></div><section className="panel"><strong>11차시 안내</strong><p className="muted">설계를 저장한 뒤 11차시에서 외부 모습과 층별 설명을 다듬어 소개서를 완성해요.</p></section></>}
-    {ready && !isDesignLesson && <><section className="panel stack architecture-presentation"><h2>나만의 건축물 소개서</h2><h3>{building.building_name || "이름을 지어 주세요"}</h3><p>{building.reason}</p><p>{building.description}</p><Representations given={projectionData} /><div className="stack">{building.layer_notes.map((note, index) => { const floor = splitLayerNote(note); return <p key={index}><strong>{index + 1}층 · {floor.name || "공간 이름을 지어 주세요"}</strong>{floor.description && ` — ${floor.description}`}</p>; })}</div><p className="status-chip">{building.submitted ? "완성된 소개서" : "작성 중인 소개서"}</p></section><section className="panel stack"><h2>소개서 다듬기</h2>{editTextFields}{editFloor}<div className="toolbar-row"><button className="btn" disabled={busy} onClick={() => void save()}>설계 저장</button><button className="btn btn-primary" disabled={busy} onClick={() => void save(true)}>소개서 완성</button><button className="btn" onClick={() => setShowBuilder(value => !value)}>{showBuilder ? "3D 설계 닫기" : "건축물 수정하기"}</button></div></section>{showBuilder && <section className="panel"><ActivityBuilder grid={builderGrid} blocks={building.blocks} onChange={blocks => edit({ ...building, blocks, submitted: false })} /></section>}</>}
+    {ready && isDesignLesson && <><div className="world-layout"><section className="stack"><p className="muted">② 3D 건축 설계 · {builderGrid.gridWidth}×{builderGrid.gridDepth} · 최대 3층</p><ActivityBuilder grid={builderGrid} blocks={building.blocks} appearance={appearance} activeMaterial={allowedMaterials.includes(equippedMaterial) ? equippedMaterial : 'wood'} allowedMaterials={[...allowedMaterials]} onAppearanceChange={onAppearanceChange} onChange={blocks => edit({ ...building, blocks, submitted: false })} /></section><section className="panel stack"><h2>① 건축물 구상</h2>{editTextFields}<h2>③ 층별 공간 정하기</h2>{editFloor}<button className="btn" disabled={busy} onClick={() => void save()}>10차시 설계 저장</button></section></div><section className="panel"><strong>11차시 안내</strong><p className="muted">설계를 저장한 뒤 11차시에서 외부 모습과 층별 설명을 다듬어 소개서를 완성해요.</p></section></>}
+    {ready && !isDesignLesson && <><section className={`panel stack architecture-presentation theme-${building.intro_theme ?? 'blueprint'}`}><h2>나만의 건축물 소개서</h2><h3>{building.building_name || "이름을 지어 주세요"}</h3><p>{building.reason}</p><p>{building.description}</p><Representations given={projectionData} /><div className="stack">{building.layer_notes.map((note, index) => { const floor = splitLayerNote(note); return <p key={index}><strong>{index + 1}층 · {floor.name || "공간 이름을 지어 주세요"}</strong>{floor.description && ` — ${floor.description}`}</p>; })}</div><p className="status-chip">{building.submitted ? "완성된 소개서" : "작성 중인 소개서"}</p></section><section className="panel stack"><h2>소개서 다듬기</h2>{editTextFields}<label>소개서 테마<select className="field" value={building.intro_theme ?? 'blueprint'} onChange={e => edit({ ...building, intro_theme: e.target.value as Building['intro_theme'], submitted: false })}><option value="blueprint">설계 도면</option><option value="museum" disabled={rewardXp < 250}>전시관 {rewardXp < 250 ? '(250 XP 필요)' : ''}</option><option value="sky" disabled={rewardXp < 450}>하늘 정원 {rewardXp < 450 ? '(450 XP 필요)' : ''}</option></select></label>{editFloor}<div className="toolbar-row"><button className="btn" disabled={busy} onClick={() => void save()}>설계 저장</button><button className="btn btn-primary" disabled={busy} onClick={() => void save(true)}>소개서 완성</button><button className="btn" onClick={() => setShowBuilder(value => !value)}>{showBuilder ? "3D 설계 닫기" : "건축물 수정하기"}</button></div></section>{showBuilder && <section className="panel"><ActivityBuilder grid={builderGrid} blocks={building.blocks} appearance={appearance} activeMaterial={allowedMaterials.includes(equippedMaterial) ? equippedMaterial : 'wood'} allowedMaterials={[...allowedMaterials]} onAppearanceChange={onAppearanceChange} onChange={blocks => edit({ ...building, blocks, submitted: false })} /></section>}</>}
   </main>;
 }
