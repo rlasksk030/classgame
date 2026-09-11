@@ -54,6 +54,16 @@ export function normalizePin(pin: unknown): string {
   return text.slice(0, 4).padStart(4, "0");
 }
 
+/** 학생 이름은 저장·로그인 양쪽에서 같은 유니코드/공백 규칙을 사용한다. */
+export function normalizeStudentName(name: unknown): string {
+  return String(name ?? "").normalize("NFKC").trim().replace(/\s+/gu, " ");
+}
+
+/** URL·입력 방식에 관계없이 반 코드를 동일하게 비교한다. */
+export function normalizeClassCode(classCode: unknown): string {
+  return String(classCode ?? "").normalize("NFKC").trim().toUpperCase();
+}
+
 export function isValidPinFormat(pin: unknown): boolean {
   return /^\d{4}$/.test(String(pin ?? "").trim());
 }

@@ -153,3 +153,11 @@
 - 교사 화면은 학급 생성 실패를 `CLASS_CREATE_AUTH/PERMISSION/VALIDATION/NETWORK/SERVER`로 분류해 버튼 아래 즉시 표시하고, 성공 시 생성된 학급을 바로 선택하고 목록을 다시 불러온다.
 - 이번 수정에서는 migration, RLS, 권한, 다른 Edge Function을 변경하지 않았고 기존 `student-api`를 아직 재배포하지 않았다. 배포 후 실제 학급 생성 재검증이 필요하다.
 - 회귀 검증: `npm test` 25개, `npm run test:security`, `npm run typecheck`, `npm run lint`, `npm run typecheck:edge`, `npm run build` 통과. 테스트 계정·학급·학생 데이터는 생성하지 않았다.
+
+## 학생 로그인 조회 진단 및 정규화 (2026-09-11)
+- 호출 경로는 학생 화면 `loginStudent()` → `student-auth`의 `class` 조회 → `sb_students`의 `class_id + name` 조회 → 상태/잠금 확인 → `hashPin()` 대조 → `issueSessionToken()` 발급이다. 교사 학생 생성도 `teacher:students:create`에서 같은 `sb_students`와 `class_id`를 사용한다.
+- 기존 `student-auth`는 학급·학생 조회 오류를 모두 빈 결과로 처리해 `STUDENT_NOT_FOUND`로 오인할 수 있었고, 이름은 단순 문자열 비교만 했다. 새 코드에서는 class code와 학생 로그인 이름을 각각 NFKC/trim/연속 공백 정리 후 비교한다. 교사 학생 생성 경로는 기존처럼 `text()`의 trim 규칙을 유지해 이번 문제 범위에서 `student-api`는 재배포하지 않는다.
+- 오류 코드를 `CLASS_NOT_FOUND`, `STUDENT_NOT_FOUND`, `STUDENT_INACTIVE`, `PIN_INVALID`, `STUDENT_AUTH_SERVER`로 분리하고 학생 화면에서 안전한 한국어 메시지로 표시한다. PIN 원문·세션 비밀값은 로그에 기록하지 않는다.
+- `student-auth` 변경은 로컬 코드와 테스트에 반영했지만, 실제 stacking-blocks-math 함수 재배포와 운영 학생 row/로그인 관통 검증은 아직 실행하지 못했다. `student-api`, RLS, PIN Vault, `APP_SESSION_SECRET`은 변경하지 않았다.
+- `student-auth` 배포 명령은 실행했으나 이 환경에 Supabase CLI access token이 없어 `LegacyPlatformAuthRequiredError`로 중단됐다. 토큰이나 비밀번호는 요청·출력하지 않았다.
+- 로컬 검증: `npm test` 27개, `npm run typecheck`, `npm run lint`, `npm run typecheck:edge`, `npm run build`, `npm run test:security` 통과.

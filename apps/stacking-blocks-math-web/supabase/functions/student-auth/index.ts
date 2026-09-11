@@ -4,6 +4,8 @@ import {
   hashPin,
   isValidPinFormat,
   issueSessionToken,
+  normalizeClassCode,
+  normalizeStudentName,
   PIN_LOCK_MINUTES,
   PIN_MAX_FAILED_ATTEMPTS,
 } from "../_shared/security.ts";
@@ -41,15 +43,20 @@ Deno.serve(async (req) => {
 
   const body = await readJson(req);
   const action = text(body.action, 30) || "login";
-  const classCode = text(body.classCode, 12).toUpperCase();
+  const classCode = normalizeClassCode(text(body.classCode, 12));
 
   if (!classCode) return fail(400, "CLASS_REQUIRED", "반 접속 코드가 없습니다. 선생님이 주신 링크로 들어와 주세요.");
 
-  const { data: klass } = await db
+  const { data: klass, error: classError } = await db
     .from("sb_classes")
     .select("id, name")
     .eq("class_code", classCode)
     .maybeSingle();
+
+  if (classError) {
+    console.error("[student-auth] class lookup failed", { code: classError.code, message: classError.message });
+    return fail(500, "STUDENT_AUTH_SERVER", "학생 로그인을 처리하지 못했어요. 잠시 뒤 다시 시도해 주세요.");
+  }
 
   if (!klass) {
     return fail(404, "CLASS_NOT_FOUND", "반을 찾지 못했어요. 선생님이 주신 링크가 맞는지 확인해 주세요.");
@@ -62,7 +69,7 @@ Deno.serve(async (req) => {
 
   if (action !== "login") return fail(400, "BAD_ACTION", "알 수 없는 요청입니다.");
 
-  const name = text(body.name, 30);
+  const name = normalizeStudentName(text(body.name, 30));
   const pin = text(body.pin, 8);
   const studentNo = Number.isFinite(Number(body.studentNo)) ? Number(body.studentNo) : null;
 
@@ -70,15 +77,22 @@ Deno.serve(async (req) => {
   if (!isValidPinFormat(pin)) return fail(400, "PIN_FORMAT", "PIN 은 숫자 4자리예요.");
 
   // 동명이인이 있을 수 있으므로 같은 이름을 모두 찾는다 (명세 5).
-  let query = db
+  // 저장된 이름의 과거 공백/유니코드 차이도 같은 규칙으로 비교한다.
+  // 학급 단위로만 가져오며, 후보 행은 학생에게 반환하지 않는다.
+  const query = db
     .from("sb_students")
     .select("id, class_id, name, student_no, pin_hash, failed_attempts, locked_until, status")
-    .eq("class_id", klass.id)
-    .eq("name", name);
-  if (studentNo !== null) query = query.eq("student_no", studentNo);
+    .eq("class_id", klass.id);
 
-  const { data: rows } = await query;
-  const candidates = (rows ?? []) as StudentRow[];
+  const { data: rows, error: studentError } = await query;
+  if (studentError) {
+    console.error("[student-auth] student lookup failed", { code: studentError.code, message: studentError.message });
+    return fail(500, "STUDENT_AUTH_SERVER", "학생 로그인을 처리하지 못했어요. 잠시 뒤 다시 시도해 주세요.");
+  }
+  const candidates = ((rows ?? []) as StudentRow[]).filter((candidate) => {
+    if (normalizeStudentName(candidate.name) !== name) return false;
+    return studentNo === null || candidate.student_no === studentNo;
+  });
 
   if (candidates.length === 0) {
     return fail(404, "STUDENT_NOT_FOUND", "이름을 찾지 못했어요. 선생님께 확인해 주세요.");
@@ -99,7 +113,7 @@ Deno.serve(async (req) => {
   const student = candidates[0];
 
   if (student.status !== "active") {
-    return fail(403, "STUDENT_DISABLED", "지금은 이 계정을 쓸 수 없어요. 선생님께 말씀해 주세요.");
+    return fail(403, "STUDENT_INACTIVE", "지금은 이 계정을 쓸 수 없어요. 선생님께 말씀해 주세요.");
   }
 
   if (student.locked_until && new Date(student.locked_until).getTime() > Date.now()) {
@@ -134,7 +148,7 @@ Deno.serve(async (req) => {
     }
     return fail(
       401,
-      "PIN_MISMATCH",
+      "PIN_INVALID",
       `PIN 이 맞지 않아요. (${PIN_MAX_FAILED_ATTEMPTS - failedAttempts}번 더 틀리면 잠깁니다)`,
     );
   }

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 
 import { classCodeFromUrl, isConfigured } from "@/lib/config";
+import { studentAuthErrorMessage } from "@/lib/studentAuthErrors";
 import {
   fetchClassInfo,
   loginStudent,
@@ -52,9 +53,7 @@ export default function StudentLogin() {
       setStudentToken(success.token);
       navigate("/world", { replace: true });
     } catch (err) {
-      setError(
-        err instanceof StudentApiError ? err.message : "로그인하지 못했어요. 다시 해 주세요.",
-      );
+      setError(err instanceof StudentApiError ? studentAuthErrorMessage(err) : "로그인하지 못했어요. 다시 해 주세요.");
     } finally {
       setBusy(false);
     }
