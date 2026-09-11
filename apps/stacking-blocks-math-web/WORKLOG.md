@@ -6,6 +6,12 @@
 - 재접속 시 저장된 문제 ID를 세트 인덱스로 복원하는 순수 함수와 경계값 테스트를 추가했다. 기존 `practice_seed`, 시도 기록, 블록 snapshot 저장은 변경하지 않았다.
 - 검증: `npm run typecheck`, `npm run lint`, `npm test`(36개), `npm run typecheck:edge`, `npm run build` 통과. Playwright는 기존 샌드박스 로컬 포트 제한으로 별도 미실행.
 
+## 학습 workspace·건축판·3D 테마 보강 (2026-09-12)
+- 학생/교사 콘텐츠 폭을 최대 1600px의 유동 레이아웃으로 확장하고, 데스크톱의 여러 답안 격자와 층별 자료가 가로로 비교되도록 보완했다.
+- 건축 프로젝트 기본 작업판을 8×8×3으로 분리했다. `Building`에 grid 메타데이터를 담고 `202609110015_architecture_grid.sql`에서 저장/복원하며, 메타데이터가 없는 기존 5×5 기록은 서버 값을 통해 그대로 연다.
+- 앞 방향 표식을 작업판 앞쪽 경계 중앙의 `앞쪽 경계 ↑`로 정리하고 보관함 CSS 블록을 원목 베이지 팔레트로 맞췄다.
+- 원격 Supabase에는 015 migration을 아직 적용하지 않았으므로 배포 전에 001~015 순서 적용이 필요하다.
+
 ## 추가 presentation·QA 보강 (2026-09-12)
 - 학생 답안 영역에 `data-answer-renderer` 계약 표식을 추가하고 Playwright Renderer mount 테스트를 준비했다. 3차시 세 격자와 8차시 층별 입력 격자가 실제 DOM에 생성되는지 확인한다.
 - 9차시 친구 문제 카드에 `위에서 본 모양` 단일 투영을 추가했다. `ChallengeType`·Edge Function 채점·힌트 검증과 전용 migration `202609110014_challenge_top_type.sql`을 함께 갱신했다.

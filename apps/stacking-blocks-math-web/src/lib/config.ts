@@ -11,7 +11,7 @@ export const SUPABASE_URL = viteFallbackEnabled ? runtimeEnv.VITE_SUPABASE_URL a
 export const SUPABASE_PUBLISHABLE_KEY = viteFallbackEnabled ? runtimeEnv.VITE_SUPABASE_PUBLISHABLE_KEY as string | undefined : undefined;
 
 export const APP_VERSION = "1.0.0";
-export const SCHEMA_VERSION = "202609110014";
+export const SCHEMA_VERSION = "202609110015";
 export const INSTALLATION_CONFIG_KEY = "stacking-installation-config";
 
 export type AppEnvironment = "development" | "staging" | "production";

@@ -6,9 +6,16 @@
 
 :root {
   /* 바탕 */
-  --bg: #f3efe4;
+  --bg: #eef2f5;
   --bg-panel: #ffffff;
   --bg-sunken: #e8e2d3;
+  --world-bg: #f4f7fa;
+  --board-bg: #cfd8df;
+  --grid-line: #8fa2b2;
+  --block-top: #ead5b1;
+  --block-front: #d8b07a;
+  --block-side: #b98f5d;
+  --block-outline: #88663f;
 
   /* 글자 */
   --ink: #2b2a26;
@@ -220,7 +227,7 @@ button {
 
 /* 1366x768 노트북에서도 중요한 버튼이 잘리지 않도록 여유를 둔다 (명세 3). */
 .app-max {
-  width: min(1180px, 100%);
+  width: min(1600px, calc(100% - 24px));
   margin: 0 auto;
   padding: 16px;
 }
@@ -357,7 +364,7 @@ button {
   position: relative;
   border: var(--edge) solid var(--line);
   border-radius: var(--radius);
-  background: #f4f7fa;
+  background: var(--world-bg);
   overflow: hidden;
 }
 
@@ -389,6 +396,25 @@ button {
 .answer-box {
   display: grid;
   gap: 8px;
+}
+
+/* 넓은 화면에서는 여러 방향·층 자료를 한 행에서 비교한다. */
+@media (min-width: 900px) {
+  .answer-box > .answer-box {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 14px;
+  }
+
+  .answer-box > .answer-box > .projection-area {
+    flex: 1 1 180px;
+    min-width: 0;
+  }
+
+  .architecture-page .world-canvas {
+    height: clamp(460px, 68vh, 680px) !important;
+  }
 }
 
 .projection-table {
@@ -426,13 +452,14 @@ button {
 .front-direction-label {
   position: absolute;
   z-index: 2;
-  left: 12px;
-  top: 58px;
+  left: 50%;
+  bottom: 52px;
+  transform: translateX(-50%);
   padding: 4px 9px;
-  border: 2px solid #245b8a;
+  border: 2px solid var(--sky-dark);
   border-radius: 6px;
   background: rgba(255, 255, 255, .9);
-  color: #245b8a;
+  color: var(--sky-dark);
   font-weight: 800;
   pointer-events: none;
 }
@@ -478,10 +505,10 @@ button {
   min-height: 92px;
   min-width: min(310px, 100%);
   padding: 12px 16px;
-  border: 3px solid #3b6c45;
+  border: 3px solid var(--grid-line);
   border-radius: 12px;
-  background: #f5ffe9;
-  box-shadow: 0 3px 0 #a6c997;
+  background: #fbfcfd;
+  box-shadow: 0 3px 0 #c3ced6;
   cursor: grab;
   touch-action: none;
   user-select: none;
@@ -489,8 +516,8 @@ button {
 .block-palette:active { cursor: grabbing; }
 .block-palette:focus-visible { outline: 3px solid #276ef1; outline-offset: 2px; }
 .block-palette strong, .block-palette small { display: block; }
-.block-palette strong { color: #244b2e; font-size: 16px; }
-.block-palette small { margin-top: 5px; color: #53705a; font-size: 13px; }
+.block-palette strong { color: var(--ink); font-size: 16px; }
+.block-palette small { margin-top: 5px; color: var(--ink-soft); font-size: 13px; }
 .palette-cube {
   position: relative;
   width: 56px;
@@ -499,11 +526,11 @@ button {
   transform: rotate(-10deg) skewY(-4deg);
   transform-style: preserve-3d;
 }
-.palette-cube span { position: absolute; display: block; border: 2px solid rgba(43, 84, 48, .55); }
-.palette-cube span:nth-child(1) { width: 40px; height: 40px; left: 8px; top: 10px; background: #74b95d; }
-.palette-cube span:nth-child(2) { width: 16px; height: 40px; left: 48px; top: 4px; transform: skewY(34deg); transform-origin: left top; background: #4e934e; }
-.palette-cube span:nth-child(3) { width: 40px; height: 14px; left: 8px; top: 50px; transform: skewX(55deg); transform-origin: left top; background: #3e7d43; }
-.first-use-hint { margin: 4px 12px 0; color: #405b47; font-size: 13px; }
+.palette-cube span { position: absolute; display: block; border: 2px solid var(--block-outline); }
+.palette-cube span:nth-child(1) { width: 40px; height: 40px; left: 8px; top: 10px; background: var(--block-top); }
+.palette-cube span:nth-child(2) { width: 16px; height: 40px; left: 48px; top: 4px; transform: skewY(34deg); transform-origin: left top; background: var(--block-side); }
+.palette-cube span:nth-child(3) { width: 40px; height: 14px; left: 8px; top: 50px; transform: skewX(55deg); transform-origin: left top; background: var(--block-front); }
+.first-use-hint { margin: 4px 12px 0; color: var(--ink-soft); font-size: 13px; }
 @media (min-width: 1000px) and (max-height: 800px) {
   .world-canvas { height: 42vh !important; min-height: 320px; }
 }

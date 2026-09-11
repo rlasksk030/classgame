@@ -16,6 +16,9 @@
 | Edge Function typecheck | PASS |
 | Production build | PASS |
 | Practice current-position persistence | PASS — `last_problem_id` hydration and explicit position updates; reset-on-stage effect removed; unit coverage added |
+| Wide learning workspace | PASS — fluid 1600px desktop frame and horizontal multi-grid layout |
+| Architecture workspace | PASS — new projects use 8×8×3; persisted grid metadata keeps legacy records readable |
+| Front marker / palette theme | PASS — front edge label clarified; palette cube uses the neutral wood token colors |
 
 ## 차시별 점검
 

@@ -29,7 +29,11 @@ export default function ArchitecturePage() {
   const saving = useRef(false);
   const revisionRef = useRef(0);
   const key = draftKey(getStudentToken(), "architecture");
-  const builderGrid = building.blocks.some(block => block.x >= ARCHITECTURE_GRID.gridWidth || block.z >= ARCHITECTURE_GRID.gridDepth) ? ACTIVITY_GRID : ARCHITECTURE_GRID;
+  // 새 프로젝트는 8×8을 사용하고, grid 메타데이터가 없는 예전 5×5 저장물만
+  // 기존 작업판으로 열어 호환한다.
+  const builderGrid = building.grid_width && building.grid_depth && building.max_height
+    ? { gridWidth: building.grid_width, gridDepth: building.grid_depth, maxHeight: building.max_height }
+    : (building.blocks.some(block => block.x >= 5 || block.z >= 5) ? ARCHITECTURE_GRID : ACTIVITY_GRID);
 
   useEffect(() => { setShowBuilder(isDesignLesson); }, [isDesignLesson]);
   const edit = (next: Building) => {
@@ -58,7 +62,9 @@ export default function ArchitecturePage() {
     void activityApi<{ building: Building | null }>("project:get", { lesson: lessonNumber }).then(({ building: server }) => {
       if (!active) return;
       let draft: Building | null = null; try { draft = key ? JSON.parse(localStorage.getItem(key) ?? "null") : null; } catch { /* server remains available */ }
-      const next = draft ?? server ?? EMPTY_BUILDING; current.current = next; setBuilding(next); dirty.current = Boolean(draft); setReady(true);
+      const next = draft ?? server ?? EMPTY_BUILDING;
+      const withGrid = next.grid_width && next.grid_depth && next.max_height ? next : { ...next, grid_width: builderGrid.gridWidth, grid_depth: builderGrid.gridDepth, max_height: builderGrid.maxHeight };
+      current.current = withGrid; setBuilding(withGrid); dirty.current = Boolean(draft); setReady(true);
       if (draft && draft.version !== (server?.version ?? 0)) setMessage("기기에 저장된 최신 설계를 불러왔어요. 저장하면 서버에 반영됩니다.");
     }).catch(() => {
       if (!active) return;
@@ -80,7 +86,7 @@ export default function ArchitecturePage() {
   const editFloor = <div className="stack"><div className="toolbar-row" role="tablist" aria-label="층 선택">{building.layer_notes.map((_, index) => <button key={index} type="button" role="tab" aria-selected={activeFloor === index} className={`btn btn-sm ${activeFloor === index ? "btn-primary" : ""}`} onClick={() => setActiveFloor(index)}>{index + 1}층</button>)}</div><strong>{activeFloor + 1}층 공간</strong><label>공간 이름<input className="field" maxLength={200} value={parsed.name} onChange={event => edit({ ...building, layer_notes: building.layer_notes.map((note, index) => index === activeFloor ? joinLayerNote(event.target.value, parsed.description) : note), submitted: false })} /></label><label>공간 설명<textarea className="field" maxLength={1800} value={parsed.description} onChange={event => edit({ ...building, layer_notes: building.layer_notes.map((note, index) => index === activeFloor ? joinLayerNote(parsed.name, event.target.value) : note), submitted: false })} /></label></div>;
   const projectionData = { projections: project(building.blocks, builderGrid), layers: toLayers(building.blocks, builderGrid) };
 
-  return <main className="screen app-max stack">
+  return <main className="screen app-max stack architecture-page">
     <h1>{isDesignLesson ? "10차시 · 나만의 건축물 설계하기" : "11차시 · 나만의 건축물 소개서 만들기"}</h1><Link to="/world">공간과 입체 월드</Link>
     <p role="status">{message || (!ready ? "설계를 불러오고 있어요." : isDesignLesson ? "건축물을 구상하고 설계해 보세요." : "10차시 설계를 다듬어 소개서를 완성해 보세요.")}</p>
     {ready && isDesignLesson && <><div className="world-layout"><section className="stack"><p className="muted">② 3D 건축 설계 · {builderGrid.gridWidth}×{builderGrid.gridDepth} · 최대 3층</p><ActivityBuilder grid={builderGrid} blocks={building.blocks} onChange={blocks => edit({ ...building, blocks, submitted: false })} /></section><section className="panel stack"><h2>① 건축물 구상</h2>{editTextFields}<h2>③ 층별 공간 정하기</h2>{editFloor}<button className="btn" disabled={busy} onClick={() => void save()}>10차시 설계 저장</button></section></div><section className="panel"><strong>11차시 안내</strong><p className="muted">설계를 저장한 뒤 11차시에서 외부 모습과 층별 설명을 다듬어 소개서를 완성해요.</p></section></>}

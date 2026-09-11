@@ -12,7 +12,7 @@ export async function activityRequest(db:ReturnType<typeof serviceClient>, body:
  const {data:lock,error:lockError}=await db.from('sb_lesson_settings').select('locked').eq('class_id',student.classId).eq('lesson',lesson).maybeSingle();
  if(lockError||lock?.locked!==false)return fail(403,'LESSON_LOCKED','선생님이 아직 열지 않은 차시예요.');
  if(action==='activity:project:get'){
-  const {data,error}=await db.from('sb_projects').select('building_name,reason,description,layer_notes,blocks,version,submitted').eq('student_id',student.studentId).eq('class_id',student.classId).maybeSingle();
+  const {data,error}=await db.from('sb_projects').select('building_name,reason,description,layer_notes,blocks,version,submitted,grid_width,grid_depth,max_height').eq('student_id',student.studentId).eq('class_id',student.classId).maybeSingle();
   return error?fail(500,'LOAD_FAILED','설계를 불러오지 못했습니다.'):ok({building:data});
  }
  if(action==='activity:project:save'){

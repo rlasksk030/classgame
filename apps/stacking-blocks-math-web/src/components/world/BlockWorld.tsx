@@ -96,7 +96,7 @@ export default function BlockWorld(props: WorldProps) {
         <button type="button" className="btn" onClick={place}>{props.selected ? '선택 블록 옮기기' : '쌓기'}</button>
       </details>
     </div>}
-    <div className="front-direction-label" aria-label="작업판 앞 방향">↑ 앞</div>
+    <div className="front-direction-label" aria-label="작업판 앞쪽 경계">앞쪽 경계 ↑</div>
     <p className="muted" style={{ padding: '0 12px' }}>빈 곳을 끌면 회전 · 두 손가락이나 휠로 확대 · 블록을 잡으면 이동</p>
     {!props.disabled && showFirstUseHint && <p className="first-use-hint">처음 사용: 1) 블록을 잡아요 2) 작업판에 놓아요 3) 빈 곳을 끌어 돌려요 4) 두 손가락이나 휠로 확대해요</p>}
   </div>;
