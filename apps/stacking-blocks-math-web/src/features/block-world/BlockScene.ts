@@ -20,6 +20,7 @@ export interface SceneState {
   layerOnly?: number | null;
   answerGhost?: BlockCoord[];
   disabled?: boolean;
+  allowRotate?: boolean;
 }
 export interface SceneCallbacks {
   change: (blocks: BlockCoord[]) => void;
@@ -113,6 +114,8 @@ export class BlockScene {
 
   update(state: SceneState) {
     this.state = state;
+    if (state.allowRotate === false) this.camera.detachControl();
+    else if (!this.drag) this.camera.attachControl(this.canvas, true);
     const keys = new Set(state.blocks.map(keyOf));
     for (const [key, mesh] of this.cubes) if (!keys.has(key)) { mesh.dispose(); this.cubes.delete(key); }
     for (const block of state.blocks) {
@@ -226,7 +229,7 @@ export class BlockScene {
   };
   private cancel = (event: PointerEvent) => { this.pointers.delete(event.pointerId); if (this.drag?.id === event.pointerId) this.finish(); };
   private blur = () => { this.pointers.clear(); this.finish(); };
-  private finish() { this.drag = null; this.candidate = null; this.ghost?.setEnabled(false); this.camera.attachControl(this.canvas, true); }
+  private finish() { this.drag = null; this.candidate = null; this.ghost?.setEnabled(false); if (this.state.allowRotate !== false) this.camera.attachControl(this.canvas, true); }
 
   dispose() {
     this.resize.disconnect();

@@ -82,6 +82,7 @@ export default function LessonPage() {
 
   const [blocks, setBlocks] = useState<StudentProblem["givenBlocks"]>([]);
   const [selection, setSelection] = useState<StudentProblem["givenBlocks"][number] | null>(null);
+  const [extraInformation, setExtraInformation] = useState(false);
   const [preset, setPreset] = useState<ViewPreset>("home");
   const [layerFilter, setLayerFilter] = useState<number | null>(null);
 
@@ -178,7 +179,8 @@ export default function LessonPage() {
     setRestoring(true);
     setProblem(next);
     setSelection(null);
-    setPreset("home");
+    setExtraInformation(false);
+    setPreset(next.given.allowRotate === false ? "front" : "home");
     setMessage(null);
     setResult(null);
     setCountInput("");
@@ -385,7 +387,7 @@ export default function LessonPage() {
       }));
       setMessage(response.grade.message);
 
-      if (response.grade.completed && problems.length > 0 && !response.grade.needsRebuild) {
+      if (response.grade.completed && problems.length > 0 && !response.grade.needsRebuild && problem.given.allowRotate !== false) {
         if (problemIndex + 1 < problems.length) {
           setTimeout(() => {
             setProblemIndex((next) => next + 1);
@@ -592,6 +594,7 @@ export default function LessonPage() {
             ) : null}
 
             <BlockWorld
+              allowRotate={problem.given.allowRotate !== false || extraInformation}
               grid={problem.grid}
               blocks={isBuildType(problem.problemType) ? blocks : problem.givenBlocks}
               selected={selection}
@@ -614,6 +617,10 @@ export default function LessonPage() {
               <h3>문항 {problemIndex + 1} / {problems.length}</h3>
               <p className="muted">{PROBLEM_TYPE_LABELS[problem.problemType]}</p>
               <p>{problem.prompt}</p>
+              {problem.given.allowRotate === false && <div className="stack">
+                <p>{extraInformation ? "이제 돌려 보며 가려진 블록을 확인해 보세요." : "지금은 앞에서 본 모습만 볼 수 있어요. 먼저 판단해 답을 제출해 보세요."}</p>
+                <button className="btn" disabled={!result && !attempt.wrongCount && !attempt.completed} onClick={()=>setExtraInformation(true)}>추가 정보 확인</button>
+              </div>}
               {isBuildType(problem.problemType) && <div className="answer-box">
                 {(["top","front","side"] as const).map(face=>problem.given.projections?.[face] && <ProjectionGrid key={face} title={{top:"위에서 본 조건",front:"앞에서 본 조건",side:"옆에서 본 조건"}[face]} rows={problem.given.projections[face]!} reverseRows={face!=="top"} editable={false} onChange={()=>undefined} valueType="boolean" />)}
                 {problem.given.heightMap && <ProjectionGrid title="숫자 지도 조건" rows={problem.given.heightMap} editable={false} onChange={()=>undefined} valueType="number" />}

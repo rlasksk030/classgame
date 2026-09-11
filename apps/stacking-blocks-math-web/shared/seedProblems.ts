@@ -344,16 +344,16 @@ export const SEED_PROBLEMS: SeedProblem[] = [
     code: "L5-01",
     lesson: 5,
     orderIndex: 1,
-    problemType: "COUNT_AMBIGUOUS",
+    problemType: "CHOICE",
     title: "이 각도에서만 보고 맞혀 보기",
     prompt:
-      "지금은 화면을 돌릴 수 없습니다.\n보이는 대로 쌓기나무가 모두 몇 개일지 예상해 보세요.",
+      "지금은 화면을 돌릴 수 없습니다.\n이 정보만으로 전체 개수를 정확히 알 수 있을까요?",
     grid: G4,
     givenBlocks: S7,
     startBlocks: [],
     given: { allowRotate: false, note: "이 문제에서는 화면을 돌릴 수 없어요." },
-    choices: [],
-    answer: { kind: "count", value: countOf(S7) },
+    choices: ["정확히 알 수 있어요", "가려진 곳의 정보가 더 필요해요"],
+    answer: { kind: "choice", index: 1 },
     gradingMode: "exact",
     hint: "앞에 있는 쌓기나무 뒤에 가려진 자리가 있을 수 있어요. 보이는 것보다 많을 수 있습니다.",
     explanation:
@@ -660,3 +660,10 @@ export function seedForLesson(lesson: number): SeedProblem[] {
 }
 
 export { grid2d, shape };
+
+const sixth = SEED_PROBLEMS.find(p => p.code === "L6-01")!;
+SEED_PROBLEMS.push({ ...sixth, code:"L6-03", orderIndex:3, title:"조건을 만족하는 다른 모양", gradingMode:"constraint", prompt:"위·앞·옆의 조건을 모두 만족하도록 쌓아 보세요. 조건이 같으면 다른 모양도 정답이에요." });
+for (const [source, code, order] of [["L2-01","L12-04",4],["L7-02","L12-05",5],["L8-02","L12-06",6]] as const) {
+  const original = SEED_PROBLEMS.find(p => p.code === source)!;
+  SEED_PROBLEMS.push({ ...original, code, lesson:12, orderIndex:order, title:`단원 마무리 · ${original.title}` });
+}

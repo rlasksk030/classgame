@@ -81,3 +81,17 @@ test('failed server save retains local draft across reload then syncs',async({pa
   await page.evaluate(()=>window.dispatchEvent(new Event('online')));
   await expect.poll(()=>state.getSaved().length).toBe(1);
 });
+
+test('lesson 5 restricts its initial camera and unlocks after answering and requesting information',async({page})=>{
+ await page.addInitScript(()=>localStorage.setItem('sb.student.token','test'));
+ const target={...problem,lesson:5,problemType:'CHOICE',givenBlocks:[{x:0,y:0,z:0},{x:1,y:0,z:0},{x:1,y:1,z:0}],given:{allowRotate:false},choices:['알 수 있어요','추가 정보가 필요해요']};
+ await page.route('**/functions/v1/student-api',async route=>{const body=route.request().postDataJSON();const data=body.action==='lessonProblems'?{problems:[target]}:body.action==='snapshot:get'?{snapshot:null}:body.action==='attempt'?{grade:{completed:true,wrongCount:0,message:'정답',hint:null,revealedAnswer:null,xpEarned:30,stars:3}}:{problem:target,attempt:{wrongCount:0,hintShown:false,answerRevealed:false,completed:false},hint:null};await route.fulfill({json:data});});
+ await page.goto('/lesson/5');const canvas=page.getByLabel('쌓기나무 3D 작업판');
+ await expect(page.getByRole('button',{name:'위에서 보기',exact:true})).toBeDisabled();
+ await canvas.focus();await page.waitForTimeout(600);const initial=await canvas.screenshot();const box=await canvas.boundingBox();
+ const drag=async()=>{await page.mouse.move(box!.x+30,box!.y+30);await page.mouse.down();await page.mouse.move(box!.x+160,box!.y+100,{steps:10});await page.mouse.up();await page.waitForTimeout(350);};
+ await drag();expect((await canvas.screenshot()).equals(initial)).toBe(true);
+ await page.getByRole('button',{name:'2. 추가 정보가 필요해요'}).click();await page.getByRole('button',{name:'정답 확인',exact:true}).click();
+ await page.getByRole('button',{name:'추가 정보 확인',exact:true}).click();await expect(page.getByRole('button',{name:'위에서 보기',exact:true})).toBeEnabled();
+ await drag();expect((await canvas.screenshot()).equals(initial)).toBe(false);
+});

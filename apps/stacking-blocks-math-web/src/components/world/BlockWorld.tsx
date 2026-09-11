@@ -46,7 +46,7 @@ export default function BlockWorld(props: WorldProps) {
     }
     return () => { world?.dispose(); scene.current = null; };
   }, [props.grid.gridWidth, props.grid.gridDepth, props.grid.maxHeight]);
-  useEffect(() => { scene.current?.update({ ...props, layerOnly }); }, [props.blocks, props.selected, props.layerMax, props.answerGhost, props.disabled, layerOnly]);
+  useEffect(() => { scene.current?.update({ ...props, layerOnly }); }, [props.blocks, props.selected, props.layerMax, props.answerGhost, props.disabled, props.allowRotate, layerOnly]);
   useEffect(() => { scene.current?.setView(props.preset, orthographic); }, [props.preset, orthographic]);
 
   const place = () => {
@@ -56,9 +56,9 @@ export default function BlockWorld(props: WorldProps) {
   };
   return <div className="world-wrap">
     <div className="world-toolbar toolbar-row">
-      {(Object.keys(VIEW_PRESET_LABELS) as ViewPreset[]).map(preset => <button type="button" className="btn btn-sm" key={preset} onClick={() => { props.onPreset?.(preset); scene.current?.setView(preset, orthographic); }}>{VIEW_PRESET_LABELS[preset]}</button>)}
-      <label><input type="checkbox" checked={orthographic} onChange={e => setOrthographic(e.target.checked)} /> 정확한 투영 보기</label>
-      <select aria-label="현재 층만 보기" value={layerOnly ?? ''} onChange={e => setLayerOnly(e.target.value === '' ? null : Number(e.target.value))}>
+      {(Object.keys(VIEW_PRESET_LABELS) as ViewPreset[]).map(preset => <button type="button" className="btn btn-sm" disabled={props.allowRotate === false} key={preset} onClick={() => { props.onPreset?.(preset); scene.current?.setView(preset, orthographic); }}>{VIEW_PRESET_LABELS[preset]}</button>)}
+      <label><input type="checkbox" disabled={props.allowRotate === false} checked={orthographic} onChange={e => setOrthographic(e.target.checked)} /> 정확한 투영 보기</label>
+      <select disabled={props.allowRotate === false} aria-label="현재 층만 보기" value={layerOnly ?? ''} onChange={e => setLayerOnly(e.target.value === '' ? null : Number(e.target.value))}>
         <option value="">모든 층</option>
         {Array.from({ length: props.grid.maxHeight }, (_, i) => <option key={i} value={i + 1}>{i + 1}층만 보기</option>)}
       </select>
