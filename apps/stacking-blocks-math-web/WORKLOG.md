@@ -130,6 +130,12 @@
 - `student-auth`는 `hashPin`과 `issueSessionToken`에서 `APP_SESSION_SECRET`을 읽고, `student-api`는 `verifySessionToken`으로 같은 서명을 검증한다. 로컬 HMAC/세션 위변조 테스트는 통과했다.
 - 실제 교사 1명·학급 1개·학생 2명 생성과 학생/교사 관통 smoke test는 필요한 테스트 계정이 아직 없고 Supabase 네트워크 호출이 제한되어 실행하지 않았다. 임의 데이터는 생성하지 않았다.
 
+## 실제 교사 계정 관통 검증 시도 (2026-09-11)
+- 운영자가 `stacking-blocks-math` Supabase Auth에 테스트 교사 계정을 만들었다고 확인했지만, 로컬 Vite 서버가 샌드박스 포트 권한 오류(`listen EPERM 127.0.0.1:5173`)로 시작하지 않아 브라우저 로그인 화면을 열 수 없었다.
+- 따라서 교사 비밀번호를 요청하거나 테스트 학급·학생 데이터를 임의로 만들지 않았다. 교사·학급·학생·학생 로그인·진도/스냅샷 저장/복원·교사 조회·RLS 공개키 smoke test는 미검증이다.
+- `.env.local`은 실제 프로젝트 URL과 공개키가 있고 Secret 이름은 포함하지 않는 것을 값 비공개 형태로 점검했다. `APP_SESSION_SECRET`은 운영자 설정 완료 확인만 기록했으며 값은 저장하지 않았다.
+- 로컬 회귀: `npm test` 23개, `typecheck`, `lint`, `typecheck:edge`, `test:security`, `build` 모두 PASS.
+
 ## Runtime/DB 버전 호환 계약 (2026-09-11)
 - `getVersionState()`에 `currentAppVersion`, `requiredSchemaVersion`, `installedSchemaVersion`, `updateRequired` 계산을 추가했다. 설치된 Supabase schema가 부족한 경우 업데이트 필요 상태로 표시할 수 있다.
 - production build에서 현재 `.env.local`의 특정 Supabase URL·Publishable Key가 `dist`에 포함되지 않는 것을 문자열 점검으로 확인했다. 런타임 설정이 없는 production은 `/setup`으로 진입한다.
