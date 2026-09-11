@@ -44,6 +44,7 @@ export class BlockScene {
   private resize: ResizeObserver;
   private drag: { id: number; from: BlockCoord | null; startX: number; startY: number; moved: boolean } | null = null;
   private candidate: { x: number; z: number } | null = null;
+  private paletteArmed = false;
   private cameraTween: { start: number; alpha: number; beta: number; radius: number; targetAlpha: number; targetBeta: number; targetRadius: number } | null = null;
   private pointers = new Set<number>();
 
@@ -53,7 +54,7 @@ export class BlockScene {
     this.scene = new Scene(this.engine);
     this.scene.clearColor = Color4.FromHexString('#d9edffff');
     const size = Math.max(grid.gridWidth, grid.gridDepth, grid.maxHeight);
-    this.camera = new ArcRotateCamera('camera', -Math.PI / 3, Math.PI / 3, size * 2.4, new Vector3(grid.gridWidth / 2, grid.maxHeight / 3, grid.gridDepth / 2), this.scene);
+    this.camera = new ArcRotateCamera('camera', -Math.PI / 3, Math.PI / 3, size * 1.9, new Vector3(grid.gridWidth / 2, grid.maxHeight / 3, grid.gridDepth / 2), this.scene);
     this.camera.lowerRadiusLimit = 2;
     this.camera.upperRadiusLimit = size * 5;
     this.camera.lowerBetaLimit = 0.001;
@@ -170,13 +171,21 @@ export class BlockScene {
   beginPalette(event: PointerEvent) {
     if (this.state.disabled) return;
     this.finish();
+    this.paletteArmed = false;
     this.startDrag(event, null);
+  }
+
+  armPalette() {
+    if (this.state.disabled) return;
+    this.finish();
+    this.paletteArmed = true;
+    this.callbacks.message('쌓기나무를 선택했어요. 작업판을 눌러 놓아 보세요.');
   }
 
   private startDrag(event: PointerEvent, from: BlockCoord | null) {
     this.cameraTween = null;
     this.camera.detachControl();
-    this.drag = { id: event.pointerId, from, startX: event.clientX, startY: event.clientY, moved: from === null };
+    this.drag = { id: event.pointerId, from, startX: event.clientX, startY: event.clientY, moved: from !== null };
     this.callbacks.select(from);
     event.preventDefault();
   }
@@ -184,9 +193,20 @@ export class BlockScene {
   private down = (event: PointerEvent) => {
     this.pointers.add(event.pointerId);
     this.cameraTween = null;
-    if (this.pointers.size > 1) { this.finish(); return; }
+    if (this.pointers.size > 1) { this.paletteArmed = false; this.finish(); return; }
     if (this.state.disabled || event.button !== 0) return;
-    const block = this.pick(event)?.pickedMesh?.metadata?.block as BlockCoord | undefined;
+    const picked = this.pick(event);
+    const block = picked?.pickedMesh?.metadata?.block as BlockCoord | undefined;
+    if (this.paletteArmed && picked) {
+      event.stopImmediatePropagation();
+      this.paletteArmed = false;
+      this.startDrag(event, null);
+      if (!this.drag) return;
+      this.drag.moved = true;
+      this.updateCandidate(picked);
+      return;
+    }
+    this.paletteArmed = false;
     if (block) {
       event.stopImmediatePropagation();
       this.callbacks.select(block);
@@ -200,19 +220,24 @@ export class BlockScene {
     if (!this.drag || this.drag.id !== event.pointerId) return;
     event.preventDefault();
     if (Math.hypot(event.clientX - this.drag.startX, event.clientY - this.drag.startY) > 5) this.drag.moved = true;
-    const pick = this.pick(event);
-    const point = pick?.pickedPoint;
-    if (!point || !this.drag.moved) { this.candidate = null; this.ghost.setEnabled(false); return; }
-    const block = pick?.pickedMesh?.metadata?.block as BlockCoord | undefined;
+    const picked = this.pick(event);
+    if (!picked || !this.drag.moved) { this.candidate = null; this.ghost.setEnabled(false); return; }
+    this.updateCandidate(picked);
+  };
+
+  private updateCandidate(picked: ReturnType<Scene['pick']>) {
+    const point = picked?.pickedPoint;
+    if (!point) return;
+    const block = picked?.pickedMesh?.metadata?.block as BlockCoord | undefined;
     const x = block?.x ?? Math.floor(point.x), z = block?.z ?? Math.floor(point.z);
     this.candidate = { x, z };
     const result = this.result(x, z);
-    const base = this.drag.from ? this.state.blocks.filter(b => keyOf(b) !== keyOf(this.drag!.from!)) : this.state.blocks;
+    const base = this.drag?.from ? this.state.blocks.filter(b => keyOf(b) !== keyOf(this.drag!.from!)) : this.state.blocks;
     this.ghost.position.set(x + 0.5, columnHeight(base, x, z) + 0.5, z + 0.5);
     this.ghostMaterial.diffuseColor = Color3.FromHexString(result.check.ok ? '#3d9959' : '#d43c3c');
     this.ghost.setEnabled(true);
     this.callbacks.message(result.check.ok ? '놓을 수 있어요.' : result.check.message ?? '여기에는 놓을 수 없어요.');
-  };
+  }
 
   private result(x: number, z: number) {
     return this.drag?.from ? moveBlock(this.state.blocks, this.drag.from, x, z, this.grid) : placeOnColumn(this.state.blocks, x, z, this.grid);
@@ -224,6 +249,9 @@ export class BlockScene {
     if (this.candidate && this.drag.moved) {
       const result = this.result(this.candidate.x, this.candidate.z);
       if (result.check.ok) { this.callbacks.change(canonicalize(result.blocks)); this.callbacks.select(null); this.callbacks.message('쌓기나무를 놓았어요.'); }
+    } else if (this.drag.from === null && !this.drag.moved) {
+      this.paletteArmed = true;
+      this.callbacks.message('쌓기나무를 선택했어요. 작업판을 눌러 놓아 보세요.');
     }
     this.finish();
   };

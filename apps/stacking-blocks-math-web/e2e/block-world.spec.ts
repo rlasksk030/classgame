@@ -18,7 +18,7 @@ async function setup(page:Page) {
     await route.fulfill({json:payload});
   });
   await page.goto('/lesson/1');
-  await expect(page.getByRole('button',{name:'잡아서 작업판에 놓기'})).toBeEnabled();
+  await expect(page.getByRole('button',{name:'쌓기나무 보관함. 블록을 작업판에 놓기'})).toBeEnabled();
   return {calls,getSaved:()=>saved,setOffline:(value:boolean)=>{offline=value;}};
 }
 test('Babylon renders; mouse drag snaps, undo/redo and saved state restore',async({page})=>{
@@ -27,7 +27,7 @@ test('Babylon renders; mouse drag snaps, undo/redo and saved state restore',asyn
   const canvas=page.getByLabel('쌓기나무 3D 작업판');
   await page.getByRole('button',{name:'위에서 보기',exact:true}).click();
   await page.waitForTimeout(500);
-  const palette=await page.getByRole('button',{name:'잡아서 작업판에 놓기'}).boundingBox();
+  const palette=await page.getByRole('button',{name:'쌓기나무 보관함. 블록을 작업판에 놓기'}).boundingBox();
   const box=await canvas.boundingBox();
   expect(palette).not.toBeNull();expect(box).not.toBeNull();
   await page.mouse.move(palette!.x+30,palette!.y+20);await page.mouse.down();
@@ -49,7 +49,7 @@ test('touch pointer drag places a block without orbit conflict',async({browser})
   const context=await browser.newContext({viewport:{width:1024,height:768},hasTouch:true});
   const page=await context.newPage();await setup(page);
   await page.getByRole('button',{name:'위에서 보기',exact:true}).click();await page.waitForTimeout(500);
-  const palette=await page.getByRole('button',{name:'잡아서 작업판에 놓기'}).boundingBox();
+  const palette=await page.getByRole('button',{name:'쌓기나무 보관함. 블록을 작업판에 놓기'}).boundingBox();
   const canvas=await page.getByLabel('쌓기나무 3D 작업판').boundingBox();
   const session=await context.newCDPSession(page);
   await session.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:palette!.x+20,y:palette!.y+20}]});
@@ -57,6 +57,17 @@ test('touch pointer drag places a block without orbit conflict',async({browser})
   await session.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
   await expect(page.getByText('블록 수: 1',{exact:true})).toBeVisible();
   await context.close();
+});
+
+test('palette tap then board tap places a block', async({page})=>{
+  await setup(page);
+  const palette=page.getByRole('button',{name:'쌓기나무 보관함. 블록을 작업판에 놓기'});
+  const canvas=page.getByLabel('쌓기나무 3D 작업판');
+  await palette.click();
+  const box=await canvas.boundingBox();
+  expect(box).not.toBeNull();
+  await canvas.click({position:{x:box!.width/2,y:box!.height/2}});
+  await expect(page.getByText('블록 수: 1',{exact:true})).toBeVisible();
 });
 
 test('free rotation changes the actual canvas and does not trigger saving',async({page})=>{

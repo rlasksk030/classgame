@@ -22,6 +22,13 @@ export default function BlockWorld(props: WorldProps) {
   const [orthographic, setOrthographic] = useState(true);
   const [layerOnly, setLayerOnly] = useState<number | null>(null);
   const [cellX, setCellX] = useState(0), [cellZ, setCellZ] = useState(0);
+  const [showFirstUseHint, setShowFirstUseHint] = useState(() => {
+    try { return !localStorage.getItem('sb.block-world-hint-seen'); } catch { return true; }
+  });
+  const markPaletteUse = () => {
+    setShowFirstUseHint(false);
+    try { localStorage.setItem('sb.block-world-hint-seen', '1'); } catch { /* private mode */ }
+  };
   const commit = (blocks: BlockCoord[]) => {
     const next = canonicalize(blocks);
     latest.current.onBlocksChange(next);
@@ -64,9 +71,19 @@ export default function BlockWorld(props: WorldProps) {
       </select>
     </div>
     {error ? <p role="alert">{error}</p> : null}
-    <canvas ref={canvas} className="world-canvas" aria-label="쌓기나무 3D 작업판" tabIndex={0} style={{ width: '100%', height: 'clamp(280px, 48vh, 500px)', display: 'block', touchAction: 'none' }} />
+    <canvas ref={canvas} className="world-canvas" aria-label="쌓기나무 3D 작업판" tabIndex={0} style={{ width: '100%', height: 'clamp(360px, 55vh, 560px)', display: 'block', touchAction: 'none' }} />
     {!props.disabled && <div className="toolbar-row" style={{ padding: 10, flexWrap: 'wrap' }}>
-      <button type="button" className="btn btn-primary" style={{ touchAction: 'none' }} onPointerDown={e => scene.current?.beginPalette(e.nativeEvent)}>🧱 잡아서 작업판에 놓기</button>
+      <div
+        className="block-palette"
+        role="button"
+        tabIndex={0}
+        aria-label="쌓기나무 보관함. 블록을 작업판에 놓기"
+        onPointerDown={e => { e.preventDefault(); markPaletteUse(); scene.current?.beginPalette(e.nativeEvent); }}
+        onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); markPaletteUse(); scene.current?.armPalette(); } }}
+      >
+        <div className="palette-cube" aria-hidden="true"><span /><span /><span /></div>
+        <div><strong>쌓기나무 보관함</strong><small>블록을 잡아 작업판에 놓아 보세요.</small></div>
+      </div>
       <button type="button" className="btn" disabled={!props.selected} onClick={() => {
         if (!props.selected) return;
         const result = removeBlock(props.blocks, props.selected);
@@ -80,5 +97,6 @@ export default function BlockWorld(props: WorldProps) {
       </details>
     </div>}
     <p className="muted" style={{ padding: '0 12px' }}>빈 곳을 끌면 회전 · 두 손가락이나 휠로 확대 · 블록을 잡으면 이동</p>
+    {!props.disabled && showFirstUseHint && <p className="first-use-hint">처음 사용: 1) 블록을 잡아요 2) 작업판에 놓아요 3) 빈 곳을 끌어 돌려요 4) 두 손가락이나 휠로 확대해요</p>}
   </div>;
 }

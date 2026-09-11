@@ -174,3 +174,9 @@
 - `parseOptionalStudentNo()`를 추가해 `null`, `undefined`, 빈 문자열은 번호 미지정(`null`)으로 유지한다. 번호가 지정된 경우에만 해당 번호로 후보를 제한한다. 기존 학생 row backfill이나 `student-api` 재배포는 필요하지 않다.
 - `student-auth`만 변경했으며 RLS, PIN Vault, `APP_SESSION_SECRET`, `student-api`는 건드리지 않았다. 로컬 `npm test` 27개, 보안 테스트, typecheck, lint, edge typecheck, build는 통과했다.
 - 실제 운영 `student-auth` 배포와 브라우저 로그인 성공은 Supabase CLI access token 부재로 아직 미검증이다.
+
+## 학생 쌓기나무 보관함 UX (2026-09-12)
+- 공통 `BlockWorld`에 실제로 집을 수 있는 CSS 정육면체 보관함을 추가하고, 기존 안내 버튼을 제거했다.
+- `BlockScene`에서 보관함 드래그→작업판 배치와 보관함 탭→작업판 탭 배치를 Pointer Events로 통합했다. Ghost 미리보기, 기존 블록 위 스냅, 유효하지 않은 위치 차단, 기존 블록 이동/카메라 분리는 유지한다.
+- 작업판 캔버스와 초기 카메라를 확대하고 첫 사용 안내를 짧게 표시한다. 안내 확인 값만 localStorage에 저장한다.
+- E2E locator와 마우스·터치·탭 배치 시나리오를 갱신했다. Playwright는 이 환경에서 `listen EPERM 127.0.0.1:4173`로 webServer가 시작되지 않아 실행하지 못했다.
