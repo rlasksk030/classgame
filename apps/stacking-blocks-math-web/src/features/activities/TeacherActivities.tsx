@@ -1,7 +1,7 @@
 import { useEffect,useState } from 'react';
 import { getSupabase } from '../../lib/supabase';
 import type { TeacherStudentRow } from '../../lib/studentApi';
-import { ACTIVITY_GRID,type Building } from '../../../shared/activities.ts';
+import { ARCHITECTURE_GRID,type Building } from '../../../shared/activities.ts';
 import { project,toLayers } from '../../../shared/blocks.ts';
 import ActivityBuilder from './ActivityBuilder';
 import Representations from './Representations';
@@ -16,6 +16,6 @@ export default function TeacherActivities({classId,students}:{classId:string;stu
  {challenges.length===0&&<p>아직 만든 친구 문제가 없습니다.</p>}
  {challenges.map(c=><div key={c.id}><strong>{name(c.author_id)} · {c.share_code}</strong><p>{solves.filter(s=>s.challenge_id===c.id).map(s=>`${name(s.student_id)}: ${s.correct?'완료':'풀이 중'} · 시도 ${s.wrong_count}회 · ${s.used_hint?'힌트 사용':'힌트 없음'} · ${s.score}점`).join(', ')||'아직 풀이 기록이 없습니다.'}</p></div>)}
  <div className="toolbar-row">{projects.map(p=><button className="btn" key={p.student_id} onClick={()=>setSelected(p)}>{name(p.student_id)} · {p.building_name||'이름 없는 건축물'} · {p.submitted?'완성':'설계 중'}</button>)}</div>
- {selected&&<article className="stack"><h3>{selected.building_name}</h3><p>{selected.reason}</p><p>{selected.description}</p><ActivityBuilder blocks={selected.blocks} disabled onChange={()=>undefined}/><Representations given={{projections:project(selected.blocks,ACTIVITY_GRID),layers:toLayers(selected.blocks,ACTIVITY_GRID)}}/>{selected.layer_notes.map((note,i)=><p key={i}>{i+1}층: {note}</p>)}</article>}
+ {selected&&<article className="stack"><h3>{selected.building_name}</h3><p>{selected.reason}</p><p>{selected.description}</p><ActivityBuilder grid={ARCHITECTURE_GRID} blocks={selected.blocks} disabled onChange={()=>undefined}/><Representations given={{projections:project(selected.blocks,ARCHITECTURE_GRID),layers:toLayers(selected.blocks,ARCHITECTURE_GRID)}}/>{selected.layer_notes.map((note,i)=><p key={i}>{i+1}층: {note}</p>)}</article>}
  </section>;
 }

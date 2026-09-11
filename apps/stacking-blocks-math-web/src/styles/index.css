@@ -242,6 +242,11 @@ button {
   flex-wrap: wrap;
 }
 
+.selected-card {
+  border-color: var(--sky);
+  box-shadow: 0 0 0 3px rgba(61, 133, 198, 0.2);
+}
+
 .teacher-table-wrap {
   width: 100%;
   overflow-x: auto;

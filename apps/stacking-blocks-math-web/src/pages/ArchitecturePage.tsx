@@ -1,6 +1,6 @@
 import { useEffect,useRef,useState } from 'react';
 import { Link,useParams } from 'react-router-dom';
-import { ACTIVITY_GRID,EMPTY_BUILDING,validBuilding,type Building } from '../../shared/activities.ts';
+import { ARCHITECTURE_GRID,EMPTY_BUILDING,validBuilding,type Building } from '../../shared/activities.ts';
 import { project,toLayers } from '../../shared/blocks.ts';
 import { activityApi,getStudentToken } from '../lib/studentApi';
 import { draftKey } from '../lib/snapshotDraft';
@@ -47,13 +47,13 @@ export default function ArchitecturePage(){
  useEffect(()=>{const sync=()=>void saveRef.current();const hidden=()=>{if(document.visibilityState==='hidden')sync();};window.addEventListener('online',sync);window.addEventListener('pagehide',sync);document.addEventListener('visibilitychange',hidden);return()=>{window.removeEventListener('online',sync);window.removeEventListener('pagehide',sync);document.removeEventListener('visibilitychange',hidden);};},[]);
  return <main className="screen app-max stack"><h1>{lessonNumber}차시 · 나만의 건축물</h1><Link to="/world">공간과 입체 월드</Link>
  <p role="status">{message||(!ready?'설계를 불러오고 있어요.':'3층짜리 건축물을 설계해 보세요.')}</p>
- {ready&&<><div className="world-layout"><ActivityBuilder blocks={building.blocks} onChange={blocks=>edit({...building,blocks,submitted:false})}/><section className="panel stack">
+ {ready&&<><div className="world-layout"><section className="stack"><p className="muted">건축 설계판 · 4×4 바닥 격자 · 층을 올려 3층까지 만들어 보세요.</p><ActivityBuilder grid={ARCHITECTURE_GRID} blocks={building.blocks} onChange={blocks=>edit({...building,blocks,submitted:false})}/></section><section className="panel stack">
  {(['building_name','reason','description'] as const).map((field,i)=><label key={field}>{['건축물 이름','설계 이유','건축물 설명'][i]}<textarea className="field" maxLength={2000} value={building[field]} onChange={e=>edit({...building,[field]:e.target.value,submitted:false})}/></label>)}
  {building.layer_notes.map((note,i)=>{const parsed=splitLayerNote(note);return <div className="stack" key={i}><strong>{i+1}층</strong><label>공간 이름<input className="field" maxLength={200} value={parsed.name} onChange={e=>edit({...building,layer_notes:building.layer_notes.map((n,j)=>j===i?joinLayerNote(e.target.value,parsed.description):n),submitted:false})}/></label><label>공간 설명<textarea className="field" maxLength={1800} value={parsed.description} onChange={e=>edit({...building,layer_notes:building.layer_notes.map((n,j)=>j===i?joinLayerNote(parsed.name,e.target.value):n),submitted:false})}/></label></div>})}
  <button className="btn" disabled={busy} onClick={()=>void save()}>{lessonNumber===10?'10차시 설계 저장':'설계 저장'}</button>{lessonNumber===11&&<button className="btn btn-primary" disabled={busy} onClick={()=>void save(true)}>소개서 완성</button>}
  </section></div>
  <section className="panel stack"><h2>나만의 건축물 소개서 · {building.building_name||'이름을 지어 주세요'}</h2><p>{building.reason}</p><p>{building.description}</p>
- <Representations given={{projections:project(building.blocks,ACTIVITY_GRID),layers:toLayers(building.blocks,ACTIVITY_GRID)}}/>
+ <Representations given={{projections:project(building.blocks,ARCHITECTURE_GRID),layers:toLayers(building.blocks,ARCHITECTURE_GRID)}}/>
  {building.layer_notes.map((note,i)=>{const parsed=splitLayerNote(note);return <p key={i}>{i+1}층 · {parsed.name||'공간 이름을 지어 주세요'}{parsed.description&&` — ${parsed.description}`}</p>})}<p>{building.submitted?'완성된 소개서':'작성 중인 소개서'}</p></section></>}
  </main>;
 }

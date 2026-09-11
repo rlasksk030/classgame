@@ -1,5 +1,5 @@
 import ReviewSummary from "../features/activities/ReviewSummary";
-import { canonicalize, toHeightMap, toLayers } from "@shared/blocks.ts";
+import { canonicalize, toLayers } from "@shared/blocks.ts";
 import {
   DIRECTIONS,
   PROBLEM_TYPE_LABELS,
@@ -43,6 +43,15 @@ type ProblemAttempt = {
 
 function createBoolGrid(rows: number, cols: number, fill = false): Grid2D {
   return Array.from({ length: rows }, () => Array(cols).fill(fill));
+}
+
+function emptyGridFor(problem: StudentProblem, key: "top" | "front" | "side" | "heightMap"): Grid2D {
+  const spec = problem.presentation?.gridSpecs[key];
+  if (spec) return createBoolGrid(spec.rows, spec.cols);
+  if (key === "top") return createBoolGrid(problem.grid.gridDepth, problem.grid.gridWidth);
+  if (key === "front") return createBoolGrid(problem.grid.maxHeight, problem.grid.gridWidth);
+  if (key === "side") return createBoolGrid(problem.grid.maxHeight, problem.grid.gridDepth);
+  return createBoolGrid(problem.grid.gridDepth, problem.grid.gridWidth);
 }
 
 function isBuildType(problemType: ProblemType) {
@@ -197,19 +206,18 @@ export default function LessonPage() {
     setDirectionValue((next.given?.shownFrom ?? "front") as Direction);
     setAttempt(DEFAULT_ATTEMPT_STATE);
 
-    const hm = toHeightMap(next.startBlocks, next.grid);
     const layers = toLayers(next.startBlocks, next.grid);
 
     clearHistory();
     setBlocks(next.startBlocks);
-    setTopMap(next.given?.projections?.top ? [...next.given.projections.top] : createBoolGrid(next.grid.gridDepth, next.grid.gridWidth));
+    setTopMap(next.given?.projections?.top ? next.given.projections.top.map(row => [...row]) : emptyGridFor(next, "top"));
     setFrontMap(
-      next.given?.projections?.front ? [...next.given.projections.front] : createBoolGrid(next.grid.maxHeight, next.grid.gridWidth),
+      next.given?.projections?.front ? next.given.projections.front.map(row => [...row]) : emptyGridFor(next, "front"),
     );
     setSideMap(
-      next.given?.projections?.side ? [...next.given.projections.side] : createBoolGrid(next.grid.maxHeight, next.grid.gridDepth),
+      next.given?.projections?.side ? next.given.projections.side.map(row => [...row]) : emptyGridFor(next, "side"),
     );
-    setHeightMap(hm.map((row) => [...row]));
+    setHeightMap(next.given?.heightMap ? next.given.heightMap.map(row => [...row]) : emptyGridFor(next, "heightMap").map((row) => row.map(() => 0)));
     setLayerMaps(layers.map((row) => row.map((r) => [...r])));
     setLayerFilter(null);
 
@@ -501,11 +509,12 @@ export default function LessonPage() {
     }
 
     if (problem.problemType === "PROJECTION_DRAW") {
+      const faces = (Object.keys(problem.presentation?.gridSpecs ?? {}) as ("top" | "front" | "side")[]).filter(face => ["top", "front", "side"].includes(face));
       return (
         <div className="answer-box">
-          <ProjectionGrid title="위에서 보기" rows={topMap} editable onChange={next => setTopMap(next as Grid2D)} valueType="boolean" />
-          <ProjectionGrid title="앞에서 보기" reverseRows rows={frontMap} editable onChange={next => setFrontMap(next as Grid2D)} valueType="boolean" />
-          <ProjectionGrid title="옆에서 보기" reverseRows rows={sideMap} editable onChange={next => setSideMap(next as Grid2D)} valueType="boolean" />
+          {faces.includes("top") && <ProjectionGrid title="위에서 본 모양" rows={topMap} editable onChange={next => setTopMap(next as Grid2D)} valueType="boolean" />}
+          {faces.includes("front") && <ProjectionGrid title="앞에서 본 모양" reverseRows rows={frontMap} editable onChange={next => setFrontMap(next as Grid2D)} valueType="boolean" />}
+          {faces.includes("side") && <ProjectionGrid title="옆에서 본 모양" reverseRows rows={sideMap} editable onChange={next => setSideMap(next as Grid2D)} valueType="boolean" />}
         </div>
       );
     }
@@ -543,6 +552,21 @@ export default function LessonPage() {
     if (!problem) return [] as number[];
     return Array.from({ length: Math.max(1, problem.grid.maxHeight) }, (_, idx) => idx + 1);
   }, [problem?.grid.maxHeight]);
+
+  const renderEvidence = () => {
+    if (!problem) return null;
+    const evidence = problem.given;
+    const faces = (["top", "front", "side"] as const).filter(face => evidence.projections?.[face]);
+    if (!faces.length && !evidence.heightMap && !evidence.layers?.length) return null;
+    return <div className="panel stack" aria-label="문제에서 함께 제시한 정보">
+      <strong>함께 제시된 정보</strong>
+      <div className="toolbar-row" style={{ alignItems: "flex-start" }}>
+        {faces.map(face => <ProjectionGrid key={face} title={{ top: "위에서 본 조건", front: "앞에서 본 조건", side: "옆에서 본 조건" }[face]} rows={evidence.projections![face]!} reverseRows={face !== "top"} editable={false} onChange={() => undefined} valueType="boolean" />)}
+        {evidence.heightMap && <ProjectionGrid title="표시된 숫자 지도" rows={evidence.heightMap} editable={false} onChange={() => undefined} valueType="number" />}
+        {evidence.layers?.map((rows, index) => <ProjectionGrid key={`evidence-layer-${index}`} title={`${index + 1}층 모양`} rows={rows} editable={false} onChange={() => undefined} valueType="boolean" />)}
+      </div>
+    </div>;
+  };
 
   if (loading) {
     return <div className="screen app-max"><p className="muted">문제를 불러오는 중…</p></div>;
@@ -679,6 +703,7 @@ export default function LessonPage() {
               <p className="muted">{PROBLEM_TYPE_LABELS[problem.problemType]}</p>
               <p>{problem.prompt}</p>
               {problemImage&&<img src={problemImage} alt="선생님이 등록한 문제 그림" style={{maxWidth:"100%"}}/>}
+              {renderEvidence()}
               {problem.given.allowRotate === false && <div className="stack">
                 <p>{extraInformation ? "이제 돌려 보며 가려진 블록을 확인해 보세요." : "지금은 앞에서 본 모습만 볼 수 있어요. 먼저 판단해 답을 제출해 보세요."}</p>
                 <button className="btn" disabled={!result && !attempt.wrongCount && !attempt.completed} onClick={()=>setExtraInformation(true)}>추가 정보 확인</button>
@@ -689,12 +714,6 @@ export default function LessonPage() {
                 const projection = problem.given.projections[face];
                 return projection ? <ProjectionGrid title={`${DIRECTION_LABELS[direction]}에서 본 모양`} rows={projection} reverseRows={face !== "top"} editable={false} onChange={() => undefined} valueType="boolean" /> : null;
               })()}
-              {isBuildType(problem.problemType) && <div className="answer-box">
-                {(["top","front","side"] as const).map(face=>problem.given.projections?.[face] && <ProjectionGrid key={face} title={{top:"위에서 본 조건",front:"앞에서 본 조건",side:"옆에서 본 조건"}[face]} rows={problem.given.projections[face]!} reverseRows={face!=="top"} editable={false} onChange={()=>undefined} valueType="boolean" />)}
-                {problem.given.heightMap && <ProjectionGrid title="숫자 지도 조건" rows={problem.given.heightMap} editable={false} onChange={()=>undefined} valueType="number" />}
-                {problem.given.layers?.map((rows,i)=><ProjectionGrid key={i} title={`${i+1}층 조건`} rows={rows} editable={false} onChange={()=>undefined} valueType="boolean" />)}
-              </div>}
-
               <div className="answer-box">{renderEditor()}</div>
 
               <div className="toolbar-row" style={{ marginTop: 12 }}>

@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import BlockWorld from '../components/world/BlockWorld';
 import { canonicalize, project, toHeightMap, toLayers, validStructure } from '../../shared/blocks.ts';
-import type { BlockCoord, ViewPreset, GridConfig, ProblemAnswer } from '../../shared/types.ts';
+import type { BlockCoord, ViewPreset, GridConfig, ProblemAnswer, ProblemType } from '../../shared/types.ts';
+import { validateProblemPresentation } from '../../shared/problemPresentation.ts';
 import { teacherListClasses, type ClassData } from '../lib/studentApi';
 import { getSupabase } from '../lib/supabase';
 
@@ -27,6 +28,8 @@ export default function TeacherProblemEditor() {
       const answer:ProblemAnswer = type==='COUNT' ? {kind:'count',value:blocks.length} : type==='PROJECTION_DRAW' ? {kind:'projections',projections} : type==='HEIGHTMAP_FROM_BUILD' ? {kind:'heightMap',heightMap:toHeightMap(blocks,grid)} : type==='LAYER_DRAW' ? {kind:'layers',layers:toLayers(blocks,grid)} : {kind:'blocks',blocks:canonicalize(blocks)};
       const build = type.startsWith('BUILD_');
       const given = type==='BUILD_FROM_HEIGHTMAP' ? {heightMap:toHeightMap(blocks,grid)} : type==='BUILD_FROM_LAYERS' ? {layers:toLayers(blocks,grid)} : type==='BUILD_FROM_VIEWS' ? {projections} : {};
+      const presentationErrors = validateProblemPresentation({problemType: type as ProblemType, grid, given, answer});
+      if (presentationErrors.length) { setMessage(`문제에 필요한 정보가 부족합니다: ${presentationErrors.join(', ')}`); return; }
       const {data:user}=await getSupabase().auth.getUser();
       const {error}=await getSupabase().from('sb_problems').insert({class_id:classId,created_by:user.user?.id,title:title.trim(),prompt:prompt.trim(),lesson,problem_type:type,grading_mode:type==='BUILD_FROM_VIEWS'?mode:'exact',grid_width:grid.gridWidth,grid_depth:grid.gridDepth,max_height:grid.maxHeight,given_blocks:build?[]:canonicalize(blocks),start_blocks:[],given:{...given,allowRotate:true,allowLayerView:true},answer,hint,active:true,source_type:'TEACHER_CREATED'});
       if(error) throw error;
