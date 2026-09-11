@@ -39,6 +39,7 @@
 - 실제 Supabase Auth/RLS/Edge Function 관통 흐름
 - QR 코드 생성은 아직 구현하지 않았고 현재는 링크 복사 방식
 - Playwright webServer는 샌드박스의 `listen EPERM`으로 실행되지 않음
+- 자동 캡처 스위트는 `npm run qa:visual`로 실행하며 성공 시 `qa/screenshots/`에 1366×768 및 1024×768 터치 캡처를 저장한다.
 
 재실행 명령:
 
@@ -52,5 +53,6 @@ npm run typecheck
 npm run lint
 npm run typecheck:edge
 npm run build
+npm run qa:visual
 npm run test:e2e
 ```

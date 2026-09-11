@@ -18,6 +18,8 @@ for (const lesson of LESSONS) {
     const builtIns = SEED_PROBLEMS.filter(problem => problem.lesson === lesson.lesson);
     const templates = getProblemTemplates(lesson.lesson);
     if (!builtIns.length) fail(`L${lesson.lesson}: 기본 문제 없음`);
+    const stages = new Set(builtIns.map(problem => problem.orderIndex <= 1 ? "concept" : problem.orderIndex === 2 ? "check" : "more"));
+    for (const stage of ["concept", "check", "more"]) if (!stages.has(stage)) fail(`L${lesson.lesson}: ${stage} 단계 문제 없음`);
     if (!templates.length) fail(`L${lesson.lesson}: practice template 없음`);
     const generated = generatePracticeProblems(lesson.lesson, Math.max(15, templates.length), 17);
     if (!generated.length) fail(`L${lesson.lesson}: practice 생성 실패`);
