@@ -1,0 +1,32 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  stacking-blocks-math-web:
+    name: stacking-blocks-math-web
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/stacking-blocks-math-web
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: apps/stacking-blocks-math-web/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Verify seed consistency
+        run: node --experimental-strip-types scripts/verify-seed.ts
