@@ -74,7 +74,8 @@ export function generatePracticeProblems(lesson:number,count:number,seed=0):Gene
     const p=project(blocks,grid);
     const h=toHeightMap(blocks,grid);
     let item:GeneratedProblem;
-    if(lesson===2){item=base(lesson,i,blocks,'CAMERA_DIRECTION',{projections:{front:p.front},shownFrom:'front',allowRotate:true},{kind:'direction',value:'front'},grid);}
+    if(lesson===1){const position=i%2===0?'오른쪽':'위';item=base(lesson,i,blocks,'BLOCK_POSITION',{allowRotate:true},{kind:'choice',index:0},grid);item.choices=[`${position}에 있는 블록`, '뒤쪽에 있는 블록', '다른 층의 블록'];item.prompt=`빨간 블록의 ${position}에 있는 블록을 골라 보세요.`;}
+    else if(lesson===2){item=base(lesson,i,blocks,'CAMERA_DIRECTION',{projections:{front:p.front},shownFrom:'front',allowRotate:true},{kind:'direction',value:'front'},grid);}
     else if(lesson===3){item=base(lesson,i,blocks,'PROJECTION_DRAW',{projections:p,allowRotate:true},{kind:'projections',projections:p},grid);}
     else if(lesson===4){item=base(lesson,i,blocks,'COUNT',{allowRotate:true,allowLayerView:true},{kind:'count',value:blocks.length},grid);}
     else if(lesson===5){item=base(lesson,i,blocks,'CHOICE',{allowRotate:false,note:'먼저 한 방향에서만 판단해 보세요.'},{kind:'choice',index:1},grid);item.choices=['이 정보만으로 정확히 알 수 있어요.','가려진 곳의 정보가 더 필요해요.'];item.prompt='한 방향에서 본 모습만 보고 전체 개수를 정확히 알 수 있을까요?';}
