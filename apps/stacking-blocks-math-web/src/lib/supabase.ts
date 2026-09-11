@@ -1,6 +1,6 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
-import { getResolvedSupabaseConfig } from "./config";
+import { getResolvedSupabaseConfig } from "./config.ts";
 
 /**
  * 교사용 Supabase 클라이언트 (Supabase Auth).

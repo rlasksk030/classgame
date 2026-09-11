@@ -88,7 +88,7 @@
 ## 검증 결과 (2026-09-11)
 - `npm run typecheck` PASS
 - `npm run lint` PASS
-- `npm test` PASS (19개)
+- `npm test` PASS (22개)
 - `npm run typecheck:edge` PASS
 - `npm run build` PASS
 - `npm run test:security` PASS (PIN hash scope/session tamper test 1개)
@@ -104,7 +104,7 @@
 ## Cloudflare 정적 배포 제약 (2026-09-11)
 - `DISTRIBUTION_ARCHITECTURE.md`에 Cloudflare Pages는 `dist/` 정적 파일만 제공하고 Pages Functions/Workers/KV/D1/Durable Objects/R2/API proxy를 사용하지 않는다는 계약을 추가했다.
 - 모든 동적 기능은 각 교사의 Supabase와 브라우저가 직접 통신하며, service_role·Edge Function Secret은 브라우저에 노출하지 않는다.
-- 현재 연결값은 Vite `VITE_*` 환경변수 단계까지이며, 특정 교사 값을 공통 dist에 고정하지 않는 런타임 설치 설정은 향후 설치 도우미 범위로 남겼다.
+- 현재 연결값은 런타임 설치 설정을 우선 사용하며, Vite `VITE_*`는 개발·테스트 fallback으로만 유지한다.
 
 ## 런타임 설치 설정 (2026-09-11)
 - `src/lib/config.ts`에 공개 `RuntimeSupabaseConfig`(installationId, Supabase URL, Publishable Key) 저장·검증·URL fragment(`/#install=`) 인코딩/복원 계층을 추가했다. service_role/secret/password 이름이 포함된 값과 안전하지 않은 URL은 거부한다.
