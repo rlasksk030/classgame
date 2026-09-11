@@ -112,3 +112,9 @@
 - `getSupabase()`와 학생 Edge Function 호출이 매번 현재 런타임 설정을 해석하고, 설치가 바뀌면 Supabase client cache도 교체한다. 특정 교사 URL/키를 소스에 하드코딩하지 않는다.
 - `/setup`은 `/auth/v1/settings`만 호출해 연결을 확인한 뒤 공개 설정을 저장한다. DB migration·Storage 생성·교사 인증을 자동 수행하지 않는다.
 - 설정 fragment round-trip 및 secret/unsafe URL 거부 테스트를 추가했다.
+
+## 런타임 Supabase 실사용 점검 (2026-09-11)
+- 현재 새 프로젝트의 URL·Publishable Key는 `.env.local`에만 남아 있으며 production에서는 Vite 값 fallback을 사용하지 않는다. `/setup` 또는 `/#install=`로 공개 연결 설정을 저장하는 코드 경로와 서로 다른 두 설치의 client 교체 단위 테스트를 확인했다.
+- 공유 기기에서 다른 installationId의 fragment를 열면 기존 설정을 유지하고 확인 대화상자에서 승인한 경우에만 설정과 학생 토큰을 교체한다. 변조/손상 fragment는 `/setup`에서 오류를 표시한다.
+- 실제 Supabase `/auth/v1/settings` 호출, APP_SESSION_SECRET 설정, 교사·학생 생성 및 로그인/진도 저장 smoke test는 네트워크·대시보드 자동 승인 제한으로 실행하지 못했다. 실제 성공으로 보고하지 않는다.
+- 이 단계에서는 migration, Storage, Cloudflare 배포, 학습 기능을 변경하지 않았다.

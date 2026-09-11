@@ -1,7 +1,9 @@
-import { lazy, Suspense } from 'react';
-import { Navigate, Route, Routes, useParams } from 'react-router-dom';
+import { lazy, Suspense, useState } from 'react';
+import { Navigate, Route, Routes, useLocation, useParams } from 'react-router-dom';
 import StudentLogin from './pages/StudentLogin';
 import SetupPage from './pages/SetupPage';
+import { getPendingInstallationConfig, hasInvalidInstallationConfigHash, saveRuntimeSupabaseConfig } from './lib/config';
+import { clearStudentToken } from './lib/studentApi';
 const StudentWorld = lazy(() => import('./pages/StudentWorld'));
 const LessonPage = lazy(() => import('./pages/LessonPage'));
 const TeacherPage = lazy(() => import('./pages/TeacherPage'));
@@ -12,8 +14,22 @@ const PeerChallengePage = lazy(() => import('./pages/PeerChallengePage'));
 const ArchitecturePage = lazy(() => import('./pages/ArchitecturePage'));
 const WorksheetImportPage = lazy(() => import('./pages/WorksheetImportPage'));
 function LessonRoute(){const {lesson}=useParams();return lesson==="10"||lesson==="11"?<ArchitecturePage/>:<LessonPage/>;}
+function InstallationSwitchPrompt(){
+  const location=useLocation();
+  const pending=getPendingInstallationConfig();
+  const [dismissed,setDismissed]=useState(false);
+  if(hasInvalidInstallationConfigHash() && location.pathname!=="/setup") return <Navigate to="/setup?invalid=1" replace />;
+  if(!pending || dismissed) return null;
+  const switchInstallation=()=>{
+    saveRuntimeSupabaseConfig(pending);
+    clearStudentToken();
+    setDismissed(true);
+    window.location.reload();
+  };
+  return <div role="dialog" aria-label="설치 설정 변경" className="installation-switch"><strong>다른 설치 설정이 있어요.</strong><span>이 기기의 연결을 {pending.installationId} 설치로 변경할까요?</span><div><button className="btn btn-sm btn-primary" onClick={switchInstallation}>변경</button><button className="btn btn-sm" onClick={()=>setDismissed(true)}>유지</button></div></div>;
+}
 export default function App() {
-  return <Suspense fallback={<main className="screen app-max"><p role="status">화면을 준비하고 있어요…</p></main>}><Routes>
+  return <Suspense fallback={<main className="screen app-max"><p role="status">화면을 준비하고 있어요…</p></main>}><InstallationSwitchPrompt/><Routes>
     <Route path="/setup" element={<SetupPage />} />
     <Route path="/" element={<StudentLogin />} />
     <Route path="/world" element={<StudentWorld />} />

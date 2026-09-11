@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 
 import {
   encodeInstallationConfig,
+  getPendingInstallationConfig,
   readInstallationConfigFromHash,
   validateRuntimeSupabaseConfig,
   type RuntimeSupabaseConfig,
@@ -39,6 +40,8 @@ test("changing the runtime installation switches the shared Supabase client", ()
   storage.set("stacking-installation-config", JSON.stringify(config));
   const first = getSupabase();
   const secondConfig = { ...config, installationId: "teacher-b", supabaseUrl: "https://teacher-b.supabase.co" };
+  (globalThis.window as { location: { hash: string } }).location.hash = `#install=${encodeInstallationConfig(secondConfig)}`;
+  assert.deepEqual(getPendingInstallationConfig(), secondConfig);
   storage.set("stacking-installation-config", JSON.stringify(secondConfig));
   const second = getSupabase();
   assert.notEqual(first, second);

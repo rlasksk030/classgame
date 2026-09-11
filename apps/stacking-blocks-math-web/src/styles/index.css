@@ -111,6 +111,27 @@ button {
   cursor: not-allowed;
 }
 
+.installation-switch {
+  position: fixed;
+  z-index: 1000;
+  top: 12px;
+  left: 50%;
+  display: grid;
+  gap: 6px;
+  width: min(480px, calc(100% - 24px));
+  padding: 14px;
+  transform: translateX(-50%);
+  border: var(--edge) solid var(--line);
+  border-radius: var(--radius);
+  background: var(--bg-panel);
+  box-shadow: 0 6px 0 var(--line);
+}
+
+.installation-switch > div {
+  display: flex;
+  gap: 8px;
+}
+
 .btn-primary {
   background: var(--grass);
   color: var(--ink-invert);

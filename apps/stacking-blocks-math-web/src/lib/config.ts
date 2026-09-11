@@ -76,6 +76,14 @@ export function readInstallationConfigFromHash(hash = typeof window === "undefin
   }
 }
 
+export function hasInstallationConfigHash(hash = typeof window === "undefined" ? "" : window.location.hash): boolean {
+  return hash.startsWith("#install=");
+}
+
+export function hasInvalidInstallationConfigHash(hash = typeof window === "undefined" ? "" : window.location.hash): boolean {
+  return hasInstallationConfigHash(hash) && !readInstallationConfigFromHash(hash);
+}
+
 export function encodeInstallationConfig(config: RuntimeSupabaseConfig): string {
   if (!validateRuntimeSupabaseConfig(config)) throw new Error("공개 설치 설정이 올바르지 않습니다.");
   const json = JSON.stringify(config);
@@ -90,15 +98,27 @@ export function installationLink(config: RuntimeSupabaseConfig, origin = typeof 
 export function getRuntimeSupabaseConfig(): RuntimeSupabaseConfig | null {
   if (!isBrowser()) return null;
   const fromHash = readInstallationConfigFromHash();
+  let stored: RuntimeSupabaseConfig | null = null;
+  try { stored = parseStoredConfig(localStorage.getItem(INSTALLATION_CONFIG_KEY)); } catch { /* 저장 불가 환경 */ }
   if (fromHash) {
+    // 이미 다른 설치가 연결된 공유 기기에서는 현재 데이터를 몰래 바꾸지 않는다.
+    if (stored && (stored.installationId !== fromHash.installationId || stored.supabaseUrl !== fromHash.supabaseUrl || stored.supabasePublishableKey !== fromHash.supabasePublishableKey)) return stored;
     try { localStorage.setItem(INSTALLATION_CONFIG_KEY, JSON.stringify(fromHash)); } catch { /* 저장 불가 환경은 메모리에서 계속 진행 */ }
     return fromHash;
   }
-  try {
-    return parseStoredConfig(localStorage.getItem(INSTALLATION_CONFIG_KEY));
-  } catch {
-    return null;
-  }
+  return stored;
+}
+
+/** 기존 설치와 다른 fragment가 있으면 확인 전까지 현재 설치를 유지한다. */
+export function getPendingInstallationConfig(): RuntimeSupabaseConfig | null {
+  if (!isBrowser()) return null;
+  const fromHash = readInstallationConfigFromHash();
+  if (!fromHash) return null;
+  const stored: RuntimeSupabaseConfig | null = (() => {
+    try { return parseStoredConfig(localStorage.getItem(INSTALLATION_CONFIG_KEY)); } catch { return null; }
+  })();
+  if (!stored || (stored.installationId === fromHash.installationId && stored.supabaseUrl === fromHash.supabaseUrl && stored.supabasePublishableKey === fromHash.supabasePublishableKey)) return null;
+  return fromHash;
 }
 
 export function saveRuntimeSupabaseConfig(config: RuntimeSupabaseConfig): void {

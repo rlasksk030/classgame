@@ -16,9 +16,9 @@ Cloudflare는 개발자 계정 비용이 발생하지 않는 **순수 정적 호
 
 ### 공통 정적 산출물과 연결 설정
 
-교사마다 별도 서버 번들을 만들지 않고 같은 정적 앱을 사용한다. 설치 식별자는 `VITE_INSTALLATION_ID` 또는 향후 설치 설정에서 관리한다. 현재 코드는 Vite의 `VITE_SUPABASE_URL`·`VITE_SUPABASE_PUBLISHABLE_KEY`를 읽는 단계이므로, `.env.local`의 실제 값은 저장소에 커밋하지 않는다. 특정 교사의 값을 공통 `dist/`에 고정하는 방식은 최종 다중 교사 배포 계약으로 간주하지 않는다.
+교사마다 별도 서버 번들을 만들지 않고 같은 정적 앱을 사용한다. 설치 식별자와 연결 정보는 `/setup`에서 `stacking-installation-config` 키로 로컬에 저장하거나 `/#install=` fragment로 전달한다. Vite의 `VITE_SUPABASE_URL`·`VITE_SUPABASE_PUBLISHABLE_KEY`는 개발·테스트 fallback이며, `.env.local`의 실제 값은 저장소에 커밋하지 않는다. 특정 교사의 값을 공통 `dist/`에 고정하는 방식은 최종 다중 교사 배포 계약으로 간주하지 않는다.
 
-향후 설치 도우미는 정적 파일을 다시 빌드하지 않고도 교사의 공개 Supabase URL·Publishable Key를 등록할 수 있는 런타임 설정 계층(예: 설치별 로컬 설정 또는 별도 정적 설정 파일)을 추가해야 한다. 설정은 공개 연결 정보만 포함하고 Secret·service role은 포함하지 않는다. 그때도 학생·교사 브라우저가 해당 Supabase로 직접 통신하며 Cloudflare 프록시는 추가하지 않는다.
+설치 fragment가 이미 다른 설치와 연결된 공유 기기에 들어오면 앱은 현재 설정을 유지하고 “다른 설치 설정으로 변경할까요?” 확인을 거친 뒤에만 교체한다. 설정은 공개 연결 정보만 포함하고 Secret·service role은 포함하지 않는다. 학생 토큰은 설치 교체 때 삭제해 다른 교사의 세션이 이어지지 않게 한다. 학생·교사 브라우저는 해당 Supabase로 직접 통신하며 Cloudflare 프록시는 추가하지 않는다.
 
 ## 버전 계약
 
@@ -39,7 +39,7 @@ getInstallationStatus({
 });
 ```
 
-향후 `/setup`은 `checkSupabaseConnection`, `checkRequiredTables`, `checkRequiredFunctions`, `checkStorageBuckets`, `checkTeacherAdmin`, `checkClassConfiguration`을 순서대로 호출하고 교사 승인 뒤에만 설치를 완료한다. 이번 단계에서는 자동 migration, Storage bucket 생성, 원격 업데이트를 실행하지 않는다.
+`/setup`은 `checkSupabaseConnection`으로 `/auth/v1/settings`만 읽어 연결을 확인하고 공개 설정을 저장한다. DB 설치·Storage bucket 생성·교사 인증은 자동 실행하지 않는다. 향후 `checkRequiredTables`, `checkRequiredFunctions`, `checkStorageBuckets`, `checkTeacherAdmin`, `checkClassConfiguration` 점검을 이어 붙일 수 있다.
 
 ## 업데이트 구조
 
@@ -57,4 +57,4 @@ getInstallationStatus({
 
 ## 현재 범위 밖
 
-ZIP·설치 도우미 UI·런타임 연결 설정·원격 업데이트 서버·자동 migration·Storage bucket·중앙 manifest 배포는 아직 구현하지 않는다. 이 항목을 추가할 때도 Cloudflare 서버 기능을 도입하지 않고, 기존 학생/교사 학습 기능과 Supabase 보안 경계를 우선 보존한다.
+ZIP·설치 도우미 고급 점검 UI·원격 업데이트 서버·자동 migration·Storage bucket·중앙 manifest 배포는 아직 구현하지 않는다. 기본 `/setup` 런타임 연결 설정은 구현되어 있으며, 추가 기능을 만들 때도 Cloudflare 서버 기능을 도입하지 않고 기존 학생/교사 학습 기능과 Supabase 보안 경계를 우선 보존한다.

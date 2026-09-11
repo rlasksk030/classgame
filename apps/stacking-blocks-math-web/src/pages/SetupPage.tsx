@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import {
   getAppConfig,
   getRuntimeSupabaseConfig,
+  hasInvalidInstallationConfigHash,
   saveRuntimeSupabaseConfig,
   validateRuntimeSupabaseConfig,
 } from "../lib/config";
@@ -29,7 +30,7 @@ export default function SetupPage() {
   const [publishableKey, setPublishableKey] = useState(current?.supabasePublishableKey ?? "");
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(() => hasInvalidInstallationConfigHash() ? "설치 링크가 손상되었거나 공개 연결 설정이 올바르지 않습니다." : null);
 
   const connect = async (event: React.FormEvent) => {
     event.preventDefault();
