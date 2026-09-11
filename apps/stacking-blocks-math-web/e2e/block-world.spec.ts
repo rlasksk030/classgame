@@ -95,3 +95,24 @@ test('lesson 5 restricts its initial camera and unlocks after answering and requ
  await page.getByRole('button',{name:'추가 정보 확인',exact:true}).click();await expect(page.getByRole('button',{name:'위에서 보기',exact:true})).toBeEnabled();
  await drag();expect((await canvas.screenshot()).equals(initial)).toBe(false);
 });
+
+test('lesson 5 restriction also blocks touch orbit while other lessons remain free',async({page})=>{
+ await page.addInitScript(()=>localStorage.setItem('sb.student.token','test'));
+ const target={...problem,lesson:5,problemType:'CHOICE',givenBlocks:[{x:0,y:0,z:0},{x:1,y:0,z:0}],given:{allowRotate:false},choices:['8개','알 수 없음']};
+ await page.route('**/functions/v1/student-api',async route=>{const body=route.request().postDataJSON();const data=body.action==='lessonProblems'?{problems:[target]}:body.action==='snapshot:get'?{snapshot:null}:{problem:target,attempt:{wrongCount:0,hintShown:false,answerRevealed:false,completed:false},hint:null};await route.fulfill({json:data});});
+ await page.goto('/lesson/5');
+ const canvas=page.getByLabel('쌓기나무 3D 작업판'); await canvas.focus(); await page.waitForTimeout(600);
+ const before=await canvas.screenshot(); const box=await canvas.boundingBox();
+ await page.evaluate(({x,y})=>{const c=document.querySelector('canvas[aria-label="쌓기나무 3D 작업판"]')!; for(const [type,cx,cy] of [['pointerdown',x,y],['pointermove',x+140,y+60],['pointerup',x+140,y+60]] as const)c.dispatchEvent(new PointerEvent(type,{bubbles:true,pointerId:42,pointerType:'touch',clientX:cx,clientY:cy,button:0}));},{x:box!.x+40,y:box!.y+40});
+ expect((await canvas.screenshot()).equals(before)).toBe(true);
+});
+
+test('lesson 2 keeps camera orbit controls enabled',async({page})=>{
+ await page.addInitScript(()=>localStorage.setItem('sb.student.token','test'));
+ const target={...problem,lesson:2,givenBlocks:[{x:0,y:0,z:0},{x:1,y:0,z:0}],given:{allowRotate:true}};
+ await page.route('**/functions/v1/student-api',async route=>{const body=route.request().postDataJSON();const data=body.action==='lessonProblems'?{problems:[target]}:body.action==='snapshot:get'?{snapshot:null}:{problem:target,attempt:{wrongCount:0,hintShown:false,answerRevealed:false,completed:false},hint:null};await route.fulfill({json:data});});
+ await page.goto('/lesson/2'); const canvas=page.getByLabel('쌓기나무 3D 작업판'); await canvas.focus(); await page.waitForTimeout(600);
+ const before=await canvas.screenshot(); const box=await canvas.boundingBox();
+ await page.mouse.move(box!.x+40,box!.y+40); await page.mouse.down(); await page.mouse.move(box!.x+180,box!.y+100,{steps:8}); await page.mouse.up();
+ expect((await canvas.screenshot()).equals(before)).toBe(false);
+});
