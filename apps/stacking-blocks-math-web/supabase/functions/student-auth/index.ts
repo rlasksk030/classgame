@@ -53,6 +53,11 @@ Deno.serve(async (req) => {
     .eq("class_code", classCode)
     .maybeSingle();
 
+  console.info("[student-auth] class lookup", {
+    classFound: Boolean(klass),
+    lookupFailed: Boolean(classError),
+  });
+
   if (classError) {
     console.error("[student-auth] class lookup failed", { code: classError.code, message: classError.message });
     return fail(500, "STUDENT_AUTH_SERVER", "학생 로그인을 처리하지 못했어요. 잠시 뒤 다시 시도해 주세요.");
@@ -92,6 +97,12 @@ Deno.serve(async (req) => {
   const candidates = ((rows ?? []) as StudentRow[]).filter((candidate) => {
     if (normalizeStudentName(candidate.name) !== name) return false;
     return studentNo === null || candidate.student_no === studentNo;
+  });
+
+  console.info("[student-auth] student lookup", {
+    classFound: true,
+    studentCandidateCount: rows?.length ?? 0,
+    normalizedStudentMatched: candidates.length > 0,
   });
 
   if (candidates.length === 0) {

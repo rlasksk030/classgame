@@ -161,3 +161,10 @@
 - `student-auth` 변경은 로컬 코드와 테스트에 반영했지만, 실제 stacking-blocks-math 함수 재배포와 운영 학생 row/로그인 관통 검증은 아직 실행하지 못했다. `student-api`, RLS, PIN Vault, `APP_SESSION_SECRET`은 변경하지 않았다.
 - `student-auth` 배포 명령은 실행했으나 이 환경에 Supabase CLI access token이 없어 `LegacyPlatformAuthRequiredError`로 중단됐다. 토큰이나 비밀번호는 요청·출력하지 않았다.
 - 로컬 검증: `npm test` 27개, `npm run typecheck`, `npm run lint`, `npm run typecheck:edge`, `npm run build`, `npm run test:security` 통과.
+
+## 학생 로그인 RLS 경로 재진단 (2026-09-12)
+- 현재 `student-auth` 소스의 DB client는 `serviceClient()`이며 `SUPABASE_SERVICE_ROLE_KEY`를 Edge Function 내부에서만 사용한다. publishable/anon client나 브라우저 직접 조회는 사용하지 않는다. 따라서 anon RLS 때문에 `sb_students`가 0건이 되는 구조는 현재 코드상 아니다.
+- 실제 `STUDENT_NOT_FOUND`가 계속 발생한다면, 운영 프로젝트의 `student-auth` 배포 버전이 현재 소스와 다르거나 함수 환경/조회 응답이 불일치하는지 로그 확인이 우선이다. `student-auth`에 개인정보 없이 `classFound`, 후보 행 수, 정규화 이름 일치 여부를 기록하도록 추가했다.
+- `student-auth`는 학급 코드와 학생 이름을 정규화하고, `sb_students`를 해당 `class_id` 범위에서 서버 내부 조회한 뒤 이름·번호를 비교한다. RLS, anon SELECT, PIN Vault, `APP_SESSION_SECRET`은 변경하지 않았다.
+- 이번 코드 변경 후 실제 함수 재배포와 테스트 학생의 운영 row/로그인 관통 검증은 아직 미완료다. 기존에 배포된 `student-api`는 재배포하지 않는다.
+- `student-auth` 단독 배포는 시도했으나 Supabase CLI access token이 이 환경에 없어 `LegacyPlatformAuthRequiredError`로 실행되지 않았다. 운영자 로컬에서 `supabase login` 후 해당 함수만 배포해야 한다.
