@@ -10,7 +10,7 @@
 - private Storage bucket `sb-worksheets`, `sb-problem-images` 생성 SQL 적용.
 - `student-auth`, `student-api` 함수 배포 완료. 로컬 소스를 esbuild로 단일 ESM으로 묶어 대시보드 편집기로 배포했다. CLI 배포는 원본 다중 파일을 그대로 사용한다.
 - student-auth의 legacy JWT 설정 해제 저장 작업 수행. student-api 설정 변경은 자동 승인 검토가 거부해 보류.
-- **009 권한 SQL 적용 보류**: 실제 SQL 검사에서 authenticated/service_role 모두 16개 테이블 SELECT 권한이 0개였다. RLS 정책만으로는 테이블 사용 권한이 생기지 않는다.
+- **009 권한 SQL 적용 완료 (2026-09-11)**: 새 프로젝트 SQL Editor에서 원문을 실행했다. anon 권한은 추가하지 않았고 `sb_student_sessions`는 anon/authenticated에서 revoke했다.
 - **APP_SESSION_SECRET 미설정**, 교사 계정/테스트 학생 미생성. 로그인·진도 저장의 실제 성공을 검증한 상태가 아니다.
 - 공개 키 직접 조회: students/PIN vault/problems 각각 401 permission denied.
 - 함수 호출: student-auth 비존재 학급 CLASS_NOT_FOUND, student-api 세션 없는 요청 SESSION_MISSING 확인. 이는 함수 실행 확인이며 정상 로그인/DB 접근 성공의 증거가 아니다.
@@ -42,9 +42,9 @@ VITE_SUPABASE_PUBLISHABLE_KEY=대시보드의_sb_publishable_공개키
 6. 006_activities: 공유 문제/건축물/자기평가
 7. 007_teacher_reset: 교사 진도 초기화 RPC
 8. 008_worksheet: 수동 학습지, 비공개 파일 보관
-9. 009_api_grants: 새 프로젝트의 명시적 API 테이블 권한 (**아직 적용 안 됨**)
-10. 010_challenge_score: 9차시 친구 문제 점수(선택 적용)
-11. 011_practice_count: 차시별 추가 문제 수와 학생별 연습 seed (**이번 단계에서 파일만 준비, 실제 적용 안 함**)
+9. 009_api_grants: 새 프로젝트의 명시적 API 테이블 권한 (**2026-09-11 적용 완료**)
+10. 010_challenge_score: 9차시 친구 문제 점수 (**2026-09-11 적용 완료**)
+11. 011_practice_count: 차시별 추가 문제 수와 학생별 연습 seed (**2026-09-11 적용 완료**)
 
 현재 프로젝트에는 001~008을 다시 실행하지 않는다. 008은 반복 실행용 SQL이 아니다. SQL Editor 적용은 CLI migration 이력을 자동 등록하지 않는다. 추후 CLI를 처음 연결할 때는 이미 적용된 001~008을 확인하여 `supabase migration repair --status applied 버전번호`로 이력부터 맞춘다. 이후 `supabase db push --dry-run`으로 009만 남는지 확인한다.
 
@@ -94,4 +94,4 @@ Supabase가 함수에 제공하는 `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABAS
 
 권한 SQL/Secret/교사 계정/인증 설정이 끝나기 전에는 수업 투입 준비 완료로 판단하지 않는다.
 
-`202609110011_practice_count.sql`을 적용하면 교사 설정의 5/10/15/20 추가 문제 수와 학생별 결정적 문제 seed가 서버에 저장된다. 이 migration은 기존 테이블에 두 컬럼만 추가하며, 이번 10~11차시 작업에서는 실제 Supabase에 실행하지 않았다. 향후 적용할 때는 009 권한 설정과 함께 변경 창을 잡고, `student-api`의 문제 생성 요청 및 RLS를 다시 검증한다. 향후 학습지 배부(worksheet/assignment/submission/item)는 별도 migration과 Storage 정책으로 추가하며 이번 단계에서는 bucket을 만들지 않는다.
+`202609110011_practice_count.sql`을 적용하면 교사 설정의 5/10/15/20 추가 문제 수와 학생별 결정적 문제 seed가 서버에 저장된다. 이 migration은 기존 테이블에 두 컬럼만 추가하며 2026-09-11 새 Supabase 프로젝트에 적용 완료했다. `student-api`의 문제 생성 요청과 RLS는 실제 학생 세션을 준비한 뒤 다시 검증한다. 향후 학습지 배부(worksheet/assignment/submission/item)는 별도 migration과 Storage 정책으로 추가하며 이번 단계에서는 bucket을 만들지 않는다.

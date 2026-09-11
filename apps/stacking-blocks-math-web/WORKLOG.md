@@ -68,3 +68,27 @@
 - 실제 seed 저장에는 `202609110011_practice_count.sql` 적용이 필요하지만 이번 작업에서는 Supabase에 migration을 실행하지 않았다.
 - `practice:new-set`은 기존 seed를 덮어쓰지 않고 학생별 다음 seed를 기록한다. API가 migration 미적용 상태를 감지하면 새 세트 저장 실패를 안내한다.
 - 관련 검증: 차시 1·2·3·4·5·6·7·8·12를 50개 seed씩 생성해 유효성, 메타데이터, 재현성을 확인했다.
+
+## 실제 Supabase 연결 점검 (2026-09-11)
+- 시작 상태 확인: branch `pr-1`, HEAD `0da4a535cc21206fba17bdbccf220bca9afe4747`, 작업트리 변경 없음. reset/clean은 사용하지 않았다.
+- 원격 `stacking-blocks-math` SQL Editor에서 16개 `sb_` 테이블과 001~008의 기반 객체가 존재함을 확인했다. Supabase migration history 테이블은 이 프로젝트에 없어 파일 실행 이력으로 판정하지 않고 컬럼·권한·RLS를 대조했다.
+- `202609110009_api_grants.sql`: 원격에 적용 완료. `service_role` 및 `authenticated`에 필요한 테이블 권한을 부여하고 `sb_student_sessions`는 `anon, authenticated`에서 revoke했다. anon 전체 테이블 권한은 부여하지 않았다.
+- `202609110010_challenge_score.sql`: `sb_challenge_solves.score`가 없음을 확인한 뒤 원문을 적용했다(성공).
+- `202609110011_practice_count.sql`: `sb_lesson_settings.practice_count`, `sb_student_progress.practice_seed`가 없음을 확인한 뒤 원문을 적용했다(성공).
+- 원격 SQL 점검 결과 민감 6개 테이블(`sb_student_pin_vault`, `sb_student_progress`, `sb_lesson_settings`, `sb_problems`, `sb_shared_challenges`, `sb_challenge_solves`) 모두 RLS 활성화, `anon SELECT=false`, `authenticated/service_role SELECT=true`였다. 정책이 실제 행을 제한하는지 여부는 공개키 요청이 필요하다.
+- 공개키 REST 직접 조회는 샌드박스 DNS 실패 후 네트워크 권한 요청이 자동 승인 한도 초과로 거부되어 실행하지 못했다. 따라서 공개키 PIN vault/타 학생/교사 설정/정답 원본 차단은 **실제 키 검증 불가**로 분리한다. 서비스 키·비밀키는 사용하지 않았다.
+- 테스트 계정·학급·학생 PIN이 원격에 준비되어 있지 않아 학생/교사 전체 시나리오와 Edge Function 성공 경로를 허위로 PASS 처리하지 않았다. 실제 계정과 테스트 학생을 만든 뒤 `SUPABASE_SETUP.md`의 절차로 재검증해야 한다.
+
+## 배포판 구조 준비 (2026-09-11)
+- `src/lib/config.ts`에 `APP_VERSION`, `SCHEMA_VERSION`, `AppConfig`, 설치 ID 환경변수 계약을 추가했다. 개인 Supabase URL·키·교사·학급 값은 하드코딩하지 않는다.
+- `src/lib/distribution.ts`에 설치 상태(`NOT_CONFIGURED`~`READY`), `VersionService`/`UpdateManifest`, 원격 업데이트를 가장하지 않는 `LocalVersionService`, 비민감 진단 정보 계약을 추가했다. 실제 자동 migration·Storage·원격 업데이트는 실행하지 않는다.
+- `.env.example`에 선택적 `VITE_INSTALLATION_ID`를 추가하고 `DISTRIBUTION_ARCHITECTURE.md`에 교사별 Supabase 배포, 버전·migration·데이터 보존·향후 설치/업데이트 흐름을 기록했다.
+- 문제 다양성 점검(차시 1~8, 12 / seed 1·2 / 20개): 모든 차시에서 seed에 따라 블록/문제 데이터가 달라졌다. 차시 1·2·5는 정답 표현 자체가 고정되는 유형이지만 주어진 블록/문항은 달라진다. 현재 generator는 차시당 template 1개이며, 다중 유형 확장은 별도 작업으로 남긴다.
+
+## 검증 결과 (2026-09-11)
+- `npm run typecheck` PASS
+- `npm run lint` PASS
+- `npm test` PASS (17개)
+- `npm run typecheck:edge` PASS
+- `npm run build` PASS
+- `npm run test:e2e`는 로컬 webServer가 샌드박스에서 `listen EPERM 127.0.0.1:4173`로 시작하지 못해 실행 불가. 코드 우회나 승인 우회는 하지 않았다.
