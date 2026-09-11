@@ -9,6 +9,7 @@
 | 문제 좌표·정답 감사 | PASS — 기본 30개 + 생성 5,600개, invalid 0 |
 | Presentation 감사 | PASS — 기본/생성 14,030개, 누락 0 |
 | Curriculum QA | PASS — 1~12차시 route·단계·Renderer 계약 |
+| Renderer DOM mount | TEST READY — 3방향/층별 입력 검증 스위트는 로컬 포트 제한으로 미실행 |
 | Unit | PASS — 35개 |
 | Security | PASS — PIN hash 범위 및 session 위변조 검사 |
 | TypeScript / ESLint | PASS |
