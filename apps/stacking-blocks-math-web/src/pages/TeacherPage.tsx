@@ -3,6 +3,7 @@ import { getSupabase } from "../lib/supabase";
 import { Link } from "react-router-dom";
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { classifyTeacherError } from "../lib/teacherErrors";
+import { classifyClassCreateError } from "../lib/classCreateErrors";
 
 import {
   teacherCreateStudent,
@@ -32,6 +33,7 @@ export default function TeacherPage() {
   const [message, setMessage] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [classCreateError, setClassCreateError] = useState<{ code: string; message: string } | null>(null);
 
   const selectedClass = useMemo(() => classes.find((row) => row.id === classId) ?? null, [classes, classId]);
 
@@ -128,6 +130,24 @@ export default function TeacherPage() {
       setError(err instanceof Error ? err.message : "잠금 변경 실패");
     }
   };
+  const createClass = async () => {
+    const name = window.prompt("새 학급 이름");
+    if (!name?.trim()) return;
+    setClassCreateError(null);
+    setMessage(null);
+    setBusy(true);
+    try {
+      const result = await teacherUpsertClass({ name: name.trim() });
+      if (!result.class) throw new Error("학급 생성 응답이 비어 있습니다.");
+      setClassId(result.class.id);
+      setMessage(`"${result.class.name}" 학급을 만들었습니다. (${result.class.class_code})`);
+      await load();
+    } catch (reason) {
+      setClassCreateError(classifyClassCreateError(reason));
+    } finally {
+      setBusy(false);
+    }
+  };
   const setPracticeCount = async (lesson:number, count:5|10|15|20) => {
     try { const row=lessons.find(item=>item.lesson===lesson); await teacherSetLessonLock(classId,lesson,row?.locked??(lesson!==1),count); setLessons((await teacherListLessonSettings(classId)).lessons); }
     catch (err) { setError(err instanceof Error ? err.message : "추가 문제 수를 저장하지 못했습니다."); }
@@ -150,7 +170,8 @@ export default function TeacherPage() {
 
         <section className="panel stack">
           <h3>반 선택</h3>
-          <button className="btn" onClick={async()=>{const name=window.prompt("새 학급 이름");if(!name?.trim())return;try{await teacherUpsertClass({name:name.trim()});await load();}catch{setError("학급을 만들지 못했습니다.");}}}>새 학급 만들기</button>
+          <button className="btn" disabled={busy} onClick={() => void createClass()}>새 학급 만들기</button>
+          {classCreateError ? <p className="error" role="alert">{classCreateError.code}: {classCreateError.message}</p> : null}
           <div className="toolbar-row" style={{ alignItems: "center" }}>
             <select
               className="field"

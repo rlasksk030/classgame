@@ -145,3 +145,11 @@
 ## Runtime/DB 버전 호환 계약 (2026-09-11)
 - `getVersionState()`에 `currentAppVersion`, `requiredSchemaVersion`, `installedSchemaVersion`, `updateRequired` 계산을 추가했다. 설치된 Supabase schema가 부족한 경우 업데이트 필요 상태로 표시할 수 있다.
 - production build에서 현재 `.env.local`의 특정 Supabase URL·Publishable Key가 `dist`에 포함되지 않는 것을 문자열 점검으로 확인했다. 런타임 설정이 없는 production은 `/setup`으로 진입한다.
+
+## 교사 학급 생성 500 진단 및 최소 수정 (2026-09-11)
+- 실제 호출 경로는 `/teacher`의 `createClass()` → `teacherUpsertClass()` → `student-api`의 `teacher:class-upsert` → `sb_classes` INSERT 이다. 교사 Auth 세션은 `getSupabase().auth.getSession()`의 access token을 `Authorization: Bearer`로 전달하고 Edge Function의 `requireTeacher()`가 검증한다.
+- 500의 코드상 원인은 `sb_classes.class_code`가 `NOT NULL·UNIQUE`인데, 기존 신규 학급 INSERT가 교사가 코드를 보내지 않으면 해당 컬럼을 생략(`undefined`)하던 것이다. 따라서 DB가 NOT NULL 위반으로 `CLASS_CREATE_FAIL`을 반환했다. 별도 교사 profile/bootstrap 레코드는 학급 생성에 필요하지 않다.
+- `student-api`에서 코드가 없을 때 서버가 `generateClassCode()`로 5자리 코드를 만들고, 드문 UNIQUE 충돌은 최대 5회 재시도하도록 수정했다. 교사가 지정한 코드의 중복은 기존처럼 `DUPLICATE`로 처리한다. DB 오류 전문은 서버 `console.error`에만 남기고 프런트에는 안전한 `CLASS_CREATE_SERVER` 메시지만 전달한다.
+- 교사 화면은 학급 생성 실패를 `CLASS_CREATE_AUTH/PERMISSION/VALIDATION/NETWORK/SERVER`로 분류해 버튼 아래 즉시 표시하고, 성공 시 생성된 학급을 바로 선택하고 목록을 다시 불러온다.
+- 이번 수정에서는 migration, RLS, 권한, 다른 Edge Function을 변경하지 않았고 기존 `student-api`를 아직 재배포하지 않았다. 배포 후 실제 학급 생성 재검증이 필요하다.
+- 회귀 검증: `npm test` 25개, `npm run test:security`, `npm run typecheck`, `npm run lint`, `npm run typecheck:edge`, `npm run build` 통과. 테스트 계정·학급·학생 데이터는 생성하지 않았다.

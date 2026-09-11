@@ -24,6 +24,7 @@ import {
 } from "../_shared/http.ts";
 import {
   generatePin,
+  generateClassCode,
   generateShareCode,
   hashPin,
   hashToken,
@@ -876,53 +877,87 @@ Deno.serve(async (req: Request) => {
     }
 
     if (action === "teacher:class-upsert") {
-      const classId = text(body.classId, 80);
-      const name = text(body.name, 80);
-      if (!name) return fail(400, "BAD_PARAM", "반 이름이 필요합니다.");
+      try {
+        const classId = text(body.classId, 80);
+        const name = text(body.name, 80);
+        if (!name) return fail(400, "BAD_PARAM", "반 이름이 필요합니다.");
 
-      if (classId) {
-        const has = await teacherOwnsClass(db, teacherId, classId);
-        if (!has) return fail(403, "FORBIDDEN_CLASS", "해당 반에 접근할 수 없습니다.");
-        await db.from("sb_classes").update({ name }).eq("id", classId);
-        const { data: updated } = await db
+        if (classId) {
+          const has = await teacherOwnsClass(db, teacherId, classId);
+          if (!has) return fail(403, "FORBIDDEN_CLASS", "해당 반에 접근할 수 없습니다.");
+          await db.from("sb_classes").update({ name }).eq("id", classId);
+          const { data: updated } = await db
+            .from("sb_classes")
+            .select("id, name, class_code")
+            .eq("id", classId)
+            .maybeSingle();
+          return ok({ class: updated });
+        }
+
+        const requestedClassCode = text((body.classCode ?? ""), 10).toUpperCase();
+        let class_code = requestedClassCode;
+        let result: { error: { code?: string; message?: string } | null } = { error: null };
+
+        // class_code 는 NOT NULL·UNIQUE 이므로 교사가 직접 입력하지 않은 경우
+        // 서버에서 생성한다. 생성 코드가 우연히 충돌하면 짧게 재시도한다.
+        for (let attempt = 0; attempt < 5; attempt += 1) {
+          if (!class_code) class_code = generateClassCode();
+          result = await db.from("sb_classes").insert({
+            teacher_id: teacherId,
+            name,
+            class_code,
+          });
+          if (!result.error || result.error.code !== "23505" || requestedClassCode) break;
+          class_code = "";
+        }
+
+        if (result.error) {
+          if (result.error.code === "23505" && requestedClassCode) {
+            return fail(409, "DUPLICATE", "이미 사용 중인 반 코드입니다.");
+          }
+          console.error("[student-api] teacher:class-upsert insert failed", {
+            code: result.error.code ?? "UNKNOWN",
+            message: result.error.message ?? "unknown database error",
+          });
+          return fail(500, "CLASS_CREATE_FAIL", "학급을 저장하지 못했습니다. 잠시 뒤 다시 시도해 주세요.");
+        }
+
+        const createdClass = await db
           .from("sb_classes")
           .select("id, name, class_code")
-          .eq("id", classId)
+          .eq("teacher_id", teacherId)
+          .eq("name", name)
+          .order("created_at", { ascending: false })
+          .limit(1)
           .maybeSingle();
-        return ok({ class: updated });
-      }
 
-      const class_code = "" + text((body.classCode ?? ""), 10);
-      const result = await db.from("sb_classes").insert({
-        teacher_id: teacherId,
-        name,
-        class_code: class_code || undefined,
-      });
-
-      if (result.error) {
-        if (result.error.code === "23505") {
-          return fail(409, "DUPLICATE", "이미 사용 중인 반 코드입니다.");
+        if (createdClass.error) {
+          console.error("[student-api] teacher:class-upsert select failed", {
+            code: createdClass.error.code ?? "UNKNOWN",
+            message: createdClass.error.message ?? "unknown database error",
+          });
+          return fail(500, "CLASS_CREATE_SERVER", "학급을 저장하지 못했습니다. 잠시 뒤 다시 시도해 주세요.");
         }
-        return fail(500, "CLASS_CREATE_FAIL", result.error.message);
+
+        if (createdClass.data) {
+          const classData = createdClass.data as ClassRow;
+          const settingsResult = await db.from("sb_lesson_settings").upsert(makeDefaultLessonSettings(classData.id), {
+            onConflict: "class_id,lesson",
+          });
+          if (settingsResult.error) {
+            console.error("[student-api] teacher:class-upsert lesson defaults failed", {
+              code: settingsResult.error.code ?? "UNKNOWN",
+              message: settingsResult.error.message ?? "unknown database error",
+            });
+            return fail(500, "CLASS_CREATE_SERVER", "학급을 저장하지 못했습니다. 잠시 뒤 다시 시도해 주세요.");
+          }
+        }
+
+        return ok({ class: createdClass.data });
+      } catch (error) {
+        console.error("[student-api] teacher:class-upsert unexpected error", error instanceof Error ? error.message : String(error));
+        return fail(500, "CLASS_CREATE_SERVER", "학급을 저장하지 못했습니다. 잠시 뒤 다시 시도해 주세요.");
       }
-
-      const createdClass = await db
-        .from("sb_classes")
-        .select("id, name, class_code")
-        .eq("teacher_id", teacherId)
-        .eq("name", name)
-        .order("created_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
-
-      if (createdClass.data) {
-        const classData = createdClass.data as ClassRow;
-        await db.from("sb_lesson_settings").upsert(makeDefaultLessonSettings(classData.id), {
-          onConflict: "class_id,lesson",
-        });
-      }
-
-      return ok({ class: createdClass.data });
     }
 
     if (action === "teacher:students:list") {
