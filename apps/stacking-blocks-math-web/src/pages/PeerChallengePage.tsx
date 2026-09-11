@@ -9,6 +9,7 @@ import Representations from "../features/activities/Representations";
 
 const CHALLENGE_CARDS: Array<{ type: ChallengeType; title: string; description: string }> = [
   { type: "views", title: "위·앞·옆에서 본 모양", description: "세 방향에서 본 모습을 보여 주고 친구가 원래 모양을 쌓게 해요." },
+  { type: "top", title: "위에서 본 모양", description: "위에서 내려다본 바닥 모양만 보여 주고 친구가 숨은 높이를 추리하게 해요." },
   { type: "heightMap", title: "위에서 본 모양에 수 쓰기", description: "자리마다 쌓인 높이를 숫자로 보여 주고 친구가 모양을 만들게 해요." },
   { type: "layers", title: "층별로 나타낸 모양", description: "1층, 2층, 3층의 모양을 보여 주고 친구가 다시 쌓게 해요." },
 ];

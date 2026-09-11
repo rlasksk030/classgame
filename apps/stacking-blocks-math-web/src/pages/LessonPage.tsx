@@ -29,6 +29,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ProjectionGrid } from "../components/world/ProjectionGrid";
 import BlockWorld from "../components/world/BlockWorld";
+import { answerRendererFor } from "@shared/answerUi.ts";
 
 import { draftKey, readDraft, writeDraft, acknowledgeDraft } from "../lib/snapshotDraft";
 
@@ -723,7 +724,11 @@ export default function LessonPage() {
                 const projection = problem.given.projections[face];
                 return projection ? <ProjectionGrid title={`${DIRECTION_LABELS[direction]}에서 본 모양`} rows={projection} reverseRows={face !== "top"} editable={false} onChange={() => undefined} valueType="boolean" /> : null;
               })()}
-              <div className="answer-box">{renderEditor()}</div>
+              <div
+                className="answer-box"
+                data-answer-renderer={problem.presentation ? (answerRendererFor(problem.presentation.answerInput) ?? "missing") : "missing"}
+                aria-label="문제 유형에 맞는 답안 입력"
+              >{renderEditor()}</div>
 
               <div className="toolbar-row" style={{ marginTop: 12 }}>
                 <button className="btn" onClick={submit} disabled={restoring || busy || attempt.completed}>

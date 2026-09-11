@@ -23,7 +23,7 @@ export async function activityRequest(db:ReturnType<typeof serviceClient>, body:
   return error?fail(error.message.includes('VERSION_CONFLICT')?409:500,'SAVE_CONFLICT','다른 창에서 수정했거나 저장에 실패했습니다. 기기 기록을 보관했습니다. 서버 상태를 다시 확인해 주세요.'):ok({version:data});
  }
  if(action==='activity:challenge:create'){
-  const blocks=body.blocks as BlockCoord[],type=String(body.type),hintType=['views','heightMap','layers'].includes(String(body.hintType))?String(body.hintType):'heightMap';
+  const blocks=body.blocks as BlockCoord[],type=String(body.type),hintType=['views','top','heightMap','layers'].includes(String(body.hintType))?String(body.hintType):'heightMap';
   if(!validChallenge(blocks,type))return fail(400,'TEN_BLOCKS','쌓기나무를 정확히 10개 사용해 주세요.');
   const code=generateShareCode();
   const {error}=await db.from('sb_shared_challenges').insert({class_id:student.classId,author_id:student.studentId,share_code:code,challenge_type:type,hint_type:hintType,blocks:canonicalize(blocks),grid_width:5,grid_depth:5,max_height:3});
@@ -46,7 +46,7 @@ export async function activityRequest(db:ReturnType<typeof serviceClient>, body:
   }
   const blocks=body.blocks as BlockCoord[];
   if(!validStructure(blocks,ACTIVITY_GRID))return fail(400,'INVALID_BLOCKS','블록 위치를 확인해 주세요.');
-  const correct=grade({problemType:'BUILD_FROM_VIEWS',gradingMode:c.challenge_type==='views'?'constraint':'exact',answer:{kind:'blocks',blocks:c.blocks},submission:{kind:'blocks',blocks},given,grid:ACTIVITY_GRID}).correct&&blocks.length===10;
+  const correct=grade({problemType:'BUILD_FROM_VIEWS',gradingMode:['views','top'].includes(c.challenge_type)?'constraint':'exact',answer:{kind:'blocks',blocks:c.blocks},submission:{kind:'blocks',blocks},given,grid:ACTIVITY_GRID}).correct&&blocks.length===10;
   const outcome=applyAttempt(state,correct);
   const score=challengeScore(outcome.state.hintShown,outcome.state.answerRevealed,outcome.state.completed);
   const {error:saveError}=await db.rpc('sb_submit_challenge',{p_student:student.studentId,p_challenge:c.id,p_previous:state.wrongCount,p_state:{...outcome.state,xp:outcome.xpEarned,score}});

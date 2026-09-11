@@ -1,5 +1,10 @@
 # MVP 작업 기록
 
+## 추가 presentation·QA 보강 (2026-09-12)
+- 학생 답안 영역에 `data-answer-renderer` 계약 표식을 추가하고 Playwright Renderer mount 테스트를 준비했다. 3차시 세 격자와 8차시 층별 입력 격자가 실제 DOM에 생성되는지 확인한다.
+- 9차시 친구 문제 카드에 `위에서 본 모양` 단일 투영을 추가했다. `ChallengeType`·Edge Function 채점·힌트 검증과 전용 migration `202609110014_challenge_top_type.sql`을 함께 갱신했다.
+- `audit:lessons` alias와 QA 보고서의 단위 테스트 수(35개)를 정리했다.
+
 ## 문제 화면 presentation 전수 점검 (2026-09-12)
 - `shared/problemPresentation.ts`에 문제 유형·학생에게 보이는 3D/투영/높이 지도/층별 지도·답안 입력·카메라 정책을 연결하는 `ProblemPresentation` 계약과 validator를 추가했다.
 - 학생 API가 정답 원본은 제외한 presentation 메타데이터만 내려 주도록 했고, 교사 3D 문제 등록도 필요한 정보가 없으면 저장하지 않도록 검증한다.

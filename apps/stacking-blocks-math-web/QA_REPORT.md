@@ -9,7 +9,7 @@
 | 문제 좌표·정답 감사 | PASS — 기본 30개 + 생성 5,600개, invalid 0 |
 | Presentation 감사 | PASS — 기본/생성 14,030개, 누락 0 |
 | Curriculum QA | PASS — 1~12차시 route·단계·Renderer 계약 |
-| Unit | PASS — 34개 |
+| Unit | PASS — 35개 |
 | Security | PASS — PIN hash 범위 및 session 위변조 검사 |
 | TypeScript / ESLint | PASS |
 | Edge Function typecheck | PASS |
@@ -39,12 +39,15 @@
 - 실제 Supabase Auth/RLS/Edge Function 관통 흐름
 - QR 코드 생성은 아직 구현하지 않았고 현재는 링크 복사 방식
 - `npm run qa:visual` 실행 결과: Playwright webServer가 샌드박스의 `listen EPERM: 127.0.0.1:4173`로 시작하지 않아 캡처 미생성
+- `npm run qa:renderer`도 같은 로컬 포트 바인딩 제한으로 실행하지 못했다. 테스트 코드는 준비되어 있어 권한 있는 개발 환경에서 실제 DOM mount를 확인한다.
 - 자동 캡처 스위트는 `npm run qa:visual`로 실행하며 성공 시 `qa/screenshots/`에 1366×768 및 1024×768 터치 캡처를 저장한다.
+- Renderer DOM mount 스위트는 `npm run qa:renderer`로 실행한다. API를 모의해 3방향 격자 3개와 층별 격자를 실제 DOM에서 확인한다.
 
 재실행 명령:
 
 ```bash
 npm run qa:curriculum
+npm run audit:lessons
 npm run audit:problems
 npm run audit:presentation
 npm test
@@ -54,5 +57,6 @@ npm run lint
 npm run typecheck:edge
 npm run build
 npm run qa:visual
+npm run qa:renderer
 npm run test:e2e
 ```

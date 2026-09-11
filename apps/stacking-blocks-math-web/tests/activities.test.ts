@@ -10,6 +10,7 @@ const ten: BlockCoord[] = Array.from({ length: 10 }, (_, x) => ({ x: x % 5, y: M
 test('lesson 9 challenge requires exactly ten physically valid blocks', () => {
   assert.equal(validChallenge(ten.slice(0, 9), 'views'), false);
   assert.equal(validChallenge(ten, 'views'), true);
+  assert.equal(validChallenge(ten, 'top'), true);
   assert.equal(validChallenge(ten, 'heightMap'), true);
   assert.equal(validChallenge(ten, 'layers'), true);
   assert.equal(validChallenge(ten, 'other'), false);
@@ -17,6 +18,7 @@ test('lesson 9 challenge requires exactly ten physically valid blocks', () => {
 
 test('lesson 9 challenge cards are generated from the same projections', () => {
   assert.ok(challengeGiven(ten, 'views').projections?.front);
+  assert.ok(challengeGiven(ten, 'top').projections?.top);
   assert.ok(challengeGiven(ten, 'heightMap').heightMap);
   assert.ok(challengeGiven(ten, 'layers').layers);
 });
