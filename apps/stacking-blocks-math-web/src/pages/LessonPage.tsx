@@ -11,6 +11,7 @@ import {
   type StudentProblem,
   type ViewPreset,
 } from "@shared/types.ts";
+import { DIRECTION_LABELS } from "@shared/spatialConventions.ts";
 import { lessonTitle } from "@shared/lessons.ts";
 import {
   getLessonProblems,
@@ -478,7 +479,7 @@ export default function LessonPage() {
               className={`btn btn-sm ${directionValue === dir ? "btn-primary" : ""}`}
               onClick={() => setDirectionValue(normalizeDirection(dir))}
             >
-              {dir}
+              {DIRECTION_LABELS[dir]}
             </button>
           ))}
         </div>
@@ -682,6 +683,12 @@ export default function LessonPage() {
                 <p>{extraInformation ? "이제 돌려 보며 가려진 블록을 확인해 보세요." : "지금은 앞에서 본 모습만 볼 수 있어요. 먼저 판단해 답을 제출해 보세요."}</p>
                 <button className="btn" disabled={!result && !attempt.wrongCount && !attempt.completed} onClick={()=>setExtraInformation(true)}>추가 정보 확인</button>
               </div>}
+              {problem.problemType === "CAMERA_DIRECTION" && problem.given.projections && (() => {
+                const direction = normalizeDirection(problem.given.shownFrom ?? "front");
+                const face = direction === "top" ? "top" : direction === "front" || direction === "back" ? "front" : "side";
+                const projection = problem.given.projections[face];
+                return projection ? <ProjectionGrid title={`${DIRECTION_LABELS[direction]}에서 본 모양`} rows={projection} reverseRows={face !== "top"} editable={false} onChange={() => undefined} valueType="boolean" /> : null;
+              })()}
               {isBuildType(problem.problemType) && <div className="answer-box">
                 {(["top","front","side"] as const).map(face=>problem.given.projections?.[face] && <ProjectionGrid key={face} title={{top:"위에서 본 조건",front:"앞에서 본 조건",side:"옆에서 본 조건"}[face]} rows={problem.given.projections[face]!} reverseRows={face!=="top"} editable={false} onChange={()=>undefined} valueType="boolean" />)}
                 {problem.given.heightMap && <ProjectionGrid title="숫자 지도 조건" rows={problem.given.heightMap} editable={false} onChange={()=>undefined} valueType="number" />}
@@ -716,7 +723,7 @@ export default function LessonPage() {
 
               {attempt.answerRevealed && <div className="panel">
                 {attempt.revealedAnswer?.count != null && <p>정답: {attempt.revealedAnswer.count}개</p>}
-                {attempt.revealedAnswer?.direction && <p>정답 방향: {{front:"앞",back:"뒤",left:"왼쪽",right:"오른쪽",top:"위"}[attempt.revealedAnswer.direction]}</p>}
+                {attempt.revealedAnswer?.direction && <p>정답 방향: {DIRECTION_LABELS[normalizeDirection(attempt.revealedAnswer.direction)]}</p>}
                 {attempt.revealedAnswer?.choiceIndex != null && <p>정답: {problem.choices[attempt.revealedAnswer.choiceIndex]}</p>}
                 {attempt.revealedAnswer?.blocks && <button className="btn" onClick={()=>{setBlocksWithHistory(problem.startBlocks);setSelection(null);setMessage("정답 모양을 살펴보고 직접 다시 쌓아 보세요.");}}>정답 모양대로 다시 쌓기</button>}
                 <p>{attempt.revealedAnswer?.explanation}</p>

@@ -5,6 +5,7 @@ import SetupPage from './pages/SetupPage';
 import { getPendingInstallationConfig, hasInvalidInstallationConfigHash, saveRuntimeSupabaseConfig } from './lib/config';
 import { clearStudentToken } from './lib/studentApi';
 const StudentWorld = lazy(() => import('./pages/StudentWorld'));
+const RewardsPage = lazy(() => import('./pages/RewardsPage'));
 const LessonPage = lazy(() => import('./pages/LessonPage'));
 const TeacherPage = lazy(() => import('./pages/TeacherPage'));
 const TeacherGate = lazy(() => import('./pages/TeacherGate'));
@@ -33,6 +34,7 @@ export default function App() {
     <Route path="/setup" element={<SetupPage />} />
     <Route path="/" element={<StudentLogin />} />
     <Route path="/world" element={<StudentWorld />} />
+    <Route path="/world/rewards" element={<RewardsPage />} />
     <Route path="/lesson/9" element={<PeerChallengePage />} />
     <Route path="/lesson/:lesson/project" element={<ArchitecturePage />} />
     <Route path="/lesson/:lesson" element={<LessonRoute />} />

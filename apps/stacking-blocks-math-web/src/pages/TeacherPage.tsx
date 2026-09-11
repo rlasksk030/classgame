@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { classifyTeacherError } from "../lib/teacherErrors";
 import { classifyClassCreateError } from "../lib/classCreateErrors";
+import { encodeInstallationConfig, getResolvedSupabaseConfig } from "../lib/config";
 
 import {
   teacherCreateStudent,
@@ -34,6 +35,8 @@ export default function TeacherPage() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [classCreateError, setClassCreateError] = useState<{ code: string; message: string } | null>(null);
+  const [bulkNames, setBulkNames] = useState("");
+  const [bulkPreview, setBulkPreview] = useState<string[]>([]);
 
   const selectedClass = useMemo(() => classes.find((row) => row.id === classId) ?? null, [classes, classId]);
 
@@ -162,13 +165,42 @@ export default function TeacherPage() {
     }
   };
 
+  const previewBulkStudents = () => {
+    const names = bulkNames.split(/[\n,]/).map((value) => value.trim()).filter(Boolean);
+    setBulkPreview([...new Set(names)]);
+  };
+
+  const createBulkStudents = async () => {
+    if (!classId || !bulkPreview.length) return;
+    setBusy(true);
+    try {
+      for (const studentName of bulkPreview) await teacherCreateStudent(classId, studentName);
+      setMessage(`${bulkPreview.length}명의 학생을 추가했습니다. PIN은 목록에서 확인할 수 있어요.`);
+      setBulkNames(""); setBulkPreview([]);
+      setStudents((await teacherListStudents(classId)).students);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "학생 명단을 추가하지 못했습니다.");
+    } finally { setBusy(false); }
+  };
+
+  const runtimeConfig = getResolvedSupabaseConfig();
+  const classLink = selectedClass && runtimeConfig
+    ? `${window.location.origin}/?class=${encodeURIComponent(selectedClass.class_code)}#install=${encodeInstallationConfig(runtimeConfig)}`
+    : "";
+
   return (
     <div className="screen app-max">
       <div className="stack" style={{ gap: 16 }}>
-        <h1>🧱 교사 페이지</h1>
-        <div className="toolbar-row"><Link className="btn" to="/teacher/problems/new">3D 문제 만들기</Link><Link className="btn" to="/teacher/worksheet-import">학습지로 문제 만들기</Link></div>
+        <div className="student-world-heading"><div><p className="eyebrow">TEACHER CONSOLE</p><h1>교사 관리</h1><p className="muted">학급의 학습 흐름과 활동을 한곳에서 관리합니다.</p></div><div className="toolbar-row"><Link className="btn btn-sm" to="/teacher/problems/new">3D 문제 만들기</Link><Link className="btn btn-sm" to="/teacher/worksheet-import">학습지로 문제 만들기</Link></div></div>
+        <nav className="teacher-nav" aria-label="교사 메뉴"><a href="#classes">대시보드</a><a href="#students">학생 관리</a><a href="#lessons">차시 관리</a><a href="/teacher/problems/new">문제은행</a><a href="/teacher/worksheet-import">학습지</a></nav>
 
-        <section className="panel stack">
+        <section className="teacher-summary-grid" aria-label="학급 요약">
+          <div className="panel"><span className="summary-label">학생 수</span><strong className="summary-number">{students.length}명</strong><p className="muted">선택한 학급</p></div>
+          <div className="panel"><span className="summary-label">차시 잠금</span><strong className="summary-number">{lessons.filter((row) => row.locked).length}/12</strong><p className="muted">잠긴 차시</p></div>
+          <div className="panel"><span className="summary-label">현재 학급</span><strong className="summary-number">{selectedClass?.name ?? "선택 전"}</strong><p className="muted">{selectedClass?.class_code ?? "학급을 만들어 주세요."}</p></div>
+        </section>
+
+        <section className="panel stack" id="classes">
           <h3>반 선택</h3>
           <button className="btn" disabled={busy} onClick={() => void createClass()}>새 학급 만들기</button>
           {classCreateError ? <p className="error" role="alert">{classCreateError.code}: {classCreateError.message}</p> : null}
@@ -193,10 +225,13 @@ export default function TeacherPage() {
               새로고침
             </button>
           </div>
-          {selectedClass ? <p className="muted">선택 반: {selectedClass.name}</p> : <p className="muted">반을 선택해 주세요.</p>}
+          {selectedClass ? <>
+            <p className="muted">선택 반: {selectedClass.name} · 학급 코드 {selectedClass.class_code}</p>
+            {classLink ? <div className="class-link-box"><code>{classLink}</code><button className="btn btn-sm" type="button" onClick={() => void copyText(classLink)}>학생 링크 복사</button><p className="muted">링크를 누르면 설치 설정과 학급 코드가 함께 열립니다. QR 이미지는 별도 생성 도구에서 추가할 수 있어요.</p></div> : null}
+          </> : <p className="muted">반을 선택해 주세요.</p>}
         </section>
 
-        <section className="panel stack">
+        <section className="panel stack" id="students">
           <h3>학생 PIN 관리</h3>
           <button className="btn" disabled={!students.length} onClick={()=>void copyText(students.map(s=>`${s.name}\t${s.pinPlain}`).join("\n"))}>전체 PIN 복사</button>
           <form className="toolbar-row" onSubmit={createStudent}>
@@ -231,7 +266,7 @@ export default function TeacherPage() {
                         {student.pinPlain || "(준비중)"}
                       </button>
                     </td>
-                    <td>{student.status}</td>
+            <td>{student.status === "active" ? "사용 중" : "사용 중지"}</td>
                     <td className="toolbar-row">
                       <button className="btn btn-sm" onClick={async()=>{const name=window.prompt("학생 이름",student.name);if(!name?.trim())return;try{await teacherUpdateStudent(classId,student.id,{name:name.trim()});setStudents((await teacherListStudents(classId)).students);}catch{setError("이름을 수정하지 못했습니다.");}}}>이름 수정</button>
                       <button className="btn btn-sm" onClick={async()=>{if(!window.confirm(`${student.name} 학생과 학습 기록을 삭제할까요?`))return;const {error}=await getSupabase().from("sb_students").delete().eq("id",student.id).eq("class_id",classId);if(error){setError("삭제하지 못했습니다.");return;}setStudents(students.filter(s=>s.id!==student.id));}}>삭제</button>
@@ -252,9 +287,16 @@ export default function TeacherPage() {
               </tbody>
             </table>
           </div>
+          <details className="bulk-students">
+            <summary>학생 여러 명 한 번에 추가</summary>
+            <p className="muted">이름을 한 줄에 하나씩 붙여 넣으세요. 같은 명단의 중복 이름은 자동으로 한 번만 추가합니다.</p>
+            <textarea className="field" rows={4} value={bulkNames} onChange={(event) => setBulkNames(event.target.value)} placeholder="김민수\n이서윤\n박지호" />
+            <div className="toolbar-row"><button className="btn btn-sm" type="button" onClick={previewBulkStudents} disabled={!bulkNames.trim()}>명단 미리보기</button>{bulkPreview.length ? <button className="btn btn-sm btn-primary" type="button" onClick={() => void createBulkStudents()} disabled={busy}>{bulkPreview.length}명 생성</button> : null}</div>
+            {bulkPreview.length ? <p className="muted">추가할 학생: {bulkPreview.join(", ")}</p> : null}
+          </details>
         </section>
 
-        <section className="panel stack">
+        <section className="panel stack" id="lessons">
           <h3>차시 잠금</h3><div className="toolbar-row">{[true,false].map(locked=><button className="btn" key={String(locked)} disabled={!classId||busy} onClick={async()=>{setBusy(true);try{for(let lesson=1;lesson<=12;lesson++)await teacherSetLessonLock(classId,lesson,locked);setLessons((await teacherListLessonSettings(classId)).lessons);}catch{setError("일부 차시 설정에 실패했습니다. 새로고침해 확인해 주세요.");}finally{setBusy(false);}}}>{locked?"전체 잠금":"전체 해제"}</button>)}</div>
           <div className="toolbar-row" style={{ flexWrap: "wrap" }}>
             {lessons.map((row) => (
