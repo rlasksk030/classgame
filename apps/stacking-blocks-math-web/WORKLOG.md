@@ -83,12 +83,19 @@
 - `src/lib/config.ts`에 `APP_VERSION`, `SCHEMA_VERSION`, `AppConfig`, 설치 ID 환경변수 계약을 추가했다. 개인 Supabase URL·키·교사·학급 값은 하드코딩하지 않는다.
 - `src/lib/distribution.ts`에 설치 상태(`NOT_CONFIGURED`~`READY`), `VersionService`/`UpdateManifest`, 원격 업데이트를 가장하지 않는 `LocalVersionService`, 비민감 진단 정보 계약을 추가했다. 실제 자동 migration·Storage·원격 업데이트는 실행하지 않는다.
 - `.env.example`에 선택적 `VITE_INSTALLATION_ID`를 추가하고 `DISTRIBUTION_ARCHITECTURE.md`에 교사별 Supabase 배포, 버전·migration·데이터 보존·향후 설치/업데이트 흐름을 기록했다.
-- 문제 다양성 점검(차시 1~8, 12 / seed 1·2 / 20개): 모든 차시에서 seed에 따라 블록/문제 데이터가 달라졌다. 차시 1·2·5는 정답 표현 자체가 고정되는 유형이지만 주어진 블록/문항은 달라진다. 현재 generator는 차시당 template 1개이며, 다중 유형 확장은 별도 작업으로 남긴다.
+- 문제 다양성 점검(차시 1~8, 12 / seed 1·2 / 20개): 모든 차시에서 seed에 따라 전체 생성 문제 데이터가 달라졌다. 차시 1·2·5는 정답 표현 자체가 고정되는 유형이지만 주어진 블록/문항은 달라진다. 이후 템플릿 다양화로 차시 1~8은 6개, 차시 12는 8개 템플릿을 사용한다.
 
 ## 검증 결과 (2026-09-11)
 - `npm run typecheck` PASS
 - `npm run lint` PASS
-- `npm test` PASS (17개)
+- `npm test` PASS (18개)
 - `npm run typecheck:edge` PASS
 - `npm run build` PASS
 - `npm run test:e2e`는 로컬 webServer가 샌드박스에서 `listen EPERM 127.0.0.1:4173`로 시작하지 못해 실행 불가. 코드 우회나 승인 우회는 하지 않았다.
+
+## Seed 문제 템플릿 다양화 (2026-09-11)
+- 차시 1~8은 각각 6개, 차시 12는 8개의 템플릿을 제공한다. 기존 좌표·투영·heightMap·layerMap·constraint 채점 로직을 그대로 사용하며, 문제 유형도 템플릿마다 순환한다.
+- 학생별 seed와 문제 순서를 유지하면서 생성 인덱스에 따라 템플릿을 선택한다. 동일 템플릿이 3문제 연속 나오지 않도록 set-level 검증을 추가했다.
+- 차시 1·2·3·4·5·6·7·8·12에 대해 15문제 세트는 고유 템플릿 5개 이상, 20문제 세트는 6개 이상이어야 하며, 50개 seed 반복 생성에서 좌표·정답 계약을 모두 통과했다.
+- `tests/activities.test.ts`에 차시별 15/20문제 다양성, 템플릿 연속성, answer kind 검증을 추가했다.
+- Node 실사용 점검에서 차시 1~8은 15/20문제 모두 6개 템플릿, 차시 12는 8개 템플릿을 사용했으며, seed 1001/1002의 전체 문제 데이터가 모든 차시에서 달라졌다.

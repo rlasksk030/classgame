@@ -26,22 +26,40 @@ export interface GeneratedProblem extends SeedProblem {
   sourceType: ProblemSourceType;
 }
 
-const TEMPLATES: Record<number, ProblemTemplate[]> = Object.fromEntries(
-  Array.from({length: 12}, (_, i) => {
-    const lesson = i + 1;
-    const type: ProblemType = lesson === 2 ? 'CAMERA_DIRECTION' : lesson === 3 ? 'PROJECTION_DRAW' : lesson === 5 ? 'CHOICE' : lesson === 6 ? 'BUILD_FROM_VIEWS' : lesson === 7 ? 'HEIGHTMAP_FROM_BUILD' : lesson === 8 ? 'BUILD_FROM_LAYERS' : lesson === 12 ? 'COUNT' : lesson === 1 ? 'BLOCK_POSITION' : 'COUNT';
-    return [lesson, [{templateId: `lesson${lesson}-${type.toLowerCase()}`, lesson, problemType:type, conceptTags:conceptTagsForLesson(lesson), generatorVersion:1, difficulty:'PRACTICE'}]];
-  }),
-) as Record<number, ProblemTemplate[]>;
+const template = (lesson:number, templateId:string, problemType:ProblemType):ProblemTemplate => ({
+  templateId, lesson, problemType, conceptTags:conceptTagsForLesson(lesson), generatorVersion:1, difficulty:'PRACTICE',
+});
+
+/** 같은 모양만 바꾸지 않고 질문·답안 방식을 섞기 위한 차시별 템플릿 목록. */
+const TEMPLATES: Record<number, ProblemTemplate[]> = {
+  1: [template(1,'lesson1-position-right','BLOCK_POSITION'), template(1,'lesson1-position-above','BLOCK_POSITION'), template(1,'lesson1-layer-count','COUNT'), template(1,'lesson1-total-count','COUNT'), template(1,'lesson1-description-choice','CHOICE'), template(1,'lesson1-layer-compare','COUNT')],
+  2: [template(2,'lesson2-front-view','CAMERA_DIRECTION'), template(2,'lesson2-back-view','CAMERA_DIRECTION'), template(2,'lesson2-left-view','CAMERA_DIRECTION'), template(2,'lesson2-right-view','CAMERA_DIRECTION'), template(2,'lesson2-top-view','CAMERA_DIRECTION'), template(2,'lesson2-feature-check','CAMERA_DIRECTION')],
+  3: [template(3,'lesson3-top-draw','PROJECTION_DRAW'), template(3,'lesson3-front-draw','PROJECTION_DRAW'), template(3,'lesson3-side-draw','PROJECTION_DRAW'), template(3,'lesson3-all-views','PROJECTION_DRAW'), template(3,'lesson3-hidden-side','PROJECTION_DRAW'), template(3,'lesson3-direction-judge','PROJECTION_DRAW')],
+  4: [template(4,'lesson4-total-count','COUNT'), template(4,'lesson4-height-map','HEIGHTMAP_FROM_BUILD'), template(4,'lesson4-layer-count','COUNT'), template(4,'lesson4-layer-map','LAYER_DRAW'), template(4,'lesson4-method-choice','CHOICE'), template(4,'lesson4-missing-info','HEIGHTMAP_FROM_BUILD')],
+  5: [template(5,'lesson5-unknown-choice','CHOICE'), template(5,'lesson5-hidden-min','COUNT_AMBIGUOUS'), template(5,'lesson5-hidden-max','COUNT_AMBIGUOUS'), template(5,'lesson5-extra-info','CHOICE'), template(5,'lesson5-same-view','CHOICE'), template(5,'lesson5-reveal-count','COUNT')],
+  6: [template(6,'lesson6-build-views','BUILD_FROM_VIEWS'), template(6,'lesson6-another-solution','BUILD_FROM_VIEWS'), template(6,'lesson6-possible-shape','BUILD_FROM_VIEWS'), template(6,'lesson6-minimum','BUILD_FROM_VIEWS'), template(6,'lesson6-maximum','BUILD_FROM_VIEWS'), template(6,'lesson6-unique-or-many','BUILD_FROM_VIEWS')],
+  7: [template(7,'lesson7-height-to-build','BUILD_FROM_HEIGHTMAP'), template(7,'lesson7-build-to-height','HEIGHTMAP_FROM_BUILD'), template(7,'lesson7-total-from-height','HEIGHTMAP_FROM_BUILD'), template(7,'lesson7-fill-height','BUILD_FROM_HEIGHTMAP'), template(7,'lesson7-find-wrong-height','HEIGHTMAP_FROM_BUILD'), template(7,'lesson7-changed-height','HEIGHTMAP_FROM_BUILD')],
+  8: [template(8,'lesson8-layers-to-build','BUILD_FROM_LAYERS'), template(8,'lesson8-build-to-layers','LAYER_DRAW'), template(8,'lesson8-missing-layer','LAYER_DRAW'), template(8,'lesson8-layer-count','COUNT'), template(8,'lesson8-total-count','COUNT'), template(8,'lesson8-next-layer','LAYER_DRAW')],
+  9: [template(9,'lesson9-peer-challenge','BUILD_FROM_VIEWS')],
+  10: [template(10,'lesson10-project','FREE_BUILD')],
+  11: [template(11,'lesson11-project','FREE_BUILD')],
+  12: [template(12,'lesson12-direction','CAMERA_DIRECTION'), template(12,'lesson12-projection','PROJECTION_DRAW'), template(12,'lesson12-count','COUNT'), template(12,'lesson12-height-map','HEIGHTMAP_FROM_BUILD'), template(12,'lesson12-layer-map','LAYER_DRAW'), template(12,'lesson12-constraint','BUILD_FROM_VIEWS'), template(12,'lesson12-hidden-block','COUNT_AMBIGUOUS'), template(12,'lesson12-spatial-choice','CHOICE')],
+};
 
 export function getProblemTemplates(lesson:number): ProblemTemplate[] {
   return (TEMPLATES[lesson] ?? []).map(template => ({...template}));
 }
 
-export function validateGeneratedProblem(problem: Pick<SeedProblem, 'grid'|'givenBlocks'|'startBlocks'|'answer'|'gradingMode'>): boolean {
+export function validateGeneratedProblem(problem: Pick<SeedProblem, 'grid'|'givenBlocks'|'startBlocks'|'answer'|'gradingMode'|'problemType'>): boolean {
   if (!validStructure(problem.givenBlocks, problem.grid) || !validStructure(problem.startBlocks, problem.grid)) return false;
   if (problem.answer.kind === 'blocks' && !validStructure(problem.answer.blocks, problem.grid)) return false;
   if (problem.answer.kind === 'count' && (!Number.isInteger(problem.answer.value) || problem.answer.value < 0)) return false;
+  const expected: Record<ProblemType, string> = {
+    FREE_BUILD:'blocks', BLOCK_POSITION:'choice', CAMERA_DIRECTION:'direction', PROJECTION_DRAW:'projections',
+    COUNT:'count', COUNT_AMBIGUOUS:'count', BUILD_FROM_VIEWS:'blocks', BUILD_FROM_HEIGHTMAP:'blocks',
+    HEIGHTMAP_FROM_BUILD:'heightMap', BUILD_FROM_LAYERS:'blocks', LAYER_DRAW:'layers', PATTERN_NEXT:'choice', CHOICE:'choice',
+  };
+  if (problem.answer.kind !== expected[problem.problemType]) return false;
   return true;
 }
 
@@ -58,11 +76,11 @@ function shape(seed:number, lesson:number, maxHeight=4, gridWidth=4, gridDepth=4
   return fromHeightMap(heights);
 }
 function cells(blocks:BlockCoord[],grid:GridConfig):Grid2D[]{return toLayers(blocks,grid);}
-function base(lesson:number,index:number,blocks:BlockCoord[],type:ProblemType,given:ProblemGiven,answer:SeedProblem['answer'],grid:GridConfig,mode:'exact'|'constraint'='exact'):GeneratedProblem{
+function base(lesson:number,index:number,blocks:BlockCoord[],type:ProblemType,given:ProblemGiven,answer:SeedProblem['answer'],grid:GridConfig,mode:'exact'|'constraint'='exact',selectedTemplate?:ProblemTemplate):GeneratedProblem{
   const tier=index<5?1:index<10?2:index<13?3:3;
-  const template = TEMPLATES[lesson]?.[0] ?? {templateId:`lesson${lesson}-practice`, lesson, problemType:type, conceptTags:conceptTagsForLesson(lesson), generatorVersion:1, difficulty:'PRACTICE' as DifficultyTier};
+  const chosenTemplate = selectedTemplate ?? TEMPLATES[lesson]?.[0] ?? {templateId:`lesson${lesson}-practice`, lesson, problemType:type, conceptTags:conceptTagsForLesson(lesson), generatorVersion:1, difficulty:'PRACTICE' as DifficultyTier};
   const difficultyTier:DifficultyTier=tier===1?'BASIC':tier===2?'PRACTICE':index<15?'APPLICATION':'CHALLENGE';
-  return {code:`GEN-L${lesson}-${String(index+1).padStart(2,'0')}`,lesson,orderIndex:100+index,problemType:type,title:`${lesson}차시 연습 ${index+1}`,prompt:'쌓기나무 모양을 여러 방향에서 살펴보고 문제를 해결해 보세요.',grid,givenBlocks:blocks,startBlocks:[],given,choices:[],answer,gradingMode:mode,hint:'아래층부터 차례로 확인하고, 필요한 경우 층별 보기와 숫자 지도를 활용해 보세요.',explanation:'블록 좌표와 투영 정보를 비교하면 같은 입체를 정확히 표현할 수 있어요.',difficulty:tier===1?1:tier===2?2:3,xp:tier===1?20:tier===2?25:30,templateId:template.templateId,seed:index,generatorVersion:template.generatorVersion,difficultyTier,conceptTags:template.conceptTags,sourceType:'GENERATED_PRACTICE'};
+  return {code:`GEN-L${lesson}-${String(index+1).padStart(2,'0')}`,lesson,orderIndex:100+index,problemType:type,title:`${lesson}차시 연습 ${index+1}`,prompt:'쌓기나무 모양을 여러 방향에서 살펴보고 문제를 해결해 보세요.',grid,givenBlocks:blocks,startBlocks:[],given,choices:[],answer,gradingMode:mode,hint:'아래층부터 차례로 확인하고, 필요한 경우 층별 보기와 숫자 지도를 활용해 보세요.',explanation:'블록 좌표와 투영 정보를 비교하면 같은 입체를 정확히 표현할 수 있어요.',difficulty:tier===1?1:tier===2?2:3,xp:tier===1?20:tier===2?25:30,templateId:chosenTemplate.templateId,seed:index,generatorVersion:chosenTemplate.generatorVersion,difficultyTier,conceptTags:chosenTemplate.conceptTags,sourceType:'GENERATED_PRACTICE'};
 }
 
 /** 저장된 seed 없이도 같은 lesson/index가 늘 같은 문제를 만드는 순수 생성기. */
@@ -73,16 +91,18 @@ export function generatePracticeProblems(lesson:number,count:number,seed=0):Gene
     const blocks=shape(seed+i+1,lesson,grid.maxHeight,grid.gridWidth,grid.gridDepth);
     const p=project(blocks,grid);
     const h=toHeightMap(blocks,grid);
+    const selectedTemplate = TEMPLATES[lesson]?.[i % (TEMPLATES[lesson]?.length || 1)];
     let item:GeneratedProblem;
-    if(lesson===1){const position=i%2===0?'오른쪽':'위';item=base(lesson,i,blocks,'BLOCK_POSITION',{allowRotate:true},{kind:'choice',index:0},grid);item.choices=[`${position}에 있는 블록`, '뒤쪽에 있는 블록', '다른 층의 블록'];item.prompt=`빨간 블록의 ${position}에 있는 블록을 골라 보세요.`;}
-    else if(lesson===2){item=base(lesson,i,blocks,'CAMERA_DIRECTION',{projections:{front:p.front},shownFrom:'front',allowRotate:true},{kind:'direction',value:'front'},grid);}
-    else if(lesson===3){item=base(lesson,i,blocks,'PROJECTION_DRAW',{projections:p,allowRotate:true},{kind:'projections',projections:p},grid);}
-    else if(lesson===4){item=base(lesson,i,blocks,'COUNT',{allowRotate:true,allowLayerView:true},{kind:'count',value:blocks.length},grid);}
-    else if(lesson===5){item=base(lesson,i,blocks,'CHOICE',{allowRotate:false,note:'먼저 한 방향에서만 판단해 보세요.'},{kind:'choice',index:1},grid);item.choices=['이 정보만으로 정확히 알 수 있어요.','가려진 곳의 정보가 더 필요해요.'];item.prompt='한 방향에서 본 모습만 보고 전체 개수를 정확히 알 수 있을까요?';}
-    else if(lesson===6){item=base(lesson,i,blocks,'BUILD_FROM_VIEWS',{projections:p,allowRotate:true},{kind:'blocks',blocks},grid,'constraint');}
-    else if(lesson===7){item=base(lesson,i,blocks,'HEIGHTMAP_FROM_BUILD',{allowRotate:true,allowLayerView:true},{kind:'heightMap',heightMap:h},grid);}
-    else if(lesson===8){item=base(lesson,i,blocks,'BUILD_FROM_LAYERS',{layers:cells(blocks,grid),allowRotate:true,allowLayerView:true},{kind:'blocks',blocks},grid);}
-    else if(lesson===12){const mode=i%3;item=mode===0?base(lesson,i,blocks,'COUNT',{allowRotate:true},{kind:'count',value:blocks.length},grid):mode===1?base(lesson,i,blocks,'HEIGHTMAP_FROM_BUILD',{allowRotate:true},{kind:'heightMap',heightMap:h},grid):base(lesson,i,blocks,'BUILD_FROM_VIEWS',{projections:p,allowRotate:true},{kind:'blocks',blocks},grid,'constraint');}
+    if(lesson===1){const mode=i%6; const position=mode===1?'위':'오른쪽'; const type=mode<2?'BLOCK_POSITION':mode===4?'CHOICE':'COUNT'; const answer=mode<2||mode===4?{kind:'choice',index:0} as const:{kind:'count',value:mode===2?blocks.filter(b=>b.y===1).length:blocks.length} as const; item=base(lesson,i,blocks,type,{allowRotate:true,allowLayerView:true,countOf:mode===2?'layer':undefined,countLayer:2},answer,grid,'exact',selectedTemplate); item.choices=[`${position}에 있는 블록`,'뒤쪽에 있는 블록','다른 층의 블록']; item.prompt=mode<2?`빨간 블록의 ${position}에 있는 블록을 골라 보세요.`:mode===4?'설명에 맞는 모양을 골라 보세요.':mode===5?'자리별로 센 수와 층별로 센 수가 같은지 확인해 보세요.':mode===2?'2층에 있는 쌓기나무는 몇 개인가요?':'전체 쌓기나무는 몇 개인가요?';}
+    else if(lesson===2){const dirs=['front','back','left','right','top'] as const; const d=dirs[i%dirs.length]; const projection=d==='top'?p.top:d==='right'||d==='left'?p.side:p.front; item=base(lesson,i,blocks,'CAMERA_DIRECTION',{projections:{front:projection},shownFrom:d,allowRotate:true},{kind:'direction',value:d},grid,'exact',selectedTemplate); item.prompt=`아래 모습은 어느 방향에서 본 것일까요?`;
+    }
+    else if(lesson===3){const views=[{top:p.top},{front:p.front},{side:p.side},{top:p.top,front:p.front,side:p.side},{side:p.side},{top:p.top}] as Partial<typeof p>[]; item=base(lesson,i,blocks,'PROJECTION_DRAW',{projections:views[i%views.length],allowRotate:true},{kind:'projections',projections:views[i%views.length]},grid,'exact',selectedTemplate); item.prompt=['위에서 본 모양','앞에서 본 모양','옆에서 본 모양','세 방향에서 본 모양'][i%4]+'을 격자에 나타내 보세요.';}
+    else if(lesson===4){const mode=i%6; const type=mode===1||mode===5?'HEIGHTMAP_FROM_BUILD':mode===3?'LAYER_DRAW':mode===4?'CHOICE':'COUNT'; const answer=type==='HEIGHTMAP_FROM_BUILD'?{kind:'heightMap',heightMap:h} as const:type==='LAYER_DRAW'?{kind:'layers',layers:cells(blocks,grid)} as const:type==='CHOICE'?{kind:'choice',index:0} as const:{kind:'count',value:blocks.length} as const; item=base(lesson,i,blocks,type,{allowRotate:true,allowLayerView:true,heightMap:h,layers:cells(blocks,grid)},answer,grid,'exact',selectedTemplate); item.choices=['자리별 높이로 세기','층별로 나누어 세기','둘 다 사용할 수 없어요']; item.prompt=type==='HEIGHTMAP_FROM_BUILD'?'각 자리의 높이를 숫자로 나타내 보세요.':type==='LAYER_DRAW'?'층별 모양을 격자에 나타내 보세요.':type==='CHOICE'?'개수를 세는 두 방법 중 맞는 것을 고르세요.':'쌓기나무는 모두 몇 개인가요?';}
+    else if(lesson===5){const mode=i%6; if(mode===1||mode===2){item=base(lesson,i,blocks,'COUNT_AMBIGUOUS',{allowRotate:false,note:'먼저 한 방향에서만 판단해 보세요.'},{kind:'count',value:blocks.length},grid,'exact',selectedTemplate); item.prompt=mode===1?'숨겨진 블록이 없다고 할 때 가능한 개수는 얼마일까요?':'숨겨진 블록이 더 있을 때 가장 많아질 수 있는 개수는 얼마일까요?';} else if(mode===5){item=base(lesson,i,blocks,'COUNT',{allowRotate:true},{kind:'count',value:blocks.length},grid,'exact',selectedTemplate); item.prompt='추가 정보를 받은 뒤 실제 개수를 구해 보세요.';} else {item=base(lesson,i,blocks,'CHOICE',{allowRotate:false,note:'먼저 한 방향에서만 판단해 보세요.'},{kind:'choice',index:1},grid,'exact',selectedTemplate); item.choices=['이 정보만으로 정확히 알 수 있어요.','가려진 곳의 정보가 더 필요해요.']; item.prompt=mode===3?'정확히 알려면 어떤 정보가 더 필요할까요?':'한 방향에서 본 모습만 보고 전체 개수를 정확히 알 수 있을까요?';}}
+    else if(lesson===6){item=base(lesson,i,blocks,'BUILD_FROM_VIEWS',{projections:p,allowRotate:true},{kind:'blocks',blocks},grid,'constraint',selectedTemplate); item.prompt=['세 방향 모습을 보고 직접 쌓아 보세요.','조건을 만족하는 다른 모양도 만들어 보세요.','가능한 입체를 만들어 보세요.','가능한 모양 중 하나를 찾아 보세요.'][i%4];}
+    else if(lesson===7){const build=i%3===0; item=build?base(lesson,i,blocks,'BUILD_FROM_HEIGHTMAP',{heightMap:h,allowRotate:true,allowLayerView:true},{kind:'blocks',blocks},grid,'exact',selectedTemplate):base(lesson,i,blocks,'HEIGHTMAP_FROM_BUILD',{allowRotate:true,allowLayerView:true},{kind:'heightMap',heightMap:h},grid,'exact',selectedTemplate); item.prompt=build?'숫자 지도를 보고 3D 모양을 쌓아 보세요.':'3D 모양을 보고 높이 지도를 완성해 보세요.';}
+    else if(lesson===8){const draw=i%3===1; item=draw?base(lesson,i,blocks,'LAYER_DRAW',{layers:cells(blocks,grid),allowRotate:true,allowLayerView:true},{kind:'layers',layers:cells(blocks,grid)},grid,'exact',selectedTemplate):base(lesson,i,blocks,'BUILD_FROM_LAYERS',{layers:cells(blocks,grid),allowRotate:true,allowLayerView:true},{kind:'blocks',blocks},grid,'exact',selectedTemplate); item.prompt=draw?'3D 모양의 층별 표현을 그려 보세요.':'층별 표현을 보고 3D 모양을 쌓아 보세요.';}
+    else if(lesson===12){const mode=i%8; if(mode===0)item=base(lesson,i,blocks,'CAMERA_DIRECTION',{projections:{front:p.front},shownFrom:'front',allowRotate:true},{kind:'direction',value:'front'},grid,'exact',selectedTemplate); else if(mode===1)item=base(lesson,i,blocks,'PROJECTION_DRAW',{projections:p,allowRotate:true},{kind:'projections',projections:p},grid,'exact',selectedTemplate); else if(mode===3)item=base(lesson,i,blocks,'HEIGHTMAP_FROM_BUILD',{allowRotate:true},{kind:'heightMap',heightMap:h},grid,'exact',selectedTemplate); else if(mode===5)item=base(lesson,i,blocks,'LAYER_DRAW',{layers:cells(blocks,grid),allowRotate:true},{kind:'layers',layers:cells(blocks,grid)},grid,'exact',selectedTemplate); else if(mode===6)item=base(lesson,i,blocks,'COUNT_AMBIGUOUS',{allowRotate:false},{kind:'count',value:blocks.length},grid,'exact',selectedTemplate); else if(mode===7)item=base(lesson,i,blocks,'CHOICE',{allowRotate:true},{kind:'choice',index:0},grid,'exact',selectedTemplate); else item=base(lesson,i,blocks,'COUNT',{allowRotate:true},{kind:'count',value:blocks.length},grid,'exact',selectedTemplate);}
     else {item=base(lesson,i,blocks,'COUNT',{allowRotate:true,allowLayerView:true},{kind:'count',value:blocks.length},grid);}
     if (!validateGeneratedProblem(item)) continue;
     out.push(item);

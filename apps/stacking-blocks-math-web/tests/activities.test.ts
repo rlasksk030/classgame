@@ -61,3 +61,24 @@ test('all practice lesson generators produce valid seeded problems', () => {
     }
   }
 });
+
+test('practice sets mix templates and do not repeat one template three times', () => {
+  for (const lesson of [1,2,3,4,5,6,7,8,12]) {
+    const fifteen = generatePracticeProblems(lesson, 15, 42);
+    const twenty = generatePracticeProblems(lesson, 20, 42);
+    assert.ok(new Set(fifteen.map(item => item.templateId)).size >= 5, `lesson ${lesson} needs five templates`);
+    assert.ok(new Set(twenty.map(item => item.templateId)).size >= 6, `lesson ${lesson} needs six templates`);
+    for (let i = 2; i < twenty.length; i += 1) {
+      assert.notEqual(twenty[i].templateId, twenty[i - 1].templateId);
+      assert.notEqual(twenty[i].templateId, twenty[i - 2].templateId);
+    }
+  }
+});
+
+test('changing the student seed changes the generated practice content', () => {
+  for (const lesson of [1,2,3,4,5,6,7,8,12]) {
+    const first = generatePracticeProblems(lesson, 20, 1001).map(({ code: _code, ...problem }) => problem);
+    const second = generatePracticeProblems(lesson, 20, 1002).map(({ code: _code, ...problem }) => problem);
+    assert.notDeepEqual(first, second, `lesson ${lesson} should vary by seed`);
+  }
+});
