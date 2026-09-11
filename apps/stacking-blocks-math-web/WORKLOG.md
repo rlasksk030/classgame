@@ -124,6 +124,12 @@
 - `/setup`은 연결 확인 후 공개 설정만 localStorage에 저장하고, 다른 installationId fragment는 확인 대화상자 승인 전까지 현재 설정과 학생 토큰을 유지한다.
 - `getVersionState()`에 앱 버전·필수 schema 버전·설치 schema 버전·업데이트 필요 여부 계약을 추가했다.
 
+## APP_SESSION_SECRET 및 교사 인증 점검 (2026-09-11)
+- 운영자가 새 `stacking-blocks-math` 프로젝트의 Edge Function Secret에 `APP_SESSION_SECRET` 설정을 완료했다고 확인했다. 값은 기록하지 않는다.
+- 교사 계정 생성 경로는 `/setup`이 아니라 Supabase Auth Dashboard의 Users 생성/초대다. 교사는 `/teacher`에서 `signInWithPassword`로 로그인하며, 이후 학급·학생 생성은 인증된 교사 API가 담당한다.
+- `student-auth`는 `hashPin`과 `issueSessionToken`에서 `APP_SESSION_SECRET`을 읽고, `student-api`는 `verifySessionToken`으로 같은 서명을 검증한다. 로컬 HMAC/세션 위변조 테스트는 통과했다.
+- 실제 교사 1명·학급 1개·학생 2명 생성과 학생/교사 관통 smoke test는 필요한 테스트 계정이 아직 없고 Supabase 네트워크 호출이 제한되어 실행하지 않았다. 임의 데이터는 생성하지 않았다.
+
 ## Runtime/DB 버전 호환 계약 (2026-09-11)
 - `getVersionState()`에 `currentAppVersion`, `requiredSchemaVersion`, `installedSchemaVersion`, `updateRequired` 계산을 추가했다. 설치된 Supabase schema가 부족한 경우 업데이트 필요 상태로 표시할 수 있다.
 - production build에서 현재 `.env.local`의 특정 Supabase URL·Publishable Key가 `dist`에 포함되지 않는 것을 문자열 점검으로 확인했다. 런타임 설정이 없는 production은 `/setup`으로 진입한다.

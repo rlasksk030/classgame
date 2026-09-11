@@ -11,7 +11,7 @@
 - `student-auth`, `student-api` 함수 배포 완료. 로컬 소스를 esbuild로 단일 ESM으로 묶어 대시보드 편집기로 배포했다. CLI 배포는 원본 다중 파일을 그대로 사용한다.
 - student-auth의 legacy JWT 설정 해제 저장 작업 수행. student-api 설정 변경은 자동 승인 검토가 거부해 보류.
 - **009 권한 SQL 적용 완료 (2026-09-11)**: 새 프로젝트 SQL Editor에서 원문을 실행했다. anon 권한은 추가하지 않았고 `sb_student_sessions`는 anon/authenticated에서 revoke했다.
-- **APP_SESSION_SECRET 미설정**, 교사 계정/테스트 학생 미생성. 로그인·진도 저장의 실제 성공을 검증한 상태가 아니다.
+- **APP_SESSION_SECRET은 운영자가 Supabase Edge Function Secret으로 설정 완료했다고 확인했다.** 값은 코드·Git·프런트엔드·로그에 저장하지 않는다. 교사 계정/테스트 학생은 아직 생성하지 않았으며, 로그인·진도 저장의 실제 성공을 검증한 상태가 아니다.
 - 공개 키 직접 조회: students/PIN vault/problems 각각 401 permission denied.
 - 함수 호출: student-auth 비존재 학급 CLASS_NOT_FOUND, student-api 세션 없는 요청 SESSION_MISSING 확인. 이는 함수 실행 확인이며 정상 로그인/DB 접근 성공의 증거가 아니다.
 
@@ -63,17 +63,17 @@ supabase functions deploy student-api --project-ref lpjpwrgzwumnikroledh
 
 `supabase/config.toml`은 내부 인증을 사용하도록 verify_jwt=false를 명시한다. student-api 설정 변경은 이번 자동 승인 검토에서 보류됐으므로 승인 전 위 명령으로 우회 적용하지 않는다.
 
-대시보드 → Edge Functions → Secrets에서 `APP_SESSION_SECRET`을 추가한다. 암호 관리자로 최소 32바이트 무작위 값을 생성하고 서버 Secret에만 보관한다. 코드/SQL/공개 env/로그에 넣지 않는다. 변경하면 기존 PIN 해시·세션에 영향을 줄 수 있으므로 운영 후에는 임의 교체하지 않는다.
+대시보드 → Edge Functions → Secrets에서 `APP_SESSION_SECRET`을 추가한다. 현재 새 프로젝트에는 설정 완료 상태다. 암호 관리자로 최소 32바이트 무작위 값을 생성하고 서버 Secret에만 보관한다. 코드/SQL/공개 env/로그에 넣지 않는다. 변경하면 기존 PIN 해시·세션에 영향을 줄 수 있으므로 운영 후에는 임의 교체하지 않는다.
 
 Supabase가 함수에 제공하는 `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`는 `_shared/db.ts`에서만 사용한다. 프런트엔드에 복사하지 않는다. AI Secret은 필요 없다.
 
 ## 4. 교사와 테스트 학생
 
 1. 위 권한 SQL·Secret·함수 설정을 먼저 완료한다.
-2. Authentication → Users → Add user에서 교사 이메일/비밀번호 계정을 만든다. 실제 비밀번호는 소유자가 직접 입력하고 보관한다.
-3. `npm run dev` 실행 후 `/teacher`에서 로그인한다.
-4. 새 학급을 만든다. 학급 이름과 자동 생성된 접속 코드를 확인한다.
-5. 테스트 학생을 추가한다. 자동 생성된 PIN을 교사 화면에서 확인한다.
+2. `/setup`은 공개 연결 설정만 저장하며 교사 계정을 만들지 않는다. 교사 계정은 Supabase Dashboard의 Authentication → Users → Add user(또는 초대)로 생성한다. 실제 비밀번호는 소유자가 직접 입력하고 보관한다.
+3. `npm run dev` 실행 후 `/teacher`에서 Supabase Auth 교사 계정으로 로그인한다.
+4. 로그인 뒤 앱의 `새 학급 만들기`에서 학급을 만들고 학급 코드와 ID를 확인한다.
+5. 교사 화면에서 테스트 학생 2명만 추가하고 자동 생성된 PIN을 확인한다. 기존 실제 학생 데이터가 있는 학급을 재사용하지 않는다.
 6. 학생용 `/?class=학급코드` 링크를 별도 브라우저에서 연다.
 
 ## 5. 실제 연결 검증
@@ -92,6 +92,6 @@ Supabase가 함수에 제공하는 `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABAS
 
 로컬 typecheck, lint, unit/실제 PostgreSQL(PGlite) DB·RLS 8개, Deno 보안 1개, Edge 타입, production build, Chromium E2E 5개 통과. E2E API는 테스트 전용 HTTP 모킹이며 실제 서버 로그인 성공을 뜻하지 않는다. production src에는 mock API를 연결하지 않으며 PDF 코드는 교사 route chunk에서 로드한다.
 
-권한 SQL/Secret/교사 계정/인증 설정이 끝나기 전에는 수업 투입 준비 완료로 판단하지 않는다.
+권한 SQL/Secret/교사 계정/인증 설정이 끝나기 전에는 수업 투입 준비 완료로 판단하지 않는다. `student-auth`는 `APP_SESSION_SECRET`으로 PIN 해시와 HMAC 학생 세션을 발급하고, `student-api`는 같은 Secret으로 세션 서명을 검증한다. Secret 자체는 브라우저 요청에 포함되지 않는다.
 
 `202609110011_practice_count.sql`을 적용하면 교사 설정의 5/10/15/20 추가 문제 수와 학생별 결정적 문제 seed가 서버에 저장된다. 이 migration은 기존 테이블에 두 컬럼만 추가하며 2026-09-11 새 Supabase 프로젝트에 적용 완료했다. `student-api`의 문제 생성 요청과 RLS는 실제 학생 세션을 준비한 뒤 다시 검증한다. 향후 학습지 배부(worksheet/assignment/submission/item)는 별도 migration과 Storage 정책으로 추가하며 이번 단계에서는 bucket을 만들지 않는다.
