@@ -1,0 +1,83 @@
+import { test, expect, type Page } from '@playwright/test';
+const problem = {
+  id:'f706d292-b923-47d9-8d0d-7087c2d81922', lesson:1, orderIndex:1, problemType:'FREE_BUILD', title:'쌓기 연습', prompt:'직접 쌓아 보세요.',
+  grid:{gridWidth:4,gridDepth:4,maxHeight:4}, givenBlocks:[],startBlocks:[], given:{allowLayerView:true,allowRotate:true,minBlocks:1},choices:[],gradingMode:'exact',
+};
+async function setup(page:Page) {
+  let saved:unknown[]=[];
+  let offline=false;
+  const calls:string[]=[];
+  await page.addInitScript(() => { localStorage.setItem('sb.student.token', btoa(JSON.stringify({sid:'student-a',cid:'class-a'}))+'.test'); });
+  await page.route('**/functions/v1/student-api',async route=>{
+    const body=route.request().postDataJSON();calls.push(body.action);
+    let payload:unknown={};
+    if(body.action==='lessonProblems') payload={problems:[problem],seedFallback:false};
+    if(body.action==='problem') payload={problem,attempt:{wrongCount:0,hintShown:false,answerRevealed:false,completed:false},hint:null,revealedAnswer:null};
+    if(body.action==='snapshot:get') payload={snapshot:{blocks:saved}};
+    if(body.action==='snapshot') {if(offline){await route.abort('internetdisconnected');return;}saved=body.blocks;payload={ok:true};}
+    await route.fulfill({json:payload});
+  });
+  await page.goto('/lesson/1');
+  await expect(page.getByRole('button',{name:'잡아서 작업판에 놓기'})).toBeEnabled();
+  return {calls,getSaved:()=>saved,setOffline:(value:boolean)=>{offline=value;}};
+}
+test('Babylon renders; mouse drag snaps, undo/redo and saved state restore',async({page})=>{
+  const errors:string[]=[];page.on('pageerror',e=>errors.push(e.message));
+  const state=await setup(page);
+  const canvas=page.getByLabel('쌓기나무 3D 작업판');
+  await page.getByRole('button',{name:'위에서 보기',exact:true}).click();
+  await page.waitForTimeout(500);
+  const palette=await page.getByRole('button',{name:'잡아서 작업판에 놓기'}).boundingBox();
+  const box=await canvas.boundingBox();
+  expect(palette).not.toBeNull();expect(box).not.toBeNull();
+  await page.mouse.move(palette!.x+30,palette!.y+20);await page.mouse.down();
+  await page.mouse.move(box!.x+box!.width/2,box!.y+box!.height/2,{steps:15});
+  await expect(page.getByText('놓을 수 있어요.',{exact:true})).toBeVisible();
+  await page.mouse.up();
+  await expect(page.getByText('블록 수: 1',{exact:true})).toBeVisible();
+  await page.getByRole('button',{name:'이전 상태'}).click();
+  await expect(page.getByText('블록 수: 0',{exact:true})).toBeVisible();
+  await page.getByRole('button',{name:'다시 실행'}).click();
+  await expect(page.getByText('블록 수: 1',{exact:true})).toBeVisible();
+  await page.getByRole('button',{name:'저장',exact:true}).click();
+  await expect.poll(()=>state.getSaved().length).toBe(1);
+  await page.reload();await expect(page.getByText('블록 수: 1',{exact:true})).toBeVisible();
+  await page.screenshot({path:'test-results/babylon-desktop.png',fullPage:true});
+  expect(errors).toEqual([]);
+});
+test('touch pointer drag places a block without orbit conflict',async({browser})=>{
+  const context=await browser.newContext({viewport:{width:1024,height:768},hasTouch:true});
+  const page=await context.newPage();await setup(page);
+  await page.getByRole('button',{name:'위에서 보기',exact:true}).click();await page.waitForTimeout(500);
+  const palette=await page.getByRole('button',{name:'잡아서 작업판에 놓기'}).boundingBox();
+  const canvas=await page.getByLabel('쌓기나무 3D 작업판').boundingBox();
+  const session=await context.newCDPSession(page);
+  await session.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:palette!.x+20,y:palette!.y+20}]});
+  await session.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:canvas!.x+canvas!.width/2,y:canvas!.y+canvas!.height/2}]});
+  await session.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
+  await expect(page.getByText('블록 수: 1',{exact:true})).toBeVisible();
+  await context.close();
+});
+
+test('free rotation changes the actual canvas and does not trigger saving',async({page})=>{
+  const state=await setup(page);
+  const canvas=page.getByLabel('쌓기나무 3D 작업판');
+  await page.getByRole('button',{name:'앞에서 보기',exact:true}).click();await page.waitForTimeout(500);
+  const before=await canvas.screenshot();const box=await canvas.boundingBox();
+  const calls=state.calls.length;
+  await page.mouse.move(box!.x+30,box!.y+30);await page.mouse.down();await page.mouse.move(box!.x+160,box!.y+100,{steps:12});await page.mouse.up();
+  await page.waitForTimeout(500);
+  expect((await canvas.screenshot()).equals(before)).toBe(false);
+  expect(state.calls.length).toBe(calls);
+});
+test('failed server save retains local draft across reload then syncs',async({page})=>{
+  const state=await setup(page);state.setOffline(true);
+  await page.getByText('버튼으로 놓기',{exact:true}).click();
+  await page.getByRole('button',{name:'쌓기',exact:true}).click();
+  await page.getByRole('button',{name:'저장',exact:true}).click();
+  await expect(page.getByRole('status')).toContainText('인터넷이 연결되면');
+  await page.reload();await expect(page.getByText('블록 수: 1',{exact:true})).toBeVisible();
+  state.setOffline(false);
+  await page.evaluate(()=>window.dispatchEvent(new Event('online')));
+  await expect.poll(()=>state.getSaved().length).toBe(1);
+});

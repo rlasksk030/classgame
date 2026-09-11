@@ -4,3 +4,6 @@ dist
 .env.local
 *.tsbuildinfo
 .wrangler
+
+test-results/
+playwright-report/

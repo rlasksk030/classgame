@@ -5,7 +5,7 @@ import {
   grid2DEqual,
   heightMapEqual,
   project,
-  settle,
+  validStructure,
 } from "./blocks.ts";
 import type {
   GradingMode,
@@ -45,7 +45,7 @@ function satisfiesProjections(
   required: Partial<Projections>,
   grid: GridConfig,
 ): GradeVerdict {
-  const actual = project(settle(studentBlocks, grid), grid);
+  const actual = project(studentBlocks, grid);
 
   if (required.top && !grid2DEqual(actual.top, required.top)) {
     return { correct: false, detail: "위에서 본 모양이 조건과 달라요." };
@@ -62,10 +62,21 @@ function satisfiesProjections(
 export function grade(input: GradeInput): GradeVerdict {
   const { answer, submission, gradingMode, given, grid, problemType } = input;
 
+  const expectedKinds: Record<ProblemType, StudentSubmission["kind"]> = {
+    FREE_BUILD: "blocks", BLOCK_POSITION: "choice", CAMERA_DIRECTION: "direction", PROJECTION_DRAW: "projections",
+    COUNT: "count", COUNT_AMBIGUOUS: "count", BUILD_FROM_VIEWS: "blocks", BUILD_FROM_HEIGHTMAP: "blocks",
+    HEIGHTMAP_FROM_BUILD: "heightMap", BUILD_FROM_LAYERS: "blocks", LAYER_DRAW: "layers", PATTERN_NEXT: "count", CHOICE: "choice",
+  };
+  if (submission.kind !== expectedKinds[problemType]) return { correct: false, detail: "문제에 맞는 방식으로 답해 주세요." };
+
+  if (submission.kind === "blocks" && !validStructure(submission.blocks, grid)) {
+    return { correct: false, detail: "작업판 안에서 아래부터 차례로 쌓아 주세요." };
+  }
+
   // 자유 쌓기는 정해진 정답이 없다. 최소 개수만 채우면 완료로 본다.
   if (problemType === "FREE_BUILD") {
     if (submission.kind !== "blocks") return { correct: false, detail: null };
-    const placed = countBlocks(settle(submission.blocks, grid));
+    const placed = countBlocks(submission.blocks);
     const need = given.minBlocks ?? 1;
     return placed >= need
       ? { correct: true, detail: null }
@@ -74,7 +85,7 @@ export function grade(input: GradeInput): GradeVerdict {
 
   // --- 블록 쌓기 문제 ---
   if (submission.kind === "blocks") {
-    const settled = settle(submission.blocks, grid);
+    const settled = canonicalize(submission.blocks);
 
     if (settled.length === 0) {
       return { correct: false, detail: "아직 쌓기나무를 놓지 않았어요." };

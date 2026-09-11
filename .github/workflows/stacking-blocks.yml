@@ -1,0 +1,31 @@
+name: Stacking blocks checks
+on:
+  push:
+    paths: ['apps/stacking-blocks-math-web/**', '.github/workflows/stacking-blocks.yml']
+  pull_request:
+    paths: ['apps/stacking-blocks-math-web/**', '.github/workflows/stacking-blocks.yml']
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/stacking-blocks-math-web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: apps/stacking-blocks-math-web/package-lock.json
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm test
+      - run: npm run typecheck:edge
+      - run: npm run test:security
+      - run: node --experimental-strip-types scripts/verify-seed.ts
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e

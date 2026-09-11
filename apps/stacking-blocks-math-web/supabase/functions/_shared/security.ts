@@ -130,7 +130,8 @@ export async function verifySessionToken(token: unknown): Promise<SessionPayload
   try {
     const payload = JSON.parse(base64UrlDecode(encoded)) as SessionPayload;
     if (!payload.sid || !payload.cid || !payload.exp) return null;
-    if (new Date(payload.exp).getTime() <= Date.now()) return null;
+    const expiry = new Date(payload.exp).getTime();
+    if (!Number.isFinite(expiry) || expiry <= Date.now()) return null;
     return payload;
   } catch {
     return null;

@@ -66,8 +66,7 @@ export default function StudentLogin() {
         <div className="panel stack" style={{ maxWidth: 520 }}>
           <h1>설정이 필요해요</h1>
           <p className="muted">
-            <code>.env.local</code> 에 <code>VITE_SUPABASE_URL</code> 과{" "}
-            <code>VITE_SUPABASE_ANON_KEY</code> 를 넣은 뒤 다시 실행해 주세요.
+            수업 연결을 준비하고 있어요. 선생님께 알려 주세요.
           </p>
         </div>
       </div>

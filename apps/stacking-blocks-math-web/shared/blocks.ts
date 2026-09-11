@@ -46,6 +46,7 @@ export function hasBlockAt(blocks: BlockCoord[], x: number, y: number, z: number
 
 export function inBounds(c: BlockCoord, grid: GridConfig): boolean {
   return (
+    Number.isInteger(c.x) && Number.isInteger(c.y) && Number.isInteger(c.z) &&
     c.x >= 0 &&
     c.x < grid.gridWidth &&
     c.z >= 0 &&
@@ -124,7 +125,7 @@ export function canRemove(blocks: BlockCoord[], target: BlockCoord): PlaceCheck 
   if (hasBlockAt(blocks, target.x, target.y + 1, target.z)) {
     return {
       ok: false,
-      message: "위에 쌓인 쌓기나무를 먼저 빼 주세요.",
+      message: "위에 쌓기나무가 있어서 먼저 위쪽 블록을 옮겨야 해요.",
     };
   }
   return { ok: true };
@@ -297,4 +298,15 @@ export function countByLayer(blocks: BlockCoord[], grid: GridConfig): number[] {
     if (b.y >= 0 && b.y < grid.maxHeight) counts[b.y]++;
   }
   return counts;
+}
+
+/** Reject malformed input before canonicalization; never repair a submitted answer. */
+export function validStructure(blocks: BlockCoord[], grid: GridConfig): boolean {
+  if (!Array.isArray(blocks) || blocks.length > grid.gridWidth * grid.gridDepth * grid.maxHeight) return false;
+  const seen = new Set<string>();
+  for (const block of blocks) {
+    if (!block || !inBounds(block, grid) || seen.has(keyOf(block))) return false;
+    seen.add(keyOf(block));
+  }
+  return blocks.every(block => block.y === 0 || seen.has(keyOf({ ...block, y: block.y - 1 })));
 }
