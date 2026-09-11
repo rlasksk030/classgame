@@ -212,3 +212,4 @@
 - 정답 피드백은 이전 오답 횟수를 함께 반영해 오답 후 정답을 `다시 도전해서 해결했어요!`로 표시한다. 첫 시도 성공 문구와 오답 수가 동시에 모순되지 않는다.
 - 교사용 `/teacher/problem-preview`를 추가했다. 차시·문제 틀·seed를 고르면 실제 `BlockWorld`와 문제 자료/답안 방식 컴포넌트로 학생에게 보이는 상태를 확인할 수 있다.
 - 회귀 검증: `npm run typecheck`, `npm run lint`, `npm test`(34개), `npm run audit:presentation`, `npm run audit:problems`, `npm run typecheck:edge`, `npm run build` 모두 통과. 실제 Supabase 재배포와 브라우저 E2E는 이 변경 범위에서 수행하지 않았다.
+- 10차시는 구상·3D 설계·층별 공간 입력 중심으로 분리하고, 11차시는 소개서 미리보기·설명 다듬기 중심으로 분리했다. 11차시에서는 `건축물 수정하기`를 눌렀을 때만 Builder를 열며, 기존 공통 프로젝트 저장/복원 데이터와 4×4 설계판은 그대로 공유한다.
