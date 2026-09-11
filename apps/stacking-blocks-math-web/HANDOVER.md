@@ -308,7 +308,7 @@ PIN 해시에 서버 비밀키가 필요해서 이것만 Edge Function 이어야
 - 빌드 명령: `npm run build`
 - 출력 폴더: `dist`
 - 루트 디렉터리: `apps/stacking-blocks-math-web`
-- 환경변수: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`
+- 환경변수: `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`
 - `public/_redirects` 가 SPA 라우팅을, `public/_headers` 가 보안 헤더를 처리합니다.
 - `wrangler.toml` 이 이미 들어 있습니다.
 

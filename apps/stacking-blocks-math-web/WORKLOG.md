@@ -34,7 +34,7 @@
 ## 새 Supabase 프로젝트 연결 (2026-09-11)
 - 공개 환경변수를 VITE_SUPABASE_PUBLISHABLE_KEY로 통일하고 .env.local 설정(Git 제외). 학생 요청의 잘못된 공개키 Bearer 헤더 제거.
 - 새 프로젝트 SQL Editor에 001~008 적용: 테이블 16/RLS 16/문제30 확인. 두 Edge Function 배포.
-- 실DB에서 교사·서버의 테이블 사용 권한 누락 발견. 009 추가, 테스트 임의 grant 제거 후 검증. 실제009 적용과 student-api legacy JWT 설정 변경은 자동 승인 검토 거부로 보류. APP_SESSION_SECRET/교사 계정 미설정.
+- 실DB에서 교사·서버의 테이블 사용 권한 누락을 발견했고 009를 준비했다(실제 적용 결과는 아래 최신 Supabase 연결 점검 절 참조). student-api legacy JWT 설정 변경은 별도 승인 필요로 보류. APP_SESSION_SECRET/교사 계정 미설정.
 - 실제 공개 API 직접 조회 차단 및 함수 오류 응답 확인. 실제 로그인 성공 미검증.
 - SUPABASE_SETUP.md에 실제 적용/미적용 상태, 후속 절차 기록.
 - 진행하던 9차시/건축물/12차시 요약/수동 importer 작업도 보존. AI 미사용.
