@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 
 import { classCodeFromUrl, isConfigured } from "@/lib/config";
 import {
@@ -61,16 +61,7 @@ export default function StudentLogin() {
   };
 
   if (!isConfigured()) {
-    return (
-      <div className="center-screen">
-        <div className="panel stack" style={{ maxWidth: 520 }}>
-          <h1>설정이 필요해요</h1>
-          <p className="muted">
-            수업 연결을 준비하고 있어요. 선생님께 알려 주세요.
-          </p>
-        </div>
-      </div>
-    );
+    return <Navigate to="/setup" replace />;
   }
 
   if (!classCode) {

@@ -1,6 +1,7 @@
 import { lazy, Suspense } from 'react';
 import { Navigate, Route, Routes, useParams } from 'react-router-dom';
 import StudentLogin from './pages/StudentLogin';
+import SetupPage from './pages/SetupPage';
 const StudentWorld = lazy(() => import('./pages/StudentWorld'));
 const LessonPage = lazy(() => import('./pages/LessonPage'));
 const TeacherPage = lazy(() => import('./pages/TeacherPage'));
@@ -13,6 +14,7 @@ const WorksheetImportPage = lazy(() => import('./pages/WorksheetImportPage'));
 function LessonRoute(){const {lesson}=useParams();return lesson==="10"||lesson==="11"?<ArchitecturePage/>:<LessonPage/>;}
 export default function App() {
   return <Suspense fallback={<main className="screen app-max"><p role="status">화면을 준비하고 있어요…</p></main>}><Routes>
+    <Route path="/setup" element={<SetupPage />} />
     <Route path="/" element={<StudentLogin />} />
     <Route path="/world" element={<StudentWorld />} />
     <Route path="/lesson/9" element={<PeerChallengePage />} />

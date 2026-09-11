@@ -9,8 +9,7 @@ import type {
 import type { BlockCoord } from "@shared/types.ts";
 import {
   STUDENT_TOKEN_KEY,
-  SUPABASE_PUBLISHABLE_KEY,
-  SUPABASE_URL,
+  getResolvedSupabaseConfig,
 } from "./config";
 
 /**
@@ -32,10 +31,11 @@ export class StudentApiError extends Error {
 export type JsonPayload = Record<string, unknown>;
 
 function functionUrl(name: string): string {
-  if (!SUPABASE_URL) {
+  const config = getResolvedSupabaseConfig();
+  if (!config) {
     throw new Error("Supabase 설정이 없습니다.");
   }
-  return `${SUPABASE_URL.replace(/\/$/, "")}/functions/v1/${name}`;
+  return `${config.supabaseUrl.replace(/\/$/, "")}/functions/v1/${name}`;
 }
 
 export function getStudentToken(): string | null {
@@ -154,8 +154,9 @@ async function callFunction<T>(name: string, body: JsonPayload, withToken: boole
     "content-type": "application/json",
   };
 
-  if (SUPABASE_PUBLISHABLE_KEY) {
-    headers.apikey = SUPABASE_PUBLISHABLE_KEY;
+  const config = getResolvedSupabaseConfig();
+  if (config?.supabasePublishableKey) {
+    headers.apikey = config.supabasePublishableKey;
   }
 
   const isTeacher = typeof body.action === "string" && body.action.startsWith("teacher:");

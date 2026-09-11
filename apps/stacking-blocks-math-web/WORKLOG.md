@@ -105,3 +105,10 @@
 - `DISTRIBUTION_ARCHITECTURE.md`에 Cloudflare Pages는 `dist/` 정적 파일만 제공하고 Pages Functions/Workers/KV/D1/Durable Objects/R2/API proxy를 사용하지 않는다는 계약을 추가했다.
 - 모든 동적 기능은 각 교사의 Supabase와 브라우저가 직접 통신하며, service_role·Edge Function Secret은 브라우저에 노출하지 않는다.
 - 현재 연결값은 Vite `VITE_*` 환경변수 단계까지이며, 특정 교사 값을 공통 dist에 고정하지 않는 런타임 설치 설정은 향후 설치 도우미 범위로 남겼다.
+
+## 런타임 설치 설정 (2026-09-11)
+- `src/lib/config.ts`에 공개 `RuntimeSupabaseConfig`(installationId, Supabase URL, Publishable Key) 저장·검증·URL fragment(`/#install=`) 인코딩/복원 계층을 추가했다. service_role/secret/password 이름이 포함된 값과 안전하지 않은 URL은 거부한다.
+- 연결 우선순위는 런타임 localStorage 설정 → 개발/테스트의 Vite fallback → 미설정이다. production에서 Vite 값만으로 연결하지 않으며, 설정이 없으면 `/setup`으로 이동한다.
+- `getSupabase()`와 학생 Edge Function 호출이 매번 현재 런타임 설정을 해석하고, 설치가 바뀌면 Supabase client cache도 교체한다. 특정 교사 URL/키를 소스에 하드코딩하지 않는다.
+- `/setup`은 `/auth/v1/settings`만 호출해 연결을 확인한 뒤 공개 설정을 저장한다. DB migration·Storage 생성·교사 인증을 자동 수행하지 않는다.
+- 설정 fragment round-trip 및 secret/unsafe URL 거부 테스트를 추가했다.

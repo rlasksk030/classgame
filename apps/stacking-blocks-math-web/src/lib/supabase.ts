@@ -1,6 +1,6 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
-import { SUPABASE_PUBLISHABLE_KEY, SUPABASE_URL } from "./config";
+import { getResolvedSupabaseConfig } from "./config";
 
 /**
  * 교사용 Supabase 클라이언트 (Supabase Auth).
@@ -8,13 +8,19 @@ import { SUPABASE_PUBLISHABLE_KEY, SUPABASE_URL } from "./config";
  * 학생 경로는 이 클라이언트를 쓰지 않고 Edge Function 만 호출한다.
  */
 let cached: SupabaseClient | null = null;
+let cachedFor = "";
 
 export function getSupabase(): SupabaseClient {
-  if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) {
+  const config = getResolvedSupabaseConfig();
+  if (!config) {
     throw new Error(
-      "Supabase 설정이 없습니다. .env.local 에 VITE_SUPABASE_URL 과 VITE_SUPABASE_PUBLISHABLE_KEY 를 넣어 주세요.",
+      "Supabase 설정이 없습니다. /setup에서 공개 연결 설정을 등록해 주세요.",
     );
   }
-  if (!cached) cached = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+  const cacheKey = `${config.supabaseUrl}|${config.supabasePublishableKey}`;
+  if (!cached || cachedFor !== cacheKey) {
+    cached = createClient(config.supabaseUrl, config.supabasePublishableKey);
+    cachedFor = cacheKey;
+  }
   return cached;
 }

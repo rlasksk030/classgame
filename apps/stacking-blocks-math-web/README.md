@@ -105,7 +105,9 @@ Cloudflare Pages 설정:
 - 빌드 명령: `npm run build`
 - 결과 폴더: `dist`
 - Node 버전: 24
-- 환경변수: 위의 공개 Supabase 설정 두 개
+- 공통 정적 배포판은 Cloudflare 환경변수에 특정 교사의 Supabase 값을 고정하지 않는다. 학생/교사는 `/setup`에서 런타임 설치 설정을 등록하거나 설치 링크의 `#install=` fragment를 받아 연결한다.
+- `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`는 로컬 개발·테스트 fallback으로만 사용할 수 있다. `service_role`, `APP_SESSION_SECRET` 등 비밀값은 넣지 않는다.
+- Cloudflare Pages Functions/Workers/KV/D1/R2 등 서버 기능은 사용하지 않는다. Edge Functions와 DB migration은 각 교사의 Supabase에 별도로 배포한다.
 
 `public/_redirects`는 SPA 경로를 처리하며 `public/_headers`는 기본 응답 보안 헤더를 설정합니다. Edge Functions와 DB 마이그레이션은 별도로 배포합니다. 기존 AI 면담실과 다른 앱의 설정은 수정하지 않습니다.
 
