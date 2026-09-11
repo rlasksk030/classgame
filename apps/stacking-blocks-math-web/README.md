@@ -34,6 +34,7 @@ VITE_SUPABASE_PUBLISHABLE_KEY=YOUR_PUBLIC_PUBLISHABLE_KEY
    - `supabase/migrations/202609110002_seed.sql`: UUID를 가진 기본 문제 26개
    - `supabase/migrations/202609110003_problem_sources.sql`: 문제 출처
    - `supabase/migrations/202609110004_atomic_attempts.sql`: 시도·스냅샷·진도·보상 원자적 저장
+   - `supabase/migrations/202609110005`~`202609110015`: 활동·교사 관리·연습 seed·문제 정확성·친구 카드·건축 8×8 저장 계약
 3. Supabase CLI를 설치한 환경에서 프로젝트를 연결하고 비밀키를 설정합니다. 기존 같은 이름의 Edge Function이 있는 프로젝트에는 덮어쓰기 전에 앱별 함수 이름을 분리해야 합니다.
 
 ```bash
@@ -58,6 +59,9 @@ supabase functions deploy student-api --no-verify-jwt
 - `/teacher`: 교사 로그인, 학급 생성, 학생 추가/이름 수정/삭제/비활성화, PIN 재발급/전체 복사, 차시 잠금
 - `/teacher/problems/new`: Babylon 3D 문제 제작. 정답 확정 후 등록
 - `/teacher/students/:studentId`: 문제별 시도 상태와 저장된 3D 모양 열람
+
+문제 데이터 품질을 점검할 때는 `npm run audit:problems`, `npm run audit:presentation`,
+`npm run audit:semantics`, `npm run audit:solvability`, `npm run qa:curriculum`을 순서대로 실행합니다.
 
 9차시 공유 놀이, 10~11차시 건축물 프로젝트, 수동 학습지 importer의 화면/API/저장 구조를 추가했습니다. 실제 계정으로 전체 흐름 검증은 남아 있습니다.
 
