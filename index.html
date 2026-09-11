@@ -3,19 +3,45 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>우리 반 게임</title>
+<title>우리 반 수업 도구</title>
 <style>
-*{box-sizing:border-box}body{margin:0;min-height:100vh;font-family:"Pretendard","Malgun Gothic",sans-serif;background:#f2eee5;color:#29251f;display:grid;place-items:center;padding:24px}.wrap{width:min(760px,100%)}h1{text-align:center;font-size:clamp(32px,7vw,56px);margin:0 0 10px}.sub{text-align:center;color:#6c655a;margin-bottom:28px}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}a{display:flex;min-height:210px;flex-direction:column;align-items:center;justify-content:center;text-decoration:none;border-radius:24px;padding:24px;color:white;box-shadow:0 8px 0 rgba(0,0,0,.22);transition:.12s}a:active{transform:translateY(5px);box-shadow:0 3px 0 rgba(0,0,0,.22)}.mystery{background:#1e6b47}.hap{background:#7a1f24}.icon{font-size:60px}.title{font-size:34px;font-weight:900;margin-top:8px}.desc{font-size:17px;opacity:.9;margin-top:8px;text-align:center}@media(max-width:580px){.grid{grid-template-columns:1fr}a{min-height:170px}}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;font-family:"Pretendard","Malgun Gothic",sans-serif;background:#f2eee5;color:#29251f;display:grid;place-items:center;padding:24px}
+.wrap{width:min(860px,100%)}
+h1{text-align:center;font-size:clamp(30px,6.5vw,52px);margin:0 0 10px}
+.sub{text-align:center;color:#6c655a;margin:0 0 28px}
+h2{font-size:20px;margin:32px 0 14px;color:#6c655a;font-weight:700;letter-spacing:.02em}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
+a.card{display:flex;min-height:200px;flex-direction:column;align-items:center;justify-content:center;text-decoration:none;border-radius:24px;padding:24px;color:#fff;box-shadow:0 8px 0 rgba(0,0,0,.22);transition:.12s}
+a.card:active{transform:translateY(5px);box-shadow:0 3px 0 rgba(0,0,0,.22)}
+.mystery{background:#1e6b47}
+.hap{background:#7a1f24}
+.blocks{background:#1f4f7a}
+.icon{font-size:56px;line-height:1}
+.title{font-size:31px;font-weight:900;margin-top:8px}
+.desc{font-size:16px;opacity:.9;margin-top:8px;text-align:center}
+.teacher{margin-top:14px;text-align:center}
+.teacher a{color:#6c655a;font-size:15px}
+@media(max-width:580px){.grid{grid-template-columns:1fr}a.card{min-height:168px}}
 </style>
 </head>
 <body>
 <main class="wrap">
-<h1>우리 반 게임</h1>
-<p class="sub">게임을 선택하세요.</p>
+<h1>우리 반 수업 도구</h1>
+<p class="sub">사용할 도구를 선택하세요.</p>
+
+<h2>수학 학습</h2>
 <section class="grid">
-<a class="mystery" href="mystery-sign.html"><span class="icon">❓</span><span class="title">미스터리 사인</span><span class="desc">숫자 속 비밀 규칙을 찾아라!</span></a>
-<a class="hap" href="gyeol-hap.html"><span class="icon">◆</span><span class="title">결! 합!</span><span class="desc">세 장의 공통 규칙을 찾아라!</span></a>
+  <a class="card blocks" href="./apps/blocks/"><span class="icon">🧊</span><span class="title">쌓기나무</span><span class="desc">6학년 쌓기나무를 3D로 배우고 풀어요</span></a>
 </section>
+
+<h2>놀이 활동</h2>
+<section class="grid">
+  <a class="card mystery" href="./apps/mystery-sign/"><span class="icon">❓</span><span class="title">미스터리 사인</span><span class="desc">숫자 속 비밀 규칙을 찾아라!</span></a>
+  <a class="card hap" href="./apps/gyeol-hap/"><span class="icon">◆</span><span class="title">결! 합!</span><span class="desc">세 장의 공통 규칙을 찾아라!</span></a>
+</section>
+
+<p class="teacher"><a href="./apps/blocks/teacher">선생님용 관리자 페이지 →</a></p>
 </main>
 </body>
 </html>

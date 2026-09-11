@@ -1,0 +1,1429 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>결! 합!</title>
+<style>
+/* ============================================================
+   결! 합! — 교실용 버전 v3
+   규칙: 9장 안의 합을 모두 찾고, 누군가 "결"을 정확히 외쳐야 라운드 종료
+   - 합 성공 시 같은 팀이 이어서 결 선언 가능 (안 하면 턴 넘어감)
+   - 이미 찾은 합 조합은 다시 외칠 수 없음
+   ============================================================ */
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+:root{
+  --wine:#7A1F24;
+  --wine-dark:#5E1519;
+  --panel:#631A1E;
+  --gold:#E8C15A;
+  --gold-bright:#FFD86B;
+  --blue:#2E6BFF;
+  --red:#FF3B3B;
+  --yellow:#FFD400;
+  --gray-bg:#A89F91;
+  --ink:#2A1516;
+}
+
+html,body{ height:100%; }
+body{
+  font-family:'Pretendard','Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+  color:#F3E7D3;
+  background:
+    radial-gradient(ellipse at 20% 15%, rgba(255,220,180,.07), transparent 45%),
+    radial-gradient(ellipse at 80% 85%, rgba(0,0,0,.35), transparent 55%),
+    radial-gradient(ellipse at 60% 40%, rgba(255,200,150,.05), transparent 40%),
+    linear-gradient(160deg, #85252B 0%, var(--wine) 45%, var(--wine-dark) 100%);
+  min-height:100vh;
+  overflow-x:hidden;
+  user-select:none;
+}
+/* 다빈치 스케치풍 노이즈 텍스처 오버레이 */
+body::before{
+  content:''; position:fixed; inset:0; pointer-events:none; z-index:0;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E");
+  mix-blend-mode:overlay;
+}
+body::after{
+  content:''; position:fixed; inset:0; pointer-events:none; z-index:0;
+  background:
+    radial-gradient(circle 260px at 88% 12%, transparent 258px, rgba(240,210,170,.05) 259px, transparent 261px),
+    radial-gradient(circle 200px at 8% 88%, transparent 198px, rgba(240,210,170,.05) 199px, transparent 201px);
+}
+
+.screen{ display:none; position:relative; z-index:1; min-height:100vh; padding:20px; }
+.screen.active{ display:flex; flex-direction:column; align-items:center; }
+
+/* ---------- 금속 명판 타이틀 ---------- */
+.title-plate{
+  position:relative;
+  background:linear-gradient(180deg, #3A2A20 0%, #241812 55%, #171009 100%);
+  border:3px solid #0E0906;
+  border-radius:8px;
+  box-shadow:0 6px 18px rgba(0,0,0,.55), inset 0 2px 3px rgba(255,230,180,.28), inset 0 -3px 6px rgba(0,0,0,.6);
+  padding:12px 42px;
+  text-align:center;
+  margin:6px auto 14px;
+}
+.title-plate h1{
+  font-size:44px; font-weight:900; letter-spacing:6px;
+  background:linear-gradient(180deg,#FFEAA0 0%, #E8C15A 45%, #A87B22 75%, #E8C15A 100%);
+  -webkit-background-clip:text; background-clip:text; color:transparent;
+  filter:drop-shadow(0 2px 2px rgba(0,0,0,.8));
+}
+
+/* ---------- 공통 버튼 ---------- */
+.btn{
+  font-family:inherit; cursor:pointer; border:none; font-weight:800;
+  border-radius:12px; transition:transform .1s, filter .15s;
+  touch-action:manipulation;
+}
+.btn:active{ transform:scale(.96); }
+.btn:disabled{ opacity:.4; cursor:not-allowed; filter:grayscale(.6); }
+.btn:disabled:active{ transform:none; }
+
+/* ============================================================
+   1. 설정 화면
+   ============================================================ */
+#setupScreen{ justify-content:flex-start; }
+.setup-panel{
+  width:min(720px, 100%);
+  background:rgba(0,0,0,.28);
+  border:1px solid rgba(232,193,90,.35);
+  border-radius:18px;
+  padding:26px 30px;
+  box-shadow:0 10px 40px rgba(0,0,0,.4);
+  backdrop-filter:blur(2px);
+}
+.setup-row{ margin-bottom:22px; }
+.setup-label{
+  display:flex; align-items:center; justify-content:space-between;
+  font-size:19px; font-weight:800; color:var(--gold); margin-bottom:10px;
+}
+.setup-value{ color:#FFF; font-size:22px; font-weight:900; min-width:88px; text-align:right; }
+
+.mode-toggle{ display:flex; gap:10px; }
+.mode-btn{
+  flex:1; padding:14px; font-size:19px; border-radius:12px;
+  background:rgba(255,255,255,.08); color:#E8D9C0;
+  border:2px solid rgba(232,193,90,.25);
+}
+.mode-btn.on{
+  background:linear-gradient(180deg,#8A2A30,#6B1D22);
+  border-color:var(--gold); color:var(--gold-bright);
+  box-shadow:0 0 14px rgba(232,193,90,.25);
+}
+
+.stepper{ display:flex; align-items:center; gap:14px; }
+.step-btn{
+  width:52px; height:52px; font-size:28px; border-radius:12px;
+  background:linear-gradient(180deg,#3A2A20,#221710); color:var(--gold);
+  border:2px solid rgba(232,193,90,.45);
+}
+.stepper input[type=range]{
+  flex:1; accent-color:var(--gold); height:8px; cursor:pointer;
+}
+
+#teamNames{ display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:10px; }
+#teamNames input{
+  width:100%; padding:12px 14px; font-size:17px; font-weight:700;
+  border-radius:10px; border:2px solid rgba(232,193,90,.3);
+  background:rgba(255,255,255,.92); color:#3A1518;
+  font-family:inherit;
+}
+#teamNames input:focus{ outline:none; border-color:var(--gold); }
+
+#startBtn{
+  width:100%; margin-top:8px; padding:20px; font-size:26px; letter-spacing:4px;
+  background:linear-gradient(180deg,#FFD86B,#D6A335 60%,#B5842A);
+  color:#3A230A; border-radius:14px;
+  box-shadow:0 6px 0 #7A5A1A, 0 10px 24px rgba(0,0,0,.4);
+}
+#startBtn:active{ transform:translateY(3px); box-shadow:0 3px 0 #7A5A1A; }
+
+/* ============================================================
+   2. 게임 화면 — 100vh 안에 모두 들어오는 레이아웃
+   ============================================================ */
+#gameScreen{
+  height:100vh; height:100dvh;
+  overflow:hidden;
+  padding:1vh 20px;
+  justify-content:space-between;
+}
+.top-bar{
+  width:min(1240px,100%);
+  display:flex; align-items:center; justify-content:space-between; gap:12px;
+  flex-shrink:0;
+}
+.round-badge{
+  background:rgba(0,0,0,.4); border:1px solid rgba(232,193,90,.4);
+  border-radius:10px; padding:1vh 18px;
+  font-size:min(2.8vh,22px); font-weight:900; color:var(--gold-bright); letter-spacing:2px;
+  white-space:nowrap;
+}
+#muteBtn{
+  background:rgba(0,0,0,.4); border:1px solid rgba(232,193,90,.4);
+  border-radius:10px; padding:1vh 16px; font-size:min(2.8vh,22px); color:#FFF;
+}
+.top-bar .title-plate{ margin:0; padding:.8vh 30px; }
+.top-bar .title-plate h1{ font-size:min(3.4vh,28px); }
+
+/* 점수판 */
+#scoreboard{
+  width:min(1240px,100%);
+  display:flex; flex-wrap:wrap; justify-content:center; gap:8px;
+  margin:.5vh 0; flex-shrink:0;
+}
+.team-chip{
+  background:rgba(0,0,0,.35); border:2px solid rgba(255,255,255,.15);
+  border-radius:12px; padding:.4vh 16px; text-align:center; min-width:108px;
+  transition:all .25s;
+}
+.team-chip .t-name{ font-size:min(2vh,15px); font-weight:800; color:#E8D9C0; }
+.team-chip .t-score{ font-size:min(3vh,24px); font-weight:900; color:#FFF; line-height:1.1; }
+.team-chip .t-score.neg{ color:#FF6B6B; }
+.team-chip.turn{
+  border-color:var(--gold);
+  background:linear-gradient(180deg,rgba(232,193,90,.28),rgba(0,0,0,.35));
+  box-shadow:0 0 18px rgba(232,193,90,.45);
+  transform:scale(1.08);
+}
+.team-chip.turn .t-name{ color:var(--gold-bright); }
+
+/* 턴 안내 + 타이머 */
+#turnArea{
+  display:flex; align-items:center; justify-content:center; gap:20px;
+  margin:.2vh 0; min-height:7.8vh; flex-shrink:0;
+}
+#turnTeamName{
+  font-size:min(4vh,31px); font-weight:900; color:#FFF;
+  text-shadow:0 2px 8px rgba(0,0,0,.6);
+}
+#turnTeamName b{ color:var(--gold-bright); }
+#declareBubble{
+  display:none;
+  background:#111; color:var(--yellow);
+  font-size:min(3.6vh,28px); font-weight:900;
+  padding:6px 22px; border-radius:12px; position:relative;
+  animation:pop .3s;
+}
+#declareBubble::before{
+  content:''; position:absolute; left:-10px; top:50%; transform:translateY(-50%);
+  border:10px solid transparent; border-right-color:#111; border-left:none;
+}
+@keyframes pop{ from{ transform:scale(.3); } to{ transform:scale(1); } }
+
+/* 원형 시계 타이머 */
+.clock{
+  position:relative; width:min(9.8vh,80px); height:min(9.8vh,80px); border-radius:50%;
+  background:#F2E8D8; border:5px solid #2A1B14;
+  box-shadow:0 4px 12px rgba(0,0,0,.5);
+  display:flex; align-items:center; justify-content:center;
+  flex-shrink:0;
+}
+.clock .pie{
+  position:absolute; inset:3px; border-radius:50%;
+  background:conic-gradient(#2B2440 var(--deg,360deg), transparent 0);
+  opacity:.85;
+}
+.clock .sec{
+  position:relative; z-index:1;
+  font-size:min(2.7vh,21px); font-weight:900; color:#B03030;
+  background:rgba(242,232,216,.85); border-radius:50%;
+  width:68%; height:68%; display:flex; align-items:center; justify-content:center;
+}
+.clock.danger .sec{ color:#FF2020; animation:blink .5s infinite; }
+.clock.infinite .pie{ display:none; }
+.clock.infinite .sec{ font-size:min(3.8vh,30px); color:#4A3A2A; }
+@keyframes blink{ 50%{ opacity:.35; } }
+
+/* 찾은 합 표시 바 */
+/* 게임 플레이 영역: 왼쪽(찾은 합) + 오른쪽(카드 그리드) 2단 */
+#playArea{
+  display:flex; align-items:flex-start; justify-content:center; gap:min(2.4vw,26px);
+  flex-shrink:0;
+}
+
+/* 찾은 합 — 왼쪽 세로 패널 (레퍼런스 스타일) */
+#foundPanel{
+  align-self:stretch;
+  min-width:min(24vw,220px); max-width:min(30vw,260px);
+  display:flex; flex-direction:column; gap:.5vh;
+  padding:.7vh 12px 1.2vh;
+  background:rgba(0,0,0,.22);
+  border:1.5px solid rgba(232,193,90,.28);
+  border-radius:14px;
+}
+#foundPanel .fp-title{
+  font-size:min(2.5vh,19px); font-weight:900; color:var(--gold-bright);
+  text-align:center; letter-spacing:2px; margin-bottom:.3vh;
+}
+#foundList{
+  display:flex; flex-direction:column; gap:.7vh;
+  overflow-y:auto; flex:1;
+}
+#foundList .fp-none{
+  font-size:min(2.2vh,16px); font-weight:700; color:rgba(243,231,211,.42);
+  text-align:center; margin-top:2vh;
+}
+/* 찾은 합 한 줄 = 미니 카드 3장 */
+.found-row{
+  display:flex; justify-content:center; gap:6px;
+  animation:pop .3s;
+}
+.mini-slot{ text-align:center; }
+.mini-num{
+  font-size:min(1.7vh,13px); font-weight:900; color:var(--gold-bright);
+  line-height:1.1;
+}
+.mini-card{
+  width:min(6vw,52px); aspect-ratio:3/3.4;
+  border-radius:6px;
+  display:flex; align-items:center; justify-content:center;
+  box-shadow:0 2px 5px rgba(0,0,0,.4);
+}
+.mini-card.bg-white{ background:#FDFBF6; border:2px solid #C9BFAE; }
+.mini-card.bg-black{ background:#141414; border:2px solid #000; }
+.mini-card.bg-gray{ background:var(--gray-bg); border:2px solid #8E8577; }
+.mini-card svg{ width:64%; height:64%; }
+
+/* 카드 그리드 패널 */
+#gridPanel{
+  background:linear-gradient(180deg,#6E1C21,#571418);
+  border:2px solid rgba(0,0,0,.35);
+  border-radius:14px;
+  box-shadow:0 12px 34px rgba(0,0,0,.45), inset 0 1px 2px rgba(255,255,255,.08);
+  padding:.7vh 22px 1.2vh;
+  flex-shrink:0;
+}
+#cardGrid{
+  display:grid;
+  grid-template-columns:repeat(3, min(15vw, 13.8vh, 168px));
+  gap:.5vh 24px;
+}
+.card-slot{ text-align:center; }
+.card-num{
+  font-size:min(2.9vh,23px); font-weight:900; color:var(--ink);
+  text-shadow:0 1px 0 rgba(255,255,255,.15);
+  line-height:1.25;
+}
+.card{
+  width:100%; aspect-ratio:3/3.4;
+  border-radius:10px; cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+  box-shadow:0 5px 12px rgba(0,0,0,.45);
+  transition:transform .15s, box-shadow .15s, outline .1s;
+  outline:4px solid transparent;
+  animation:flip .35s backwards;
+}
+@keyframes flip{ from{ transform:rotateY(90deg); } to{ transform:rotateY(0); } }
+.card.bg-white{ background:#FDFBF6; border:3px solid #C9BFAE; }
+.card.bg-black{ background:#141414; border:3px solid #000; }
+.card.bg-gray{ background:var(--gray-bg); border:3px solid #8E8577; }
+.card svg{ width:62%; height:62%; }
+.card.selectable:hover{ transform:translateY(-4px); }
+.card.selected{
+  outline:4px solid var(--gold-bright);
+  box-shadow:0 0 22px rgba(255,216,107,.8), 0 5px 12px rgba(0,0,0,.45);
+  transform:scale(1.07);
+}
+.card.hl-win{
+  outline:5px solid #4CFF7A;
+  box-shadow:0 0 28px rgba(76,255,122,.9);
+  animation:winPulse .5s 3;
+}
+@keyframes winPulse{ 50%{ transform:scale(1.12); } }
+.card.dim{ opacity:.35; }
+
+/* 하단 영역: 행동 버튼 ↔ 호명 모드 ↔ 보너스(이어서 결) 모드 */
+#bottomArea{
+  display:flex; align-items:center; justify-content:center;
+  min-height:10.2vh; flex-shrink:0; margin-top:.3vh;
+}
+#actionBar{ display:flex; gap:18px; align-items:center; }
+.act-btn{
+  min-width:min(170px,20vw); padding:1.5vh 10px; font-size:min(3.9vh,31px); letter-spacing:2px;
+  border-radius:16px; color:#FFF;
+  box-shadow:0 6px 0 rgba(0,0,0,.45), 0 10px 22px rgba(0,0,0,.4);
+}
+.act-btn:active{ transform:translateY(4px); box-shadow:0 2px 0 rgba(0,0,0,.45); }
+#hapBtn{ background:linear-gradient(180deg,#FF8A3D,#E05A10); }
+#gyeolBtn, #bonusGyeolBtn{ background:linear-gradient(180deg,#5A7BFF,#2E48D0); }
+#passBtn{ background:linear-gradient(180deg,#7C8894,#525C66); font-size:min(3.2vh,25px); min-width:min(130px,16vw); }
+
+/* 호명(선택) 모드 바 */
+#callBar{ display:none; align-items:center; gap:18px; }
+#callBar .hint{
+  font-size:min(3.1vh,24px); font-weight:900;
+  color:var(--gold-bright); text-shadow:0 2px 6px rgba(0,0,0,.6);
+}
+#cancelSelBtn{
+  background:linear-gradient(180deg,#8A6A3A,#5E4522); color:#FFE9B8;
+  padding:1.3vh 24px; font-size:min(3.1vh,24px); border-radius:14px;
+  box-shadow:0 5px 0 rgba(0,0,0,.45), 0 8px 18px rgba(0,0,0,.4);
+}
+#cancelSelBtn:active{ transform:translateY(3px); box-shadow:0 2px 0 rgba(0,0,0,.45); }
+
+/* 판정 취소(되돌리기) — 액션바·보너스바에 상설 */
+.revert-btn{
+  background:linear-gradient(180deg,#8A6A3A,#5E4522); color:#FFE9B8;
+  border:2px solid rgba(232,193,90,.4);
+  padding:1.5vh 20px; font-size:min(3vh,23px); border-radius:16px; font-weight:800;
+  box-shadow:0 5px 0 rgba(0,0,0,.4), 0 8px 18px rgba(0,0,0,.4);
+}
+.revert-btn:active{ transform:translateY(3px); box-shadow:0 2px 0 rgba(0,0,0,.4); }
+.revert-btn:disabled{ opacity:.32; filter:grayscale(.7); }
+.revert-btn:disabled:active{ transform:none; box-shadow:0 5px 0 rgba(0,0,0,.4), 0 8px 18px rgba(0,0,0,.4); }
+#judgeBtn{
+  background:linear-gradient(180deg,#FFD86B,#D6A335 60%,#B5842A); color:#3A230A;
+  padding:1.3vh 34px; font-size:min(3.5vh,27px); letter-spacing:2px; border-radius:14px;
+  box-shadow:0 5px 0 #7A5A1A, 0 8px 18px rgba(0,0,0,.4);
+}
+#judgeBtn:active{ transform:translateY(3px); box-shadow:0 2px 0 #7A5A1A; }
+
+/* 보너스(합 성공 후 이어서 결) 모드 바 */
+#bonusBar{ display:none; align-items:center; gap:18px; }
+#bonusBar .hint{
+  font-size:min(3.1vh,24px); font-weight:900;
+  color:#5DFF8A; text-shadow:0 2px 6px rgba(0,0,0,.6);
+}
+#bonusGyeolBtn{
+  min-width:min(150px,18vw); padding:1.5vh 10px; font-size:min(3.9vh,31px); letter-spacing:2px;
+  border-radius:16px; color:#FFF;
+  box-shadow:0 6px 0 rgba(0,0,0,.45), 0 10px 22px rgba(0,0,0,.4);
+}
+#bonusGyeolBtn:active{ transform:translateY(4px); box-shadow:0 2px 0 rgba(0,0,0,.45); }
+#bonusPassBtn{
+  background:linear-gradient(180deg,#7C8894,#525C66); color:#FFF;
+  padding:1.5vh 26px; font-size:min(3.2vh,25px); border-radius:16px;
+  box-shadow:0 6px 0 rgba(0,0,0,.45), 0 10px 22px rgba(0,0,0,.4);
+}
+#bonusPassBtn:active{ transform:translateY(4px); box-shadow:0 2px 0 rgba(0,0,0,.45); }
+
+/* ---------- 중앙 대형 오버레이 ---------- */
+#overlay{
+  display:none; position:fixed; inset:0; z-index:50;
+  background:rgba(20,5,6,.72);
+  align-items:center; justify-content:center; flex-direction:column; gap:18px;
+  text-align:center; padding:20px;
+}
+#overlay.show{ display:flex; }
+.ov-main{
+  font-size:min(9vw,74px); font-weight:900; letter-spacing:4px;
+  animation:pop .35s;
+  text-shadow:0 4px 18px rgba(0,0,0,.8);
+}
+.ov-main.good{ color:#5DFF8A; }
+.ov-main.bad{ color:#FF6060; }
+.ov-main.info{ color:var(--gold-bright); }
+.ov-sub{ font-size:min(5vw,30px); font-weight:800; color:#F3E7D3; }
+.score-box{
+  display:inline-flex; flex-direction:column; align-items:center;
+  background:#151515; border:2px solid #000; border-radius:10px;
+  padding:10px 26px 14px; animation:pop .4s;
+  box-shadow:0 8px 24px rgba(0,0,0,.6);
+}
+.score-box .lbl{
+  font-size:18px; font-weight:800; color:#E85050; letter-spacing:6px;
+  border-bottom:2px solid #E85050; padding-bottom:4px; margin-bottom:6px;
+}
+.score-box .val{ font-size:62px; font-weight:900; color:var(--yellow); line-height:1; }
+#scanBox{ display:none; flex-direction:column; gap:10px; align-items:center; }
+#scanCombo{
+  font-family:monospace; font-size:34px; font-weight:900;
+  color:#9AD0FF; background:rgba(0,0,0,.5);
+  border:1px solid rgba(154,208,255,.4); border-radius:10px;
+  padding:10px 30px; min-width:280px;
+}
+#scanLabel{ font-size:20px; color:#D8CBB6; font-weight:700; }
+.no-set-stamp{
+  font-size:44px; font-weight:900; color:var(--gold-bright);
+  border:4px solid var(--gold-bright); border-radius:10px;
+  padding:8px 30px; transform:rotate(-4deg);
+  animation:stampIn .3s;
+  text-shadow:0 2px 10px rgba(0,0,0,.7);
+}
+@keyframes stampIn{ from{ transform:rotate(-4deg) scale(2.4); opacity:0; } to{ transform:rotate(-4deg) scale(1); opacity:1; } }
+
+/* ============================================================
+   3. 라운드 결과 / 최종 결과
+   ============================================================ */
+#roundResultScreen, #finalScreen{ justify-content:center; }
+.result-panel{
+  width:min(760px,100%);
+  background:rgba(0,0,0,.32);
+  border:1px solid rgba(232,193,90,.35);
+  border-radius:18px; padding:28px 32px;
+  text-align:center;
+  box-shadow:0 10px 40px rgba(0,0,0,.4);
+}
+.result-panel h2{
+  font-size:32px; font-weight:900; color:var(--gold-bright);
+  letter-spacing:3px; margin-bottom:18px;
+}
+#roundSummary{ font-size:22px; font-weight:800; line-height:1.7; margin-bottom:22px; max-height:34vh; overflow-y:auto; }
+#roundSummary .plus{ color:#5DFF8A; }
+#roundSummary .minus{ color:#FF6060; }
+
+.rank-list{ display:flex; flex-direction:column; gap:10px; margin-bottom:24px; }
+.rank-row{
+  display:flex; align-items:center; gap:14px;
+  background:rgba(255,255,255,.07); border-radius:12px; padding:10px 18px;
+}
+.rank-row.first{
+  background:linear-gradient(90deg,rgba(255,216,107,.3),rgba(255,255,255,.06));
+  border:2px solid var(--gold);
+}
+.rank-no{ font-size:24px; font-weight:900; width:74px; text-align:left; color:var(--gold-bright); white-space:nowrap; }
+.rank-name{ font-size:22px; font-weight:800; flex:0 0 auto; min-width:110px; text-align:left; }
+.rank-bar-wrap{ flex:1; height:22px; background:rgba(0,0,0,.35); border-radius:11px; overflow:hidden; }
+.rank-bar{
+  height:100%; border-radius:11px;
+  background:linear-gradient(90deg,#FFD86B,#E08A2A);
+  width:0; transition:width .8s ease-out;
+}
+.rank-bar.negbar{ background:linear-gradient(90deg,#FF7070,#C02020); }
+.rank-score{ font-size:24px; font-weight:900; width:70px; text-align:right; }
+.rank-score.neg{ color:#FF6B6B; }
+
+.big-next{
+  padding:18px 60px; font-size:26px; letter-spacing:3px;
+  background:linear-gradient(180deg,#FFD86B,#D6A335 60%,#B5842A);
+  color:#3A230A; border-radius:14px;
+  box-shadow:0 6px 0 #7A5A1A, 0 10px 24px rgba(0,0,0,.4);
+}
+.big-next:active{ transform:translateY(3px); box-shadow:0 3px 0 #7A5A1A; }
+
+/* 반응형 (좁은 화면) */
+@media (max-width:760px){
+  .title-plate h1{ font-size:28px; letter-spacing:3px; }
+  #cardGrid{ grid-template-columns:repeat(3, min(26vw, 13.8vh)); gap:.4vh 10px; }
+  .act-btn{ min-width:96px; font-size:22px; padding:1.4vh 6px; }
+  #passBtn{ min-width:80px; font-size:18px; }
+  #turnTeamName{ font-size:22px; }
+  .top-bar{ flex-wrap:wrap; justify-content:center; }
+  #callBar, #bonusBar{ flex-wrap:wrap; justify-content:center; gap:10px; }
+  /* 찾은 합을 카드 위쪽에 가로로 (스크롤) */
+  #playArea{ flex-direction:column; align-items:center; gap:.6vh; width:100%; }
+  #foundPanel{
+    flex-direction:row; align-items:center; gap:8px;
+    min-width:0; max-width:100%; width:100%;
+    padding:.5vh 10px;
+  }
+  #foundPanel .fp-title{ margin:0; white-space:nowrap; }
+  #foundList{
+    flex-direction:row; gap:10px; overflow-x:auto; overflow-y:hidden;
+    padding-bottom:2px;
+  }
+  #foundList .fp-none{ margin:0; white-space:nowrap; }
+  .mini-card{ width:34px; }
+}
+@media (prefers-reduced-motion:reduce){
+  *{ animation-duration:.01s !important; transition-duration:.01s !important; }
+}
+</style>
+</head>
+<body>
+
+<!-- ============ 설정 화면 ============ -->
+<section id="setupScreen" class="screen active">
+  <div class="title-plate"><h1>결! 합!</h1></div>
+  <div class="setup-panel">
+    <div class="setup-row">
+      <div class="setup-label">게임 방식</div>
+      <div class="mode-toggle">
+        <button class="btn mode-btn on" data-mode="team" id="modeTeam">모둠전</button>
+        <button class="btn mode-btn" data-mode="solo" id="modeSolo">개인전</button>
+      </div>
+    </div>
+
+    <div class="setup-row">
+      <div class="setup-label"><span id="teamCountLabel">팀 수</span><span class="setup-value" id="teamCountVal">4</span></div>
+      <div class="stepper">
+        <button class="btn step-btn" data-target="teamCount" data-d="-1">−</button>
+        <input type="range" id="teamCount" min="2" max="8" value="4">
+        <button class="btn step-btn" data-target="teamCount" data-d="1">＋</button>
+      </div>
+    </div>
+
+    <div class="setup-row">
+      <div class="setup-label">팀 이름</div>
+      <div id="teamNames"></div>
+    </div>
+
+    <div class="setup-row">
+      <div class="setup-label">라운드 수 <span class="setup-value" id="roundsVal">10</span></div>
+      <div class="stepper">
+        <button class="btn step-btn" data-target="rounds" data-d="-1">−</button>
+        <input type="range" id="rounds" min="3" max="15" value="10">
+        <button class="btn step-btn" data-target="rounds" data-d="1">＋</button>
+      </div>
+    </div>
+
+    <div class="setup-row">
+      <div class="setup-label">턴 제한시간 <span class="setup-value" id="turnTimeVal">30초</span></div>
+      <div class="stepper">
+        <button class="btn step-btn" data-target="turnTime" data-d="-1">−</button>
+        <!-- 0:30초 1:60초 2:90초 3:120초 4:150초 5:180초 6:무제한 -->
+        <input type="range" id="turnTime" min="0" max="6" value="0">
+        <button class="btn step-btn" data-target="turnTime" data-d="1">＋</button>
+      </div>
+    </div>
+
+    <button class="btn" id="startBtn">게임 시작</button>
+  </div>
+</section>
+
+<!-- ============ 게임 화면 ============ -->
+<section id="gameScreen" class="screen">
+  <div class="top-bar">
+    <div class="round-badge" id="roundBadge">ROUND 1 / 10</div>
+    <div class="title-plate"><h1>결! 합!</h1></div>
+    <button class="btn" id="muteBtn" title="음소거">🔊</button>
+  </div>
+
+  <div id="scoreboard"></div>
+
+  <div id="turnArea">
+    <div class="clock" id="turnClock"><div class="pie"></div><div class="sec" id="turnSec">30</div></div>
+    <div id="turnTeamName"><b>1모둠</b>의 차례!</div>
+    <div id="declareBubble">합!</div>
+  </div>
+
+  <div id="playArea">
+    <div id="foundPanel">
+      <div class="fp-title">찾은 합</div>
+      <div id="foundList"><div class="fp-none" id="fpNone">아직 없음</div></div>
+    </div>
+    <div id="gridPanel">
+      <div id="cardGrid"></div>
+    </div>
+  </div>
+
+  <div id="bottomArea">
+    <div id="actionBar">
+      <button class="btn act-btn" id="hapBtn">합!</button>
+      <button class="btn act-btn" id="gyeolBtn">결!</button>
+      <button class="btn act-btn" id="passBtn">패스</button>
+      <button class="btn revert-btn" id="revertBtn" disabled>↩ 되돌리기</button>
+    </div>
+    <div id="callBar">
+      <span class="hint">카드 3장을 고르세요 (<span id="pickCount">0</span>/3)</span>
+      <button class="btn" id="cancelSelBtn">↩ 선택 취소</button>
+      <button class="btn" id="judgeBtn" disabled>판정하기</button>
+    </div>
+    <div id="bonusBar">
+      <span class="hint">✨ 이어서 결을 외칠 수 있어요!</span>
+      <button class="btn" id="bonusGyeolBtn">결!</button>
+      <button class="btn" id="bonusPassBtn">턴 넘기기</button>
+      <button class="btn revert-btn" id="revertBtn2" disabled>↩ 되돌리기</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 라운드 결과 화면 ============ -->
+<section id="roundResultScreen" class="screen">
+  <div class="title-plate"><h1>결! 합!</h1></div>
+  <div class="result-panel">
+    <h2 id="roundResultTitle">ROUND 1 결과</h2>
+    <div id="roundSummary"></div>
+    <div class="rank-list" id="roundRanks"></div>
+    <div style="display:flex; gap:14px; justify-content:center; flex-wrap:wrap;">
+      <button class="btn revert-btn" id="revertBtn3" disabled>↩ 되돌리기</button>
+      <button class="btn big-next" id="nextRoundBtn">다음 라운드 ▶</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 최종 결과 화면 ============ -->
+<section id="finalScreen" class="screen">
+  <div class="title-plate"><h1>결! 합!</h1></div>
+  <div class="result-panel">
+    <h2>🏆 최종 결과</h2>
+    <div class="rank-list" id="finalRanks"></div>
+    <button class="btn big-next" id="replayBtn">다시 하기 ↺</button>
+  </div>
+</section>
+
+<!-- ============ 판정 오버레이 ============ -->
+<div id="overlay">
+  <div class="ov-main" id="ovMain"></div>
+  <div class="ov-sub" id="ovSub"></div>
+  <div class="score-box" id="ovScore" style="display:none;">
+    <span class="lbl">승 점</span>
+    <span class="val" id="ovScoreVal">+1</span>
+  </div>
+  <div id="scanBox">
+    <div id="scanLabel">남은 합 검사 중…</div>
+    <div id="scanCombo">① ② ③</div>
+  </div>
+</div>
+
+<script>
+'use strict';
+/* ============================================================
+   결! 합! 게임 로직 v3
+   라운드 규칙:
+   - 9장 안의 모든 합을 찾아내고, 누군가 "결"을 정확히 외쳐야 라운드 종료
+   - 합 성공(+1) 시 같은 팀이 이어서 결 선언 가능. 안 하면 다음 팀 턴
+   - 이미 찾은 합 조합은 다시 외칠 수 없음 (외치면 실패 -1)
+   - 결 성공(+3): 아직 안 찾은 합이 0개일 때. 남아 있으면 실패(-1)
+   - 안전장치: 연속 6턴 동안 아무 선언이 없으면 라운드 자동 종료
+   ============================================================ */
+
+/* ---------- 사운드 (Web Audio API 직접 합성) ---------- */
+const Sound = {
+  ctx: null,
+  muted: false,
+  ensure(){
+    if(!this.ctx){
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if(AC) this.ctx = new AC();
+    }
+    if(this.ctx && this.ctx.state === 'suspended') this.ctx.resume();
+    return this.ctx;
+  },
+  tone(freq, dur, type='sine', vol=0.18, when=0){
+    const ctx = this.ensure();
+    if(!ctx || this.muted) return;
+    const t0 = ctx.currentTime + when;
+    const osc = ctx.createOscillator();
+    const g = ctx.createGain();
+    osc.type = type; osc.frequency.setValueAtTime(freq, t0);
+    g.gain.setValueAtTime(0, t0);
+    g.gain.linearRampToValueAtTime(vol, t0 + 0.012);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+    osc.connect(g).connect(ctx.destination);
+    osc.start(t0); osc.stop(t0 + dur + 0.05);
+  },
+  click(){ this.tone(1400, .06, 'square', .07); },
+  flip(i=0){ this.tone(600 + Math.random()*500, .07, 'triangle', .1, i*0.04); },
+  tick(){ this.tone(1050, .08, 'square', .13); },
+  select(){ this.tone(880, .09, 'sine', .14); },
+  undo(){ this.tone(500, .1, 'triangle', .12); },
+  fanfare(){
+    [523.25, 659.25, 783.99, 1046.5].forEach((f,i)=> this.tone(f, .32, 'triangle', .18, i*0.11));
+    this.tone(1318.5, .5, 'sine', .14, .46);
+  },
+  bigFanfare(){
+    [523.25, 659.25, 783.99, 1046.5, 1318.5, 1567.98].forEach((f,i)=> this.tone(f, .3, 'triangle', .18, i*0.09));
+  },
+  buzzer(){
+    this.tone(160, .4, 'sawtooth', .18);
+    this.tone(120, .45, 'sawtooth', .14, .02);
+  },
+  scan(){ this.tone(1600 + Math.random()*600, .04, 'square', .05); }
+};
+
+/* ---------- 카드 정의 ---------- */
+// 속성: shape(0:동그라미 1:네모 2:세모) / color(0:파랑 1:빨강 2:노랑) / bg(0:흰 1:검정 2:회색)
+const COLORS = ['#2E6BFF', '#FF3B3B', '#FFD400'];
+const BG_CLASSES = ['bg-white', 'bg-black', 'bg-gray'];
+const ATTR_NAMES = ['모양', '색', '배경색'];
+const CIRCLED = ['①','②','③','④','⑤','⑥','⑦','⑧','⑨'];
+const TURN_TIME_OPTIONS = [30, 60, 90, 120, 150, 180, 0]; // 0 = 무제한
+
+function buildDeck(){
+  const deck = [];
+  for(let s=0; s<3; s++) for(let c=0; c<3; c++) for(let b=0; b<3; b++)
+    deck.push({shape:s, color:c, bg:b});
+  return deck;
+}
+
+function shapeSVG(card){
+  const fill = COLORS[card.color];
+  const stroke = card.bg === 1 ? 'rgba(255,255,255,.35)' : 'rgba(0,0,0,.25)';
+  let inner = '';
+  if(card.shape === 0) inner = `<circle cx="50" cy="50" r="38" fill="${fill}" stroke="${stroke}" stroke-width="2.5"/>`;
+  else if(card.shape === 1) inner = `<rect x="14" y="14" width="72" height="72" rx="4" fill="${fill}" stroke="${stroke}" stroke-width="2.5"/>`;
+  else inner = `<polygon points="50,10 92,86 8,86" fill="${fill}" stroke="${stroke}" stroke-width="2.5"/>`;
+  return `<svg viewBox="0 0 100 100" aria-hidden="true">${inner}</svg>`;
+}
+
+/* ---------- 핵심 판정 로직 ---------- */
+function isSet(a, b, c){
+  for(const k of ['shape', 'color', 'bg']){
+    const same = (a[k] === b[k] && b[k] === c[k]);
+    const diff = (a[k] !== b[k] && b[k] !== c[k] && a[k] !== c[k]);
+    if(!same && !diff) return false;
+  }
+  return true;
+}
+function violatedAttrs(a, b, c){
+  const bad = [];
+  ['shape', 'color', 'bg'].forEach((k, i)=>{
+    const same = (a[k] === b[k] && b[k] === c[k]);
+    const diff = (a[k] !== b[k] && b[k] !== c[k] && a[k] !== c[k]);
+    if(!same && !diff) bad.push(ATTR_NAMES[i]);
+  });
+  return bad;
+}
+function findAllSets(cards){
+  const sets = [];
+  for(let i=0; i<cards.length; i++)
+    for(let j=i+1; j<cards.length; j++)
+      for(let k=j+1; k<cards.length; k++)
+        if(isSet(cards[i], cards[j], cards[k])) sets.push([i, j, k]);
+  return sets;
+}
+// 조합을 키 문자열로 (중복 선언 확인용)
+function comboKey(indices){
+  return [...indices].sort((a,b)=>a-b).join('-');
+}
+// 아직 찾지 못한(남은) 합 개수
+function remainingSets(){
+  const all = findAllSets(state.cards);
+  return all.filter(s => !state.foundKeys.has(comboKey(s))).length;
+}
+
+/* ---------- 게임 상태 ---------- */
+const state = {
+  phase: 'setup',       // setup | turn | calling | bonus | judging | roundEnd | gameEnd
+  settings: { mode:'team', teamCount:4, rounds:10, turnTime:30 }, // turnTime 0 = 무제한
+  teams: [],
+  round: 1,
+  turnIndex: 0,
+  passCount: 0,         // 연속으로 아무 선언 없이 지나간 턴 수 (안전장치)
+  cards: [],
+  selected: [],
+  foundKeys: new Set(), // 이미 찾은 합 조합 키
+  foundList: [],        // 찾은 순서대로 [i,j,k] (표시용)
+  roundLog: [],
+  timerId: null,
+  lastSnapshot: null    // 직전 판정을 되돌리기 위한 스냅샷
+};
+
+/* ---------- 판정 취소용 스냅샷 ----------
+   합/결을 처리(점수·턴·찾은합 변경)하기 직전 상태를 저장해 둔다.
+   교사가 오터치로 잘못 판정했을 때 이 지점으로 통째로 되돌린다. */
+function takeSnapshot(label){
+  state.lastSnapshot = {
+    label,
+    scores: state.teams.map(t => t.score),
+    turnIndex: state.turnIndex,
+    passCount: state.passCount,
+    foundKeys: new Set(state.foundKeys),
+    foundList: state.foundList.map(c => [...c]),
+    roundLogLen: state.roundLog.length
+  };
+}
+function updateRevertButtons(){
+  const on = !!state.lastSnapshot;
+  const label = on ? `↩ ${state.lastSnapshot.label} 취소` : '↩ 되돌리기';
+  ['revertBtn','revertBtn2','revertBtn3'].forEach(id=>{
+    const b = $(id);
+    if(b){ b.disabled = !on; b.textContent = label; }
+  });
+}
+// 직전 판정을 취소하고 그 판정 직전(=해당 팀 턴 시작 시점)으로 복원
+function revertLast(){
+  const snap = state.lastSnapshot;
+  if(!snap) return;
+  Sound.undo();
+  stopTimer();
+  hideOverlay();
+  // 점수·턴·찾은 합·로그 복원
+  state.teams.forEach((t, i)=> t.score = snap.scores[i]);
+  state.turnIndex = snap.turnIndex;
+  state.passCount = snap.passCount;
+  state.foundKeys = new Set(snap.foundKeys);
+  state.foundList = snap.foundList.map(c => [...c]);
+  state.roundLog.length = snap.roundLogLen;
+  state.lastSnapshot = null; // 되돌리기는 한 단계만
+  // 라운드 결과 화면 등에서 눌렀다면 게임 화면으로 복귀
+  showScreen('gameScreen');
+  $('roundBadge').textContent = `ROUND ${state.round} / ${state.settings.rounds}`;
+  renderCards(false);
+  renderFoundBar();
+  // 화면 재구성 후, 되돌린 팀의 턴을 다시 시작
+  startTurn();
+}
+
+/* ---------- DOM 헬퍼 ---------- */
+const $ = id => document.getElementById(id);
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  $(id).classList.add('active');
+}
+
+/* ============================================================
+   설정 화면
+   ============================================================ */
+function turnTimeLabel(v){
+  const sec = TURN_TIME_OPTIONS[v];
+  if(sec === 0) return '무제한';
+  return sec < 60 ? sec + '초' : (sec % 60 === 0 ? (sec/60) + '분' : Math.floor(sec/60) + '분 ' + (sec%60) + '초');
+}
+
+function renderTeamNameInputs(){
+  const n = +$('teamCount').value;
+  const isTeam = state.settings.mode === 'team';
+  const box = $('teamNames');
+  const prev = [...box.querySelectorAll('input')].map(i => i.value);
+  box.innerHTML = '';
+  for(let i=0; i<n; i++){
+    const inp = document.createElement('input');
+    inp.maxLength = 10;
+    inp.placeholder = isTeam ? `${i+1}모둠` : `플레이어${i+1}`;
+    if(prev[i] && !/^(\d+모둠|플레이어\d+)?$/.test(prev[i])) inp.value = prev[i];
+    box.appendChild(inp);
+  }
+}
+
+function bindSetup(){
+  [$('modeTeam'), $('modeSolo')].forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      Sound.click();
+      state.settings.mode = btn.dataset.mode;
+      $('modeTeam').classList.toggle('on', btn === $('modeTeam'));
+      $('modeSolo').classList.toggle('on', btn === $('modeSolo'));
+      $('teamCountLabel').textContent = state.settings.mode === 'team' ? '팀 수' : '참가자 수';
+      renderTeamNameInputs();
+    });
+  });
+  const sync = ()=>{
+    $('teamCountVal').textContent = $('teamCount').value;
+    $('roundsVal').textContent = $('rounds').value;
+    $('turnTimeVal').textContent = turnTimeLabel(+$('turnTime').value);
+  };
+  ['teamCount','rounds','turnTime'].forEach(id=>{
+    $(id).addEventListener('input', ()=>{ sync(); if(id==='teamCount') renderTeamNameInputs(); });
+  });
+  document.querySelectorAll('.step-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      Sound.click();
+      const el = $(btn.dataset.target);
+      el.value = +el.value + (+btn.dataset.d);
+      el.dispatchEvent(new Event('input'));
+    });
+  });
+  sync();
+  renderTeamNameInputs();
+
+  $('startBtn').addEventListener('click', ()=>{
+    Sound.ensure(); Sound.click();
+    const s = state.settings;
+    s.teamCount = +$('teamCount').value;
+    s.rounds = +$('rounds').value;
+    s.turnTime = TURN_TIME_OPTIONS[+$('turnTime').value];
+    const isTeam = s.mode === 'team';
+    state.teams = [...$('teamNames').querySelectorAll('input')].map((inp, i)=>({
+      name: inp.value.trim() || (isTeam ? `${i+1}모둠` : `플레이어${i+1}`),
+      score: 0
+    }));
+    state.round = 1;
+    startRound();
+  });
+}
+
+/* ============================================================
+   타이머 — onTimeout 콜백을 상황에 맞게 지정
+   ============================================================ */
+function startTurnTimer(onTimeout){
+  const total = state.settings.turnTime;
+  const clockEl = $('turnClock');
+  const secEl = $('turnSec');
+  stopTimer();
+  clockEl.classList.remove('danger');
+  if(total === 0){
+    // 무제한 모드
+    clockEl.classList.add('infinite');
+    secEl.textContent = '∞';
+    clockEl.querySelector('.pie').style.setProperty('--deg', '360deg');
+    return;
+  }
+  clockEl.classList.remove('infinite');
+  let last = total;
+  secEl.textContent = total + '초';
+  clockEl.querySelector('.pie').style.setProperty('--deg', '360deg');
+  const t0 = performance.now();
+  state.timerId = setInterval(()=>{
+    const elapsed = (performance.now() - t0) / 1000;
+    const remain = Math.max(0, total - elapsed);
+    const deg = (remain / total) * 360;
+    clockEl.querySelector('.pie').style.setProperty('--deg', deg + 'deg');
+    const sec = Math.ceil(remain);
+    if(sec !== last){
+      last = sec;
+      secEl.textContent = sec + '초';
+      if(sec <= 3 && sec > 0){ clockEl.classList.add('danger'); Sound.tick(); }
+    }
+    if(remain <= 0){
+      stopTimer();
+      onTimeout();
+    }
+  }, 100);
+}
+function stopTimer(){
+  if(state.timerId){ clearInterval(state.timerId); state.timerId = null; }
+}
+
+/* ============================================================
+   라운드 / 턴 진행
+   ============================================================ */
+function startRound(){
+  const deck = buildDeck();
+  for(let i=deck.length-1; i>0; i--){
+    const j = Math.floor(Math.random() * (i+1));
+    [deck[i], deck[j]] = [deck[j], deck[i]];
+  }
+  state.cards = deck.slice(0, 9);
+  state.selected = [];
+  state.passCount = 0;
+  state.roundLog = [];
+  state.foundKeys = new Set();
+  state.foundList = [];
+  state.lastSnapshot = null; // 새 라운드에서는 이전 판정 되돌리기 불가
+  state.turnIndex = (state.round - 1) % state.teams.length; // 시작 팀 로테이션
+
+  showScreen('gameScreen');
+  $('roundBadge').textContent = `ROUND ${state.round} / ${state.settings.rounds}`;
+  renderScoreboard();
+  renderCards(true);
+  renderFoundBar();
+  startTurn();
+}
+
+function renderScoreboard(){
+  const sb = $('scoreboard');
+  sb.innerHTML = '';
+  state.teams.forEach((t, i)=>{
+    const active = (i === state.turnIndex && ['turn','calling','bonus','judging'].includes(state.phase));
+    const chip = document.createElement('div');
+    chip.className = 'team-chip' + (active ? ' turn' : '');
+    chip.innerHTML = `<div class="t-name">${escapeHtml(t.name)}</div>
+      <div class="t-score ${t.score<0?'neg':''}">${t.score}</div>`;
+    sb.appendChild(chip);
+  });
+}
+function escapeHtml(s){ return s.replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+
+// 찾은 합 표시 — 왼쪽 패널에 미니 카드 3장씩 세로로 쌓기
+function renderFoundBar(){
+  const list = $('foundList');
+  list.innerHTML = '';
+  if(state.foundList.length === 0){
+    const none = document.createElement('div');
+    none.className = 'fp-none';
+    none.textContent = '아직 없음';
+    list.appendChild(none);
+    return;
+  }
+  state.foundList.forEach(combo=>{
+    const row = document.createElement('div');
+    row.className = 'found-row';
+    combo.forEach(idx=>{
+      const card = state.cards[idx];
+      const slot = document.createElement('div');
+      slot.className = 'mini-slot';
+      const num = document.createElement('div');
+      num.className = 'mini-num';
+      num.textContent = idx + 1;
+      const mc = document.createElement('div');
+      mc.className = `mini-card ${BG_CLASSES[card.bg]}`;
+      mc.innerHTML = shapeSVG(card);
+      slot.appendChild(num);
+      slot.appendChild(mc);
+      row.appendChild(slot);
+    });
+    list.appendChild(row);
+  });
+}
+
+function renderCards(withFlipSound){
+  const grid = $('cardGrid');
+  grid.innerHTML = '';
+  state.cards.forEach((card, i)=>{
+    const slot = document.createElement('div');
+    slot.className = 'card-slot';
+    const num = document.createElement('div');
+    num.className = 'card-num';
+    num.textContent = i + 1;
+    const el = document.createElement('div');
+    el.className = `card ${BG_CLASSES[card.bg]}`;
+    el.style.animationDelay = (i * 0.05) + 's';
+    el.dataset.idx = i;
+    el.innerHTML = shapeSVG(card);
+    el.addEventListener('click', ()=> onCardClick(i, el));
+    slot.appendChild(num);
+    slot.appendChild(el);
+    grid.appendChild(slot);
+    if(withFlipSound) Sound.flip(i);
+  });
+}
+
+function startTurn(){
+  state.phase = 'turn';
+  state.selected = [];
+  clearCardMarks();
+  renderScoreboard();
+  const team = state.teams[state.turnIndex];
+  $('turnTeamName').innerHTML = `<b>${escapeHtml(team.name)}</b>의 차례!`;
+  $('declareBubble').style.display = 'none';
+  showBottomBar('action');
+  setButtons(true);
+  updateRevertButtons();
+  startTurnTimer(()=> handlePassLike('시간 초과')); // 턴 시간 초과 = 패스 처리
+}
+
+function setButtons(on){
+  $('hapBtn').disabled = !on;
+  $('gyeolBtn').disabled = !on;
+  $('passBtn').disabled = !on;
+}
+// 하단 바 전환: 'action' | 'call' | 'bonus' | 'none'
+function showBottomBar(which){
+  $('actionBar').style.display = which === 'action' ? 'flex' : 'none';
+  $('callBar').style.display = which === 'call' ? 'flex' : 'none';
+  $('bonusBar').style.display = which === 'bonus' ? 'flex' : 'none';
+}
+
+function clearCardMarks(){
+  document.querySelectorAll('#cardGrid .card').forEach(c=>{
+    c.classList.remove('selected','hl-win','dim','selectable');
+  });
+}
+
+function nextTurn(){
+  state.turnIndex = (state.turnIndex + 1) % state.teams.length;
+  startTurn();
+}
+
+/* ---------- 패스 / 시간 초과 ---------- */
+function handlePassLike(reason){
+  stopTimer();
+  setButtons(false);
+  takeSnapshot(reason === '패스' ? '패스' : '시간초과');
+  state.phase = 'judging';
+  state.passCount++;
+  const team = state.teams[state.turnIndex];
+  if(state.passCount >= 6){
+    // 안전장치: 연속 6턴 무선언 → 라운드 자동 종료
+    showOverlay({ main:'라운드 종료', cls:'info', sub:'6턴 동안 아무도 외치지 않았어요', dur:1800 }, endRound);
+  }else{
+    showOverlay({ main: reason === '패스' ? '패스' : '⏱ 시간 초과', cls:'info', sub:`${team.name} → 다음 팀에게`, dur:1200 }, nextTurn);
+  }
+}
+
+/* ---------- 합! 선언 ---------- */
+function onHap(){
+  stopTimer();
+  Sound.click();
+  state.phase = 'calling';
+  state.passCount = 0;
+  state.selected = [];
+  setButtons(false);
+  $('declareBubble').textContent = '합!';
+  $('declareBubble').style.display = 'block';
+  showBottomBar('call');
+  updateCallBar();
+  document.querySelectorAll('#cardGrid .card').forEach(c=> c.classList.add('selectable'));
+}
+
+function onCardClick(i, el){
+  if(state.phase !== 'calling') return;
+  const pos = state.selected.indexOf(i);
+  if(pos >= 0){
+    state.selected.splice(pos, 1);
+    el.classList.remove('selected');
+    Sound.click();
+  }else{
+    if(state.selected.length >= 3) return;
+    state.selected.push(i);
+    el.classList.add('selected');
+    Sound.select();
+  }
+  updateCallBar();
+}
+
+function updateCallBar(){
+  $('pickCount').textContent = state.selected.length;
+  $('judgeBtn').disabled = state.selected.length !== 3;
+}
+
+// 선택 취소: 마지막 카드 선택 취소 → 선택이 없으면 합 선언 자체 취소
+function onCancelSelection(){
+  if(state.phase !== 'calling') return;
+  Sound.undo();
+  if(state.selected.length > 0){
+    const last = state.selected.pop();
+    const el = document.querySelector(`#cardGrid .card[data-idx="${last}"]`);
+    if(el) el.classList.remove('selected');
+    updateCallBar();
+  }else{
+    startTurn(); // 합 선언 취소 → 같은 팀 턴으로 복귀
+  }
+}
+
+function judgeHap(){
+  if(state.phase !== 'calling' || state.selected.length !== 3) return;
+  takeSnapshot('합 판정');
+  state.phase = 'judging';
+  showBottomBar('none');
+  const picked = [...state.selected];
+  const key = comboKey(picked);
+  const [i, j, k] = picked;
+  const a = state.cards[i], b = state.cards[j], c = state.cards[k];
+  const team = state.teams[state.turnIndex];
+
+  // 이미 찾은 조합을 다시 외친 경우 → 실패
+  if(state.foundKeys.has(key)){
+    failHap(team, '이미 찾은 합이에요!');
+    return;
+  }
+  if(isSet(a, b, c)){
+    // 합 성공 +1, 조합 기록
+    team.score += 1;
+    state.foundKeys.add(key);
+    state.foundList.push([...picked].sort((x,y)=>x-y));
+    state.roundLog.push({name:team.name, delta:+1, why:'합 성공'});
+    renderFoundBar();
+    highlight(picked, 'hl-win');
+    Sound.fanfare();
+    showOverlay({ main:'합 성공!', cls:'good', sub:`${team.name}`, score:'+1', dur:1800 }, ()=>{
+      clearCardMarks();
+      startBonus(); // 같은 팀이 이어서 결을 외칠 기회
+    });
+  }else{
+    const bad = violatedAttrs(a, b, c);
+    failHap(team, `${bad.join('·')}${bad.length===1?'이':'가'} 2:1이라 실패`);
+  }
+}
+
+function failHap(team, reason){
+  team.score -= 1;
+  state.roundLog.push({name:team.name, delta:-1, why:'합 실패'});
+  renderScoreboard();
+  Sound.buzzer();
+  showOverlay({ main:'합 실패…', cls:'bad', sub:reason, score:'-1', dur:2000 }, ()=>{
+    clearCardMarks();
+    nextTurn();
+  });
+}
+
+/* ---------- 합 성공 후: 이어서 결 선언 기회 ---------- */
+function startBonus(){
+  state.phase = 'bonus';
+  renderScoreboard();
+  const team = state.teams[state.turnIndex];
+  $('turnTeamName').innerHTML = `<b>${escapeHtml(team.name)}</b> — 이어서 결?`;
+  $('declareBubble').style.display = 'none';
+  showBottomBar('bonus');
+  updateRevertButtons();
+  // 시간 초과 시 그냥 턴만 넘어감 (감점·무선언 카운트 없음: 이번 턴에 합을 외쳤으므로)
+  startTurnTimer(()=>{
+    showOverlay({ main:'⏱ 시간 초과', cls:'info', sub:'다음 팀에게', dur:1000 }, nextTurn);
+  });
+}
+
+/* ---------- 결! 선언 (일반 턴 + 보너스 공용) ---------- */
+function onGyeol(){
+  if(state.phase !== 'turn' && state.phase !== 'bonus') return;
+  stopTimer();
+  Sound.click();
+  takeSnapshot('결 판정');
+  state.phase = 'judging';
+  state.passCount = 0;
+  setButtons(false);
+  showBottomBar('none');
+  $('declareBubble').textContent = '결!';
+  $('declareBubble').style.display = 'block';
+
+  const remain = remainingSets();
+  const team = state.teams[state.turnIndex];
+
+  // 남은 합 스캔 애니메이션
+  const ov = $('overlay');
+  $('ovMain').textContent = ''; $('ovMain').className = 'ov-main';
+  $('ovSub').textContent = '';
+  $('ovScore').style.display = 'none';
+  $('scanBox').style.display = 'flex';
+  $('scanLabel').textContent = '남은 합이 있는지 검사 중…';
+  ov.classList.add('show');
+
+  let count = 0;
+  const scanId = setInterval(()=>{
+    const idx = [];
+    while(idx.length < 3){
+      const r = Math.floor(Math.random() * 9);
+      if(!idx.includes(r)) idx.push(r);
+    }
+    idx.sort((x,y)=>x-y);
+    $('scanCombo').textContent = idx.map(n => CIRCLED[n]).join(' ');
+    Sound.scan();
+    count++;
+    if(count >= 18){
+      clearInterval(scanId);
+      finishGyeol(remain, team);
+    }
+  }, 80);
+}
+
+function finishGyeol(remain, team){
+  $('scanBox').style.display = 'none';
+  if(remain === 0){
+    // 결 성공 +3 → 라운드 종료
+    team.score += 3;
+    state.roundLog.push({name:team.name, delta:+3, why:'결 성공'});
+    $('ovMain').innerHTML = '<span class="no-set-stamp">남은 합 없음</span>';
+    $('ovMain').className = 'ov-main good';
+    $('ovSub').textContent = `결 성공! — ${team.name}`;
+    $('ovScore').style.display = 'inline-flex';
+    $('ovScoreVal').textContent = '+3';
+    renderScoreboard();
+    Sound.bigFanfare();
+    setTimeout(()=>{ hideOverlay(); endRound(); }, 2300);
+  }else{
+    // 결 실패 -1 — 어디에 합이 남았는지는 비공개
+    team.score -= 1;
+    state.roundLog.push({name:team.name, delta:-1, why:'결 실패'});
+    $('ovMain').textContent = '결 실패…';
+    $('ovMain').className = 'ov-main bad';
+    $('ovSub').textContent = '아직 찾지 못한 합이 숨어 있습니다!';
+    $('ovScore').style.display = 'inline-flex';
+    $('ovScoreVal').textContent = '-1';
+    renderScoreboard();
+    Sound.buzzer();
+    setTimeout(()=>{ hideOverlay(); nextTurn(); }, 2000);
+  }
+}
+
+/* ---------- 하이라이트 ---------- */
+function highlight(indices, cls){
+  document.querySelectorAll('#cardGrid .card').forEach(c=>{
+    const i = +c.dataset.idx;
+    if(indices.includes(i)) c.classList.add(cls);
+    else c.classList.add('dim');
+  });
+}
+
+/* ---------- 오버레이 ---------- */
+let overlayTimeout = null;
+function showOverlay({main, cls, sub, score, dur=1500}, after){
+  $('scanBox').style.display = 'none';
+  $('ovMain').textContent = main;
+  $('ovMain').className = 'ov-main ' + (cls || 'info');
+  $('ovSub').textContent = sub || '';
+  if(score){
+    $('ovScore').style.display = 'inline-flex';
+    $('ovScoreVal').textContent = score;
+  }else{
+    $('ovScore').style.display = 'none';
+  }
+  renderScoreboard();
+  $('overlay').classList.add('show');
+  clearTimeout(overlayTimeout);
+  overlayTimeout = setTimeout(()=>{ hideOverlay(); if(after) after(); }, dur);
+}
+function hideOverlay(){ $('overlay').classList.remove('show'); }
+
+/* ============================================================
+   라운드 종료 / 최종 결과
+   ============================================================ */
+function endRound(){
+  stopTimer();
+  state.phase = 'roundEnd';
+  showScreen('roundResultScreen');
+  $('roundResultTitle').textContent = `ROUND ${state.round} 결과`;
+
+  const sum = $('roundSummary');
+  if(state.roundLog.length === 0){
+    sum.innerHTML = '아무도 점수를 얻지 못했어요 😅';
+  }else{
+    sum.innerHTML = state.roundLog.map(l=>{
+      const cls = l.delta > 0 ? 'plus' : 'minus';
+      const sign = l.delta > 0 ? '+' : '';
+      return `${escapeHtml(l.name)} — ${l.why} <span class="${cls}">${sign}${l.delta}점</span>`;
+    }).join('<br>');
+  }
+
+  renderRankList($('roundRanks'), false);
+  updateRevertButtons();
+  $('nextRoundBtn').textContent = state.round >= state.settings.rounds ? '최종 결과 보기 🏆' : '다음 라운드 ▶';
+}
+
+function renderRankList(container, isFinal){
+  const sorted = [...state.teams].map((t,i)=>({...t, idx:i}))
+    .sort((a,b)=> b.score - a.score);
+  const maxAbs = Math.max(1, ...sorted.map(t => Math.abs(t.score)));
+  container.innerHTML = '';
+  let rank = 0, prevScore = null;
+  sorted.forEach((t, i)=>{
+    if(t.score !== prevScore){ rank = i + 1; prevScore = t.score; }
+    const row = document.createElement('div');
+    row.className = 'rank-row' + (rank === 1 && isFinal ? ' first' : '');
+    const crown = (rank === 1 && isFinal) ? ' 👑' : '';
+    const barW = Math.round(Math.abs(t.score) / maxAbs * 100);
+    row.innerHTML = `
+      <div class="rank-no">${rank}위${crown}</div>
+      <div class="rank-name">${escapeHtml(t.name)}</div>
+      <div class="rank-bar-wrap"><div class="rank-bar ${t.score<0?'negbar':''}" data-w="${barW}"></div></div>
+      <div class="rank-score ${t.score<0?'neg':''}">${t.score}점</div>`;
+    container.appendChild(row);
+  });
+  requestAnimationFrame(()=>{
+    container.querySelectorAll('.rank-bar').forEach(b=> b.style.width = b.dataset.w + '%');
+  });
+}
+
+function onNextRound(){
+  Sound.click();
+  if(state.round >= state.settings.rounds){
+    showFinal();
+  }else{
+    state.round++;
+    startRound();
+  }
+}
+
+function showFinal(){
+  state.phase = 'gameEnd';
+  showScreen('finalScreen');
+  renderRankList($('finalRanks'), true);
+  Sound.bigFanfare();
+}
+
+/* ============================================================
+   초기화 / 이벤트 바인딩
+   ============================================================ */
+$('hapBtn').addEventListener('click', ()=>{ if(state.phase==='turn') onHap(); });
+$('gyeolBtn').addEventListener('click', onGyeol);
+$('bonusGyeolBtn').addEventListener('click', onGyeol);
+$('bonusPassBtn').addEventListener('click', ()=>{
+  if(state.phase !== 'bonus') return;
+  stopTimer();
+  Sound.click();
+  state.phase = 'judging';
+  nextTurn(); // 감점·무선언 카운트 없이 턴만 넘어감
+});
+$('passBtn').addEventListener('click', ()=>{ if(state.phase==='turn'){ Sound.click(); handlePassLike('패스'); } });
+$('cancelSelBtn').addEventListener('click', onCancelSelection);
+$('revertBtn').addEventListener('click', revertLast);
+$('revertBtn2').addEventListener('click', revertLast);
+$('revertBtn3').addEventListener('click', revertLast);
+$('judgeBtn').addEventListener('click', ()=>{ Sound.click(); judgeHap(); });
+$('nextRoundBtn').addEventListener('click', onNextRound);
+$('replayBtn').addEventListener('click', ()=>{
+  Sound.click();
+  state.phase = 'setup';
+  state.teams.forEach(t => t.score = 0);
+  showScreen('setupScreen');
+});
+$('muteBtn').addEventListener('click', ()=>{
+  Sound.muted = !Sound.muted;
+  $('muteBtn').textContent = Sound.muted ? '🔇' : '🔊';
+});
+
+// 새로고침 방지 (진행 중일 때만)
+window.addEventListener('beforeunload', (e)=>{
+  if(state.phase !== 'setup' && state.phase !== 'gameEnd'){
+    e.preventDefault();
+    e.returnValue = '';
+  }
+});
+
+bindSetup();
+</script>
+</body>
+</html>
