@@ -18,6 +18,7 @@ import type {
  */
 
 export interface SeedProblem {
+  stage?: "concept" | "check" | "more";
   code: string;
   lesson: number;
   orderIndex: number;

@@ -1,6 +1,6 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
-import { SUPABASE_ANON_KEY, SUPABASE_URL } from "./config";
+import { SUPABASE_PUBLISHABLE_KEY, SUPABASE_URL } from "./config";
 
 /**
  * 교사용 Supabase 클라이언트 (Supabase Auth).
@@ -10,11 +10,11 @@ import { SUPABASE_ANON_KEY, SUPABASE_URL } from "./config";
 let cached: SupabaseClient | null = null;
 
 export function getSupabase(): SupabaseClient {
-  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+  if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) {
     throw new Error(
-      "Supabase 설정이 없습니다. .env.local 에 VITE_SUPABASE_URL 과 VITE_SUPABASE_ANON_KEY 를 넣어 주세요.",
+      "Supabase 설정이 없습니다. .env.local 에 VITE_SUPABASE_URL 과 VITE_SUPABASE_PUBLISHABLE_KEY 를 넣어 주세요.",
     );
   }
-  if (!cached) cached = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  if (!cached) cached = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
   return cached;
 }

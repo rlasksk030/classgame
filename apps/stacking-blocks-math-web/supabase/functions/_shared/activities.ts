@@ -17,6 +17,7 @@ export async function activityRequest(db:ReturnType<typeof serviceClient>, body:
  }
  if(action==='activity:project:save'){
   const building=body.building as Building;
+  if(building?.submitted&&lesson!==11)return fail(400,'SUBMIT_ON_LESSON_11','소개서 완성은 11차시에서 할 수 있습니다.');
   if(!building||!validBuilding(building,building.submitted)||!Number.isInteger(building.version))return fail(400,'INVALID_BUILDING','건축물 이름, 설계 이유, 3개 층의 설명과 3층 모양을 확인해 주세요.');
   const {data,error}=await db.rpc('sb_save_building',{p_student:student.studentId,p_class:student.classId,p_version:building.version,p_data:{...building,blocks:canonicalize(building.blocks)}});
   return error?fail(error.message.includes('VERSION_CONFLICT')?409:500,'SAVE_CONFLICT','다른 창에서 수정했거나 저장에 실패했습니다. 기기 기록을 보관했습니다. 서버 상태를 다시 확인해 주세요.'):ok({version:data});

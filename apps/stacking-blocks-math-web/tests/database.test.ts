@@ -12,11 +12,13 @@ test('PostgreSQL migrations, RLS isolation and atomic progression', async () => 
       create function auth.uid() returns uuid language sql stable as $$ select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid $$;
       grant usage on schema auth,public to anon,authenticated,service_role;
       grant execute on function auth.uid() to anon,authenticated,service_role;`);
+    await db.exec(`create schema storage;create table storage.buckets(id text primary key,name text,public boolean,file_size_limit bigint,allowed_mime_types text[]);
+      create table storage.objects(id uuid primary key default gen_random_uuid(),bucket_id text,name text);alter table storage.objects enable row level security;
+      create function storage.foldername(text) returns text[] language sql as $$ select (string_to_array($1,'/'))[1:array_length(string_to_array($1,'/'),1)-1] $$;`);
     for (const file of readdirSync('supabase/migrations').sort()) {
       // PGlite supplies gen_random_uuid natively; pgcrypto is a Supabase extension.
       await db.exec(readFileSync('supabase/migrations/'+file,'utf8').replace('create extension if not exists "pgcrypto";', ''));
     }
-    await db.exec('grant select,insert,update,delete on all tables in schema public to anon,authenticated,service_role;');
     const teacherA='11111111-1111-4111-8111-111111111111', teacherB='22222222-2222-4222-8222-222222222222';
     const classA='33333333-3333-4333-8333-333333333333',classB='44444444-4444-4444-8444-444444444444';
     const student='55555555-5555-4555-8555-555555555555';
@@ -31,7 +33,7 @@ test('PostgreSQL migrations, RLS isolation and atomic progression', async () => 
     await db.exec(`set request.jwt.claim.sub='${teacherA}';`);
     assert.equal((await db.query('select * from sb_student_pin_vault')).rows.length,1);
     await db.exec('reset role; set role anon;');
-    for(const table of ['sb_students','sb_student_pin_vault','sb_problems','sb_student_progress','sb_student_sessions','sb_teacher_settings']) assert.equal((await db.query(`select * from ${table}`)).rows.length,0,table);
+    for(const table of ['sb_students','sb_student_pin_vault','sb_problems','sb_student_progress','sb_student_sessions','sb_teacher_settings']) await assert.rejects(()=>db.query(`select * from ${table}`), /permission denied/,table);
     await assert.rejects(()=>db.query('select sb_record_attempt($1,$2,0,$3,null)',[student,student,{}]), /permission denied/);
     await db.exec('reset role;');
     const {rows:problems}=await db.query<{id:string}>('select id from sb_problems where lesson=1 order by order_index');

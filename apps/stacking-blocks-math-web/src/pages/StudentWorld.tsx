@@ -64,6 +64,7 @@ export default function StudentWorld() {
 
         {error ? <p className="error">{error}</p> : null}
 
+        <section className="panel"><p>{home?.rewards.totalXp??0} XP · 별 {home?.rewards.totalStars??0} · 완료 {home?.lessons.filter(l=>l.completed).length??0}/12차시</p><p>{home?.rewards.badges.map(String).join(' · ')}</p></section>
         <div className="cards-grid">
         {Array.from({ length: LESSON_COUNT }, (_, index) => {
             const lesson = index + 1;
@@ -74,7 +75,7 @@ export default function StudentWorld() {
             const done = info?.completedProblems ?? 0;
             const completed = info?.completed ?? false;
             return (
-              <Link key={lesson} className="lesson-card" to={locked ? "#" : `/lesson/${lesson}`} onClick={event => { if (locked) { event.preventDefault(); setError("선생님이 아직 열지 않은 차시예요."); } }}>
+              <Link key={lesson} className="lesson-card" to={locked ? "#" : `/lesson/${lesson}${lesson===10||lesson===11?"/project":""}`} onClick={event => { if (locked) { event.preventDefault(); setError("선생님이 아직 열지 않은 차시예요."); } }}>
                 <div className="lesson-emoji" aria-hidden>
                   {meta?.emoji ?? "🧱"}
                 </div>

@@ -1,3 +1,4 @@
+import TeacherActivities from "../features/activities/TeacherActivities";
 import { getSupabase } from "../lib/supabase";
 import { Link } from "react-router-dom";
 import { FormEvent, useEffect, useMemo, useState } from "react";
@@ -125,6 +126,10 @@ export default function TeacherPage() {
       setError(err instanceof Error ? err.message : "잠금 변경 실패");
     }
   };
+  const setPracticeCount = async (lesson:number, count:5|10|15|20) => {
+    try { const row=lessons.find(item=>item.lesson===lesson); await teacherSetLessonLock(classId,lesson,row?.locked??(lesson!==1),count); setLessons((await teacherListLessonSettings(classId)).lessons); }
+    catch (err) { setError(err instanceof Error ? err.message : "추가 문제 수를 저장하지 못했습니다."); }
+  };
 
   const copyText = async (value: string) => {
     try {
@@ -139,7 +144,7 @@ export default function TeacherPage() {
     <div className="screen app-max">
       <div className="stack" style={{ gap: 16 }}>
         <h1>🧱 교사 페이지</h1>
-        <div className="toolbar-row"><Link className="btn" to="/teacher/problems/new">3D 문제 만들기</Link></div>
+        <div className="toolbar-row"><Link className="btn" to="/teacher/problems/new">3D 문제 만들기</Link><Link className="btn" to="/teacher/worksheet-import">학습지로 문제 만들기</Link></div>
 
         <section className="panel stack">
           <h3>반 선택</h3>
@@ -210,7 +215,7 @@ export default function TeacherPage() {
                       <button className="btn btn-sm" type="button" onClick={() => resetPin(student.id)}>
                         PIN 재발급
                       </button>
-                      <button
+                <button
                         className="btn btn-sm"
                         type="button"
                         onClick={() => toggleStudent(student)}
@@ -230,17 +235,20 @@ export default function TeacherPage() {
           <h3>차시 잠금</h3><div className="toolbar-row">{[true,false].map(locked=><button className="btn" key={String(locked)} disabled={!classId||busy} onClick={async()=>{setBusy(true);try{for(let lesson=1;lesson<=12;lesson++)await teacherSetLessonLock(classId,lesson,locked);setLessons((await teacherListLessonSettings(classId)).lessons);}catch{setError("일부 차시 설정에 실패했습니다. 새로고침해 확인해 주세요.");}finally{setBusy(false);}}}>{locked?"전체 잠금":"전체 해제"}</button>)}</div>
           <div className="toolbar-row" style={{ flexWrap: "wrap" }}>
             {lessons.map((row) => (
+              <span key={`${row.lesson}`} className="toolbar-row">
               <button
-                key={`${row.lesson}`}
                 className={`btn btn-sm ${row.locked ? "btn-danger" : "btn-primary"}`}
                 onClick={() => toggleLessonLock(row.lesson, !row.locked)}
               >
                 {row.lesson}차시 {row.locked ? "잠금" : "해제"}
-              </button>
+                </button>
+                <label className="muted">추가 문제 <select className="field" aria-label={`${row.lesson}차시 추가 문제 수`} value={row.practice_count??''} onChange={e=>{const value=Number(e.target.value);if([5,10,15,20].includes(value))void setPracticeCount(row.lesson,value as 5|10|15|20);}}><option value="">권장</option>{[5,10,15,20].map(n=><option key={n} value={n}>{n}문제</option>)}</select></label>
+              </span>
             ))}
           </div>
         </section>
 
+        <TeacherActivities classId={classId} students={students}/>
         {error ? <p className="error">{error}</p> : null}
         {message ? <p className="muted">{message}</p> : null}
       </div>

@@ -9,7 +9,7 @@ import type {
 import type { BlockCoord } from "@shared/types.ts";
 import {
   STUDENT_TOKEN_KEY,
-  SUPABASE_ANON_KEY,
+  SUPABASE_PUBLISHABLE_KEY,
   SUPABASE_URL,
 } from "./config";
 
@@ -103,6 +103,8 @@ export interface StudentHomeData {
 export interface LessonProblemListData {
   problems: StudentProblem[];
   seedFallback: boolean;
+  requiredComplete?: boolean;
+  stages?: { concept: number; check: number; more: number };
 }
 
 export interface AttemptState {
@@ -144,6 +146,7 @@ export interface ClassData {
 export interface LessonSettingRow {
   lesson: number;
   locked: boolean;
+  practice_count?: 5 | 10 | 15 | 20 | null;
 }
 
 async function callFunction<T>(name: string, body: JsonPayload, withToken: boolean): Promise<T> {
@@ -151,9 +154,8 @@ async function callFunction<T>(name: string, body: JsonPayload, withToken: boole
     "content-type": "application/json",
   };
 
-  if (SUPABASE_ANON_KEY) {
-    headers.apikey = SUPABASE_ANON_KEY;
-    headers.authorization = `Bearer ${SUPABASE_ANON_KEY}`;
+  if (SUPABASE_PUBLISHABLE_KEY) {
+    headers.apikey = SUPABASE_PUBLISHABLE_KEY;
   }
 
   const isTeacher = typeof body.action === "string" && body.action.startsWith("teacher:");
@@ -350,10 +352,10 @@ export function teacherListLessonSettings(classId: string) {
   );
 }
 
-export function teacherSetLessonLock(classId: string, lesson: number, locked: boolean) {
+export function teacherSetLessonLock(classId: string, lesson: number, locked: boolean, practiceCount?: 5 | 10 | 15 | 20) {
   return callFunction<{ ok: boolean }>(
     "student-api",
-    { action: "teacher:lessons:set-lock", classId, lesson, locked },
+    { action: "teacher:lessons:set-lock", classId, lesson, locked, practiceCount },
     true,
   );
 }
@@ -381,3 +383,7 @@ export function teacherListProblems(classId: string) {
 export function teacherSetProblemActive(problemId: string, active: boolean) {
   return callFunction<{ ok: boolean }>("student-api", { action: "teacher:problems:set-active", problemId, active }, true);
 }
+
+export function activityApi<T>(action: string, payload: JsonPayload = {}) { return callFunction<T>("student-api", { ...payload, action: `activity:${action}` }, true); }
+
+export function getProblemImage(problemId: string) { return callFunction<{url:string}>("student-api", {action:"asset",problemId}, true); }

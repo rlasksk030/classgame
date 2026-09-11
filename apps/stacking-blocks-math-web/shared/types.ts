@@ -135,6 +135,8 @@ export type StudentSubmission =
 
 /** 학생에게 내려보내는 문제 (정답 제거됨). */
 export interface StudentProblem {
+  stage?: "concept" | "check" | "more";
+  hasImage?: boolean;
   id: string;
   lesson: number;
   orderIndex: number;

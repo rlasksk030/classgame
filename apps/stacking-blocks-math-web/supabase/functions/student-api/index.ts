@@ -1,3 +1,4 @@
+import { activityRequest } from "../_shared/activities.ts";
 import { canonicalize, validStructure, toHeightMap } from "../../../shared/blocks.ts";
 import { applyAttempt, INITIAL_ATTEMPT } from "../../../shared/attempts.ts";
 import {
@@ -9,6 +10,7 @@ import {
   type RevealedAnswer,
 } from "../../../shared/types.ts";
 import { SEED_PROBLEMS } from "../../../shared/seedProblems.ts";
+import { generatePracticeProblems, recommendedPracticeCount } from "../../../shared/practiceGenerator.ts";
 import { grade as gradeShared } from "../../../shared/grading.ts";
 import { serviceClient, requireTeacher, teacherOwnsClass } from "../_shared/db.ts";
 import {
@@ -28,6 +30,7 @@ import {
 } from "../_shared/security.ts";
 
 type Action =
+  | "asset"
   | "home"
   | "lessonProblems"
   | "problem"
@@ -52,6 +55,7 @@ interface BaseBody {
 }
 
 interface DbProblemRow {
+  image_path?: string | null;
   id: string;
   class_id: string | null;
   lesson: number;
@@ -182,6 +186,8 @@ function parseProblemRow(row: DbProblemRow | null) {
 
   return {
     id: row.id,
+    stage: Number(row.order_index ?? 0) <= 1 ? "concept" : Number(row.order_index ?? 0) === 2 ? "check" : "more",
+    hasImage: Boolean(row.image_path),
     lesson: Number(row.lesson),
     orderIndex: Number(row.order_index ?? 0),
     problemType: parseProblemType(row.problem_type),
@@ -264,6 +270,8 @@ function buildRevealedAnswer(row: ReturnType<typeof parseProblemRow>): RevealedA
 function parseSeedProblem(raw: (typeof SEED_PROBLEMS)[number]) {
   return {
     id: `seed:${raw.code}`,
+    stage: raw.stage ?? (raw.orderIndex <= 1 ? "concept" : raw.orderIndex === 2 ? "check" : "more"),
+    hasImage: false,
     lesson: raw.lesson,
     orderIndex: raw.orderIndex,
     problemType: raw.problemType,
@@ -290,6 +298,8 @@ function sanitizeToStudentProblem(row: ReturnType<typeof parseProblemRow> | Retu
   if (!row) return null;
   return {
     id: row.id,
+    stage: row.stage,
+    hasImage: row.hasImage,
     lesson: row.lesson,
     orderIndex: row.orderIndex,
     problemType: row.problemType,
@@ -313,11 +323,12 @@ function safeLessonRows(db: unknown[]): number[] {
     .filter((value) => Number.isInteger(value) && value >= 1 && value <= 12);
 }
 
-function makeDefaultLessonSettings(classId: string): Array<{ class_id: string; lesson: number; locked: boolean }> {
+function makeDefaultLessonSettings(classId: string): Array<{ class_id: string; lesson: number; locked: boolean; practice_count: number | null }> {
   return Array.from({ length: 12 }, (_, index) => ({
     class_id: classId,
     lesson: index + 1,
     locked: index === 0 ? false : true,
+    practice_count: null,
   }));
 }
 
@@ -329,6 +340,22 @@ function countProblemsFromRows(rows: DbProblemRow[]): Record<number, number> {
     }
   }
   return counts;
+}
+
+function practiceSeedForStudent(studentId:string, lesson:number):number {
+  let hash=lesson;
+  for(const char of studentId) hash=((hash*31)+char.charCodeAt(0))|0;
+  return Math.abs(hash)%1000000;
+}
+function belongsToStudentPractice(row:DbProblemRow,studentId:string):boolean {
+  const code=String(row.code??'');
+  if(!code.startsWith('GEN-L'))return true;
+  const match=/^GEN-L(\d+)-S(\d+)-/.exec(code);
+  return Boolean(match&&Number(match[2])===practiceSeedForStudent(studentId,Number(match[1])));
+}
+
+function generatedInsertRow(seed:(typeof SEED_PROBLEMS)[number]) {
+  return { class_id:null, created_by:null, code:seed.code, lesson:seed.lesson, order_index:seed.orderIndex, problem_type:seed.problemType, title:seed.title, prompt:seed.prompt, grid_width:seed.grid.gridWidth, grid_depth:seed.grid.gridDepth, max_height:seed.grid.maxHeight, given_blocks:seed.givenBlocks, start_blocks:seed.startBlocks, given:seed.given, choices:seed.choices, answer:seed.answer, grading_mode:seed.gradingMode, hint:seed.hint, explanation:seed.explanation, difficulty:seed.difficulty, xp:seed.xp, active:true };
 }
 
 function normalizeSubmission(raw: unknown): StudentSubmission | null {
@@ -429,9 +456,11 @@ Deno.serve(async (req: Request) => {
   const action = text(body.action, 40) as Action;
 
   // 학생 동작
-  if (action === "home" || action === "lessonProblems" || action === "problem" || action === "attempt" || action === "snapshot" || action === "snapshot:get") {
+  if (action === "asset" || action.startsWith("activity:") || action === "home" || action === "lessonProblems" || action === "problem" || action === "attempt" || action === "snapshot" || action === "snapshot:get") {
     const studentSession = await requireStudent(req, db);
     if (studentSession instanceof Response) return studentSession;
+
+    if (action.startsWith("activity:")) return activityRequest(db, body, studentSession);
 
     if (action !== "home") {
       let targetLesson = toInt(body.lesson);
@@ -450,8 +479,15 @@ Deno.serve(async (req: Request) => {
         }
       }
       if (!Number.isInteger(targetLesson) || !targetLesson || targetLesson < 1 || targetLesson > 12) return fail(400, "BAD_LESSON", "차시를 확인해 주세요.");
-      const { data: setting, error } = await db.from("sb_lesson_settings").select("locked").eq("class_id", studentSession.classId).eq("lesson", targetLesson).maybeSingle();
+        const { data: setting, error } = await db.from("sb_lesson_settings").select("locked,practice_count").eq("class_id", studentSession.classId).eq("lesson", targetLesson).maybeSingle();
       if (error || (setting?.locked ?? targetLesson !== 1)) return fail(403, "LESSON_LOCKED", "선생님이 아직 열지 않은 차시예요.");
+    }
+
+    if (action === "asset") {
+      const {data:problem}=await db.from("sb_problems").select("image_path").eq("id",text(body.problemId,80)).eq("class_id",studentSession.classId).maybeSingle();
+      if (!problem?.image_path?.startsWith(`${studentSession.classId}/`)) return fail(404,"ASSET_MISSING","문제 그림을 찾지 못했습니다.");
+      const {data,error}=await db.storage.from("sb-problem-images").createSignedUrl(problem.image_path,300);
+      return error?fail(500,"ASSET_FAILED","문제 그림을 불러오지 못했습니다."):ok({url:data.signedUrl});
     }
 
     if (action === "home") {
@@ -461,7 +497,7 @@ Deno.serve(async (req: Request) => {
           .select("id, name")
           .eq("id", studentSession.classId)
           .maybeSingle(),
-        db.from("sb_lesson_settings").select("lesson, locked").eq("class_id", studentSession.classId),
+        db.from("sb_lesson_settings").select("lesson, locked, practice_count").eq("class_id", studentSession.classId),
         db
           .from("sb_student_progress")
           .select("lesson, completed, stars")
@@ -470,7 +506,7 @@ Deno.serve(async (req: Request) => {
         db
           .from("sb_problems")
           .select(
-            "lesson,problem_type,title,prompt,grid_width,grid_depth,max_height,given_blocks,start_blocks,given,choices,answer,grading_mode,difficulty,xp,hint,explanation,order_index,active,id,class_id",
+            "lesson,problem_type,title,prompt,grid_width,grid_depth,max_height,given_blocks,start_blocks,given,choices,answer,grading_mode,difficulty,xp,hint,explanation,order_index,active,id,class_id,code",
           )
           .or(`class_id.eq.${studentSession.classId},class_id.is.null`),
       ]);
@@ -481,7 +517,7 @@ Deno.serve(async (req: Request) => {
 
       const lessonSettings = lessonSettingRes.error
         ? []
-        : (lessonSettingRes.data as Array<{ lesson: number; locked: boolean }>) ?? [];
+        : (lessonSettingRes.data as Array<{ lesson: number; locked: boolean; practice_count?: number | null }>) ?? [];
 
       if (!lessonSettingRes.error && lessonSettings.length === 0) {
         await db.from("sb_lesson_settings").upsert(makeDefaultLessonSettings(baseClass.id), {
@@ -503,9 +539,15 @@ Deno.serve(async (req: Request) => {
       };
 
       const countByLesson = countProblemsFromRows(
-        ((problemRowsRes.data as unknown[]) as DbProblemRow[])?.filter((row) => (row as DbProblemRow).active) ?? [],
+        ((problemRowsRes.data as unknown[]) as DbProblemRow[])?.filter((row) => (row as DbProblemRow).active && belongsToStudentPractice(row as DbProblemRow,studentSession.studentId)) ?? [],
       );
 
+      const [attempts, challengeXp, projectState] = await Promise.all([
+        db.from("sb_problem_attempts").select("lesson,completed").eq("student_id",studentSession.studentId),
+        db.from("sb_challenge_solves").select("xp").eq("student_id",studentSession.studentId),
+        db.from("sb_projects").select("submitted").eq("student_id",studentSession.studentId).maybeSingle(),
+      ]);
+      const activityXp=(challengeXp.data??[]).reduce((sum,row)=>sum+Number(row.xp),0)+(projectState.data?.submitted?30:0);
       const lessons = Array.from({ length: 12 }, (_, index) => {
         const lesson = index + 1;
         const setting =
@@ -513,8 +555,9 @@ Deno.serve(async (req: Request) => {
           { lesson, locked: lesson === 1 ? false : true };
         const progress = progressRows.find((row) => row.lesson === lesson);
 
-        const totalProblems = countByLesson[lesson] ?? 0;
-        const completedProblems = progress?.completed ? totalProblems : 0;
+        const settingCount = Number(finalLessonSettings.find((item) => Number(item.lesson) === lesson)?.practice_count);
+        const totalProblems = lesson>=9 && lesson<=11 ? 1 : Math.max(countByLesson[lesson] ?? 0, [5,10,15,20].includes(settingCount) ? settingCount : recommendedPracticeCount(lesson));
+        const completedProblems = progress?.completed ? totalProblems : (attempts.data??[]).filter(a=>a.lesson===lesson&&a.completed).length;
         return {
           lesson,
           locked: Boolean(setting.locked),
@@ -530,9 +573,9 @@ Deno.serve(async (req: Request) => {
           classId: baseClass.id,
           className: baseClass.name,
           rewards: {
-            totalXp: Number(reward.total_xp ?? 0),
+            totalXp: Number(reward.total_xp ?? 0)+activityXp,
             totalStars: Number(reward.total_stars ?? 0),
-            badges: reward.badges ?? [],
+            badges: progressRows.filter(p=>p.completed).map(p=>`${p.lesson}차시 완료`),
             streak: Number(reward.streak ?? 0),
           },
           lessons,
@@ -544,28 +587,44 @@ Deno.serve(async (req: Request) => {
       const lesson = toInt(body.lesson);
       if (!lesson) return fail(400, "BAD_LESSON", "lesson 는 1~12 사이의 값이어야 합니다.");
 
-      const { data: problemRows } = await db
+      let { data: problemRows } = await db
         .from("sb_problems")
         .select(
-          "id, lesson, order_index, problem_type, title, prompt, grid_width, grid_depth, max_height, given_blocks, start_blocks, given, choices, answer, grading_mode, hint, explanation, difficulty, xp, active, code",
+          "id,image_path, lesson, order_index, problem_type, title, prompt, grid_width, grid_depth, max_height, given_blocks, start_blocks, given, choices, answer, grading_mode, hint, explanation, difficulty, xp, active, code",
         )
         .or(`class_id.eq.${studentSession.classId},class_id.is.null`)
         .eq("lesson", lesson)
         .eq("active", true)
         .order("order_index", { ascending: true });
 
-      const parsed = (
-        (problemRows as DbProblemRow[] | null)?.map((row) => parseProblemRow(row)).filter(Boolean) ?? []
-      );
-
+      const { data: lessonSetting } = await db.from("sb_lesson_settings").select("practice_count").eq("class_id", studentSession.classId).eq("lesson", lesson).maybeSingle();
+      const targetCount = [5,10,15,20].includes(Number(lessonSetting?.practice_count)) ? Number(lessonSetting?.practice_count) : recommendedPracticeCount(lesson);
+      const seed=practiceSeedForStudent(studentSession.studentId,lesson);
+      await db.from("sb_student_progress").upsert({student_id:studentSession.studentId,lesson,practice_seed:seed},{onConflict:"student_id,lesson",ignoreDuplicates:true});
+      const allRows=(problemRows as DbProblemRow[]|null)??[];
+      const generatedPrefix=`GEN-L${lesson}-S${seed}-`;
+      const existingRows=allRows.filter(row=>!String(row.code??'').startsWith('GEN-L')||String(row.code??'').startsWith(generatedPrefix));
+      const generated=generatePracticeProblems(lesson,Math.max(0,targetCount-existingRows.length),seed);
+      const existingCodes=new Set(existingRows.map(row=>row.code).filter(Boolean));
+      const missing=generated.filter(item=>!existingCodes.has(item.code));
+      if(missing.length){await db.from("sb_problems").insert(missing.map(generatedInsertRow));
+        const refreshed=await db.from("sb_problems").select("id,image_path, lesson, order_index, problem_type, title, prompt, grid_width, grid_depth, max_height, given_blocks, start_blocks, given, choices, answer, grading_mode, hint, explanation, difficulty, xp, active, code, class_id").or(`class_id.eq.${studentSession.classId},class_id.is.null`).eq("lesson",lesson).eq("active",true).order("order_index",{ascending:true});
+        problemRows=(refreshed.data?.filter(row=>!String((row as DbProblemRow).code??'').startsWith('GEN-L')||String((row as DbProblemRow).code??'').startsWith(generatedPrefix))??null) as typeof problemRows;
+      }
+      const parsed=(problemRows as DbProblemRow[]|null)?.map(row=>parseProblemRow(row)).filter(Boolean)??[];
       const merged = [...parsed];
+      const requiredRows=(problemRows as DbProblemRow[]|null)?.filter(row=>Number(row.order_index)<=2)??[];
+      const requiredIds=requiredRows.map(row=>row.id);
+      const {data:requiredAttempts}=requiredIds.length?await db.from("sb_problem_attempts").select("problem_id,completed").eq("student_id",studentSession.studentId).in("problem_id",requiredIds):{data:[] as {problem_id:string;completed:boolean}[]};
+      const requiredComplete=requiredIds.length>0&&requiredIds.every(id=>requiredAttempts?.some(row=>row.problem_id===id&&row.completed));
+      const stages={concept:parsed.filter(p=>p?.stage==='concept').length,check:parsed.filter(p=>p?.stage==='check').length,more:parsed.filter(p=>p?.stage==='more').length};
 
       const problems = merged
         .filter((p) => p?.active)
         .map((problem) => sanitizeToStudentProblem(problem))
         .filter(Boolean);
 
-      return ok({ problems, seedFallback: parsed.length === 0 && problems.length > 0 });
+      return ok({ problems, seedFallback: false, requiredComplete, stages });
     }
 
     if (action === "problem") {
@@ -578,7 +637,7 @@ Deno.serve(async (req: Request) => {
         const { data } = await db
           .from("sb_problems")
           .select(
-            "id, lesson, order_index, problem_type, title, prompt, grid_width, grid_depth, max_height, given_blocks, start_blocks, given, choices, answer, grading_mode, hint, explanation, difficulty, xp, active, code",
+            "id,image_path, lesson, order_index, problem_type, title, prompt, grid_width, grid_depth, max_height, given_blocks, start_blocks, given, choices, answer, grading_mode, hint, explanation, difficulty, xp, active, code",
           )
           .or(`class_id.eq.${studentSession.classId},class_id.is.null`)
           .eq("id", problemId)
@@ -629,7 +688,7 @@ Deno.serve(async (req: Request) => {
       const { data: problemRow } = await db
         .from("sb_problems")
         .select(
-          "id, lesson, answer, grading_mode, problem_type, prompt, title, given_blocks, start_blocks, given, choices, hint, explanation, difficulty, xp, active, grid_width, grid_depth, max_height, order_index, code",
+          "id,image_path, lesson, answer, grading_mode, problem_type, prompt, title, given_blocks, start_blocks, given, choices, hint, explanation, difficulty, xp, active, grid_width, grid_depth, max_height, order_index, code",
         )
         .or(`class_id.eq.${studentSession.classId},class_id.is.null`)
         .eq("id", problemId)
@@ -974,7 +1033,7 @@ Deno.serve(async (req: Request) => {
       if (!owns) return fail(403, "FORBIDDEN_CLASS", "해당 반에 접근할 수 없습니다.");
       const { data } = await db
         .from("sb_lesson_settings")
-        .select("lesson, locked")
+        .select("lesson, locked, practice_count")
         .eq("class_id", classId)
         .order("lesson", { ascending: true });
       return ok({ lessons: (data ?? []).sort((a, b) => a.lesson - b.lesson) });
@@ -984,11 +1043,12 @@ Deno.serve(async (req: Request) => {
       const classId = text(body.classId, 80);
       const lesson = toInt(body.lesson);
       const locked = Boolean(body.locked);
+      const practiceCount = [5,10,15,20].includes(Number(body.practiceCount)) ? Number(body.practiceCount) : undefined;
       if (!lesson) return fail(400, "BAD_PARAM", "lesson 값이 필요합니다.");
       const owns = await teacherOwnsClass(db, teacherId, classId);
       if (!owns) return fail(403, "FORBIDDEN_CLASS", "해당 반에 접근할 수 없습니다.");
-      await db.from("sb_lesson_settings").upsert({ class_id: classId, lesson, locked }, { onConflict: "class_id,lesson" });
-      return ok({ ok: true, lesson, locked });
+      await db.from("sb_lesson_settings").upsert({ class_id: classId, lesson, locked, ...(practiceCount ? { practice_count: practiceCount } : {}) }, { onConflict: "class_id,lesson" });
+      return ok({ ok: true, lesson, locked, practiceCount });
     }
 
     if (action === "teacher:problems:list") {
@@ -999,7 +1059,7 @@ Deno.serve(async (req: Request) => {
       const { data: classProblems } = await db
         .from("sb_problems")
         .select(
-          "id, lesson, order_index, problem_type, title, prompt, grid_width, grid_depth, max_height, given_blocks, start_blocks, given, choices, grading_mode, answer, hint, explanation, difficulty, xp, active, code",
+          "id,image_path, lesson, order_index, problem_type, title, prompt, grid_width, grid_depth, max_height, given_blocks, start_blocks, given, choices, grading_mode, answer, hint, explanation, difficulty, xp, active, code",
         )
         .eq("class_id", classId)
         .order("lesson", { ascending: true })

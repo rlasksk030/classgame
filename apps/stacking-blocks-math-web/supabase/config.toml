@@ -1,0 +1,8 @@
+project_id = "stacking-blocks-math"
+
+# 학생 HMAC 세션 / 교사 Auth JWT를 함수 내부에서 검증합니다.
+[functions.student-auth]
+verify_jwt = false
+
+[functions.student-api]
+verify_jwt = false

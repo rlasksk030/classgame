@@ -1,3 +1,4 @@
+import ReviewSummary from "../features/activities/ReviewSummary";
 import { canonicalize, toHeightMap, toLayers } from "@shared/blocks.ts";
 import {
   DIRECTIONS,
@@ -14,6 +15,7 @@ import { lessonTitle } from "@shared/lessons.ts";
 import {
   getLessonProblems,
   getStudentToken,
+  getProblemImage,
   getProblem,
   getSnapshot,
   saveSnapshot,
@@ -77,6 +79,9 @@ export default function LessonPage() {
   const [problemIndex, setProblemIndex] = useState(0);
 
   const [problems, setProblems] = useState<StudentProblem[]>([]);
+  const [stageFilter, setStageFilter] = useState<"all"|"concept"|"check"|"more">("all");
+  const [requiredComplete, setRequiredComplete] = useState(false);
+  const [problemImage,setProblemImage]=useState("");
   const [problem, setProblem] = useState<StudentProblem | null>(null);
   const [seedMode, setSeedMode] = useState(false);
 
@@ -95,6 +100,7 @@ export default function LessonPage() {
   const [sideMap, setSideMap] = useState<Grid2D>(createBoolGrid(4, 4));
   const [heightMap, setHeightMap] = useState<HeightMap>(createBoolGrid(4, 4).map((r) => r.map(() => 0)));
   const [layerMaps, setLayerMaps] = useState<Grid2D[]>([]);
+  const visibleProblems = useMemo(() => stageFilter === "all" ? problems : problems.filter(item => item.stage === stageFilter), [problems, stageFilter]);
 
   const [attempt, setAttempt] = useState<ProblemAttempt>(DEFAULT_ATTEMPT_STATE);
   const attemptRef = useRef(attempt);
@@ -281,6 +287,8 @@ export default function LessonPage() {
     }
   }, [blocks, lessonNum, problem, restoring]);
 
+  useEffect(()=>{let active=true;setProblemImage("");if(problem?.hasImage)void getProblemImage(problem.id).then(data=>{if(active)setProblemImage(data.url);}).catch(()=>setMessage("문제 그림을 불러오지 못했습니다. 다시 접속해 주세요."));return()=>{active=false;};},[problem?.id]);
+
   const clearHistory = () => {
     undoStack.current = [];
     redoStack.current = [];
@@ -304,6 +312,8 @@ export default function LessonPage() {
         const parsed = list.problems ?? [];
         setSeedMode(list.seedFallback);
         setProblems(parsed);
+        setRequiredComplete(Boolean(list.requiredComplete));
+        setStageFilter("all");
 
         if (parsed.length > 0) {
           setProblemIndex(0);
@@ -325,14 +335,16 @@ export default function LessonPage() {
   }, [lessonNum, navigate]);
 
   useEffect(() => {
-    if (!problem || problems.length <= 1) return;
-    if (problemIndex < 0 || problemIndex >= problems.length) return;
+    if (!problem || visibleProblems.length <= 1) return;
+    if (problemIndex < 0 || problemIndex >= visibleProblems.length) return;
 
-    const current = problems[problemIndex];
+    const current = visibleProblems[problemIndex];
     if (current.id !== problem.id) {
       applyProblem(current);
     }
-  }, [problemIndex, problems, problem]);
+  }, [problemIndex, visibleProblems, problem]);
+
+  useEffect(() => { setProblemIndex(0); }, [stageFilter]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -386,9 +398,13 @@ export default function LessonPage() {
         revealedAnswer: response.grade.revealedAnswer ?? prev.revealedAnswer,
       }));
       setMessage(response.grade.message);
+      if (response.grade.completed && problem.stage !== "more") {
+        const refreshed = await getLessonProblems(lessonNum).catch(() => null);
+        if (refreshed) setRequiredComplete(Boolean(refreshed.requiredComplete));
+      }
 
-      if (response.grade.completed && problems.length > 0 && !response.grade.needsRebuild && problem.given.allowRotate !== false) {
-        if (problemIndex + 1 < problems.length) {
+      if (response.grade.completed && visibleProblems.length > 0 && !response.grade.needsRebuild && problem.given.allowRotate !== false) {
+        if (problemIndex + 1 < visibleProblems.length) {
           setTimeout(() => {
             setProblemIndex((next) => next + 1);
           }, 700);
@@ -559,6 +575,15 @@ export default function LessonPage() {
           {seedMode ? " (기본문제)" : ""}
         </p>
 
+        <section className="panel stack" aria-label="차시 학습 단계">
+          <strong>학습 단계</strong>
+          <div className="toolbar-row">
+            {([['all','전체 보기'],['concept','개념 익히기'],['check','개념 확인'],['more','더 풀어보기']] as const).map(([value,label])=><button key={value} className={`btn btn-sm ${stageFilter===value?'btn-primary':''}`} disabled={value==='more'&&!requiredComplete} onClick={()=>setStageFilter(value)}>{label} {value==='more'&&!requiredComplete?'(필수 학습 후 열림)':''}</button>)}
+          </div>
+          <p className="muted">개념 {problems.filter(item=>item.stage==='concept').length} · 확인 {problems.filter(item=>item.stage==='check').length} · 추가 {problems.filter(item=>item.stage==='more').length}문제{requiredComplete?' · 필수 학습 완료':' · 개념 확인을 먼저 완료해 주세요.'}</p>
+        </section>
+
+        {lessonNum===12 && <ReviewSummary key={`${problemIndex}-${attempt.completed}`} />}
         <div className="world-layout">
           <div className="stack" style={{ gap: 8, minHeight: 560 }}>
             <div className="toolbar-row">
@@ -614,9 +639,10 @@ export default function LessonPage() {
 
           <div className="stack" style={{ minWidth: 320, gap: 12 }}>
             <div className="panel">
-              <h3>문항 {problemIndex + 1} / {problems.length}</h3>
+              <h3>문항 {problemIndex + 1} / {visibleProblems.length}</h3>
               <p className="muted">{PROBLEM_TYPE_LABELS[problem.problemType]}</p>
               <p>{problem.prompt}</p>
+              {problemImage&&<img src={problemImage} alt="선생님이 등록한 문제 그림" style={{maxWidth:"100%"}}/>}
               {problem.given.allowRotate === false && <div className="stack">
                 <p>{extraInformation ? "이제 돌려 보며 가려진 블록을 확인해 보세요." : "지금은 앞에서 본 모습만 볼 수 있어요. 먼저 판단해 답을 제출해 보세요."}</p>
                 <button className="btn" disabled={!result && !attempt.wrongCount && !attempt.completed} onClick={()=>setExtraInformation(true)}>추가 정보 확인</button>
@@ -643,9 +669,9 @@ export default function LessonPage() {
                   className="btn btn-sm"
                   onClick={() => {
                     void flushSnapshot();
-                    if (problemIndex < problems.length - 1) setProblemIndex((value) => value + 1);
+                    if (problemIndex < visibleProblems.length - 1) setProblemIndex((value) => value + 1);
                   }}
-                  disabled={problemIndex >= problems.length - 1}
+                  disabled={problemIndex >= visibleProblems.length - 1}
                 >
                   다음
                 </button>

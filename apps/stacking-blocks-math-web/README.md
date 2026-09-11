@@ -18,11 +18,13 @@ npm run dev
 
 ```dotenv
 VITE_SUPABASE_URL=https://YOUR_PROJECT.supabase.co
-VITE_SUPABASE_ANON_KEY=YOUR_PUBLIC_ANON_KEY
+VITE_SUPABASE_PUBLISHABLE_KEY=YOUR_PUBLIC_PUBLISHABLE_KEY
 ```
 
 학생에게 이 값을 입력시키지 않습니다. 학생은 `/?class=학급코드` 링크로 접속하여 이름과 4자리 PIN만 입력합니다.
 `service_role`, 세션 비밀키, AI API 키는 브라우저 환경변수에 넣지 마세요.
+
+실제 새 프로젝트 연결 상태와 순서는 [SUPABASE_SETUP.md](./SUPABASE_SETUP.md)를 먼저 확인하세요.
 
 ## Supabase 설정
 
@@ -57,7 +59,7 @@ supabase functions deploy student-api --no-verify-jwt
 - `/teacher/problems/new`: Babylon 3D 문제 제작. 정답 확정 후 등록
 - `/teacher/students/:studentId`: 문제별 시도 상태와 저장된 3D 모양 열람
 
-**9차시 공유 놀이, 10~11차시 건축물 프로젝트, 학습지 importer는 아직 구현되지 않았습니다.** 일반 문제 화면을 이 활동의 완성 구현으로 간주하지 않습니다.
+9차시 공유 놀이, 10~11차시 건축물 프로젝트, 수동 학습지 importer의 화면/API/저장 구조를 추가했습니다. 실제 계정으로 전체 흐름 검증은 남아 있습니다.
 
 ## 3D와 채점
 

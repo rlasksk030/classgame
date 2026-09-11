@@ -45,3 +45,17 @@
 - `202609110010_challenge_score.sql`에 점수 컬럼 추가. 이번 단계에서는 실제 Supabase 권한/RLS 변경을 적용하지 않음.
 - 교사 대시보드 놀이 기록에 제작자, 공유 코드, 풀이 학생, 시도 횟수, 힌트 여부, 점수를 표시.
 - `tests/activities.test.ts`에 10개 제한, 투영 자동 생성, 점수 규칙 단위 테스트 추가.
+
+## 반복 연습·학습 단계 구조 (2026-09-11)
+- `shared/practiceGenerator.ts`에 차시별 권장 연습량(15/20)과 결정적 template+seed 문제 생성기를 추가했다. 기존 좌표·projection·heightMap·layerMap·constraint 채점 로직을 재사용한다.
+- 학생별 lesson seed를 `sb_student_progress.practice_seed`에 기록하고, 요청한 문제 수가 될 때까지 서버가 생성 문제를 앱 문제은행에 보충한다. 생성 문제는 `more` 단계로 표시한다.
+- 문제 화면에 `개념 익히기 → 개념 확인 → 더 풀어보기` 단계 필터와 필수 학습 완료 잠금을 추가했다. 기본 seed 문제는 순서에 따라 concept/check 단계로 분류한다.
+- 교사가 차시별 추가 문제 수를 권장/5/10/15/20으로 선택할 수 있는 UI와 API 계약을 추가했다. `202609110011_practice_count.sql`은 migration만 준비하며 이번 작업에서 실제 Supabase에 적용하지 않는다.
+- 학습지 배부(worksheet/assignment/submission/item)는 이번 범위에서 구현하지 않고 기존 importer 라우트와 분리된 확장 지점으로 유지한다.
+
+## 10~11차시 나만의 건축물 (2026-09-11)
+- `/lesson/10/project`, `/lesson/11/project`에서 기존 Babylon.js `ActivityBuilder`를 재사용한다. 블록 조작은 로컬에서 즉시 반영하고 1.5초 debounce, 저장 버튼, 페이지 숨김/종료, 온라인 복귀 때 서버 저장을 시도한다.
+- 건축물 이름·설계 이유·전체 설명·1~3층 공간 이름/설명을 입력하며, 3층 구조가 완성되어야 11차시에서 소개서를 확정할 수 있다. 10차시 확정 우회는 화면과 Edge Function 양쪽에서 거부한다.
+- `sb_projects`의 버전과 학생 토큰별 localStorage 초안으로 재접속 복원을 지원한다. 소개서에는 실제 블록에서 계산한 위·앞·옆 투영과 층별 표현을 표시한다.
+- 교사 학생 기록 화면에서 저장된 건축물 소개서와 3D 모형을 읽기 전용 Babylon.js Viewer로 확인할 수 있다.
+- 실제 Supabase 키/교사 계정이 없는 상태에서 서버 저장 성공을 주장하지 않는다. 연결 절차는 `SUPABASE_SETUP.md`를 따른다.

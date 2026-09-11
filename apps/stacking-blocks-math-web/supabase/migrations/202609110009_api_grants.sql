@@ -1,0 +1,34 @@
+-- Explicit privileges: new Supabase projects may not grant table access by default.
+-- RLS continues to restrict authenticated teachers to their own classrooms.
+grant select, insert, update, delete on public.sb_classes to service_role;
+grant select, insert, update, delete on public.sb_classes to authenticated;
+grant select, insert, update, delete on public.sb_teacher_settings to service_role;
+grant select, insert, update, delete on public.sb_teacher_settings to authenticated;
+grant select, insert, update, delete on public.sb_students to service_role;
+grant select, insert, update, delete on public.sb_students to authenticated;
+grant select, insert, update, delete on public.sb_student_pin_vault to service_role;
+grant select, insert, update, delete on public.sb_student_pin_vault to authenticated;
+grant select, insert, update, delete on public.sb_student_sessions to service_role;
+grant select, insert, update, delete on public.sb_lesson_settings to service_role;
+grant select, insert, update, delete on public.sb_lesson_settings to authenticated;
+grant select, insert, update, delete on public.sb_problems to service_role;
+grant select, insert, update, delete on public.sb_problems to authenticated;
+grant select, insert, update, delete on public.sb_student_progress to service_role;
+grant select, insert, update, delete on public.sb_student_progress to authenticated;
+grant select, insert, update, delete on public.sb_problem_attempts to service_role;
+grant select, insert, update, delete on public.sb_problem_attempts to authenticated;
+grant select, insert, update, delete on public.sb_block_snapshots to service_role;
+grant select, insert, update, delete on public.sb_block_snapshots to authenticated;
+grant select, insert, update, delete on public.sb_student_rewards to service_role;
+grant select, insert, update, delete on public.sb_student_rewards to authenticated;
+grant select, insert, update, delete on public.sb_shared_challenges to service_role;
+grant select, insert, update, delete on public.sb_shared_challenges to authenticated;
+grant select, insert, update, delete on public.sb_challenge_solves to service_role;
+grant select, insert, update, delete on public.sb_challenge_solves to authenticated;
+grant select, insert, update, delete on public.sb_projects to service_role;
+grant select, insert, update, delete on public.sb_projects to authenticated;
+grant select, insert, update, delete on public.sb_self_evaluations to service_role;
+grant select, insert, update, delete on public.sb_self_evaluations to authenticated;
+grant select, insert, update, delete on public.sb_worksheet_imports to service_role;
+grant select, insert, update, delete on public.sb_worksheet_imports to authenticated;
+revoke all on public.sb_student_sessions from anon, authenticated;
