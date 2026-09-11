@@ -1,6 +1,6 @@
 # 배포판 아키텍처 준비
 
-이 앱은 여러 교사가 각자의 Supabase 프로젝트에 연결해 사용하는 배포판을 목표로 한다. 현재 코드에는 개인 프로젝트의 URL·키·교사·학급·학생 값을 하드코딩하지 않는다. 브라우저에는 `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`와 선택적인 `VITE_INSTALLATION_ID`만 주입한다. `service_role` 키와 `APP_SESSION_SECRET`은 Edge Function Secret으로만 둔다.
+이 앱은 여러 교사가 각자의 Supabase 프로젝트에 연결해 사용하는 배포판을 목표로 한다. 현재 코드에는 개인 프로젝트의 URL·키·교사·학급·학생 값을 하드코딩하지 않는다. 브라우저는 런타임 `RuntimeSupabaseConfig`를 우선 사용하고, `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`와 선택적인 `VITE_INSTALLATION_ID`는 개발·테스트 fallback으로만 사용한다. `service_role` 키와 `APP_SESSION_SECRET`은 Edge Function Secret으로만 둔다.
 
 ## Cloudflare 비용 제약: 정적 호스팅만
 
@@ -24,6 +24,7 @@ Cloudflare는 개발자 계정 비용이 발생하지 않는 **순수 정적 호
 
 - 앱 버전은 `src/lib/config.ts`의 `APP_VERSION`(현재 `1.0.0`)에서 읽는다.
 - DB 계약 버전은 `SCHEMA_VERSION`(현재 `202609110011`)으로 표시한다.
+- `getVersionState()`가 `currentAppVersion`, `requiredSchemaVersion`, `installedSchemaVersion`, `updateRequired`를 계산한다. 설치된 DB 버전이 부족하면 새 기능을 사용하기 전에 업데이트 필요 상태로 표시할 수 있다.
 - 기본 문제와 생성 문제는 기존의 안정적인 ID·`generatorVersion`·seed를 유지한다. 알고리즘을 바꿀 때는 새 generator version을 사용해 기존 학생의 문제가 바뀌지 않게 한다.
 
 ## 설치 상태

@@ -58,10 +58,27 @@ export interface UpdateManifest {
   requiresStorageUpdate?: boolean;
 }
 
+export interface VersionState {
+  currentAppVersion: string;
+  requiredSchemaVersion: string;
+  installedSchemaVersion?: string;
+  updateRequired: boolean;
+}
+
+export function getVersionState(installedSchemaVersion?: string, requiredSchemaVersion = SCHEMA_VERSION): VersionState {
+  return {
+    currentAppVersion: APP_VERSION,
+    requiredSchemaVersion,
+    installedSchemaVersion,
+    updateRequired: !installedSchemaVersion || installedSchemaVersion < requiredSchemaVersion,
+  };
+}
+
 export type UpdateState = "IDLE" | "CHECKING" | "AVAILABLE" | "UPDATING" | "SUCCESS" | "FAILED";
 
 export interface VersionService {
   getCurrentVersion(): string;
+  getVersionState(installedSchemaVersion?: string, requiredSchemaVersion?: string): VersionState;
   getLatestVersion(): Promise<UpdateManifest | null>;
   checkForUpdates(): Promise<UpdateManifest | null>;
   getReleaseNotes(manifest: UpdateManifest): string[];
@@ -70,6 +87,7 @@ export interface VersionService {
 /** 원격 manifest를 아직 연결하지 않은 배포판 기본 구현. 업데이트 완료를 가장하지 않는다. */
 export class LocalVersionService implements VersionService {
   getCurrentVersion(): string { return APP_VERSION; }
+  getVersionState(installedSchemaVersion?: string, requiredSchemaVersion?: string): VersionState { return getVersionState(installedSchemaVersion, requiredSchemaVersion); }
   async getLatestVersion(): Promise<UpdateManifest | null> { return null; }
   async checkForUpdates(): Promise<UpdateManifest | null> { return this.getLatestVersion(); }
   getReleaseNotes(manifest: UpdateManifest): string[] { return manifest.notes ?? []; }

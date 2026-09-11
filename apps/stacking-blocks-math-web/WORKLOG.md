@@ -88,7 +88,7 @@
 ## 검증 결과 (2026-09-11)
 - `npm run typecheck` PASS
 - `npm run lint` PASS
-- `npm test` PASS (22개)
+- `npm test` PASS (23개)
 - `npm run typecheck:edge` PASS
 - `npm run build` PASS
 - `npm run test:security` PASS (PIN hash scope/session tamper test 1개)
@@ -118,3 +118,12 @@
 - 공유 기기에서 다른 installationId의 fragment를 열면 기존 설정을 유지하고 확인 대화상자에서 승인한 경우에만 설정과 학생 토큰을 교체한다. 변조/손상 fragment는 `/setup`에서 오류를 표시한다.
 - 실제 Supabase `/auth/v1/settings` 호출, APP_SESSION_SECRET 설정, 교사·학생 생성 및 로그인/진도 저장 smoke test는 네트워크·대시보드 자동 승인 제한으로 실행하지 못했다. 실제 성공으로 보고하지 않는다.
 - 이 단계에서는 migration, Storage, Cloudflare 배포, 학습 기능을 변경하지 않았다.
+
+## 실제 RuntimeSupabaseConfig 검증 (2026-09-11)
+- production `npm run build` 후 `dist` 전체에서 현재 프로젝트의 URL·Publishable Key 문자열이 없는 것을 확인했다. 공통 산출물은 런타임 설정 또는 `/setup`이 있어야 연결된다.
+- `/setup`은 연결 확인 후 공개 설정만 localStorage에 저장하고, 다른 installationId fragment는 확인 대화상자 승인 전까지 현재 설정과 학생 토큰을 유지한다.
+- `getVersionState()`에 앱 버전·필수 schema 버전·설치 schema 버전·업데이트 필요 여부 계약을 추가했다.
+
+## Runtime/DB 버전 호환 계약 (2026-09-11)
+- `getVersionState()`에 `currentAppVersion`, `requiredSchemaVersion`, `installedSchemaVersion`, `updateRequired` 계산을 추가했다. 설치된 Supabase schema가 부족한 경우 업데이트 필요 상태로 표시할 수 있다.
+- production build에서 현재 `.env.local`의 특정 Supabase URL·Publishable Key가 `dist`에 포함되지 않는 것을 문자열 점검으로 확인했다. 런타임 설정이 없는 production은 `/setup`으로 진입한다.

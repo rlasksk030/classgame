@@ -1,11 +1,14 @@
 /** 브라우저에 노출되어도 되는 설정값과 설치별 런타임 연결 설정만 다룬다. */
 
 // Vite에서는 import.meta.env가 주입되고, Node 단위 테스트에서는 비어 있을 수 있다.
-const runtimeEnv = (import.meta as ImportMeta & { env?: Record<string, string | undefined> }).env ?? {};
+// production 번들에서는 DEV가 false이므로 VITE fallback 값 자체가 산출물에 남지 않게 한다.
+const viteImportMeta = import.meta as ImportMeta & { env?: Record<string, string | boolean | undefined> };
+const runtimeEnv = viteImportMeta.env ?? {};
+const viteFallbackEnabled = runtimeEnv.DEV === undefined ? runtimeEnv.MODE !== "production" : runtimeEnv.DEV === true;
 
 /** 개발/테스트 fallback. production 공통 dist의 주 연결 방식은 런타임 설정이다. */
-export const SUPABASE_URL = runtimeEnv.VITE_SUPABASE_URL;
-export const SUPABASE_PUBLISHABLE_KEY = runtimeEnv.VITE_SUPABASE_PUBLISHABLE_KEY;
+export const SUPABASE_URL = viteFallbackEnabled ? runtimeEnv.VITE_SUPABASE_URL as string | undefined : undefined;
+export const SUPABASE_PUBLISHABLE_KEY = viteFallbackEnabled ? runtimeEnv.VITE_SUPABASE_PUBLISHABLE_KEY as string | undefined : undefined;
 
 export const APP_VERSION = "1.0.0";
 export const SCHEMA_VERSION = "202609110011";
