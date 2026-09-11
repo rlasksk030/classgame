@@ -11,6 +11,7 @@ import {
 } from "../../../shared/types.ts";
 import { SEED_PROBLEMS } from "../../../shared/seedProblems.ts";
 import { generatePracticeProblems, recommendedPracticeCount } from "../../../shared/practiceGenerator.ts";
+import { conceptTagsForProblemType } from "../../../shared/problemMetadata.ts";
 import { grade as gradeShared } from "../../../shared/grading.ts";
 import { serviceClient, requireTeacher, teacherOwnsClass } from "../_shared/db.ts";
 import {
@@ -33,6 +34,7 @@ type Action =
   | "asset"
   | "home"
   | "lessonProblems"
+  | "practice:new-set"
   | "problem"
   | "attempt"
   | "snapshot"
@@ -168,6 +170,7 @@ function parseProblemRow(row: DbProblemRow | null) {
   };
 
   const given = safeJson<ProblemGiven>(row.given, {});
+  const generator = (given as ProblemGiven & { _generator?: Record<string, unknown> })._generator;
   const answer = safeJson(row.answer, { kind: "count", value: 0 }) as {
     kind: "blocks" | "count" | "direction" | "choice" | "projections" | "heightMap" | "layers";
     blocks?: unknown;
@@ -183,14 +186,21 @@ function parseProblemRow(row: DbProblemRow | null) {
   const safeChoices = Array.isArray(row.choices) ? row.choices.map((choice) => String(choice ?? "")) : [];
   const answerMeta = normalizeSubmission(answer);
   if (!answerMeta) return null;
+  const problemType = parseProblemType(row.problem_type);
 
   return {
     id: row.id,
     stage: Number(row.order_index ?? 0) <= 1 ? "concept" : Number(row.order_index ?? 0) === 2 ? "check" : "more",
     hasImage: Boolean(row.image_path),
+    templateId: typeof generator?.templateId === "string" ? generator.templateId : undefined,
+    seed: Number.isInteger(generator?.seed) ? Number(generator?.seed) : undefined,
+    generatorVersion: Number.isInteger(generator?.generatorVersion) ? Number(generator?.generatorVersion) : undefined,
+    difficultyTier: typeof generator?.difficultyTier === "string" ? generator.difficultyTier : undefined,
+    conceptTags: Array.isArray(generator?.conceptTags) ? generator.conceptTags.map(String) : conceptTagsForProblemType(problemType),
+    sourceType: typeof generator?.sourceType === "string" ? generator.sourceType : (String(row.code ?? '').startsWith('GEN-L') ? 'GENERATED_PRACTICE' : (row.class_id ? 'TEACHER_CREATED' : (Number(row.order_index ?? 0) <= 2 ? 'BUILT_IN_CONCEPT' : 'BUILT_IN_WORKBOOK_STYLE'))),
     lesson: Number(row.lesson),
     orderIndex: Number(row.order_index ?? 0),
-    problemType: parseProblemType(row.problem_type),
+    problemType,
     title: String(row.title ?? ""),
     prompt,
     grid,
@@ -272,6 +282,12 @@ function parseSeedProblem(raw: (typeof SEED_PROBLEMS)[number]) {
     id: `seed:${raw.code}`,
     stage: raw.stage ?? (raw.orderIndex <= 1 ? "concept" : raw.orderIndex === 2 ? "check" : "more"),
     hasImage: false,
+    templateId: raw.templateId,
+    seed: raw.seed,
+    generatorVersion: raw.generatorVersion,
+    difficultyTier: raw.difficultyTier,
+    conceptTags: raw.conceptTags ?? conceptTagsForProblemType(raw.problemType),
+    sourceType: raw.sourceType ?? (raw.orderIndex <= 2 ? 'BUILT_IN_CONCEPT' : 'BUILT_IN_WORKBOOK_STYLE'),
     lesson: raw.lesson,
     orderIndex: raw.orderIndex,
     problemType: raw.problemType,
@@ -300,6 +316,12 @@ function sanitizeToStudentProblem(row: ReturnType<typeof parseProblemRow> | Retu
     id: row.id,
     stage: row.stage,
     hasImage: row.hasImage,
+    templateId: row.templateId,
+    seed: row.seed,
+    generatorVersion: row.generatorVersion,
+    difficultyTier: row.difficultyTier,
+    conceptTags: row.conceptTags,
+    sourceType: row.sourceType,
     lesson: row.lesson,
     orderIndex: row.orderIndex,
     problemType: row.problemType,
@@ -355,7 +377,7 @@ function belongsToStudentPractice(row:DbProblemRow,studentId:string):boolean {
 }
 
 function generatedInsertRow(seed:(typeof SEED_PROBLEMS)[number]) {
-  return { class_id:null, created_by:null, code:seed.code, lesson:seed.lesson, order_index:seed.orderIndex, problem_type:seed.problemType, title:seed.title, prompt:seed.prompt, grid_width:seed.grid.gridWidth, grid_depth:seed.grid.gridDepth, max_height:seed.grid.maxHeight, given_blocks:seed.givenBlocks, start_blocks:seed.startBlocks, given:seed.given, choices:seed.choices, answer:seed.answer, grading_mode:seed.gradingMode, hint:seed.hint, explanation:seed.explanation, difficulty:seed.difficulty, xp:seed.xp, active:true };
+  return { class_id:null, created_by:null, code:seed.code, lesson:seed.lesson, order_index:seed.orderIndex, problem_type:seed.problemType, title:seed.title, prompt:seed.prompt, grid_width:seed.grid.gridWidth, grid_depth:seed.grid.gridDepth, max_height:seed.grid.maxHeight, given_blocks:seed.givenBlocks, start_blocks:seed.startBlocks, given:{...seed.given,_generator:{templateId:seed.templateId,seed:seed.seed,generatorVersion:seed.generatorVersion,difficultyTier:seed.difficultyTier,conceptTags:seed.conceptTags,sourceType:seed.sourceType}}, choices:seed.choices, answer:seed.answer, grading_mode:seed.gradingMode, hint:seed.hint, explanation:seed.explanation, difficulty:seed.difficulty, xp:seed.xp, active:true };
 }
 
 function normalizeSubmission(raw: unknown): StudentSubmission | null {
@@ -456,7 +478,7 @@ Deno.serve(async (req: Request) => {
   const action = text(body.action, 40) as Action;
 
   // 학생 동작
-  if (action === "asset" || action.startsWith("activity:") || action === "home" || action === "lessonProblems" || action === "problem" || action === "attempt" || action === "snapshot" || action === "snapshot:get") {
+  if (action === "asset" || action.startsWith("activity:") || action === "home" || action === "lessonProblems" || action === "practice:new-set" || action === "problem" || action === "attempt" || action === "snapshot" || action === "snapshot:get") {
     const studentSession = await requireStudent(req, db);
     if (studentSession instanceof Response) return studentSession;
 
@@ -464,7 +486,7 @@ Deno.serve(async (req: Request) => {
 
     if (action !== "home") {
       let targetLesson = toInt(body.lesson);
-      if (action !== "lessonProblems") {
+      if (action !== "lessonProblems" && action !== "practice:new-set") {
         const targetId = text(body.problemId, 80);
         const { data: target } = await db.from("sb_problems").select("lesson,active,class_id,grid_width,grid_depth,max_height")
           .eq("id", targetId).or(`class_id.eq.${studentSession.classId},class_id.is.null`).maybeSingle();
@@ -625,6 +647,18 @@ Deno.serve(async (req: Request) => {
         .filter(Boolean);
 
       return ok({ problems, seedFallback: false, requiredComplete, stages });
+    }
+
+    if (action === "practice:new-set") {
+      const lesson = toInt(body.lesson);
+      if (!lesson || lesson < 1 || lesson > 12) return fail(400, "BAD_LESSON", "lesson 는 1~12 사이의 값이어야 합니다.");
+      const { data: setting } = await db.from("sb_lesson_settings").select("locked").eq("class_id", studentSession.classId).eq("lesson", lesson).maybeSingle();
+      if (setting?.locked ?? lesson !== 1) return fail(403, "LESSON_LOCKED", "선생님이 아직 열지 않은 차시예요.");
+      const { data: current } = await db.from("sb_student_progress").select("practice_seed").eq("student_id", studentSession.studentId).eq("lesson", lesson).maybeSingle();
+      const nextSeed = (Number(current?.practice_seed ?? practiceSeedForStudent(studentSession.studentId, lesson)) + 7919) % 1000000;
+      const { error } = await db.from("sb_student_progress").upsert({ student_id: studentSession.studentId, lesson, practice_seed: nextSeed }, { onConflict: "student_id,lesson" });
+      if (error) return fail(500, "PRACTICE_SAVE_FAILED", "새 문제 세트를 준비하지 못했습니다. 먼저 연습 설정 migration을 적용해 주세요.");
+      return ok({ seed: nextSeed });
     }
 
     if (action === "problem") {

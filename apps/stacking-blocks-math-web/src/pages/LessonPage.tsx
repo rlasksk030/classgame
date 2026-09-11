@@ -20,6 +20,7 @@ import {
   getSnapshot,
   saveSnapshot,
   submitAttempt,
+  startNewPracticeSet,
   type GradeFeedback,
   type StudentSubmissionPayload,
 } from "../lib/studentApi";
@@ -79,6 +80,7 @@ export default function LessonPage() {
   const [problemIndex, setProblemIndex] = useState(0);
 
   const [problems, setProblems] = useState<StudentProblem[]>([]);
+  const [wrongProblemIds, setWrongProblemIds] = useState<string[]>([]);
   const [stageFilter, setStageFilter] = useState<"all"|"concept"|"check"|"more">("all");
   const [requiredComplete, setRequiredComplete] = useState(false);
   const [problemImage,setProblemImage]=useState("");
@@ -398,6 +400,7 @@ export default function LessonPage() {
         revealedAnswer: response.grade.revealedAnswer ?? prev.revealedAnswer,
       }));
       setMessage(response.grade.message);
+      if (!response.grade.correct) setWrongProblemIds(current => current.includes(problem.id) ? current : [...current, problem.id]);
       if (response.grade.completed && problem.stage !== "more") {
         const refreshed = await getLessonProblems(lessonNum).catch(() => null);
         if (refreshed) setRequiredComplete(Boolean(refreshed.requiredComplete));
@@ -581,6 +584,38 @@ export default function LessonPage() {
             {([['all','전체 보기'],['concept','개념 익히기'],['check','개념 확인'],['more','더 풀어보기']] as const).map(([value,label])=><button key={value} className={`btn btn-sm ${stageFilter===value?'btn-primary':''}`} disabled={value==='more'&&!requiredComplete} onClick={()=>setStageFilter(value)}>{label} {value==='more'&&!requiredComplete?'(필수 학습 후 열림)':''}</button>)}
           </div>
           <p className="muted">개념 {problems.filter(item=>item.stage==='concept').length} · 확인 {problems.filter(item=>item.stage==='check').length} · 추가 {problems.filter(item=>item.stage==='more').length}문제{requiredComplete?' · 필수 학습 완료':' · 개념 확인을 먼저 완료해 주세요.'}</p>
+          {requiredComplete && problems.some(item => item.stage === 'more') && (
+            <div className="toolbar-row">
+              <button className="btn btn-sm" disabled={!wrongProblemIds.length} onClick={() => {
+                const more = problems.filter(item => item.stage === 'more');
+                const index = more.findIndex(item => wrongProblemIds.includes(item.id));
+                setStageFilter('more');
+                if (index >= 0) setProblemIndex(index);
+              }}>
+                틀린 문제 다시 풀기{wrongProblemIds.length ? ` (${wrongProblemIds.length})` : ''}
+              </button>
+              <button className="btn btn-sm" onClick={() => setStageFilter('more')}>유사 문제 풀기</button>
+              <button className="btn btn-sm" disabled={busy} onClick={async () => {
+                setBusy(true);
+                try {
+                  await startNewPracticeSet(lessonNum);
+                  const refreshed = await getLessonProblems(lessonNum);
+                  setProblems(refreshed.problems);
+                  setRequiredComplete(Boolean(refreshed.requiredComplete));
+                  setStageFilter('more');
+                  setProblemIndex(0);
+                  const first = refreshed.problems.find(item => item.stage === 'more');
+                  if (first) applyProblem(first);
+                  setWrongProblemIds([]);
+                  setMessage('새 문제 세트를 준비했어요.');
+                } catch (error) {
+                  setMessage(error instanceof Error ? error.message : '새 문제를 준비하지 못했습니다.');
+                } finally {
+                  setBusy(false);
+                }
+              }}>새 문제 더 풀기</button>
+            </div>
+          )}
         </section>
 
         {lessonNum===12 && <ReviewSummary key={`${problemIndex}-${attempt.completed}`} />}

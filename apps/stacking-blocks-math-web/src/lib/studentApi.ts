@@ -229,6 +229,10 @@ export function getLessonProblems(lesson: number) {
   return callFunction<LessonProblemListData>("student-api", { action: "lessonProblems", lesson }, true);
 }
 
+export function startNewPracticeSet(lesson: number) {
+  return callFunction<{ seed: number }>("student-api", { action: "practice:new-set", lesson }, true);
+}
+
 export function getProblem(problemId: string, lesson?: number) {
   return callFunction<ProblemEnvelope>(
     "student-api",

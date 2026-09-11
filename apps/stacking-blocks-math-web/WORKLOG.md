@@ -59,3 +59,10 @@
 - `sb_projects`의 버전과 학생 토큰별 localStorage 초안으로 재접속 복원을 지원한다. 소개서에는 실제 블록에서 계산한 위·앞·옆 투영과 층별 표현을 표시한다.
 - 교사 학생 기록 화면에서 저장된 건축물 소개서와 3D 모형을 읽기 전용 Babylon.js Viewer로 확인할 수 있다.
 - 실제 Supabase 키/교사 계정이 없는 상태에서 서버 저장 성공을 주장하지 않는다. 연결 절차는 `SUPABASE_SETUP.md`를 따른다.
+
+## ProblemTemplate·Seed 연습 엔진 (2026-09-11)
+- `shared/practiceGenerator.ts`에 `ProblemTemplate`, `GeneratedProblem`, `generatorVersion`, `templateId`, `seed`, `difficultyTier`, `conceptTags`, `sourceType` 계약을 추가했다.
+- 1·2·3·4·5·6·7·8·12차시를 기존 좌표·투영·높이 지도·층 지도·constraint 채점 로직으로 생성한다. 50개 seed 반복 검증에서 범위 밖/공중 블록 없이 모두 유효했다.
+- 생성 메타데이터는 문제의 `given._generator`로 보존되어 DB 컬럼을 불필요하게 늘리지 않고도 교사 통계와 향후 generator 버전 교체를 준비한다.
+- 학생은 필수 단계 완료 뒤 틀린 문제 재도전·유사 문제 보기·새 문제 세트 생성을 사용할 수 있다. 새 세트는 `practice:new-set`으로 학생별 seed를 갱신하며, 재접속 시 마지막 seed가 유지된다.
+- 실제 seed 저장에는 `202609110011_practice_count.sql` 적용이 필요하지만 이번 작업에서는 Supabase에 migration을 실행하지 않았다.
