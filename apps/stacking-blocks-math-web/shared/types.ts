@@ -109,6 +109,8 @@ export type Grid2D = boolean[][];
 /** 위에서 본 각 자리의 층수. [z][x] */
 export type HeightMap = number[][];
 
+export type { ProblemPresentation } from "./problemPresentation.ts";
+
 export interface Projections {
   /** 위에서 본 모양 [z][x] */
   top: Grid2D;
@@ -166,6 +168,8 @@ export interface StudentProblem {
   xp: number;
   /** 3번 틀린 뒤에만 서버가 채워 준다 (명세 17). */
   hint: string | null;
+  /** 문제 데이터와 학생 화면에 필요한 정보의 연결 계약. */
+  presentation?: import("./problemPresentation.ts").ProblemPresentation;
 }
 
 /** 문제가 학생에게 "보여 주는" 조건. 정답 그 자체는 아니다. */

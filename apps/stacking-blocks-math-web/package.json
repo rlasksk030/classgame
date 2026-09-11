@@ -11,6 +11,7 @@
     "typecheck": "tsc -b --noEmit",
     "test": "node --experimental-strip-types --test tests/*.test.ts",
     "audit:problems": "node --experimental-strip-types scripts/audit-problems.ts",
+    "audit:presentation": "node --experimental-strip-types scripts/audit-presentation.ts",
     "lint": "eslint .",
     "test:e2e": "playwright test",
     "test:security": "deno test --allow-env=APP_SESSION_SECRET supabase/tests",

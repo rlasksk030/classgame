@@ -3,6 +3,7 @@ import type { BlockCoord, DifficultyTier, Grid2D, GridConfig, ProblemGiven, Prob
 import type { SeedProblem } from './seedProblems.ts';
 import { conceptTagsForLesson } from './problemMetadata.ts';
 import { hasUniqueDirectionProjection, projectionForDirection } from './spatialConventions.ts';
+import { validateProblemPresentation } from './problemPresentation.ts';
 
 /** 차시별 권장 연습량. 교사 설정이 있으면 서버에서 이 값을 덮어쓴다. */
 export function recommendedPracticeCount(lesson:number):number {
@@ -77,6 +78,7 @@ export function validateGeneratedProblem(problem: Pick<SeedProblem, 'grid'|'give
   if (problem.problemType === 'CAMERA_DIRECTION' && problem.answer.kind === 'direction') {
     if (problem.given.shownFrom !== problem.answer.value) return false;
   }
+  if (validateProblemPresentation(problem).length > 0) return false;
   return true;
 }
 

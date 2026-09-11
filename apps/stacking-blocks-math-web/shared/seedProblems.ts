@@ -226,7 +226,7 @@ export const SEED_PROBLEMS: SeedProblem[] = [
     orderIndex: 1,
     problemType: "PROJECTION_DRAW",
     title: "위에서 본 모양 그리기",
-    prompt: "이 모양을 위에서 본 모양을 오른쪽 격자에 그려 보세요.",
+    prompt: "이 모양을 위에서 본 모양을 표시된 격자에 그려 보세요.",
     grid: G3,
     givenBlocks: S3,
     startBlocks: [],
@@ -291,7 +291,7 @@ export const SEED_PROBLEMS: SeedProblem[] = [
     problemType: "COUNT",
     title: "자리별 높이로 세기",
     prompt:
-      "위에서 본 모양의 각 자리에 쌓인 층수가 오른쪽에 적혀 있습니다.\n쌓기나무는 모두 몇 개인가요?",
+      "표시된 숫자 지도의 각 자리 높이를 살펴보세요.\n쌓기나무는 모두 몇 개인가요?",
     grid: G4,
     givenBlocks: S4,
     startBlocks: [],

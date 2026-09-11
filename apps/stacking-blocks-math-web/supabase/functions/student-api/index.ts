@@ -12,6 +12,7 @@ import {
 import { SEED_PROBLEMS } from "../../../shared/seedProblems.ts";
 import { generatePracticeProblems, recommendedPracticeCount } from "../../../shared/practiceGenerator.ts";
 import { conceptTagsForProblemType } from "../../../shared/problemMetadata.ts";
+import { deriveProblemPresentation } from "../../../shared/problemPresentation.ts";
 import { grade as gradeShared } from "../../../shared/grading.ts";
 import { serviceClient, requireTeacher, teacherOwnsClass } from "../_shared/db.ts";
 import {
@@ -208,6 +209,7 @@ function parseProblemRow(row: DbProblemRow | null) {
     givenBlocks: canonicalizeProblemBlocks(row.given_blocks),
     startBlocks: canonicalizeProblemBlocks(row.start_blocks),
     given,
+    presentation: deriveProblemPresentation({ problemType, grid, given, answer: answerMeta as ProblemAnswer }),
     choices: safeChoices,
     gradingMode: (row.grading_mode === "constraint" ? "constraint" : "exact") as "exact" | "constraint",
     hint: String(row.hint ?? ""),
@@ -298,6 +300,7 @@ function parseSeedProblem(raw: (typeof SEED_PROBLEMS)[number]) {
     givenBlocks: canonicalize(raw.givenBlocks),
     startBlocks: canonicalize(raw.startBlocks),
     given: raw.given,
+    presentation: deriveProblemPresentation({ problemType: raw.problemType, grid: raw.grid, given: raw.given, answer: raw.answer }),
     choices: raw.choices,
     gradingMode: raw.gradingMode,
     hint: raw.hint,
@@ -333,6 +336,7 @@ function sanitizeToStudentProblem(row: ReturnType<typeof parseProblemRow> | Retu
     grid: row.grid,
     choices: row.choices,
     given: row.given,
+    presentation: row.presentation,
     difficulty: row.difficulty,
     xp: row.xp,
     hint: row.hint ? row.hint : null,
