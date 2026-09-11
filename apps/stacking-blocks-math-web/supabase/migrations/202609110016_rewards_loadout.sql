@@ -44,7 +44,7 @@ returns integer language plpgsql security definer set search_path=public as $$
 declare
   current_version integer; next_version integer;
   requested_width integer; requested_depth integer; requested_height integer;
-  material text; theme text;
+  material text; theme text; xp integer;
 begin
   perform 1 from public.sb_students where id=p_student and class_id=p_class and status='active' for update;
   if not found then raise exception 'FORBIDDEN_STUDENT'; end if;
@@ -55,9 +55,11 @@ begin
   requested_depth := case when coalesce(p_data->>'grid_depth','') ~ '^[0-9]+$' then (p_data->>'grid_depth')::integer else 5 end;
   requested_height := case when coalesce(p_data->>'max_height','') ~ '^[0-9]+$' then (p_data->>'max_height')::integer else 3 end;
   requested_width := greatest(4, least(10, requested_width)); requested_depth := greatest(4, least(10, requested_depth)); requested_height := 3;
+  xp := coalesce((select total_xp from public.sb_student_rewards where student_id=p_student),0);
   material := coalesce((select equipped_material from public.sb_student_rewards where student_id=p_student),'wood');
   theme := coalesce(p_data->>'intro_theme', coalesce((select intro_theme from public.sb_student_rewards where student_id=p_student),'blueprint'));
   if theme not in ('blueprint','museum','sky') then theme := 'blueprint'; end if;
+  if (theme='museum' and xp<250) or (theme='sky' and xp<450) then theme := 'blueprint'; end if;
   insert into public.sb_projects(student_id,class_id,building_name,reason,description,layer_notes,blocks,block_appearance,intro_theme,grid_width,grid_depth,max_height,submitted,version)
   values(p_student,p_class,p_data->>'building_name',p_data->>'reason',p_data->>'description',p_data->'layer_notes',p_data->'blocks',coalesce(p_data->'block_appearance','{}'::jsonb),theme,requested_width,requested_depth,requested_height,(p_data->>'submitted')::boolean,next_version)
   on conflict(student_id) do update set building_name=excluded.building_name,reason=excluded.reason,description=excluded.description,layer_notes=excluded.layer_notes,blocks=excluded.blocks,block_appearance=excluded.block_appearance,intro_theme=excluded.intro_theme,grid_width=excluded.grid_width,grid_depth=excluded.grid_depth,max_height=excluded.max_height,submitted=excluded.submitted,version=excluded.version;
