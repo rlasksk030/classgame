@@ -357,13 +357,13 @@ button {
   position: relative;
   border: var(--edge) solid var(--line);
   border-radius: var(--radius);
-  background: #8cc4ff;
+  background: #f4f7fa;
   overflow: hidden;
 }
 
 .world-toolbar {
   padding: 10px;
-  background: #cae7ff;
+  background: #eef2f5;
   border-bottom: var(--edge) solid var(--line);
 }
 
@@ -383,7 +383,7 @@ button {
   color: var(--ink-soft);
   padding: 6px 10px;
   border-top: var(--edge) solid var(--line-soft);
-  background: #cde6ff;
+  background: #f3f6f8;
 }
 
 .answer-box {

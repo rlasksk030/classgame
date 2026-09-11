@@ -7,6 +7,7 @@ import type {
   ProblemGiven,
   ProblemType,
 } from "./types.ts";
+import { answerRendererFor } from "./answerUi.ts";
 
 export const VISIBLE_REPRESENTATIONS = [
   "MODEL_3D", "TOP_VIEW", "FRONT_VIEW", "SIDE_VIEW", "BACK_VIEW", "LEFT_VIEW", "RIGHT_VIEW",
@@ -108,6 +109,7 @@ export function validateProblemPresentation(input: PresentationInput): string[] 
   const errors: string[] = [];
   const has = (value: VisibleRepresentation) => p.visibleRepresentations.includes(value);
   if (!has("MODEL_3D")) errors.push("MODEL_3D 누락");
+  if (!answerRendererFor(p.answerInput)) errors.push("답안 Renderer 누락");
   if (input.problemType === "CAMERA_DIRECTION" && !hasProjection(input.given, input.given.shownFrom === "top" ? "top" : input.given.shownFrom === "left" || input.given.shownFrom === "right" ? "side" : "front")) errors.push("방향 비교 투영 누락");
   if (input.problemType === "PROJECTION_DRAW" && !(input.given.projections && Object.keys(input.given.projections).length || input.answer?.kind === "projections" && Object.keys(input.answer.projections).length)) errors.push("그릴 투영 누락");
   if (input.problemType === "BUILD_FROM_VIEWS" && !(["top", "front", "side"] as const).every(face => hasProjection(input.given, face))) errors.push("세 방향 조건 누락");

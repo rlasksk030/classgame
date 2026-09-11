@@ -1,5 +1,5 @@
 import ReviewSummary from "../features/activities/ReviewSummary";
-import { canonicalize, toLayers } from "@shared/blocks.ts";
+import { canonicalize } from "@shared/blocks.ts";
 import {
   DIRECTIONS,
   PROBLEM_TYPE_LABELS,
@@ -210,7 +210,12 @@ export default function LessonPage() {
     setDirectionValue((next.given?.shownFrom ?? "front") as Direction);
     setAttempt(DEFAULT_ATTEMPT_STATE);
 
-    const layers = toLayers(next.startBlocks, next.grid);
+    const sourceLayers = next.given?.layers;
+    const layerCount = sourceLayers?.length ?? next.grid.maxHeight;
+    const layers = Array.from({ length: layerCount }, (_, index) => {
+      const source = sourceLayers?.[index];
+      return createBoolGrid(source?.length ?? next.grid.gridDepth, source?.[0]?.length ?? next.grid.gridWidth);
+    });
 
     clearHistory();
     setBlocks(next.startBlocks);

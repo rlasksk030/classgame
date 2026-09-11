@@ -54,7 +54,7 @@ export class BlockScene {
     this.engine = new Engine(canvas, true, { preserveDrawingBuffer: false, stencil: false });
     this.engine.setHardwareScalingLevel(Math.max(1, window.devicePixelRatio / 1.5));
     this.scene = new Scene(this.engine);
-    this.scene.clearColor = Color4.FromHexString('#d9edffff');
+    this.scene.clearColor = Color4.FromHexString('#f4f7faff');
     const size = Math.max(grid.gridWidth, grid.gridDepth, grid.maxHeight);
     this.camera = new ArcRotateCamera('camera', -Math.PI / 3, Math.PI / 3, size * 1.9, new Vector3(grid.gridWidth / 2, grid.maxHeight / 3, grid.gridDepth / 2), this.scene);
     this.camera.lowerRadiusLimit = 2;
@@ -79,11 +79,12 @@ export class BlockScene {
       m.alpha = alpha;
       return m;
     };
-    this.material = makeMaterial('wood', '#79b95b');
-    this.selectedMaterial = makeMaterial('selected', '#ffc451');
-    this.ghostMaterial = makeMaterial('placement', '#3d9959', 0.48);
+    this.material = makeMaterial('wood', '#d8b07a');
+    this.selectedMaterial = makeMaterial('selected', '#5d82c7');
+    this.ghostMaterial = makeMaterial('placement', '#86d8c0', 0.48);
     this.answerMaterial = makeMaterial('answer', '#6c77d5', 0.28);
-    const floorMaterial = makeMaterial('floor', '#b7d0ae');
+    const floorMaterial = makeMaterial('floor', '#cfd8df');
+    const tileMaterial = makeMaterial('grid-tile', '#f0ede6');
     const ground = CreateGround('pickable-ground', { width: grid.gridWidth, height: grid.gridDepth }, this.scene);
     ground.position.set(grid.gridWidth / 2, -0.005, grid.gridDepth / 2);
     ground.material = floorMaterial;
@@ -91,11 +92,11 @@ export class BlockScene {
     for (let z = 0; z < grid.gridDepth; z++) for (let x = 0; x < grid.gridWidth; x++) {
       const tile = CreateBox(`floor-${x}-${z}`, { width: 0.97, depth: 0.97, height: 0.08 }, this.scene);
       tile.position.set(x + 0.5, -0.05, z + 0.5);
-      tile.material = floorMaterial;
+      tile.material = tileMaterial;
       tile.isPickable = false;
     }
     // 좌표의 앞(z=0)을 카메라가 회전해도 알아볼 수 있도록 작업판에 표시한다.
-    const markerColor = Color3.FromHexString('#245b8a');
+    const markerColor = Color3.FromHexString('#4b6680');
     const markerZ = -0.28;
     const markerY = 0.04;
     const markerX = grid.gridWidth / 2;
@@ -257,7 +258,7 @@ export class BlockScene {
     const result = this.result(x, z);
     const base = this.drag?.from ? this.state.blocks.filter(b => keyOf(b) !== keyOf(this.drag!.from!)) : this.state.blocks;
     this.ghost.position.set(x + 0.5, columnHeight(base, x, z) + 0.5, z + 0.5);
-    this.ghostMaterial.diffuseColor = Color3.FromHexString(result.check.ok ? '#3d9959' : '#d43c3c');
+    this.ghostMaterial.diffuseColor = Color3.FromHexString(result.check.ok ? '#86d8c0' : '#ef8f84');
     this.ghost.setEnabled(true);
     this.callbacks.message(result.check.ok ? '놓을 수 있어요.' : result.check.message ?? '여기에는 놓을 수 없어요.');
   }

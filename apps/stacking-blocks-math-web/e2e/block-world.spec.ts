@@ -35,9 +35,9 @@ test('Babylon renders; mouse drag snaps, undo/redo and saved state restore',asyn
   await expect(page.getByText('놓을 수 있어요.',{exact:true})).toBeVisible();
   await page.mouse.up();
   await expect(page.getByText('블록 수: 1',{exact:true})).toBeVisible();
-  await page.getByRole('button',{name:'이전 상태'}).click();
+  await page.getByRole('button',{name:'↶ 되돌리기'}).click();
   await expect(page.getByText('블록 수: 0',{exact:true})).toBeVisible();
-  await page.getByRole('button',{name:'다시 실행'}).click();
+  await page.getByRole('button',{name:'↷ 다시하기'}).click();
   await expect(page.getByText('블록 수: 1',{exact:true})).toBeVisible();
   await page.getByRole('button',{name:'저장',exact:true}).click();
   await expect.poll(()=>state.getSaved().length).toBe(1);
