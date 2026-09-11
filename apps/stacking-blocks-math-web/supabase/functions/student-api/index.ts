@@ -36,6 +36,7 @@ type Action =
   | "asset"
   | "home"
   | "lessonProblems"
+  | "position"
   | "practice:new-set"
   | "problem"
   | "attempt"
@@ -483,7 +484,7 @@ Deno.serve(async (req: Request) => {
   const action = text(body.action, 40) as Action;
 
   // 학생 동작
-  if (action === "asset" || action.startsWith("activity:") || action === "home" || action === "lessonProblems" || action === "practice:new-set" || action === "problem" || action === "attempt" || action === "snapshot" || action === "snapshot:get") {
+  if (action === "asset" || action.startsWith("activity:") || action === "home" || action === "lessonProblems" || action === "practice:new-set" || action === "problem" || action === "attempt" || action === "snapshot" || action === "snapshot:get" || action === "position") {
     const studentSession = await requireStudent(req, db);
     if (studentSession instanceof Response) return studentSession;
 
@@ -491,7 +492,7 @@ Deno.serve(async (req: Request) => {
 
     if (action !== "home") {
       let targetLesson = toInt(body.lesson);
-      if (action !== "lessonProblems" && action !== "practice:new-set") {
+      if (action !== "lessonProblems" && action !== "practice:new-set" && action !== "position") {
         const targetId = text(body.problemId, 80);
         const { data: target } = await db.from("sb_problems").select("lesson,active,class_id,grid_width,grid_depth,max_height")
           .eq("id", targetId).or(`class_id.eq.${studentSession.classId},class_id.is.null`).maybeSingle();
@@ -651,7 +652,48 @@ Deno.serve(async (req: Request) => {
         .map((problem) => sanitizeToStudentProblem(problem))
         .filter(Boolean);
 
-      return ok({ problems, seedFallback: false, requiredComplete, stages });
+      const { data: progressPosition } = await db
+        .from("sb_student_progress")
+        .select("last_problem_id")
+        .eq("student_id", studentSession.studentId)
+        .eq("lesson", lesson)
+        .maybeSingle();
+
+      return ok({
+        problems,
+        seedFallback: false,
+        requiredComplete,
+        currentProblemId: progressPosition?.last_problem_id ?? null,
+        stages,
+      });
+    }
+
+    if (action === "position") {
+      const problemId = text(body.problemId, 80);
+      const lesson = toInt(body.lesson);
+      if (!problemId || !lesson) return fail(400, "BAD_PARAM", "problemId 와 lesson 이 필요합니다.");
+      // seed 문제는 DB 행이 없으므로 위치를 저장할 필요가 없습니다.
+      if (problemId.startsWith("seed:")) return ok({ ok: true });
+
+      const { data: target } = await db
+        .from("sb_problems")
+        .select("id")
+        .or(`class_id.eq.${studentSession.classId},class_id.is.null`)
+        .eq("id", problemId)
+        .eq("lesson", lesson)
+        .eq("active", true)
+        .maybeSingle();
+      if (!target) return fail(404, "PROBLEM_NOT_FOUND", "문제를 찾을 수 없어요.");
+
+      const { error } = await db.from("sb_student_progress").upsert(
+        { student_id: studentSession.studentId, lesson, last_problem_id: problemId },
+        { onConflict: "student_id,lesson" },
+      );
+      if (error) {
+        console.error("[student-api] position save failed", { code: error.code, lesson });
+        return fail(500, "POSITION_SAVE_FAILED", "현재 문제 위치를 저장하지 못했습니다.");
+      }
+      return ok({ ok: true });
     }
 
     if (action === "practice:new-set") {

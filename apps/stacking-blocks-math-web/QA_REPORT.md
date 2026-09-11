@@ -15,6 +15,7 @@
 | TypeScript / ESLint | PASS |
 | Edge Function typecheck | PASS |
 | Production build | PASS |
+| Practice current-position persistence | PASS — `last_problem_id` hydration and explicit position updates; reset-on-stage effect removed; unit coverage added |
 
 ## 차시별 점검
 

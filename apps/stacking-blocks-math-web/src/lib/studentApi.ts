@@ -104,6 +104,7 @@ export interface LessonProblemListData {
   problems: StudentProblem[];
   seedFallback: boolean;
   requiredComplete?: boolean;
+  currentProblemId?: string | null;
   stages?: { concept: number; check: number; more: number };
 }
 
@@ -291,6 +292,10 @@ export interface SnapshotData {
 
 export function getSnapshot(problemId: string) {
   return callFunction<SnapshotData>("student-api", { action: "snapshot:get", problemId }, true);
+}
+
+export function saveProblemPosition(problemId: string, lesson: number) {
+  return callFunction<{ ok: boolean }>("student-api", { action: "position", problemId, lesson }, true);
 }
 
 export function teacherListClasses() {

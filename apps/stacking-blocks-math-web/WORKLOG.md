@@ -1,5 +1,11 @@
 # MVP 작업 기록
 
+## 문제 진행 위치 복원 P0 수정 (2026-09-12)
+- `LessonPage`에서 단계 필터 effect가 `problemIndex`를 매 렌더링마다 0으로 되돌리던 경로를 제거했다. 단계 이동·이전/다음·틀린 문제 재풀기·새 연습 세트처럼 사용자가 명시적으로 위치를 바꾸는 동작에서만 인덱스를 변경한다.
+- `sb_student_progress.last_problem_id`를 `lessonProblems` 응답에 포함하고, `position` 학생 API로 이동 위치를 저장한다. 자동 진행과 수동 이동 모두 DB 위치를 갱신하며 seed 문제는 안전하게 건너뛴다.
+- 재접속 시 저장된 문제 ID를 세트 인덱스로 복원하는 순수 함수와 경계값 테스트를 추가했다. 기존 `practice_seed`, 시도 기록, 블록 snapshot 저장은 변경하지 않았다.
+- 검증: `npm run typecheck`, `npm run lint`, `npm test`(36개), `npm run typecheck:edge`, `npm run build` 통과. Playwright는 기존 샌드박스 로컬 포트 제한으로 별도 미실행.
+
 ## 추가 presentation·QA 보강 (2026-09-12)
 - 학생 답안 영역에 `data-answer-renderer` 계약 표식을 추가하고 Playwright Renderer mount 테스트를 준비했다. 3차시 세 격자와 8차시 층별 입력 격자가 실제 DOM에 생성되는지 확인한다.
 - 9차시 친구 문제 카드에 `위에서 본 모양` 단일 투영을 추가했다. `ChallengeType`·Edge Function 채점·힌트 검증과 전용 migration `202609110014_challenge_top_type.sql`을 함께 갱신했다.

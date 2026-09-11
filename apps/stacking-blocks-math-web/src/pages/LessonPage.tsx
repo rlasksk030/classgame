@@ -22,6 +22,7 @@ import {
   saveSnapshot,
   submitAttempt,
   startNewPracticeSet,
+  saveProblemPosition,
   type GradeFeedback,
   type StudentSubmissionPayload,
 } from "../lib/studentApi";
@@ -30,6 +31,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { ProjectionGrid } from "../components/world/ProjectionGrid";
 import BlockWorld from "../components/world/BlockWorld";
 import { answerRendererFor } from "@shared/answerUi.ts";
+import { problemIndexForId } from "@shared/problemSession.ts";
 
 import { draftKey, readDraft, writeDraft, acknowledgeDraft } from "../lib/snapshotDraft";
 
@@ -88,6 +90,8 @@ export default function LessonPage() {
   const [saveStatus, setSaveStatus] = useState("");
   const [message, setMessage] = useState<string | null>(null);
   const [result, setResult] = useState<GradeFeedback | null>(null);
+  // 문제 세트 안의 현재 위치는 이 인덱스를 단일 기준으로 유지합니다.
+  // `problem`은 인덱스에 맞춰 렌더링되는 현재 문항의 복사본입니다.
   const [problemIndex, setProblemIndex] = useState(0);
 
   const [problems, setProblems] = useState<StudentProblem[]>([]);
@@ -337,8 +341,9 @@ export default function LessonPage() {
         setStageFilter("all");
 
         if (parsed.length > 0) {
-          setProblemIndex(0);
-          applyProblem(parsed[0]);
+          const restoredIndex = problemIndexForId(parsed, list.currentProblemId);
+          setProblemIndex(restoredIndex);
+          applyProblem(parsed[restoredIndex]);
         } else {
           setProblem(null);
         }
@@ -364,8 +369,6 @@ export default function LessonPage() {
       applyProblem(current);
     }
   }, [problemIndex, visibleProblems, problem]);
-
-  useEffect(() => { setProblemIndex(0); }, [stageFilter]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -427,7 +430,9 @@ export default function LessonPage() {
 
       if (response.grade.completed && visibleProblems.length > 0 && !response.grade.needsRebuild && problem.given.allowRotate !== false) {
         if (problemIndex + 1 < visibleProblems.length) {
+          const nextProblem = visibleProblems[problemIndex + 1];
           setTimeout(() => {
+            if (nextProblem && !nextProblem.id.startsWith("seed:")) void saveProblemPosition(nextProblem.id, lessonNum);
             setProblemIndex((next) => next + 1);
           }, 700);
         }
@@ -616,7 +621,12 @@ export default function LessonPage() {
         <section className="panel stack" aria-label="차시 학습 단계">
           <strong>학습 단계</strong>
           <div className="toolbar-row">
-            {([['all','전체 학습'],['concept','개념 익히기'],['check','개념 확인'],['more','더 풀어보기']] as const).map(([value,label])=><button key={value} className={`btn btn-sm ${stageFilter===value?'btn-primary':''}`} disabled={value==='more'&&!requiredComplete} onClick={()=>setStageFilter(value)}>{label} {value==='more'&&!requiredComplete?'(필수 학습 후 열림)':''}</button>)}
+            {([['all','전체 학습'],['concept','개념 익히기'],['check','개념 확인'],['more','더 풀어보기']] as const).map(([value,label])=><button key={value} className={`btn btn-sm ${stageFilter===value?'btn-primary':''}`} disabled={value==='more'&&!requiredComplete} onClick={()=>{
+              setStageFilter(value);
+              setProblemIndex(0);
+              const first = problems.find(item => value === 'all' || item.stage === value);
+              if (first && !first.id.startsWith('seed:')) void saveProblemPosition(first.id, lessonNum);
+            }}>{label} {value==='more'&&!requiredComplete?'(필수 학습 후 열림)':''}</button>)}
           </div>
           <p className="muted">개념 {problems.filter(item=>item.stage==='concept').length} · 확인 {problems.filter(item=>item.stage==='check').length} · 추가 {problems.filter(item=>item.stage==='more').length}문제{requiredComplete?' · 필수 학습 완료':' · 개념 확인을 먼저 완료해 주세요.'}</p>
           {requiredComplete && problems.some(item => item.stage === 'more') && (
@@ -625,11 +635,20 @@ export default function LessonPage() {
                 const more = problems.filter(item => item.stage === 'more');
                 const index = more.findIndex(item => wrongProblemIds.includes(item.id));
                 setStageFilter('more');
-                if (index >= 0) setProblemIndex(index);
+                if (index >= 0) {
+                  setProblemIndex(index);
+                  const target = more[index];
+                  if (target && !target.id.startsWith('seed:')) void saveProblemPosition(target.id, lessonNum);
+                }
               }}>
                 틀린 문제 다시 풀기{wrongProblemIds.length ? ` (${wrongProblemIds.length})` : ''}
               </button>
-              <button className="btn btn-sm" onClick={() => setStageFilter('more')}>유사 문제 풀기</button>
+              <button className="btn btn-sm" onClick={() => {
+                setStageFilter('more');
+                setProblemIndex(0);
+                const first = problems.find(item => item.stage === 'more');
+                if (first && !first.id.startsWith('seed:')) void saveProblemPosition(first.id, lessonNum);
+              }}>유사 문제 풀기</button>
               <button className="btn btn-sm" disabled={busy} onClick={async () => {
                 setBusy(true);
                 try {
@@ -640,7 +659,10 @@ export default function LessonPage() {
                   setStageFilter('more');
                   setProblemIndex(0);
                   const first = refreshed.problems.find(item => item.stage === 'more');
-                  if (first) applyProblem(first);
+                  if (first) {
+                    applyProblem(first);
+                    if (!first.id.startsWith('seed:')) void saveProblemPosition(first.id, lessonNum);
+                  }
                   setWrongProblemIds([]);
                   setMessage('새 문제 세트를 준비했어요.');
                 } catch (error) {
@@ -735,7 +757,11 @@ export default function LessonPage() {
                 </button>
                 <button className="btn btn-sm" onClick={() => {
                   void flushSnapshot();
-                  if (problemIndex > 0) setProblemIndex((value) => value - 1);
+                  if (problemIndex > 0) {
+                    const previous = visibleProblems[problemIndex - 1];
+                    if (previous && !previous.id.startsWith("seed:")) void saveProblemPosition(previous.id, lessonNum);
+                    setProblemIndex((value) => value - 1);
+                  }
                 }} disabled={problemIndex === 0}>
                   이전
                 </button>
@@ -743,7 +769,11 @@ export default function LessonPage() {
                   className="btn btn-sm"
                   onClick={() => {
                     void flushSnapshot();
-                    if (problemIndex < visibleProblems.length - 1) setProblemIndex((value) => value + 1);
+                    if (problemIndex < visibleProblems.length - 1) {
+                      const next = visibleProblems[problemIndex + 1];
+                      if (next && !next.id.startsWith("seed:")) void saveProblemPosition(next.id, lessonNum);
+                      setProblemIndex((value) => value + 1);
+                    }
                   }}
                   disabled={problemIndex >= visibleProblems.length - 1}
                 >

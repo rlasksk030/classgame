@@ -4,6 +4,7 @@ import { challengeGiven, challengeScore, EMPTY_BUILDING, validBuilding, validCha
 import type { BlockCoord } from '../shared/types.ts';
 import { generatePracticeProblems, getProblemTemplates, recommendedPracticeCount, validateGeneratedProblem } from '../shared/practiceGenerator.ts';
 import { equivalentDirections, projectionForDirection } from '../shared/spatialConventions.ts';
+import { clampProblemIndex, problemIndexForId } from '../shared/problemSession.ts';
 
 const ten: BlockCoord[] = Array.from({ length: 10 }, (_, x) => ({ x: x % 5, y: Math.floor(x / 5), z: 0 }));
 
@@ -96,4 +97,14 @@ test('direction practice uses the selected direction projection and avoids ambig
       assert.deepEqual(equivalentDirections(problem.givenBlocks, problem.grid, direction), [direction]);
     }
   }
+});
+
+test('practice position restores by problem id and clamps safely', () => {
+  const problems = [{ id: 'p1' }, { id: 'p2' }, { id: 'p3' }];
+  assert.equal(problemIndexForId(problems, 'p2'), 1);
+  assert.equal(problemIndexForId(problems, 'missing'), 0);
+  assert.equal(problemIndexForId(problems, null), 0);
+  assert.equal(clampProblemIndex(-2, problems.length), 0);
+  assert.equal(clampProblemIndex(99, problems.length), 2);
+  assert.equal(clampProblemIndex(0, 0), 0);
 });
