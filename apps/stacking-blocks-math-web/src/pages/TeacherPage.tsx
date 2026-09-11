@@ -233,7 +233,7 @@ export default function TeacherPage() {
 
         <section className="panel stack" id="students">
           <h3>학생 PIN 관리</h3>
-          <button className="btn" disabled={!students.length} onClick={()=>void copyText(students.map(s=>`${s.name}\t${s.pinPlain}`).join("\n"))}>전체 PIN 복사</button>
+          <div className="toolbar-row"><button className="btn" disabled={!students.length} onClick={()=>void copyText(students.map(s=>`${s.name}\t${s.pinPlain}`).join("\n"))}>전체 PIN 복사</button><button className="btn btn-sm" type="button" disabled={!students.length} onClick={() => window.print()}>학생 로그인표 인쇄</button></div>
           <form className="toolbar-row" onSubmit={createStudent}>
             <input
               className="field"
