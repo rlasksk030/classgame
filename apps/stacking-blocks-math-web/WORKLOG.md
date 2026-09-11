@@ -100,3 +100,8 @@
 - 차시 1·2·3·4·5·6·7·8·12에 대해 15문제 세트는 고유 템플릿 5개 이상, 20문제 세트는 6개 이상이어야 하며, 50개 seed 반복 생성에서 좌표·정답 계약을 모두 통과했다.
 - `tests/activities.test.ts`에 차시별 15/20문제 다양성, 템플릿 연속성, answer kind 검증을 추가했다.
 - Node 실사용 점검에서 차시 1~8은 15/20문제 모두 6개 템플릿, 차시 12는 8개 템플릿을 사용했으며, seed 1001/1002의 전체 문제 데이터가 모든 차시에서 달라졌다.
+
+## Cloudflare 정적 배포 제약 (2026-09-11)
+- `DISTRIBUTION_ARCHITECTURE.md`에 Cloudflare Pages는 `dist/` 정적 파일만 제공하고 Pages Functions/Workers/KV/D1/Durable Objects/R2/API proxy를 사용하지 않는다는 계약을 추가했다.
+- 모든 동적 기능은 각 교사의 Supabase와 브라우저가 직접 통신하며, service_role·Edge Function Secret은 브라우저에 노출하지 않는다.
+- 현재 연결값은 Vite `VITE_*` 환경변수 단계까지이며, 특정 교사 값을 공통 dist에 고정하지 않는 런타임 설치 설정은 향후 설치 도우미 범위로 남겼다.
