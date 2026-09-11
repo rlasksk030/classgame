@@ -37,13 +37,8 @@ export const VIEW_PRESET_LABELS: Record<ViewPreset, string> = {
 export const DIRECTIONS = ["front", "back", "left", "right", "top"] as const;
 export type Direction = (typeof DIRECTIONS)[number];
 
-export const DIRECTION_LABELS: Record<Direction, string> = {
-  front: "앞",
-  back: "뒤",
-  left: "왼쪽",
-  right: "오른쪽",
-  top: "위",
-};
+// 방향 표시 문구와 투영 규칙은 spatialConventions.ts에서 함께 관리한다.
+export { DIRECTION_LABELS } from "./spatialConventions.ts";
 
 /**
  * 문제 유형.

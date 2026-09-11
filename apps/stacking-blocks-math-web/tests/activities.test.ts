@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { challengeGiven, challengeScore, EMPTY_BUILDING, validBuilding, validChallenge } from '../shared/activities.ts';
 import type { BlockCoord } from '../shared/types.ts';
 import { generatePracticeProblems, getProblemTemplates, recommendedPracticeCount, validateGeneratedProblem } from '../shared/practiceGenerator.ts';
+import { equivalentDirections, projectionForDirection } from '../shared/spatialConventions.ts';
 
 const ten: BlockCoord[] = Array.from({ length: 10 }, (_, x) => ({ x: x % 5, y: Math.floor(x / 5), z: 0 }));
 
@@ -80,5 +81,17 @@ test('changing the student seed changes the generated practice content', () => {
     const first = generatePracticeProblems(lesson, 20, 1001).map(({ code: _code, ...problem }) => problem);
     const second = generatePracticeProblems(lesson, 20, 1002).map(({ code: _code, ...problem }) => problem);
     assert.notDeepEqual(first, second, `lesson ${lesson} should vary by seed`);
+  }
+});
+
+test('direction practice uses the selected direction projection and avoids ambiguous views', () => {
+  for (let seed = 0; seed < 100; seed += 1) {
+    const problems = generatePracticeProblems(2, 5, seed);
+    for (const problem of problems) {
+      const direction = problem.answer.kind === 'direction' ? problem.answer.value : 'front';
+      const face = direction === 'top' ? 'top' : direction === 'front' || direction === 'back' ? 'front' : 'side';
+      assert.deepEqual(problem.given.projections?.[face], projectionForDirection(problem.givenBlocks, problem.grid, direction));
+      assert.deepEqual(equivalentDirections(problem.givenBlocks, problem.grid, direction), [direction]);
+    }
   }
 });

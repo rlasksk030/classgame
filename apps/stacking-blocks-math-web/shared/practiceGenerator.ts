@@ -1,7 +1,8 @@
-import { fromHeightMap, project, toHeightMap, toLayers, validStructure } from './blocks.ts';
+import { fromHeightMap, grid2DEqual, heightMapEqual, project, toHeightMap, toLayers, validStructure } from './blocks.ts';
 import type { BlockCoord, DifficultyTier, Grid2D, GridConfig, ProblemGiven, ProblemSourceType, ProblemType } from './types.ts';
 import type { SeedProblem } from './seedProblems.ts';
 import { conceptTagsForLesson } from './problemMetadata.ts';
+import { hasUniqueDirectionProjection, projectionForDirection } from './spatialConventions.ts';
 
 /** 차시별 권장 연습량. 교사 설정이 있으면 서버에서 이 값을 덮어쓴다. */
 export function recommendedPracticeCount(lesson:number):number {
@@ -50,7 +51,7 @@ export function getProblemTemplates(lesson:number): ProblemTemplate[] {
   return (TEMPLATES[lesson] ?? []).map(template => ({...template}));
 }
 
-export function validateGeneratedProblem(problem: Pick<SeedProblem, 'grid'|'givenBlocks'|'startBlocks'|'answer'|'gradingMode'|'problemType'>): boolean {
+export function validateGeneratedProblem(problem: Pick<SeedProblem, 'grid'|'givenBlocks'|'startBlocks'|'answer'|'gradingMode'|'problemType'|'given'>): boolean {
   if (!validStructure(problem.givenBlocks, problem.grid) || !validStructure(problem.startBlocks, problem.grid)) return false;
   if (problem.answer.kind === 'blocks' && !validStructure(problem.answer.blocks, problem.grid)) return false;
   if (problem.answer.kind === 'count' && (!Number.isInteger(problem.answer.value) || problem.answer.value < 0)) return false;
@@ -59,7 +60,23 @@ export function validateGeneratedProblem(problem: Pick<SeedProblem, 'grid'|'give
     COUNT:'count', COUNT_AMBIGUOUS:'count', BUILD_FROM_VIEWS:'blocks', BUILD_FROM_HEIGHTMAP:'blocks',
     HEIGHTMAP_FROM_BUILD:'heightMap', BUILD_FROM_LAYERS:'blocks', LAYER_DRAW:'layers', PATTERN_NEXT:'choice', CHOICE:'choice',
   };
-  if (problem.answer.kind !== expected[problem.problemType]) return false;
+  const expectedKind = expected[problem.problemType];
+  const constraintViews = problem.problemType === 'BUILD_FROM_VIEWS' && problem.gradingMode === 'constraint' && problem.answer.kind === 'projections';
+  if (problem.answer.kind !== expectedKind && !constraintViews) return false;
+  const actual = project(problem.givenBlocks, problem.grid);
+  if (problem.answer.kind === 'projections' && problem.givenBlocks.length > 0) {
+    for (const face of ['top', 'front', 'side'] as const) {
+      if (problem.answer.projections[face] && !grid2DEqual(problem.answer.projections[face], actual[face])) return false;
+    }
+  }
+  if (problem.answer.kind === 'heightMap' && problem.givenBlocks.length > 0 && !heightMapEqual(problem.answer.heightMap, toHeightMap(problem.givenBlocks, problem.grid))) return false;
+  if (problem.answer.kind === 'layers') {
+    const expectedLayers = toLayers(problem.givenBlocks, problem.grid);
+    if (problem.givenBlocks.length > 0 && (problem.answer.layers.length !== expectedLayers.length || problem.answer.layers.some((layer, index) => !grid2DEqual(layer, expectedLayers[index])))) return false;
+  }
+  if (problem.problemType === 'CAMERA_DIRECTION' && problem.answer.kind === 'direction') {
+    if (problem.given.shownFrom !== problem.answer.value) return false;
+  }
   return true;
 }
 
@@ -88,13 +105,26 @@ export function generatePracticeProblems(lesson:number,count:number,seed=0):Gene
   const out:GeneratedProblem[]=[];
   const grid=lesson%2===0?G4:G3;
   for(let i=0;i<count;i++){
-    const blocks=shape(seed+i+1,lesson,grid.maxHeight,grid.gridWidth,grid.gridDepth);
+    const direction = lesson === 2
+      ? (['front','back','left','right','top'] as const)[i % 5]
+      : lesson === 12 && i % 8 === 0
+        ? 'front' as const
+        : null;
+    let shapeSeed = seed + i + 1;
+    let blocks=shape(shapeSeed,lesson,grid.maxHeight,grid.gridWidth,grid.gridDepth);
+    // 방향 하나를 고르는 문제는 같은 그림을 만드는 다른 방향을 제외한다.
+    if (direction) {
+      for (let attempt = 0; attempt < 100 && !hasUniqueDirectionProjection(blocks, grid, direction); attempt++) {
+        shapeSeed += 1;
+        blocks = shape(shapeSeed, lesson, grid.maxHeight, grid.gridWidth, grid.gridDepth);
+      }
+    }
     const p=project(blocks,grid);
     const h=toHeightMap(blocks,grid);
     const selectedTemplate = TEMPLATES[lesson]?.[i % (TEMPLATES[lesson]?.length || 1)];
     let item:GeneratedProblem;
     if(lesson===1){const mode=i%6; const position=mode===1?'위':'오른쪽'; const type=mode<2?'BLOCK_POSITION':mode===4?'CHOICE':'COUNT'; const answer=mode<2||mode===4?{kind:'choice',index:0} as const:{kind:'count',value:mode===2?blocks.filter(b=>b.y===1).length:blocks.length} as const; item=base(lesson,i,blocks,type,{allowRotate:true,allowLayerView:true,countOf:mode===2?'layer':undefined,countLayer:2},answer,grid,'exact',selectedTemplate); item.choices=[`${position}에 있는 블록`,'뒤쪽에 있는 블록','다른 층의 블록']; item.prompt=mode<2?`빨간 블록의 ${position}에 있는 블록을 골라 보세요.`:mode===4?'설명에 맞는 모양을 골라 보세요.':mode===5?'자리별로 센 수와 층별로 센 수가 같은지 확인해 보세요.':mode===2?'2층에 있는 쌓기나무는 몇 개인가요?':'전체 쌓기나무는 몇 개인가요?';}
-    else if(lesson===2){const dirs=['front','back','left','right','top'] as const; const d=dirs[i%dirs.length]; const projection=d==='top'?p.top:d==='right'||d==='left'?p.side:p.front; item=base(lesson,i,blocks,'CAMERA_DIRECTION',{projections:{front:projection},shownFrom:d,allowRotate:true},{kind:'direction',value:d},grid,'exact',selectedTemplate); item.prompt=`아래 모습은 어느 방향에서 본 것일까요?`;
+    else if(lesson===2){const dirs=['front','back','left','right','top'] as const; const d=dirs[i%dirs.length]; const projection=projectionForDirection(blocks,grid,d); const face=d==='top'?'top':d==='front'||d==='back'?'front':'side'; item=base(lesson,i,blocks,'CAMERA_DIRECTION',{projections:{[face]:projection},shownFrom:d,allowRotate:true},{kind:'direction',value:d},grid,'exact',selectedTemplate); item.prompt=`아래 모습은 어느 방향에서 본 것일까요?`;
     }
     else if(lesson===3){const views=[{top:p.top},{front:p.front},{side:p.side},{top:p.top,front:p.front,side:p.side},{side:p.side},{top:p.top}] as Partial<typeof p>[]; item=base(lesson,i,blocks,'PROJECTION_DRAW',{projections:views[i%views.length],allowRotate:true},{kind:'projections',projections:views[i%views.length]},grid,'exact',selectedTemplate); item.prompt=['위에서 본 모양','앞에서 본 모양','옆에서 본 모양','세 방향에서 본 모양'][i%4]+'을 격자에 나타내 보세요.';}
     else if(lesson===4){const mode=i%6; const type=mode===1||mode===5?'HEIGHTMAP_FROM_BUILD':mode===3?'LAYER_DRAW':mode===4?'CHOICE':'COUNT'; const answer=type==='HEIGHTMAP_FROM_BUILD'?{kind:'heightMap',heightMap:h} as const:type==='LAYER_DRAW'?{kind:'layers',layers:cells(blocks,grid)} as const:type==='CHOICE'?{kind:'choice',index:0} as const:{kind:'count',value:blocks.length} as const; item=base(lesson,i,blocks,type,{allowRotate:true,allowLayerView:true,heightMap:h,layers:cells(blocks,grid)},answer,grid,'exact',selectedTemplate); item.choices=['자리별 높이로 세기','층별로 나누어 세기','둘 다 사용할 수 없어요']; item.prompt=type==='HEIGHTMAP_FROM_BUILD'?'각 자리의 높이를 숫자로 나타내 보세요.':type==='LAYER_DRAW'?'층별 모양을 격자에 나타내 보세요.':type==='CHOICE'?'개수를 세는 두 방법 중 맞는 것을 고르세요.':'쌓기나무는 모두 몇 개인가요?';}
