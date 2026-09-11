@@ -15,6 +15,7 @@
 ## Semantic·Solvability QA 명령 추가 (2026-09-12)
 - `audit:semantics`를 추가해 질문 문구와 답안 형식(방향·개수·투영·높이·층별)의 의미 계약을 2,830개 문제에서 검사한다.
 - `audit:solvability`를 추가해 기본/생성 문제의 유효 블록 구조, 정답 구조, constraint 조건 자료를 출제 전에 검사한다. 현재 2,830개 모두 통과했다.
+- QA_REPORT에 자동 오류 카운터를 기록했다. `PROGRESS_RESET`은 코드·단위 감사 기준 0이며, 실제 기기 레이아웃·터치 동작은 브라우저 환경 제한으로 별도 확인이 필요하다.
 
 ## 추가 presentation·QA 보강 (2026-09-12)
 - 학생 답안 영역에 `data-answer-renderer` 계약 표식을 추가하고 Playwright Renderer mount 테스트를 준비했다. 3차시 세 격자와 8차시 층별 입력 격자가 실제 DOM에 생성되는지 확인한다.

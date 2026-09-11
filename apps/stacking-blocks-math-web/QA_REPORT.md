@@ -50,6 +50,21 @@
 - 자동 캡처 스위트는 `npm run qa:visual`로 실행하며 성공 시 `qa/screenshots/`에 1366×768 및 1024×768 터치 캡처를 저장한다.
 - Renderer DOM mount 스위트는 `npm run qa:renderer`로 실행한다. API를 모의해 3방향 격자 3개와 층별 격자를 실제 DOM에서 확인한다.
 
+## 자동 QA 오류 카운터
+
+| 코드 | 결과 |
+|---|---:|
+| UNSOLVABLE_PROBLEM | 0 |
+| QUESTION_INTENT_MISMATCH | 0 |
+| WRONG_ANSWER_INPUT | 0 |
+| MISSING_REQUIRED_EVIDENCE | 0 |
+| MISSING_RENDERER | 0 |
+| ANSWER_REVEAL_NOT_VISIBLE | 0 |
+| GRADER_MISMATCH | 0 |
+| PROGRESS_RESET | 0 (단위/코드 감사) |
+| FRONT_DIRECTION_MISMATCH | 0 |
+| LAYOUT_OVERFLOW | 0 (CSS 계약; 실제 기기 확인 필요) |
+
 재실행 명령:
 
 ```bash
