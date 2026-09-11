@@ -7,6 +7,7 @@ import { Color3, Color4 } from '@babylonjs/core/Maths/math.color';
 import { HemisphericLight } from '@babylonjs/core/Lights/hemisphericLight';
 import { CreateGround } from '@babylonjs/core/Meshes/Builders/groundBuilder';
 import { CreateBox } from '@babylonjs/core/Meshes/Builders/boxBuilder';
+import { CreateLines } from '@babylonjs/core/Meshes/Builders/linesBuilder';
 import { StandardMaterial } from '@babylonjs/core/Materials/standardMaterial';
 import { Mesh } from '@babylonjs/core/Meshes/mesh';
 import '@babylonjs/core/Culling/ray';
@@ -35,6 +36,7 @@ export class BlockScene {
   private camera: ArcRotateCamera;
   private cubes = new Map<string, Mesh>();
   private answers: Mesh[] = [];
+  private frontMarker: Mesh[] = [];
   private material: StandardMaterial;
   private selectedMaterial: StandardMaterial;
   private ghostMaterial: StandardMaterial;
@@ -92,6 +94,27 @@ export class BlockScene {
       tile.material = floorMaterial;
       tile.isPickable = false;
     }
+    // 좌표의 앞(z=0)을 카메라가 회전해도 알아볼 수 있도록 작업판에 표시한다.
+    const markerColor = Color3.FromHexString('#245b8a');
+    const markerZ = -0.28;
+    const markerY = 0.04;
+    const markerX = grid.gridWidth / 2;
+    const shaft = CreateLines('front-direction-shaft', {
+      points: [new Vector3(markerX, markerY, 0.75), new Vector3(markerX, markerY, markerZ)],
+    }, this.scene);
+    shaft.color = markerColor;
+    shaft.isPickable = false;
+    const tips: Array<[string, Vector3[]]> = [
+      ['front-direction-tip-a', [new Vector3(markerX, markerY, markerZ), new Vector3(markerX - 0.18, markerY, markerZ + 0.2)]],
+      ['front-direction-tip-b', [new Vector3(markerX, markerY, markerZ), new Vector3(markerX + 0.18, markerY, markerZ + 0.2)]],
+    ];
+    for (const [name, points] of tips) {
+      const line = CreateLines(name, { points }, this.scene);
+      line.color = markerColor;
+      line.isPickable = false;
+      this.frontMarker.push(line);
+    }
+    this.frontMarker.push(shaft);
     this.ghost = CreateBox('placement-preview', { size: 0.96 }, this.scene);
     this.ghost.material = this.ghostMaterial;
     this.ghost.isPickable = false;

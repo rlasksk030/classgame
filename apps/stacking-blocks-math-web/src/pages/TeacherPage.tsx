@@ -192,7 +192,7 @@ export default function TeacherPage() {
     <div className="screen app-max">
       <div className="stack" style={{ gap: 16 }}>
         <div className="student-world-heading"><div><p className="eyebrow">TEACHER CONSOLE</p><h1>교사 관리</h1><p className="muted">학급의 학습 흐름과 활동을 한곳에서 관리합니다.</p></div><div className="toolbar-row"><Link className="btn btn-sm" to="/teacher/problems/new">3D 문제 만들기</Link><Link className="btn btn-sm" to="/teacher/worksheet-import">학습지로 문제 만들기</Link></div></div>
-        <nav className="teacher-nav" aria-label="교사 메뉴"><a href="#classes">대시보드</a><a href="#students">학생 관리</a><a href="#lessons">차시 관리</a><a href="/teacher/problems/new">문제은행</a><a href="/teacher/worksheet-import">학습지</a></nav>
+        <nav className="teacher-nav" aria-label="교사 메뉴"><a href="#classes">대시보드</a><a href="#students">학생 관리</a><a href="#lessons">차시 관리</a><a href="/teacher/problems/new">문제은행</a><a href="/teacher/problem-preview">문제 미리보기</a><a href="/teacher/worksheet-import">학습지</a></nav>
 
         <section className="teacher-summary-grid" aria-label="학급 요약">
           <div className="panel"><span className="summary-label">학생 수</span><strong className="summary-number">{students.length}명</strong><p className="muted">선택한 학급</p></div>

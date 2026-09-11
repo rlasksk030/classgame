@@ -354,6 +354,7 @@ button {
 }
 
 .world-wrap {
+  position: relative;
   border: var(--edge) solid var(--line);
   border-radius: var(--radius);
   background: #8cc4ff;
@@ -401,11 +402,39 @@ button {
 }
 
 .cell-btn {
-  width: 36px;
-  height: 36px;
-  min-height: 36px;
+  width: 46px;
+  height: 46px;
+  min-height: 46px;
   margin: 0;
   padding: 0;
+  border: 2px solid var(--line-soft);
+  border-radius: 3px;
+  background: #fff;
+  color: #fff;
+  font-size: 20px;
+  font-weight: 800;
+}
+.cell-btn.cell-filled {
+  background: #5f70c8;
+  border-color: #3d4d9d;
+}
+.cell-btn:not(:disabled):hover,
+.cell-btn:not(:disabled):focus-visible {
+  outline: 3px solid #276ef1;
+  outline-offset: 1px;
+}
+.front-direction-label {
+  position: absolute;
+  z-index: 2;
+  left: 12px;
+  top: 58px;
+  padding: 4px 9px;
+  border: 2px solid #245b8a;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, .9);
+  color: #245b8a;
+  font-weight: 800;
+  pointer-events: none;
 }
 
 .projection-area {

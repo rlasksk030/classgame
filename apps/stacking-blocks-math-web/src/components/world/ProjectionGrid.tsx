@@ -41,10 +41,11 @@ export function ProjectionGrid({ title, rows, editable, onChange, valueType, rev
                 return (
                   <td key={`${title}-${r}-${c}`}>
                     <button
-                      className="cell-btn"
+                      className={`cell-btn${value ? " cell-filled" : ""}`}
                       type="button"
                       onClick={() => handleToggle(r, c)}
                       aria-label={`${title} ${r + 1}행 ${c + 1}열`}
+                      aria-pressed={valueType === "boolean" ? Boolean(value) : undefined}
                       disabled={!editable}
                     >
                       {valueType === "number" ? value : value ? "●" : ""}

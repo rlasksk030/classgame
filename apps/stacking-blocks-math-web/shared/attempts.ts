@@ -107,7 +107,9 @@ export function applyAttempt(prev: AttemptState, correct: boolean): AttemptOutco
       ? "정답 모양대로 다시 잘 쌓았어요. 완료!"
       : prev.hintShown
         ? "힌트를 잘 활용했어요. 정답이에요!"
-        : "정답이에요! 한 번에 해냈네요.";
+        : prev.wrongCount > 0
+          ? "다시 도전해서 해결했어요!"
+          : "정답이에요! 한 번에 해냈네요.";
 
     return {
       state: { ...prev, completed: true },

@@ -113,6 +113,10 @@ export default function LessonPage() {
   const [heightMap, setHeightMap] = useState<HeightMap>(createBoolGrid(4, 4).map((r) => r.map(() => 0)));
   const [layerMaps, setLayerMaps] = useState<Grid2D[]>([]);
   const visibleProblems = useMemo(() => stageFilter === "all" ? problems : problems.filter(item => item.stage === stageFilter), [problems, stageFilter]);
+  const currentStage = problem?.stage ?? (stageFilter === "all" ? "concept" : stageFilter);
+  const stageProblems = useMemo(() => problems.filter(item => item.stage === currentStage), [problems, currentStage]);
+  const stageIndex = problem ? stageProblems.findIndex(item => item.id === problem.id) : -1;
+  const stageLabel = currentStage === "concept" ? "개념 익히기" : currentStage === "check" ? "개념 확인" : "더 풀어보기";
 
   const [attempt, setAttempt] = useState<ProblemAttempt>(DEFAULT_ATTEMPT_STATE);
   const attemptRef = useRef(attempt);
@@ -606,7 +610,7 @@ export default function LessonPage() {
         <section className="panel stack" aria-label="차시 학습 단계">
           <strong>학습 단계</strong>
           <div className="toolbar-row">
-            {([['all','전체 보기'],['concept','개념 익히기'],['check','개념 확인'],['more','더 풀어보기']] as const).map(([value,label])=><button key={value} className={`btn btn-sm ${stageFilter===value?'btn-primary':''}`} disabled={value==='more'&&!requiredComplete} onClick={()=>setStageFilter(value)}>{label} {value==='more'&&!requiredComplete?'(필수 학습 후 열림)':''}</button>)}
+            {([['all','전체 학습'],['concept','개념 익히기'],['check','개념 확인'],['more','더 풀어보기']] as const).map(([value,label])=><button key={value} className={`btn btn-sm ${stageFilter===value?'btn-primary':''}`} disabled={value==='more'&&!requiredComplete} onClick={()=>setStageFilter(value)}>{label} {value==='more'&&!requiredComplete?'(필수 학습 후 열림)':''}</button>)}
           </div>
           <p className="muted">개념 {problems.filter(item=>item.stage==='concept').length} · 확인 {problems.filter(item=>item.stage==='check').length} · 추가 {problems.filter(item=>item.stage==='more').length}문제{requiredComplete?' · 필수 학습 완료':' · 개념 확인을 먼저 완료해 주세요.'}</p>
           {requiredComplete && problems.some(item => item.stage === 'more') && (
@@ -648,10 +652,10 @@ export default function LessonPage() {
           <div className="stack" style={{ gap: 8, minHeight: 560 }}>
             <div className="toolbar-row">
               <button className="btn btn-sm" onClick={doUndo} disabled={!canUndo}>
-                이전 상태
+                ↶ 되돌리기
               </button>
               <button className="btn btn-sm" onClick={doRedo} disabled={!canRedo}>
-                다시 실행
+                ↷ 다시하기
               </button>
               <button className="btn btn-sm" onClick={doReset}>
                 전체 초기화
@@ -664,7 +668,7 @@ export default function LessonPage() {
             {allowLayer ? (
               <div className="toolbar-row">
                 <button className={`btn btn-sm ${layerFilter === null ? "btn-primary" : ""}`} onClick={() => setLayerFilter(null)}>
-                  전체 보기
+                  모든 층
                 </button>
                 {totalLayerButtons.map((layerNo) => (
                   <button
@@ -699,7 +703,7 @@ export default function LessonPage() {
 
           <div className="stack" style={{ minWidth: 320, gap: 12 }}>
             <div className="panel">
-              <h3>문항 {problemIndex + 1} / {visibleProblems.length}</h3>
+              <h3>{stageLabel} {Math.max(1, stageIndex + 1)} / {Math.max(1, stageProblems.length)}</h3>
               <p className="muted">{PROBLEM_TYPE_LABELS[problem.problemType]}</p>
               <p>{problem.prompt}</p>
               {problemImage&&<img src={problemImage} alt="선생님이 등록한 문제 그림" style={{maxWidth:"100%"}}/>}

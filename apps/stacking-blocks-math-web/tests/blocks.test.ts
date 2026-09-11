@@ -52,6 +52,11 @@ test('third wrong answer reveals only hint; fourth reveals answer; reconstructio
   assert.equal(completed.xpEarned,10);
   assert.equal(applyAttempt(completed.state,true).xpEarned,0);
 });
+test('feedback reflects prior mistakes instead of claiming a first-try success', () => {
+  const firstWrong = applyAttempt(INITIAL_ATTEMPT, false);
+  const solved = applyAttempt(firstWrong.state, true);
+  assert.equal(solved.message, '다시 도전해서 해결했어요!');
+});
 test('cannot bypass construction by submitting only a numeric block count', () => {
   assert.equal(grade({problemType:'BUILD_FROM_VIEWS',gradingMode:'exact',answer:{kind:'blocks',blocks},given:{},grid,submission:{kind:'count',value:blocks.length}}).correct,false);
 });
