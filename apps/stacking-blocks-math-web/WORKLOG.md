@@ -5,6 +5,7 @@
 - 9차시 친구 문제 카드에 `위에서 본 모양` 단일 투영을 추가했다. `ChallengeType`·Edge Function 채점·힌트 검증과 전용 migration `202609110014_challenge_top_type.sql`을 함께 갱신했다.
 - `audit:lessons` alias와 QA 보고서의 단위 테스트 수(35개)를 정리했다.
 - 9차시 migration 추가에 맞춰 `SCHEMA_VERSION`을 `202609110014`로 올리고 설치 문서·배포 버전 계약을 맞췄다. 원격 Supabase에는 이 새 migration을 별도 적용해야 한다.
+- 12차시 자기평가를 문제를 풀기 전 상단에서 노출하지 않고, 현재 종합 문제 완료 뒤 결과 영역에서 보이도록 위치를 조정했다.
 
 ## 문제 화면 presentation 전수 점검 (2026-09-12)
 - `shared/problemPresentation.ts`에 문제 유형·학생에게 보이는 3D/투영/높이 지도/층별 지도·답안 입력·카메라 정책을 연결하는 `ProblemPresentation` 계약과 validator를 추가했다.

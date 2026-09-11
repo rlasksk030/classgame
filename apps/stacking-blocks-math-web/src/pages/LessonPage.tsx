@@ -653,7 +653,6 @@ export default function LessonPage() {
           )}
         </section>
 
-        {lessonNum===12 && <ReviewSummary key={`${problemIndex}-${attempt.completed}`} />}
         <div className="world-layout">
           <div className="stack" style={{ gap: 8, minHeight: 560 }}>
             <div className="toolbar-row">
@@ -771,6 +770,7 @@ export default function LessonPage() {
             </div>
           </div>
         </div>
+        {lessonNum===12 && attempt.completed && <ReviewSummary key={`${problemIndex}-${attempt.completed}`} />}
       </div>
     </div>
   );
