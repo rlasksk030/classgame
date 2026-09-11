@@ -5,6 +5,7 @@ import {
   isValidPinFormat,
   issueSessionToken,
   normalizeClassCode,
+  parseOptionalStudentNo,
   normalizeStudentName,
   PIN_LOCK_MINUTES,
   PIN_MAX_FAILED_ATTEMPTS,
@@ -76,7 +77,7 @@ Deno.serve(async (req) => {
 
   const name = normalizeStudentName(text(body.name, 30));
   const pin = text(body.pin, 8);
-  const studentNo = Number.isFinite(Number(body.studentNo)) ? Number(body.studentNo) : null;
+  const studentNo = parseOptionalStudentNo(body.studentNo);
 
   if (!name) return fail(400, "NAME_REQUIRED", "이름을 입력해 주세요.");
   if (!isValidPinFormat(pin)) return fail(400, "PIN_FORMAT", "PIN 은 숫자 4자리예요.");

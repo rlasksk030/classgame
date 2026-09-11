@@ -64,6 +64,15 @@ export function normalizeClassCode(classCode: unknown): string {
   return String(classCode ?? "").normalize("NFKC").trim().toUpperCase();
 }
 
+/** 선택 입력인 학생 번호는 null을 숫자 0으로 변환하지 않는다. */
+export function parseOptionalStudentNo(value: unknown): number | null {
+  if (value === null || value === undefined) return null;
+  const raw = String(value).trim();
+  if (!raw) return null;
+  const number = Number(raw);
+  return Number.isInteger(number) ? number : null;
+}
+
 export function isValidPinFormat(pin: unknown): boolean {
   return /^\d{4}$/.test(String(pin ?? "").trim());
 }

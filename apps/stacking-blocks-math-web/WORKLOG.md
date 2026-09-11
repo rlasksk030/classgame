@@ -168,3 +168,9 @@
 - `student-auth`는 학급 코드와 학생 이름을 정규화하고, `sb_students`를 해당 `class_id` 범위에서 서버 내부 조회한 뒤 이름·번호를 비교한다. RLS, anon SELECT, PIN Vault, `APP_SESSION_SECRET`은 변경하지 않았다.
 - 이번 코드 변경 후 실제 함수 재배포와 테스트 학생의 운영 row/로그인 관통 검증은 아직 미완료다. 기존에 배포된 `student-api`는 재배포하지 않는다.
 - `student-auth` 단독 배포는 시도했으나 Supabase CLI access token이 이 환경에 없어 `LegacyPlatformAuthRequiredError`로 실행되지 않았다. 운영자 로컬에서 `supabase login` 후 해당 함수만 배포해야 한다.
+
+## student_no NULL 로그인 실패 원인 확정 (2026-09-12)
+- 실제 요청 payload의 `studentNo`는 `null`이었다. 기존 `student-auth`가 `Number(body.studentNo)`를 먼저 호출해 `null`을 숫자 `0`으로 바꾸고, `student_no === 0` 조건으로 후보를 걸러내 실제 `student_no IS NULL` 학생을 `STUDENT_NOT_FOUND`로 처리했다.
+- `parseOptionalStudentNo()`를 추가해 `null`, `undefined`, 빈 문자열은 번호 미지정(`null`)으로 유지한다. 번호가 지정된 경우에만 해당 번호로 후보를 제한한다. 기존 학생 row backfill이나 `student-api` 재배포는 필요하지 않다.
+- `student-auth`만 변경했으며 RLS, PIN Vault, `APP_SESSION_SECRET`, `student-api`는 건드리지 않았다. 로컬 `npm test` 27개, 보안 테스트, typecheck, lint, edge typecheck, build는 통과했다.
+- 실제 운영 `student-auth` 배포와 브라우저 로그인 성공은 Supabase CLI access token 부재로 아직 미검증이다.
