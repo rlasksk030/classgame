@@ -7,7 +7,8 @@ export interface Building { building_name:string;reason:string;description:strin
 export const EMPTY_BUILDING:Building={building_name:'',reason:'',description:'',layer_notes:['','',''],blocks:[],version:0,submitted:false};
 export function validBuilding(value:Building,complete=false) {
   if (!value || !Array.isArray(value.layer_notes)) return false;
-  return validStructure(value.blocks,ARCHITECTURE_GRID) && [value.building_name,value.reason,value.description,...value.layer_notes].every(s=>typeof s==='string'&&s.length<=2000)
+  const fitsDefaultGrid = validStructure(value.blocks,ARCHITECTURE_GRID) || validStructure(value.blocks,ACTIVITY_GRID);
+  return fitsDefaultGrid && [value.building_name,value.reason,value.description,...value.layer_notes].every(s=>typeof s==='string'&&s.length<=2000)
     && value.layer_notes.length===3 && (!complete || (value.building_name.trim().length>0 && value.reason.trim().length>0 && value.description.trim().length>0 && value.layer_notes.every(s=>s.trim()) && value.blocks.some(b=>b.y===2)));
 }
 export function challengeGiven(blocks:BlockCoord[],type:ChallengeType) {
