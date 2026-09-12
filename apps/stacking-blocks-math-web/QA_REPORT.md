@@ -143,3 +143,10 @@ npm run test:e2e
 - 대상 커밋 `9518934b85c671a4c13669c3fc462cf09d68c715`, `UI_WITH_TEST_DATA`, 계획 12·실행 12·PASS 3·FAIL 9·BLOCKED 0이다. 원본 증거는 `qa/local-browser-qa/history/9518934/`에 보존했다.
 - T01·T02·T06·T09·T10은 lazy route가 준비되기 전 fallback에서 assertion한 **TEST** 오류, T04·T05는 결과 렌더링 전 assertion한 **TEST** 오류, T07·T08은 보드 중앙을 유효 칸으로 고정한 **TEST** 조작 오류로 분류했다. T11의 동일 3차시 fixture 통과 및 T04 캡처의 실제 정답 표시가 이 분류의 근거다.
 - 앱의 문제·정답·채점·RLS·Supabase를 수정하지 않고 실행기에 route 준비 대기, 실제 유효 칸 후보 drag, 실패 단계/원인 분류, 이전 결과 자동 보존을 추가했다. 수정 후 동일 12개 재실행은 현재 환경에서 반복하지 않았으며, 운영자 맥에서 실행 대기 상태다.
+# 2026-09-12 반복 세트 추가 QA
+
+LOCAL_LOGIC: v1 합성 5차시 seed123 35개 중 고유6 → v2 고유35, 계열별 6/6/6/6/6/5. 신고된 실제 운영 세트가 아니다. 전후 표: `qa/practice-sets/2026-09-12T12-06-36-885Z/comparison.md`, 상세 `report.json`.
+
+새 문항 없는 API 재조회 필터 누락, 저장 seed 무시, NULL 복합 unique의 중복 삽입 가능성을 확인하고 로컬 수정했다. 기존 세트·기록은 보존한다. typecheck/lint/unit54/security1/edge/build PASS(대상과 시각 WORKLOG 참조).
+
+UI_WITH_TEST_DATA: qa:local T14 35문항 순회 구현, 실행 0/BLOCKED. 기존 13개는 제거하지 않음. LIVE_SUPABASE 운영 35문항·배정량·복원은 미확보/BLOCKED. 화면 캡처 없음. 모든 문항과 원자료 적합성 검증 완료를 뜻하지 않는다. 2·3·6차시 입력 행동 편중, 9~11차시 조작·복원과 이전 P0는 미완료 유지.

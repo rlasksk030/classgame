@@ -34,6 +34,7 @@ import { answerRendererFor } from "@shared/answerUi.ts";
 import { problemIndexForId } from "@shared/problemSession.ts";
 
 import { draftKey, readDraft, writeDraft, acknowledgeDraft } from "../lib/snapshotDraft";
+import { duplicateTaskCount } from "../../shared/practiceTask";
 
 type ProblemAttempt = {
   wrongCount: number;
@@ -812,7 +813,10 @@ export default function LessonPage() {
                   if (!first.id.startsWith('seed:')) void saveProblemPosition(first.id, lessonNum);
                 }
               }}>유사 문제 풀기</button>
+              {duplicateTaskCount(problems.filter(item=>item.stage==='more'))>0 && <p role="status">이 문제 묶음에 같은 과제가 반복돼요. 기존 답안·XP는 보존됩니다. 원하면 ‘새 문제 더 풀기’로 다른 묶음을 시작할 수 있어요.</p>}
               <button className="btn btn-sm" disabled={busy} onClick={async () => {
+                if (!window.confirm('현재 묶음과 학습 기록을 보존하고 새 문제 묶음을 시작할까요?')) return;
+                await flushSnapshot();
                 setBusy(true);
                 try {
                   await startNewPracticeSet(lessonNum);

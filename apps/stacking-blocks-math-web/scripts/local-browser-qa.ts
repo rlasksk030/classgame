@@ -1,4 +1,4 @@
-import { chromium, type Browser, type Page } from "@playwright/test";
+import { chromium, expect, type Browser, type Page } from "@playwright/test";
 import { spawn, spawnSync, execFileSync } from "node:child_process";
 import { createServer } from "node:http";
 import { mkdirSync, writeFileSync, appendFileSync, existsSync, readFileSync, readdirSync, cpSync } from "node:fs";
@@ -6,6 +6,8 @@ import { resolve, join } from "node:path";
 import { deriveProblemPresentation } from "../shared/problemPresentation.ts";
 import { EMPTY_BUILDING, ARCHITECTURE_GRID, type Building } from "../shared/activities.ts";
 import type { BlockCoord, Grid2D, StudentProblem, StudentSubmission } from "../shared/types.ts";
+import { generateValidatedPracticeSet } from "../shared/practiceSet.ts";
+import { grade } from "../shared/grading.ts";
 
 type JsonRecord = Record<string, unknown>;
 
@@ -37,7 +39,8 @@ const reportJsonPath = join(artifactDir, "report.json");
 const reportMarkdownPath = join(artifactDir, "report.md");
 const previewLogPath = join(artifactDir, "preview.log");
 const headed = process.argv.includes("--headed") || process.env.QA_HEADED === "1";
-const representativeCount = 13;
+const representativeCount = 14;
+const lesson5Set = generateValidatedPracticeSet(5,35,123);
 
 mkdirSync(screenshotDir, { recursive: true });
 
@@ -160,6 +163,11 @@ function makeMock(problems: StudentProblem[], project: Building | null = null): 
 }
 
 async function installMock(page: Page, state: MockState, baseUrl: string, requiredComplete = false) {
+  await page.context().route('**/*', async route => {
+    const url=new URL(route.request().url());
+    if(url.origin!==new URL(baseUrl).origin && !['data:','blob:'].includes(url.protocol)) return route.abort();
+    return route.fallback();
+  });
   await page.addInitScript(({ url }) => {
     localStorage.setItem("stacking-installation-config", JSON.stringify({ installationId: "qa-local", supabaseUrl: url, supabasePublishableKey: "qa-publishable-key" }));
     localStorage.setItem("sb.student.token", "qa-student-session");
@@ -187,6 +195,8 @@ async function installMock(page: Page, state: MockState, baseUrl: string, requir
       else if (current?.problemType === "CHOICE") correct = submission.kind === "choice" && submission.index === 1;
       else if (current?.problemType === "PROJECTION_DRAW") correct = submission.kind === "projections" && JSON.stringify(submission.projections) === JSON.stringify({ top: tripleProjection, front: tripleProjection, side: tripleProjection });
       else if (current?.problemType === "FREE_BUILD") correct = submission.kind === "blocks" && (submission.blocks?.length ?? 0) > 0;
+      const generated = lesson5Set.find(p=>p.code===current?.id);
+      if (generated) correct=grade({...generated,submission}).correct;
       if (state.countReveal) response = { grade: { correct: false, wrongCount: 4, message: "정답을 확인하고 다시 풀어 보세요.", hint: "앞면의 칸을 세어 보세요.", revealedAnswer: { count: 9, explanation: "앞면의 아홉 칸이 정답입니다." }, needsRebuild: false, completed: false, xpEarned: 0, stars: 0, detail: null } };
       else response = { grade: { correct, wrongCount: correct ? 0 : 1, message: correct ? "정답이에요!" : "다시 살펴보세요.", hint: null, revealedAnswer: null, needsRebuild: false, completed: correct, xpEarned: correct ? 10 : 0, stars: correct ? 1 : 0, detail: null } };
     } else if (action.startsWith("activity:")) response = { ok: true, code: "QA1234", state: { wrongCount: 0, hintShown: false, answerRevealed: false, completed: false }, outcome: { correct: true, message: "정답이에요!" }, answer: null };
@@ -468,6 +478,33 @@ async function main() {
         assertCondition(Math.abs(cellBox.width - cellBox.height) <= 1, "입력 셀이 정사각형이 아닙니다.");
         assertCondition(frontBox.y >= tableBox.y + tableBox.height - 1, "앞 라벨이 격자 아래쪽에 붙어 있지 않습니다.");
         assertCondition(sideBox.x >= tableBox.x + tableBox.width - 1, "옆 라벨이 격자 오른쪽에 붙어 있지 않습니다.");
+      }}));
+      initial.push(await run({ id:"T14-lesson5-set35", title:"5차시 새 합성 세트 35문항 입력·제출·전환", problems:lesson5Set.map(p=>studentProblem({...p})), requiredComplete:true, run:async(page,state)=>{
+        const comparison:JsonRecord[]=[];
+        try {
+          await page.goto(`${baseUrl}/lesson/5/practice`);
+          for(let index=0;index<lesson5Set.length;index++) {
+            const p=lesson5Set[index];
+            await page.getByText(p.title,{exact:true}).waitFor({state:'visible'});
+            await page.getByText(p.prompt,{exact:true}).waitFor({state:'visible'});
+            const submit=page.getByRole('button',{name:'정답 확인',exact:true});
+            await expect(submit).toBeEnabled();
+            if(p.answer.kind==='choice') await page.getByRole('button',{name:`${p.answer.index+1}. ${p.choices[p.answer.index]}`,exact:true}).click();
+            else if(p.answer.kind==='count') await page.locator('input[inputmode="numeric"]').fill(String(p.answer.value));
+            const response=page.waitForResponse(r=>r.url().endsWith('/student-api')&&r.request().postDataJSON()?.action==='attempt');
+            await submit.click();
+            const payload=await (await response).json();
+            assertCondition(payload.grade?.correct===true,`문항 ${index+1}: 입력 payload 채점 실패`);
+            assertCondition(state.attempts.at(-1)?.problemId===p.code,`문항 ${index+1}: 이전 문항 ID로 제출됨`);
+            await page.getByText('정답이에요!',{exact:false}).first().waitFor({state:'visible'});
+            const screenshot=join(screenshotDir,`T14-${String(index+1).padStart(2,'0')}.png`);
+            await page.screenshot({path:screenshot,fullPage:true});
+            comparison.push({index:index+1,problemId:p.code,templateId:p.templateId,seed:p.seed,version:p.generatorVersion,prompt:p.prompt,status:'PASS',screenshot});
+            if(index<lesson5Set.length-1) await page.getByRole('button',{name:'다음 문제',exact:true}).click();
+          }
+        } finally {
+          writeFileSync(join(artifactDir,'lesson5-set35-browser.json'),JSON.stringify({category:'UI_WITH_TEST_DATA',head:git(['rev-parse','HEAD']),rows:comparison,notRun:35-comparison.length,liveSet:false},null,2));
+        }
       }}));
       initial.push(await run({ id: "T13-learn-stage-page", title: "개념 배우기 독립 페이지와 문제 풀기 전환", problems: [projectionFixture], run: async (page) => {
         await page.goto(`${baseUrl}/lesson/3/learn`);

@@ -1,0 +1,2875 @@
+{
+  "head": "ac0b3f32673871350655a0846aaad19b70aabc97",
+  "workingTree": "M scripts/local-browser-qa.ts\n M shared/practiceGenerator.ts\n M src/pages/LessonPage.tsx\n M supabase/functions/student-api/index.ts\n?? scripts/audit-practice-sets.ts\n?? shared/practiceSet.ts\n?? shared/practiceTask.ts\n?? supabase/.temp/\n?? tests/practice-set.test.ts",
+  "at": "2026-09-12T12:06:36.885Z",
+  "category": "LOCAL_LOGIC",
+  "seed": 123,
+  "liveSet": {
+    "status": "BLOCKED",
+    "rows": [],
+    "reason": "신고된 35문항 실제 API 응답·세션·배정 설정 미확보; 합성 표는 운영 세트가 아님"
+  },
+  "before": {
+    "count": 35,
+    "uniqueTasks": 6,
+    "families": {
+      "lesson5-unknown-choice": 6,
+      "lesson5-hidden-min": 6,
+      "lesson5-hidden-max": 6,
+      "lesson5-extra-info": 6,
+      "lesson5-same-view": 6,
+      "lesson5-reveal-count": 5
+    },
+    "duplicates": [
+      {
+        "index": 7,
+        "original": 1
+      },
+      {
+        "index": 8,
+        "original": 2
+      },
+      {
+        "index": 9,
+        "original": 3
+      },
+      {
+        "index": 10,
+        "original": 4
+      },
+      {
+        "index": 11,
+        "original": 5
+      },
+      {
+        "index": 12,
+        "original": 6
+      },
+      {
+        "index": 13,
+        "original": 1
+      },
+      {
+        "index": 14,
+        "original": 2
+      },
+      {
+        "index": 15,
+        "original": 3
+      },
+      {
+        "index": 16,
+        "original": 4
+      },
+      {
+        "index": 17,
+        "original": 5
+      },
+      {
+        "index": 18,
+        "original": 6
+      },
+      {
+        "index": 19,
+        "original": 1
+      },
+      {
+        "index": 20,
+        "original": 2
+      },
+      {
+        "index": 21,
+        "original": 3
+      },
+      {
+        "index": 22,
+        "original": 4
+      },
+      {
+        "index": 23,
+        "original": 5
+      },
+      {
+        "index": 24,
+        "original": 6
+      },
+      {
+        "index": 25,
+        "original": 1
+      },
+      {
+        "index": 26,
+        "original": 2
+      },
+      {
+        "index": 27,
+        "original": 3
+      },
+      {
+        "index": 28,
+        "original": 4
+      },
+      {
+        "index": 29,
+        "original": 5
+      },
+      {
+        "index": 30,
+        "original": 6
+      },
+      {
+        "index": 31,
+        "original": 1
+      },
+      {
+        "index": 32,
+        "original": 2
+      },
+      {
+        "index": 33,
+        "original": 3
+      },
+      {
+        "index": 34,
+        "original": 4
+      },
+      {
+        "index": 35,
+        "original": 5
+      }
+    ],
+    "longestRun": 1,
+    "rows": [
+      {
+        "order": 1,
+        "problemId": "GEN-L5-S123-01",
+        "templateId": "lesson5-unknown-choice",
+        "seed": 0,
+        "generatorVersion": 1,
+        "prompt": "지금 앞에서 본 모양만으로 쌓기나무의 전체 개수를 정확히 알 수 있을까요?",
+        "given": {
+          "projections": {
+            "front": [
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                true,
+                true
+              ]
+            ]
+          },
+          "allowRotate": false,
+          "note": "먼저 한 방향에서만 판단해 보세요."
+        },
+        "answerInput": "choice",
+        "taskFingerprint": "{\"prompt\":\"지금 앞에서 본 모양만으로 쌓기나무의 전체 개수를 정확히 알 수 있을까요?\",\"type\":\"CHOICE\",\"grid\":{\"gridWidth\":3,\"gridDepth\":3,\"maxHeight\":3},\"projections\":{\"front\":[[true,true,true],[true,true,true],[true,true,true]]},\"allowRotate\":false,\"note\":\"먼저 한 방향에서만 판단해 보세요.\",\"choices\":[\"알 수 없어요\",\"알 수 있어요\"]}",
+        "screenProblemId": null,
+        "screenStatus": "BLOCKED"
+      },
+      {
+        "order": 2,
+        "problemId": "GEN-L5-S123-02",
+        "templateId": "lesson5-hidden-min",
+        "seed": 1,
+        "generatorVersion": 1,
+        "prompt": "보이지 않는 쌓기나무는 없다고 가정할 때, 앞에서 본 모양의 칸마다 한 개씩 있다면 몇 개인가요?",
+        "given": {
+          "projections": {
+            "front": [
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                true,
+                true
+              ]
+            ]
+          },
+          "allowRotate": false,
+          "note": "보이지 않는 쌓기나무는 없다고 가정해요."
+        },
+        "answerInput": "count",
+        "taskFingerprint": "{\"prompt\":\"보이지 않는 쌓기나무는 없다고 가정할 때, 앞에서 본 모양의 칸마다 한 개씩 있다면 몇 개인가요?\",\"type\":\"COUNT\",\"grid\":{\"gridWidth\":3,\"gridDepth\":3,\"maxHeight\":3},\"projections\":{\"front\":[[true,true,true],[true,true,true],[true,true,true]]},\"allowRotate\":false,\"note\":\"보이지 않는 쌓기나무는 없다고 가정해요.\",\"choices\":[]}",
+        "screenProblemId": null,
+        "screenStatus": "BLOCKED"
+      },
+      {
+        "order": 3,
+        "problemId": "GEN-L5-S123-03",
+        "templateId": "lesson5-hidden-max",
+        "seed": 2,
+        "generatorVersion": 1,
+        "prompt": "앞에서 본 모양이 같을 때, 숨겨진 블록을 더 쌓을 수 있다면 가능한 최대 개수는 얼마일까요?",
+        "given": {
+          "projections": {
+            "front": [
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                true,
+                true
+              ]
+            ]
+          },
+          "allowRotate": false,
+          "note": "앞에서 본 모양만으로는 뒤쪽 블록을 모두 알 수 없어요."
+        },
+        "answerInput": "count",
+        "taskFingerprint": "{\"prompt\":\"앞에서 본 모양이 같을 때, 숨겨진 블록을 더 쌓을 수 있다면 가능한 최대 개수는 얼마일까요?\",\"type\":\"COUNT_AMBIGUOUS\",\"grid\":{\"gridWidth\":3,\"gridDepth\":3,\"maxHeight\":3},\"projections\":{\"front\":[[true,true,true],[true,true,true],[true,true,true]]},\"allowRotate\":false,\"note\":\"앞에서 본 모양만으로는 뒤쪽 블록을 모두 알 수 없어요.\",\"choices\":[]}",
+        "screenProblemId": null,
+        "screenStatus": "BLOCKED"
+      },
+      {
+        "order": 4,
+        "problemId": "GEN-L5-S123-04",
+        "templateId": "lesson5-extra-info",
+        "seed": 3,
+        "generatorVersion": 1,
+        "prompt": "정확히 알려면 어떤 정보가 더 필요할까요?",
+        "given": {
+          "projections": {
+            "front": [
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                true,
+                true
+              ]
+            ]
+          },
+          "allowRotate": false,
+          "note": "먼저 한 방향에서만 판단해 보세요."
+        },
+        "answerInput": "choice",
+        "taskFingerprint": "{\"prompt\":\"정확히 알려면 어떤 정보가 더 필요할까요?\",\"type\":\"CHOICE\",\"grid\":{\"gridWidth\":3,\"gridDepth\":3,\"maxHeight\":3},\"projections\":{\"front\":[[true,true,true],[true,true,true],[true,true,true]]},\"allowRotate\":false,\"note\":\"먼저 한 방향에서만 판단해 보세요.\",\"choices\":[\"가려진 곳의 정보가 더 필요해요.\",\"이 정보만으로 정확히 알 수 있어요.\"]}",
+        "screenProblemId": null,
+        "screenStatus": "BLOCKED"
+      },
+      {
+        "order": 5,
+        "problemId": "GEN-L5-S123-05",
+        "templateId": "lesson5-same-view",
+        "seed": 4,
+        "generatorVersion": 1,
+        "prompt": "한 방향에서 본 모습만 보고 전체 개수를 정확히 알 수 있을까요?",
+        "given": {
+          "allowRotate": false,
+          "note": "먼저 한 방향에서만 판단해 보세요."
+        },
+        "answerInput": "choice",
+        "taskFingerprint": "{\"prompt\":\"한 방향에서 본 모습만 보고 전체 개수를 정확히 알 수 있을까요?\",\"type\":\"CHOICE\",\"grid\":{\"gridWidth\":3,\"gridDepth\":3,\"maxHeight\":3},\"allowRotate\":false,\"note\":\"먼저 한 방향에서만 판단해 보세요.\",\"model\":[[true,true,true],[true,true,true],[true,true,true]],\"choices\":[\"가려진 곳의 정보가 더 필요해요.\",\"이 정보만으로 정확히 알 수 있어요.\"]}",
+        "screenProblemId": null,
+        "screenStatus": "BLOCKED"
+      },
+      {
+        "order": 6,
+        "problemId": "GEN-L5-S123-06",
+        "templateId": "lesson5-reveal-count",
+        "seed": 5,
+        "generatorVersion": 1,
+        "prompt": "추가 정보를 받은 뒤 실제 개수를 구해 보세요.",
+        "given": {
+          "allowRotate": true
+        },
+        "answerInput": "count",
+        "taskFingerprint": "{\"prompt\":\"추가 정보를 받은 뒤 실제 개수를 구해 보세요.\",\"type\":\"COUNT\",\"grid\":{\"gridWidth\":3,\"gridDepth\":3,\"maxHeight\":3},\"allowRotate\":true,\"model\":[{\"x\":0,\"y\":0,\"z\":0},{\"x\":1,\"y\":0,\"z\":0},{\"x\":2,\"y\":0,\"z\":0},{\"x\":0,\"y\":0,\"z\":1},{\"x\":1,\"y\":0,\"z\":1},{\"x\":2,\"y\":0,\"z\":1},{\"x\":0,\"y\":0,\"z\":2},{\"x\":1,\"y\":0,\"z\":2},{\"x\":2,\"y\":0,\"z\":2},{\"x\":0,\"y\":1,\"z\":0},{\"x\":1,\"y\":1,\"z\":0},{\"x\":2,\"y\":1,\"z\":0},{\"x\":0,\"y\":1,\"z\":1},{\"x\":1,\"y\":1,\"z\":1},{\"x\":2,\"y\":1,\"z\":1},{\"x\":0,\"y\":1,\"z\":2},{\"x\":0,\"y\":2,\"z\":0},{\"x\":1,\"y\":2,\"z\":0},{\"x\":2,\"y\":2,\"z\":0},{\"x\":0,\"y\":2,\"z\":1}],\"choices\":[]}",
+        "screenProblemId": null,
+        "screenStatus": "BLOCKED"
+      },
+      {
+        "order": 7,
+        "problemId": "GEN-L5-S123-07",
+        "templateId": "lesson5-unknown-choice",
+        "seed": 6,
+        "generatorVersion": 1,
+        "prompt": "지금 앞에서 본 모양만으로 쌓기나무의 전체 개수를 정확히 알 수 있을까요?",
+        "given": {
+          "projections": {
+            "front": [
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                true,
+                true
+              ]
+            ]
+          },
+          "allowRotate": false,
+          "note": "먼저 한 방향에서만 판단해 보세요."
+        },
+        "answerInput": "choice",
+        "taskFingerprint": "{\"prompt\":\"지금 앞에서 본 모양만으로 쌓기나무의 전체 개수를 정확히 알 수 있을까요?\",\"type\":\"CHOICE\",\"grid\":{\"gridWidth\":3,\"gridDepth\":3,\"maxHeight\":3},\"projections\":{\"front\":[[true,true,true],[true,true,true],[true,true,true]]},\"allowRotate\":false,\"note\":\"먼저 한 방향에서만 판단해 보세요.\",\"choices\":[\"알 수 없어요\",\"알 수 있어요\"]}",
+        "screenProblemId": null,
+        "screenStatus": "BLOCKED"
+      },
+      {
+        "order": 8,
+        "problemId": "GEN-L5-S123-08",
+        "templateId": "lesson5-hidden-min",
+        "seed": 7,
+        "generatorVersion": 1,
+        "prompt": "보이지 않는 쌓기나무는 없다고 가정할 때, 앞에서 본 모양의 칸마다 한 개씩 있다면 몇 개인가요?",
+        "given": {
+          "projections": {
+            "front": [
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                true,
+                true
+              ]
+            ]
+          },
+          "allowRotate": false,
+          "note": "보이지 않는 쌓기나무는 없다고 가정해요."
+        },
+        "answerInput": "count",
+        "taskFingerprint": "{\"prompt\":\"보이지 않는 쌓기나무는 없다고 가정할 때, 앞에서 본 모양의 칸마다 한 개씩 있다면 몇 개인가요?\",\"type\":\"COUNT\",\"grid\":{\"gridWidth\":3,\"gridDepth\":3,\"maxHeight\":3},\"projections\":{\"front\":[[true,true,true],[true,true,true],[true,true,true]]},\"allowRotate\":false,\"note\":\"보이지 않는 쌓기나무는 없다고 가정해요.\",\"choices\":[]}",
+        "screenProblemId": null,
+        "screenStatus": "BLOCKED"
+      },
+      {
+        "order": 9,
+        "problemId": "GEN-L5-S123-09",
+        "templateId": "lesson5-hidden-max",
+        "seed": 8,
+        "generatorVersion": 1,
+        "prompt": "앞에서 본 모양이 같을 때, 숨겨진 블록을 더 쌓을 수 있다면 가능한 최대 개수는 얼마일까요?",
+        "given": {
+          "projections": {
+            "front": [
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                true,
+                true
+              ]
+            ]
+          },
+          "allowRotate": false,
+          "note": "앞에서 본 모양만으로는 뒤쪽 블록을 모두 알 수 없어요."
+        },
+        "answerInput": "count",
+        "taskFingerprint": "{\"prompt\":\"앞에서 본 모양이 같을 때, 숨겨진 블록을 더 쌓을 수 있다면 가능한 최대 개수는 얼마일까요?\",\"type\":\"COUNT_AMBIGUOUS\",\"grid\":{\"gridWidth\":3,\"gridDepth\":3,\"maxHeight\":3},\"projections\":{\"front\":[[true,true,true],[true,true,true],[true,true,true]]},\"allowRotate\":false,\"note\":\"앞에서 본 모양만으로는 뒤쪽 블록을 모두 알 수 없어요.\",\"choices\":[]}",
+        "screenProblemId": null,
+        "screenStatus": "BLOCKED"
+      },
+      {
+        "order": 10,
+        "problemId": "GEN-L5-S123-10",
+        "templateId": "lesson5-extra-info",
+        "seed": 9,
+        "generatorVersion": 1,
+        "prompt": "정확히 알려면 어떤 정보가 더 필요할까요?",
+        "given": {
+          "projections": {
+            "front": [
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                true,
+                true
+              ]
+            ]
+          },
+          "allowRotate": false,
+          "note": "먼저 한 방향에서만 판단해 보세요."
+        },
+        "answerInput": "choice",
+        "taskFingerprint": "{\"prompt\":\"정확히 알려면 어떤 정보가 더 필요할까요?\",\"type\":\"CHOICE\",\"grid\":{\"gridWidth\":3,\"gridDepth\":3,\"maxHeight\":3},\"projections\":{\"front\":[[true,true,true],[true,true,true],[true,true,true]]},\"allowRotate\":false,\"note\":\"먼저 한 방향에서만 판단해 보세요.\",\"choices\":[\"가려진 곳의 정보가 더 필요해요.\",\"이 정보만으로 정확히 알 수 있어요.\"]}",
+        "screenProblemId": null,
+        "screenStatus": "BLOCKED"
+      },
+      {
+        "order": 11,
+        "problemId": "GEN-L5-S123-11",
+        "templateId": "lesson5-same-view",
+        "seed": 10,
+        "generatorVersion": 1,
+        "prompt": "한 방향에서 본 모습만 보고 전체 개수를 정확히 알 수 있을까요?",
+        "given": {
+          "allowRotate": false,
+          "note": "먼저 한 방향에서만 판단해 보세요."
+        },
+        "answerInput": "choice",
+        "taskFingerprint": "{\"prompt\":\"한 방향에서 본 모습만 보고 전체 개수를 정확히 알 수 있을까요?\",\"type\":\"CHOICE\",\"grid\":{\"gridWidth\":3,\"gridDepth\":3,\"maxHeight\":3},\"allowRotate\":false,\"note\":\"먼저 한 방향에서만 판단해 보세요.\",\"model\":[[true,true,true],[true,true,true],[true,true,true]],\"choices\":[\"가려진 곳의 정보가 더 필요해요.\",\"이 정보만으로 정확히 알 수 있어요.\"]}",
+        "screenProblemId": null,
+        "screenStatus": "BLOCKED"
+      },
+      {
+        "order": 12,
+        "problemId": "GEN-L5-S123-12",
+        "templateId": "lesson5-reveal-count",
+        "seed": 11,
+        "generatorVersion": 1,
+        "prompt": "추가 정보를 받은 뒤 실제 개수를 구해 보세요.",
+        "given": {
+          "allowRotate": true
+        },
+        "answerInput": "count",
+        "taskFingerprint": "{\"prompt\":\"추가 정보를 받은 뒤 실제 개수를 구해 보세요.\",\"type\":\"COUNT\",\"grid\":{\"gridWidth\":3,\"gridDepth\":3,\"maxHeight\":3},\"allowRotate\":true,\"model\":[{\"x\":0,\"y\":0,\"z\":0},{\"x\":1,\"y\":0,\"z\":0},{\"x\":2,\"y\":0,\"z\":0},{\"x\":0,\"y\":0,\"z\":1},{\"x\":1,\"y\":0,\"z\":1},{\"x\":2,\"y\":0,\"z\":1},{\"x\":0,\"y\":0,\"z\":2},{\"x\":1,\"y\":0,\"z\":2},{\"x\":2,\"y\":0,\"z\":2},{\"x\":0,\"y\":1,\"z\":0},{\"x\":1,\"y\":1,\"z\":0},{\"x\":2,\"y\":1,\"z\":0},{\"x\":0,\"y\":1,\"z\":1},{\"x\":1,\"y\":1,\"z\":1},{\"x\":2,\"y\":1,\"z\":1},{\"x\":0,\"y\":1,\"z\":2},{\"x\":0,\"y\":2,\"z\":0},{\"x\":1,\"y\":2,\"z\":0},{\"x\":2,\"y\":2,\"z\":0},{\"x\":0,\"y\":2,\"z\":1}],\"choices\":[]}",
+        "screenProblemId": null,
+        "screenStatus": "BLOCKED"
+      },
+      {
+        "order": 13,
+        "problemId": "GEN-L5-S123-13",
+        "templateId": "lesson5-unknown-choice",
+        "seed": 12,
+        "generatorVersion": 1,
+        "prompt": "지금 앞에서 본 모양만으로 쌓기나무의 전체 개수를 정확히 알 수 있을까요?",
+        "given": {
+          "projections": {
+            "front": [
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                true,
+                true
+              ]
+            ]
+          },
+          "allowRotate": false,
+          "note": "먼저 한 방향에서만 판단해 보세요."
+        },
+        "answerInput": "choice",
+        "taskFingerprint": "{\"prompt\":\"지금 앞에서 본 모양만으로 쌓기나무의 전체 개수를 정확히 알 수 있을까요?\",\"type\":\"CHOICE\",\"grid\":{\"gridWidth\":3,\"gridDepth\":3,\"maxHeight\":3},\"projections\":{\"front\":[[true,true,true],[true,true,true],[true,true,true]]},\"allowRotate\":false,\"note\":\"먼저 한 방향에서만 판단해 보세요.\",\"choices\":[\"알 수 없어요\",\"알 수 있어요\"]}",
+        "screenProblemId": null,
+        "screenStatus": "BLOCKED"
+      },
+      {
+        "order": 14,
+        "problemId": "GEN-L5-S123-14",
+        "templateId": "lesson5-hidden-min",
+        "seed": 13,
+        "generatorVersion": 1,
+        "prompt": "보이지 않는 쌓기나무는 없다고 가정할 때, 앞에서 본 모양의 칸마다 한 개씩 있다면 몇 개인가요?",
+        "given": {
+          "projections": {
+            "front": [
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                true,
+                true
+              ]
+            ]
+          },
+          "allowRotate": false,
+          "note": "보이지 않는 쌓기나무는 없다고 가정해요."
+        },
+        "answerInput": "count",
+        "taskFingerprint": "{\"prompt\":\"보이지 않는 쌓기나무는 없다고 가정할 때, 앞에서 본 모양의 칸마다 한 개씩 있다면 몇 개인가요?\",\"type\":\"COUNT\",\"grid\":{\"gridWidth\":3,\"gridDepth\":3,\"maxHeight\":3},\"projections\":{\"front\":[[true,true,true],[true,true,true],[true,true,true]]},\"allowRotate\":false,\"note\":\"보이지 않는 쌓기나무는 없다고 가정해요.\",\"choices\":[]}",
+        "screenProblemId": null,
+        "screenStatus": "BLOCKED"
+      },
+      {
+        "order": 15,
+        "problemId": "GEN-L5-S123-15",
+        "templateId": "lesson5-hidden-max",
+        "seed": 14,
+        "generatorVersion": 1,
+        "prompt": "앞에서 본 모양이 같을 때, 숨겨진 블록을 더 쌓을 수 있다면 가능한 최대 개수는 얼마일까요?",
+        "given": {
+          "projections": {
+            "front": [
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                true,
+                true
+              ]
+            ]
+          },
+          "allowRotate": false,
+          "note": "앞에서 본 모양만으로는 뒤쪽 블록을 모두 알 수 없어요."
+        },
+        "answerInput": "count",
+        "taskFingerprint": "{\"prompt\":\"앞에서 본 모양이 같을 때, 숨겨진 블록을 더 쌓을 수 있다면 가능한 최대 개수는 얼마일까요?\",\"type\":\"COUNT_AMBIGUOUS\",\"grid\":{\"gridWidth\":3,\"gridDepth\":3,\"maxHeight\":3},\"projections\":{\"front\":[[true,true,true],[true,true,true],[true,true,true]]},\"allowRotate\":false,\"note\":\"앞에서 본 모양만으로는 뒤쪽 블록을 모두 알 수 없어요.\",\"choices\":[]}",
+        "screenProblemId": null,
+        "screenStatus": "BLOCKED"
+      },
+      {
+        "order": 16,
+        "problemId": "GEN-L5-S123-16",
+        "templateId": "lesson5-extra-info",
+        "seed": 15,
+        "generatorVersion": 1,
+        "prompt": "정확히 알려면 어떤 정보가 더 필요할까요?",
+        "given": {
+          "projections": {
+            "front": [
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                true,
+                true
+              ]
+            ]
+          },
+          "allowRotate": false,
+          "note": "먼저 한 방향에서만 판단해 보세요."
+        },
+        "answerInput": "choice",
+        "taskFingerprint": "{\"prompt\":\"정확히 알려면 어떤 정보가 더 필요할까요?\",\"type\":\"CHOICE\",\"grid\":{\"gridWidth\":3,\"gridDepth\":3,\"maxHeight\":3},\"projections\":{\"front\":[[true,true,true],[true,true,true],[true,true,true]]},\"allowRotate\":false,\"note\":\"먼저 한 방향에서만 판단해 보세요.\",\"choices\":[\"가려진 곳의 정보가 더 필요해요.\",\"이 정보만으로 정확히 알 수 있어요.\"]}",
+        "screenProblemId": null,
+        "screenStatus": "BLOCKED"
+      },
+      {
+        "order": 17,
+        "problemId": "GEN-L5-S123-17",
+        "templateId": "lesson5-same-view",
+        "seed": 16,
+        "generatorVersion": 1,
+        "prompt": "한 방향에서 본 모습만 보고 전체 개수를 정확히 알 수 있을까요?",
+        "given": {
+          "allowRotate": false,
+          "note": "먼저 한 방향에서만 판단해 보세요."
+        },
+        "answerInput": "choice",
+        "taskFingerprint": "{\"prompt\":\"한 방향에서 본 모습만 보고 전체 개수를 정확히 알 수 있을까요?\",\"type\":\"CHOICE\",\"grid\":{\"gridWidth\":3,\"gridDepth\":3,\"maxHeight\":3},\"allowRotate\":false,\"note\":\"먼저 한 방향에서만 판단해 보세요.\",\"model\":[[true,true,true],[true,true,true],[true,true,true]],\"choices\":[\"가려진 곳의 정보가 더 필요해요.\",\"이 정보만으로 정확히 알 수 있어요.\"]}",
+        "screenProblemId": null,
+        "screenStatus": "BLOCKED"
+      },
+      {
+        "order": 18,
+        "problemId": "GEN-L5-S123-18",
+        "templateId": "lesson5-reveal-count",
+        "seed": 17,
+        "generatorVersion": 1,
+        "prompt": "추가 정보를 받은 뒤 실제 개수를 구해 보세요.",
+        "given": {
+          "allowRotate": true
+        },
+        "answerInput": "count",
+        "taskFingerprint": "{\"prompt\":\"추가 정보를 받은 뒤 실제 개수를 구해 보세요.\",\"type\":\"COUNT\",\"grid\":{\"gridWidth\":3,\"gridDepth\":3,\"maxHeight\":3},\"allowRotate\":true,\"model\":[{\"x\":0,\"y\":0,\"z\":0},{\"x\":1,\"y\":0,\"z\":0},{\"x\":2,\"y\":0,\"z\":0},{\"x\":0,\"y\":0,\"z\":1},{\"x\":1,\"y\":0,\"z\":1},{\"x\":2,\"y\":0,\"z\":1},{\"x\":0,\"y\":0,\"z\":2},{\"x\":1,\"y\":0,\"z\":2},{\"x\":2,\"y\":0,\"z\":2},{\"x\":0,\"y\":1,\"z\":0},{\"x\":1,\"y\":1,\"z\":0},{\"x\":2,\"y\":1,\"z\":0},{\"x\":0,\"y\":1,\"z\":1},{\"x\":1,\"y\":1,\"z\":1},{\"x\":2,\"y\":1,\"z\":1},{\"x\":0,\"y\":1,\"z\":2},{\"x\":0,\"y\":2,\"z\":0},{\"x\":1,\"y\":2,\"z\":0},{\"x\":2,\"y\":2,\"z\":0},{\"x\":0,\"y\":2,\"z\":1}],\"choices\":[]}",
+        "screenProblemId": null,
+        "screenStatus": "BLOCKED"
+      },
+      {
+        "order": 19,
+        "problemId": "GEN-L5-S123-19",
+        "templateId": "lesson5-unknown-choice",
+        "seed": 18,
+        "generatorVersion": 1,
+        "prompt": "지금 앞에서 본 모양만으로 쌓기나무의 전체 개수를 정확히 알 수 있을까요?",
+        "given": {
+          "projections": {
+            "front": [
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                true,
+                true
+              ]
+            ]
+          },
+          "allowRotate": false,
+          "note": "먼저 한 방향에서만 판단해 보세요."
+        },
+        "answerInput": "choice",
+        "taskFingerprint": "{\"prompt\":\"지금 앞에서 본 모양만으로 쌓기나무의 전체 개수를 정확히 알 수 있을까요?\",\"type\":\"CHOICE\",\"grid\":{\"gridWidth\":3,\"gridDepth\":3,\"maxHeight\":3},\"projections\":{\"front\":[[true,true,true],[true,true,true],[true,true,true]]},\"allowRotate\":false,\"note\":\"먼저 한 방향에서만 판단해 보세요.\",\"choices\":[\"알 수 없어요\",\"알 수 있어요\"]}",
+        "screenProblemId": null,
+        "screenStatus": "BLOCKED"
+      },
+      {
+        "order": 20,
+        "problemId": "GEN-L5-S123-20",
+        "templateId": "lesson5-hidden-min",
+        "seed": 19,
+        "generatorVersion": 1,
+        "prompt": "보이지 않는 쌓기나무는 없다고 가정할 때, 앞에서 본 모양의 칸마다 한 개씩 있다면 몇 개인가요?",
+        "given": {
+          "projections": {
+            "front": [
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                true,
+                true
+              ]
+            ]
+          },
+          "allowRotate": false,
+          "note": "보이지 않는 쌓기나무는 없다고 가정해요."
+        },
+        "answerInput": "count",
+        "taskFingerprint": "{\"prompt\":\"보이지 않는 쌓기나무는 없다고 가정할 때, 앞에서 본 모양의 칸마다 한 개씩 있다면 몇 개인가요?\",\"type\":\"COUNT\",\"grid\":{\"gridWidth\":3,\"gridDepth\":3,\"maxHeight\":3},\"projections\":{\"front\":[[true,true,true],[true,true,true],[true,true,true]]},\"allowRotate\":false,\"note\":\"보이지 않는 쌓기나무는 없다고 가정해요.\",\"choices\":[]}",
+        "screenProblemId": null,
+        "screenStatus": "BLOCKED"
+      },
+      {
+        "order": 21,
+        "problemId": "GEN-L5-S123-21",
+        "templateId": "lesson5-hidden-max",
+        "seed": 20,
+        "generatorVersion": 1,
+        "prompt": "앞에서 본 모양이 같을 때, 숨겨진 블록을 더 쌓을 수 있다면 가능한 최대 개수는 얼마일까요?",
+        "given": {
+          "projections": {
+            "front": [
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                true,
+                true
+              ]
+            ]
+          },
+          "allowRotate": false,
+          "note": "앞에서 본 모양만으로는 뒤쪽 블록을 모두 알 수 없어요."
+        },
+        "answerInput": "count",
+        "taskFingerprint": "{\"prompt\":\"앞에서 본 모양이 같을 때, 숨겨진 블록을 더 쌓을 수 있다면 가능한 최대 개수는 얼마일까요?\",\"type\":\"COUNT_AMBIGUOUS\",\"grid\":{\"gridWidth\":3,\"gridDepth\":3,\"maxHeight\":3},\"projections\":{\"front\":[[true,true,true],[true,true,true],[true,true,true]]},\"allowRotate\":false,\"note\":\"앞에서 본 모양만으로는 뒤쪽 블록을 모두 알 수 없어요.\",\"choices\":[]}",
+        "screenProblemId": null,
+        "screenStatus": "BLOCKED"
+      },
+      {
+        "order": 22,
+        "problemId": "GEN-L5-S123-22",
+        "templateId": "lesson5-extra-info",
+        "seed": 21,
+        "generatorVersion": 1,
+        "prompt": "정확히 알려면 어떤 정보가 더 필요할까요?",
+        "given": {
+          "projections": {
+            "front": [
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                true,
+                true
+              ]
+            ]
+          },
+          "allowRotate": false,
+          "note": "먼저 한 방향에서만 판단해 보세요."
+        },
+        "answerInput": "choice",
+        "taskFingerprint": "{\"prompt\":\"정확히 알려면 어떤 정보가 더 필요할까요?\",\"type\":\"CHOICE\",\"grid\":{\"gridWidth\":3,\"gridDepth\":3,\"maxHeight\":3},\"projections\":{\"front\":[[true,true,true],[true,true,true],[true,true,true]]},\"allowRotate\":false,\"note\":\"먼저 한 방향에서만 판단해 보세요.\",\"choices\":[\"가려진 곳의 정보가 더 필요해요.\",\"이 정보만으로 정확히 알 수 있어요.\"]}",
+        "screenProblemId": null,
+        "screenStatus": "BLOCKED"
+      },
+      {
+        "order": 23,
+        "problemId": "GEN-L5-S123-23",
+        "templateId": "lesson5-same-view",
+        "seed": 22,
+        "generatorVersion": 1,
+        "prompt": "한 방향에서 본 모습만 보고 전체 개수를 정확히 알 수 있을까요?",
+        "given": {
+          "allowRotate": false,
+          "note": "먼저 한 방향에서만 판단해 보세요."
+        },
+        "answerInput": "choice",
+        "taskFingerprint": "{\"prompt\":\"한 방향에서 본 모습만 보고 전체 개수를 정확히 알 수 있을까요?\",\"type\":\"CHOICE\",\"grid\":{\"gridWidth\":3,\"gridDepth\":3,\"maxHeight\":3},\"allowRotate\":false,\"note\":\"먼저 한 방향에서만 판단해 보세요.\",\"model\":[[true,true,true],[true,true,true],[true,true,true]],\"choices\":[\"가려진 곳의 정보가 더 필요해요.\",\"이 정보만으로 정확히 알 수 있어요.\"]}",
+        "screenProblemId": null,
+        "screenStatus": "BLOCKED"
+      },
+      {
+        "order": 24,
+        "problemId": "GEN-L5-S123-24",
+        "templateId": "lesson5-reveal-count",
+        "seed": 23,
+        "generatorVersion": 1,
+        "prompt": "추가 정보를 받은 뒤 실제 개수를 구해 보세요.",
+        "given": {
+          "allowRotate": true
+        },
+        "answerInput": "count",
+        "taskFingerprint": "{\"prompt\":\"추가 정보를 받은 뒤 실제 개수를 구해 보세요.\",\"type\":\"COUNT\",\"grid\":{\"gridWidth\":3,\"gridDepth\":3,\"maxHeight\":3},\"allowRotate\":true,\"model\":[{\"x\":0,\"y\":0,\"z\":0},{\"x\":1,\"y\":0,\"z\":0},{\"x\":2,\"y\":0,\"z\":0},{\"x\":0,\"y\":0,\"z\":1},{\"x\":1,\"y\":0,\"z\":1},{\"x\":2,\"y\":0,\"z\":1},{\"x\":0,\"y\":0,\"z\":2},{\"x\":1,\"y\":0,\"z\":2},{\"x\":2,\"y\":0,\"z\":2},{\"x\":0,\"y\":1,\"z\":0},{\"x\":1,\"y\":1,\"z\":0},{\"x\":2,\"y\":1,\"z\":0},{\"x\":0,\"y\":1,\"z\":1},{\"x\":1,\"y\":1,\"z\":1},{\"x\":2,\"y\":1,\"z\":1},{\"x\":0,\"y\":1,\"z\":2},{\"x\":0,\"y\":2,\"z\":0},{\"x\":1,\"y\":2,\"z\":0},{\"x\":2,\"y\":2,\"z\":0},{\"x\":0,\"y\":2,\"z\":1}],\"choices\":[]}",
+        "screenProblemId": null,
+        "screenStatus": "BLOCKED"
+      },
+      {
+        "order": 25,
+        "problemId": "GEN-L5-S123-25",
+        "templateId": "lesson5-unknown-choice",
+        "seed": 24,
+        "generatorVersion": 1,
+        "prompt": "지금 앞에서 본 모양만으로 쌓기나무의 전체 개수를 정확히 알 수 있을까요?",
+        "given": {
+          "projections": {
+            "front": [
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                true,
+                true
+              ]
+            ]
+          },
+          "allowRotate": false,
+          "note": "먼저 한 방향에서만 판단해 보세요."
+        },
+        "answerInput": "choice",
+        "taskFingerprint": "{\"prompt\":\"지금 앞에서 본 모양만으로 쌓기나무의 전체 개수를 정확히 알 수 있을까요?\",\"type\":\"CHOICE\",\"grid\":{\"gridWidth\":3,\"gridDepth\":3,\"maxHeight\":3},\"projections\":{\"front\":[[true,true,true],[true,true,true],[true,true,true]]},\"allowRotate\":false,\"note\":\"먼저 한 방향에서만 판단해 보세요.\",\"choices\":[\"알 수 없어요\",\"알 수 있어요\"]}",
+        "screenProblemId": null,
+        "screenStatus": "BLOCKED"
+      },
+      {
+        "order": 26,
+        "problemId": "GEN-L5-S123-26",
+        "templateId": "lesson5-hidden-min",
+        "seed": 25,
+        "generatorVersion": 1,
+        "prompt": "보이지 않는 쌓기나무는 없다고 가정할 때, 앞에서 본 모양의 칸마다 한 개씩 있다면 몇 개인가요?",
+        "given": {
+          "projections": {
+            "front": [
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                true,
+                true
+              ]
+            ]
+          },
+          "allowRotate": false,
+          "note": "보이지 않는 쌓기나무는 없다고 가정해요."
+        },
+        "answerInput": "count",
+        "taskFingerprint": "{\"prompt\":\"보이지 않는 쌓기나무는 없다고 가정할 때, 앞에서 본 모양의 칸마다 한 개씩 있다면 몇 개인가요?\",\"type\":\"COUNT\",\"grid\":{\"gridWidth\":3,\"gridDepth\":3,\"maxHeight\":3},\"projections\":{\"front\":[[true,true,true],[true,true,true],[true,true,true]]},\"allowRotate\":false,\"note\":\"보이지 않는 쌓기나무는 없다고 가정해요.\",\"choices\":[]}",
+        "screenProblemId": null,
+        "screenStatus": "BLOCKED"
+      },
+      {
+        "order": 27,
+        "problemId": "GEN-L5-S123-27",
+        "templateId": "lesson5-hidden-max",
+        "seed": 26,
+        "generatorVersion": 1,
+        "prompt": "앞에서 본 모양이 같을 때, 숨겨진 블록을 더 쌓을 수 있다면 가능한 최대 개수는 얼마일까요?",
+        "given": {
+          "projections": {
+            "front": [
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                true,
+                true
+              ]
+            ]
+          },
+          "allowRotate": false,
+          "note": "앞에서 본 모양만으로는 뒤쪽 블록을 모두 알 수 없어요."
+        },
+        "answerInput": "count",
+        "taskFingerprint": "{\"prompt\":\"앞에서 본 모양이 같을 때, 숨겨진 블록을 더 쌓을 수 있다면 가능한 최대 개수는 얼마일까요?\",\"type\":\"COUNT_AMBIGUOUS\",\"grid\":{\"gridWidth\":3,\"gridDepth\":3,\"maxHeight\":3},\"projections\":{\"front\":[[true,true,true],[true,true,true],[true,true,true]]},\"allowRotate\":false,\"note\":\"앞에서 본 모양만으로는 뒤쪽 블록을 모두 알 수 없어요.\",\"choices\":[]}",
+        "screenProblemId": null,
+        "screenStatus": "BLOCKED"
+      },
+      {
+        "order": 28,
+        "problemId": "GEN-L5-S123-28",
+        "templateId": "lesson5-extra-info",
+        "seed": 27,
+        "generatorVersion": 1,
+        "prompt": "정확히 알려면 어떤 정보가 더 필요할까요?",
+        "given": {
+          "projections": {
+            "front": [
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                true,
+                true
+              ]
+            ]
+          },
+          "allowRotate": false,
+          "note": "먼저 한 방향에서만 판단해 보세요."
+        },
+        "answerInput": "choice",
+        "taskFingerprint": "{\"prompt\":\"정확히 알려면 어떤 정보가 더 필요할까요?\",\"type\":\"CHOICE\",\"grid\":{\"gridWidth\":3,\"gridDepth\":3,\"maxHeight\":3},\"projections\":{\"front\":[[true,true,true],[true,true,true],[true,true,true]]},\"allowRotate\":false,\"note\":\"먼저 한 방향에서만 판단해 보세요.\",\"choices\":[\"가려진 곳의 정보가 더 필요해요.\",\"이 정보만으로 정확히 알 수 있어요.\"]}",
+        "screenProblemId": null,
+        "screenStatus": "BLOCKED"
+      },
+      {
+        "order": 29,
+        "problemId": "GEN-L5-S123-29",
+        "templateId": "lesson5-same-view",
+        "seed": 28,
+        "generatorVersion": 1,
+        "prompt": "한 방향에서 본 모습만 보고 전체 개수를 정확히 알 수 있을까요?",
+        "given": {
+          "allowRotate": false,
+          "note": "먼저 한 방향에서만 판단해 보세요."
+        },
+        "answerInput": "choice",
+        "taskFingerprint": "{\"prompt\":\"한 방향에서 본 모습만 보고 전체 개수를 정확히 알 수 있을까요?\",\"type\":\"CHOICE\",\"grid\":{\"gridWidth\":3,\"gridDepth\":3,\"maxHeight\":3},\"allowRotate\":false,\"note\":\"먼저 한 방향에서만 판단해 보세요.\",\"model\":[[true,true,true],[true,true,true],[true,true,true]],\"choices\":[\"가려진 곳의 정보가 더 필요해요.\",\"이 정보만으로 정확히 알 수 있어요.\"]}",
+        "screenProblemId": null,
+        "screenStatus": "BLOCKED"
+      },
+      {
+        "order": 30,
+        "problemId": "GEN-L5-S123-30",
+        "templateId": "lesson5-reveal-count",
+        "seed": 29,
+        "generatorVersion": 1,
+        "prompt": "추가 정보를 받은 뒤 실제 개수를 구해 보세요.",
+        "given": {
+          "allowRotate": true
+        },
+        "answerInput": "count",
+        "taskFingerprint": "{\"prompt\":\"추가 정보를 받은 뒤 실제 개수를 구해 보세요.\",\"type\":\"COUNT\",\"grid\":{\"gridWidth\":3,\"gridDepth\":3,\"maxHeight\":3},\"allowRotate\":true,\"model\":[{\"x\":0,\"y\":0,\"z\":0},{\"x\":1,\"y\":0,\"z\":0},{\"x\":2,\"y\":0,\"z\":0},{\"x\":0,\"y\":0,\"z\":1},{\"x\":1,\"y\":0,\"z\":1},{\"x\":2,\"y\":0,\"z\":1},{\"x\":0,\"y\":0,\"z\":2},{\"x\":1,\"y\":0,\"z\":2},{\"x\":2,\"y\":0,\"z\":2},{\"x\":0,\"y\":1,\"z\":0},{\"x\":1,\"y\":1,\"z\":0},{\"x\":2,\"y\":1,\"z\":0},{\"x\":0,\"y\":1,\"z\":1},{\"x\":1,\"y\":1,\"z\":1},{\"x\":2,\"y\":1,\"z\":1},{\"x\":0,\"y\":1,\"z\":2},{\"x\":0,\"y\":2,\"z\":0},{\"x\":1,\"y\":2,\"z\":0},{\"x\":2,\"y\":2,\"z\":0},{\"x\":0,\"y\":2,\"z\":1}],\"choices\":[]}",
+        "screenProblemId": null,
+        "screenStatus": "BLOCKED"
+      },
+      {
+        "order": 31,
+        "problemId": "GEN-L5-S123-31",
+        "templateId": "lesson5-unknown-choice",
+        "seed": 30,
+        "generatorVersion": 1,
+        "prompt": "지금 앞에서 본 모양만으로 쌓기나무의 전체 개수를 정확히 알 수 있을까요?",
+        "given": {
+          "projections": {
+            "front": [
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                true,
+                true
+              ]
+            ]
+          },
+          "allowRotate": false,
+          "note": "먼저 한 방향에서만 판단해 보세요."
+        },
+        "answerInput": "choice",
+        "taskFingerprint": "{\"prompt\":\"지금 앞에서 본 모양만으로 쌓기나무의 전체 개수를 정확히 알 수 있을까요?\",\"type\":\"CHOICE\",\"grid\":{\"gridWidth\":3,\"gridDepth\":3,\"maxHeight\":3},\"projections\":{\"front\":[[true,true,true],[true,true,true],[true,true,true]]},\"allowRotate\":false,\"note\":\"먼저 한 방향에서만 판단해 보세요.\",\"choices\":[\"알 수 없어요\",\"알 수 있어요\"]}",
+        "screenProblemId": null,
+        "screenStatus": "BLOCKED"
+      },
+      {
+        "order": 32,
+        "problemId": "GEN-L5-S123-32",
+        "templateId": "lesson5-hidden-min",
+        "seed": 31,
+        "generatorVersion": 1,
+        "prompt": "보이지 않는 쌓기나무는 없다고 가정할 때, 앞에서 본 모양의 칸마다 한 개씩 있다면 몇 개인가요?",
+        "given": {
+          "projections": {
+            "front": [
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                true,
+                true
+              ]
+            ]
+          },
+          "allowRotate": false,
+          "note": "보이지 않는 쌓기나무는 없다고 가정해요."
+        },
+        "answerInput": "count",
+        "taskFingerprint": "{\"prompt\":\"보이지 않는 쌓기나무는 없다고 가정할 때, 앞에서 본 모양의 칸마다 한 개씩 있다면 몇 개인가요?\",\"type\":\"COUNT\",\"grid\":{\"gridWidth\":3,\"gridDepth\":3,\"maxHeight\":3},\"projections\":{\"front\":[[true,true,true],[true,true,true],[true,true,true]]},\"allowRotate\":false,\"note\":\"보이지 않는 쌓기나무는 없다고 가정해요.\",\"choices\":[]}",
+        "screenProblemId": null,
+        "screenStatus": "BLOCKED"
+      },
+      {
+        "order": 33,
+        "problemId": "GEN-L5-S123-33",
+        "templateId": "lesson5-hidden-max",
+        "seed": 32,
+        "generatorVersion": 1,
+        "prompt": "앞에서 본 모양이 같을 때, 숨겨진 블록을 더 쌓을 수 있다면 가능한 최대 개수는 얼마일까요?",
+        "given": {
+          "projections": {
+            "front": [
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                true,
+                true
+              ]
+            ]
+          },
+          "allowRotate": false,
+          "note": "앞에서 본 모양만으로는 뒤쪽 블록을 모두 알 수 없어요."
+        },
+        "answerInput": "count",
+        "taskFingerprint": "{\"prompt\":\"앞에서 본 모양이 같을 때, 숨겨진 블록을 더 쌓을 수 있다면 가능한 최대 개수는 얼마일까요?\",\"type\":\"COUNT_AMBIGUOUS\",\"grid\":{\"gridWidth\":3,\"gridDepth\":3,\"maxHeight\":3},\"projections\":{\"front\":[[true,true,true],[true,true,true],[true,true,true]]},\"allowRotate\":false,\"note\":\"앞에서 본 모양만으로는 뒤쪽 블록을 모두 알 수 없어요.\",\"choices\":[]}",
+        "screenProblemId": null,
+        "screenStatus": "BLOCKED"
+      },
+      {
+        "order": 34,
+        "problemId": "GEN-L5-S123-34",
+        "templateId": "lesson5-extra-info",
+        "seed": 33,
+        "generatorVersion": 1,
+        "prompt": "정확히 알려면 어떤 정보가 더 필요할까요?",
+        "given": {
+          "projections": {
+            "front": [
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                true,
+                true
+              ]
+            ]
+          },
+          "allowRotate": false,
+          "note": "먼저 한 방향에서만 판단해 보세요."
+        },
+        "answerInput": "choice",
+        "taskFingerprint": "{\"prompt\":\"정확히 알려면 어떤 정보가 더 필요할까요?\",\"type\":\"CHOICE\",\"grid\":{\"gridWidth\":3,\"gridDepth\":3,\"maxHeight\":3},\"projections\":{\"front\":[[true,true,true],[true,true,true],[true,true,true]]},\"allowRotate\":false,\"note\":\"먼저 한 방향에서만 판단해 보세요.\",\"choices\":[\"가려진 곳의 정보가 더 필요해요.\",\"이 정보만으로 정확히 알 수 있어요.\"]}",
+        "screenProblemId": null,
+        "screenStatus": "BLOCKED"
+      },
+      {
+        "order": 35,
+        "problemId": "GEN-L5-S123-35",
+        "templateId": "lesson5-same-view",
+        "seed": 34,
+        "generatorVersion": 1,
+        "prompt": "한 방향에서 본 모습만 보고 전체 개수를 정확히 알 수 있을까요?",
+        "given": {
+          "allowRotate": false,
+          "note": "먼저 한 방향에서만 판단해 보세요."
+        },
+        "answerInput": "choice",
+        "taskFingerprint": "{\"prompt\":\"한 방향에서 본 모습만 보고 전체 개수를 정확히 알 수 있을까요?\",\"type\":\"CHOICE\",\"grid\":{\"gridWidth\":3,\"gridDepth\":3,\"maxHeight\":3},\"allowRotate\":false,\"note\":\"먼저 한 방향에서만 판단해 보세요.\",\"model\":[[true,true,true],[true,true,true],[true,true,true]],\"choices\":[\"가려진 곳의 정보가 더 필요해요.\",\"이 정보만으로 정확히 알 수 있어요.\"]}",
+        "screenProblemId": null,
+        "screenStatus": "BLOCKED"
+      }
+    ]
+  },
+  "after": {
+    "count": 35,
+    "uniqueTasks": 35,
+    "families": {
+      "lesson5-unknown-choice": 6,
+      "lesson5-hidden-min": 6,
+      "lesson5-hidden-max": 6,
+      "lesson5-extra-info": 6,
+      "lesson5-same-view": 6,
+      "lesson5-reveal-count": 5
+    },
+    "duplicates": [],
+    "longestRun": 1,
+    "rows": [
+      {
+        "order": 1,
+        "problemId": "GEN-L5-S123-01-V2",
+        "templateId": "lesson5-unknown-choice",
+        "seed": 123,
+        "generatorVersion": 2,
+        "prompt": "지금 앞에서 본 모양만으로 쌓기나무의 전체 개수를 정확히 알 수 있을까요?",
+        "given": {
+          "projections": {
+            "front": [
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                false,
+                true
+              ],
+              [
+                false,
+                false,
+                false
+              ]
+            ]
+          },
+          "allowRotate": false,
+          "note": "먼저 한 방향에서만 판단해 보세요."
+        },
+        "answerInput": "choice",
+        "taskFingerprint": "{\"prompt\":\"지금 앞에서 본 모양만으로 쌓기나무의 전체 개수를 정확히 알 수 있을까요?\",\"type\":\"CHOICE\",\"grid\":{\"gridWidth\":3,\"gridDepth\":3,\"maxHeight\":3},\"projections\":{\"front\":[[true,true,true],[true,false,true],[false,false,false]]},\"allowRotate\":false,\"note\":\"먼저 한 방향에서만 판단해 보세요.\",\"choices\":[\"알 수 없어요\",\"알 수 있어요\"]}",
+        "screenProblemId": null,
+        "screenStatus": "BLOCKED"
+      },
+      {
+        "order": 2,
+        "problemId": "GEN-L5-S123-02-V2",
+        "templateId": "lesson5-hidden-min",
+        "seed": 123,
+        "generatorVersion": 2,
+        "prompt": "보이지 않는 쌓기나무는 없다고 가정할 때, 앞에서 본 모양의 칸마다 한 개씩 있다면 몇 개인가요?",
+        "given": {
+          "projections": {
+            "front": [
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                false,
+                true,
+                true
+              ],
+              [
+                false,
+                true,
+                false
+              ]
+            ]
+          },
+          "allowRotate": false,
+          "note": "보이지 않는 쌓기나무는 없다고 가정해요."
+        },
+        "answerInput": "count",
+        "taskFingerprint": "{\"prompt\":\"보이지 않는 쌓기나무는 없다고 가정할 때, 앞에서 본 모양의 칸마다 한 개씩 있다면 몇 개인가요?\",\"type\":\"COUNT\",\"grid\":{\"gridWidth\":3,\"gridDepth\":3,\"maxHeight\":3},\"projections\":{\"front\":[[true,true,true],[false,true,true],[false,true,false]]},\"allowRotate\":false,\"note\":\"보이지 않는 쌓기나무는 없다고 가정해요.\",\"choices\":[]}",
+        "screenProblemId": null,
+        "screenStatus": "BLOCKED"
+      },
+      {
+        "order": 3,
+        "problemId": "GEN-L5-S123-03-V2",
+        "templateId": "lesson5-hidden-max",
+        "seed": 123,
+        "generatorVersion": 2,
+        "prompt": "작업판의 앞뒤 깊이는 3칸이에요. 앞에서 본 모양을 유지하며 쌓을 수 있는 최대 개수는 얼마일까요?",
+        "given": {
+          "projections": {
+            "front": [
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                true,
+                false
+              ]
+            ]
+          },
+          "allowRotate": false,
+          "note": "앞에서 본 모양만으로는 뒤쪽 블록을 모두 알 수 없어요."
+        },
+        "answerInput": "count",
+        "taskFingerprint": "{\"prompt\":\"작업판의 앞뒤 깊이는 3칸이에요. 앞에서 본 모양을 유지하며 쌓을 수 있는 최대 개수는 얼마일까요?\",\"type\":\"COUNT_AMBIGUOUS\",\"grid\":{\"gridWidth\":3,\"gridDepth\":3,\"maxHeight\":3},\"projections\":{\"front\":[[true,true,true],[true,true,true],[true,true,false]]},\"allowRotate\":false,\"note\":\"앞에서 본 모양만으로는 뒤쪽 블록을 모두 알 수 없어요.\",\"choices\":[]}",
+        "screenProblemId": null,
+        "screenStatus": "BLOCKED"
+      },
+      {
+        "order": 4,
+        "problemId": "GEN-L5-S123-04-V2",
+        "templateId": "lesson5-extra-info",
+        "seed": 123,
+        "generatorVersion": 2,
+        "prompt": "앞에서 본 모양이 주어졌어요. 전체 개수를 정확히 결정하려면 어떤 정보가 충분할까요?",
+        "given": {
+          "projections": {
+            "front": [
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                true,
+                true
+              ]
+            ]
+          },
+          "allowRotate": false,
+          "note": "먼저 한 방향에서만 판단해 보세요."
+        },
+        "answerInput": "choice",
+        "taskFingerprint": "{\"prompt\":\"앞에서 본 모양이 주어졌어요. 전체 개수를 정확히 결정하려면 어떤 정보가 충분할까요?\",\"type\":\"CHOICE\",\"grid\":{\"gridWidth\":3,\"gridDepth\":3,\"maxHeight\":3},\"projections\":{\"front\":[[true,true,true],[true,true,true],[true,true,true]]},\"allowRotate\":false,\"note\":\"먼저 한 방향에서만 판단해 보세요.\",\"choices\":[\"각 바닥 자리의 쌓인 개수를 모두 알기\",\"블록 색깔만 알기\",\"앞에서 본 모양을 한 번 더 보기\"]}",
+        "screenProblemId": null,
+        "screenStatus": "BLOCKED"
+      },
+      {
+        "order": 5,
+        "problemId": "GEN-L5-S123-05-V2",
+        "templateId": "lesson5-same-view",
+        "seed": 123,
+        "generatorVersion": 2,
+        "prompt": "한 학생이 “앞에서 6칸이 보이니 전체도 반드시 6개”라고 했어요. 이 설명의 문제점은 무엇일까요?",
+        "given": {
+          "projections": {
+            "front": [
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                false,
+                false,
+                false
+              ]
+            ]
+          },
+          "allowRotate": false
+        },
+        "answerInput": "choice",
+        "taskFingerprint": "{\"prompt\":\"한 학생이 “앞에서 6칸이 보이니 전체도 반드시 6개”라고 했어요. 이 설명의 문제점은 무엇일까요?\",\"type\":\"CHOICE\",\"grid\":{\"gridWidth\":3,\"gridDepth\":3,\"maxHeight\":3},\"projections\":{\"front\":[[true,true,true],[true,true,true],[false,false,false]]},\"allowRotate\":false,\"choices\":[\"뒤에 가려진 블록이 있을 가능성을 생각하지 않았어요.\",\"보이는 한 칸은 언제나 두 개의 블록이에요.\",\"앞에서 본 모양은 개수와 아무 관계가 없어요.\"]}",
+        "screenProblemId": null,
+        "screenStatus": "BLOCKED"
+      },
+      {
+        "order": 6,
+        "problemId": "GEN-L5-S123-06-V2",
+        "templateId": "lesson5-reveal-count",
+        "seed": 123,
+        "generatorVersion": 2,
+        "prompt": "이제 자유롭게 돌려 모든 자리를 살펴볼 수 있어요. 실제 쌓기나무는 모두 몇 개인가요?",
+        "given": {
+          "allowRotate": true
+        },
+        "answerInput": "count",
+        "taskFingerprint": "{\"prompt\":\"이제 자유롭게 돌려 모든 자리를 살펴볼 수 있어요. 실제 쌓기나무는 모두 몇 개인가요?\",\"type\":\"COUNT\",\"grid\":{\"gridWidth\":3,\"gridDepth\":3,\"maxHeight\":3},\"allowRotate\":true,\"model\":[{\"x\":0,\"y\":0,\"z\":0},{\"x\":0,\"y\":0,\"z\":1},{\"x\":1,\"y\":0,\"z\":1},{\"x\":2,\"y\":0,\"z\":1},{\"x\":0,\"y\":0,\"z\":2},{\"x\":2,\"y\":0,\"z\":2},{\"x\":0,\"y\":1,\"z\":0},{\"x\":0,\"y\":1,\"z\":1},{\"x\":0,\"y\":1,\"z\":2},{\"x\":2,\"y\":1,\"z\":2},{\"x\":0,\"y\":2,\"z\":0},{\"x\":0,\"y\":2,\"z\":2},{\"x\":2,\"y\":2,\"z\":2}],\"choices\":[]}",
+        "screenProblemId": null,
+        "screenStatus": "BLOCKED"
+      },
+      {
+        "order": 7,
+        "problemId": "GEN-L5-S123-07-V2",
+        "templateId": "lesson5-unknown-choice",
+        "seed": 123,
+        "generatorVersion": 2,
+        "prompt": "지금 앞에서 본 모양만으로 쌓기나무의 전체 개수를 정확히 알 수 있을까요?",
+        "given": {
+          "projections": {
+            "front": [
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                true,
+                true
+              ]
+            ]
+          },
+          "allowRotate": false,
+          "note": "먼저 한 방향에서만 판단해 보세요."
+        },
+        "answerInput": "choice",
+        "taskFingerprint": "{\"prompt\":\"지금 앞에서 본 모양만으로 쌓기나무의 전체 개수를 정확히 알 수 있을까요?\",\"type\":\"CHOICE\",\"grid\":{\"gridWidth\":3,\"gridDepth\":3,\"maxHeight\":3},\"projections\":{\"front\":[[true,true,true],[true,true,true],[true,true,true]]},\"allowRotate\":false,\"note\":\"먼저 한 방향에서만 판단해 보세요.\",\"choices\":[\"알 수 없어요\",\"알 수 있어요\"]}",
+        "screenProblemId": null,
+        "screenStatus": "BLOCKED"
+      },
+      {
+        "order": 8,
+        "problemId": "GEN-L5-S123-08-V2",
+        "templateId": "lesson5-hidden-min",
+        "seed": 123,
+        "generatorVersion": 2,
+        "prompt": "보이지 않는 쌓기나무는 없다고 가정할 때, 앞에서 본 모양의 칸마다 한 개씩 있다면 몇 개인가요?",
+        "given": {
+          "projections": {
+            "front": [
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                false,
+                true,
+                false
+              ]
+            ]
+          },
+          "allowRotate": false,
+          "note": "보이지 않는 쌓기나무는 없다고 가정해요."
+        },
+        "answerInput": "count",
+        "taskFingerprint": "{\"prompt\":\"보이지 않는 쌓기나무는 없다고 가정할 때, 앞에서 본 모양의 칸마다 한 개씩 있다면 몇 개인가요?\",\"type\":\"COUNT\",\"grid\":{\"gridWidth\":3,\"gridDepth\":3,\"maxHeight\":3},\"projections\":{\"front\":[[true,true,true],[true,true,true],[false,true,false]]},\"allowRotate\":false,\"note\":\"보이지 않는 쌓기나무는 없다고 가정해요.\",\"choices\":[]}",
+        "screenProblemId": null,
+        "screenStatus": "BLOCKED"
+      },
+      {
+        "order": 9,
+        "problemId": "GEN-L5-S123-09-V2",
+        "templateId": "lesson5-hidden-max",
+        "seed": 123,
+        "generatorVersion": 2,
+        "prompt": "작업판의 앞뒤 깊이는 3칸이에요. 앞에서 본 모양을 유지하며 쌓을 수 있는 최대 개수는 얼마일까요?",
+        "given": {
+          "projections": {
+            "front": [
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                false,
+                true
+              ],
+              [
+                false,
+                false,
+                false
+              ]
+            ]
+          },
+          "allowRotate": false,
+          "note": "앞에서 본 모양만으로는 뒤쪽 블록을 모두 알 수 없어요."
+        },
+        "answerInput": "count",
+        "taskFingerprint": "{\"prompt\":\"작업판의 앞뒤 깊이는 3칸이에요. 앞에서 본 모양을 유지하며 쌓을 수 있는 최대 개수는 얼마일까요?\",\"type\":\"COUNT_AMBIGUOUS\",\"grid\":{\"gridWidth\":3,\"gridDepth\":3,\"maxHeight\":3},\"projections\":{\"front\":[[true,true,true],[true,false,true],[false,false,false]]},\"allowRotate\":false,\"note\":\"앞에서 본 모양만으로는 뒤쪽 블록을 모두 알 수 없어요.\",\"choices\":[]}",
+        "screenProblemId": null,
+        "screenStatus": "BLOCKED"
+      },
+      {
+        "order": 10,
+        "problemId": "GEN-L5-S123-10-V2",
+        "templateId": "lesson5-extra-info",
+        "seed": 104852,
+        "generatorVersion": 2,
+        "prompt": "앞에서 본 모양이 주어졌어요. 전체 개수를 정확히 결정하려면 어떤 정보가 충분할까요?",
+        "given": {
+          "projections": {
+            "front": [
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                false,
+                true
+              ],
+              [
+                true,
+                false,
+                true
+              ]
+            ]
+          },
+          "allowRotate": false,
+          "note": "먼저 한 방향에서만 판단해 보세요."
+        },
+        "answerInput": "choice",
+        "taskFingerprint": "{\"prompt\":\"앞에서 본 모양이 주어졌어요. 전체 개수를 정확히 결정하려면 어떤 정보가 충분할까요?\",\"type\":\"CHOICE\",\"grid\":{\"gridWidth\":3,\"gridDepth\":3,\"maxHeight\":3},\"projections\":{\"front\":[[true,true,true],[true,false,true],[true,false,true]]},\"allowRotate\":false,\"note\":\"먼저 한 방향에서만 판단해 보세요.\",\"choices\":[\"각 바닥 자리의 쌓인 개수를 모두 알기\",\"블록 색깔만 알기\",\"앞에서 본 모양을 한 번 더 보기\"]}",
+        "screenProblemId": null,
+        "screenStatus": "BLOCKED"
+      },
+      {
+        "order": 11,
+        "problemId": "GEN-L5-S123-11-V2",
+        "templateId": "lesson5-same-view",
+        "seed": 123,
+        "generatorVersion": 2,
+        "prompt": "한 학생이 “앞에서 9칸이 보이니 전체도 반드시 9개”라고 했어요. 이 설명의 문제점은 무엇일까요?",
+        "given": {
+          "projections": {
+            "front": [
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                true,
+                true
+              ]
+            ]
+          },
+          "allowRotate": false
+        },
+        "answerInput": "choice",
+        "taskFingerprint": "{\"prompt\":\"한 학생이 “앞에서 9칸이 보이니 전체도 반드시 9개”라고 했어요. 이 설명의 문제점은 무엇일까요?\",\"type\":\"CHOICE\",\"grid\":{\"gridWidth\":3,\"gridDepth\":3,\"maxHeight\":3},\"projections\":{\"front\":[[true,true,true],[true,true,true],[true,true,true]]},\"allowRotate\":false,\"choices\":[\"뒤에 가려진 블록이 있을 가능성을 생각하지 않았어요.\",\"보이는 한 칸은 언제나 두 개의 블록이에요.\",\"앞에서 본 모양은 개수와 아무 관계가 없어요.\"]}",
+        "screenProblemId": null,
+        "screenStatus": "BLOCKED"
+      },
+      {
+        "order": 12,
+        "problemId": "GEN-L5-S123-12-V2",
+        "templateId": "lesson5-reveal-count",
+        "seed": 123,
+        "generatorVersion": 2,
+        "prompt": "이제 자유롭게 돌려 모든 자리를 살펴볼 수 있어요. 실제 쌓기나무는 모두 몇 개인가요?",
+        "given": {
+          "allowRotate": true
+        },
+        "answerInput": "count",
+        "taskFingerprint": "{\"prompt\":\"이제 자유롭게 돌려 모든 자리를 살펴볼 수 있어요. 실제 쌓기나무는 모두 몇 개인가요?\",\"type\":\"COUNT\",\"grid\":{\"gridWidth\":3,\"gridDepth\":3,\"maxHeight\":3},\"allowRotate\":true,\"model\":[{\"x\":0,\"y\":0,\"z\":0},{\"x\":1,\"y\":0,\"z\":0},{\"x\":2,\"y\":0,\"z\":0},{\"x\":1,\"y\":0,\"z\":1},{\"x\":2,\"y\":0,\"z\":1},{\"x\":0,\"y\":0,\"z\":2},{\"x\":1,\"y\":0,\"z\":2},{\"x\":2,\"y\":0,\"z\":2},{\"x\":1,\"y\":1,\"z\":0},{\"x\":2,\"y\":1,\"z\":0},{\"x\":1,\"y\":1,\"z\":1},{\"x\":0,\"y\":1,\"z\":2},{\"x\":1,\"y\":2,\"z\":1},{\"x\":0,\"y\":2,\"z\":2}],\"choices\":[]}",
+        "screenProblemId": null,
+        "screenStatus": "BLOCKED"
+      },
+      {
+        "order": 13,
+        "problemId": "GEN-L5-S123-13-V2",
+        "templateId": "lesson5-unknown-choice",
+        "seed": 123,
+        "generatorVersion": 2,
+        "prompt": "지금 앞에서 본 모양만으로 쌓기나무의 전체 개수를 정확히 알 수 있을까요?",
+        "given": {
+          "projections": {
+            "front": [
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                false,
+                false
+              ],
+              [
+                true,
+                false,
+                false
+              ]
+            ]
+          },
+          "allowRotate": false,
+          "note": "먼저 한 방향에서만 판단해 보세요."
+        },
+        "answerInput": "choice",
+        "taskFingerprint": "{\"prompt\":\"지금 앞에서 본 모양만으로 쌓기나무의 전체 개수를 정확히 알 수 있을까요?\",\"type\":\"CHOICE\",\"grid\":{\"gridWidth\":3,\"gridDepth\":3,\"maxHeight\":3},\"projections\":{\"front\":[[true,true,true],[true,false,false],[true,false,false]]},\"allowRotate\":false,\"note\":\"먼저 한 방향에서만 판단해 보세요.\",\"choices\":[\"알 수 없어요\",\"알 수 있어요\"]}",
+        "screenProblemId": null,
+        "screenStatus": "BLOCKED"
+      },
+      {
+        "order": 14,
+        "problemId": "GEN-L5-S123-14-V2",
+        "templateId": "lesson5-hidden-min",
+        "seed": 123,
+        "generatorVersion": 2,
+        "prompt": "보이지 않는 쌓기나무는 없다고 가정할 때, 앞에서 본 모양의 칸마다 한 개씩 있다면 몇 개인가요?",
+        "given": {
+          "projections": {
+            "front": [
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                true,
+                false
+              ],
+              [
+                true,
+                true,
+                false
+              ]
+            ]
+          },
+          "allowRotate": false,
+          "note": "보이지 않는 쌓기나무는 없다고 가정해요."
+        },
+        "answerInput": "count",
+        "taskFingerprint": "{\"prompt\":\"보이지 않는 쌓기나무는 없다고 가정할 때, 앞에서 본 모양의 칸마다 한 개씩 있다면 몇 개인가요?\",\"type\":\"COUNT\",\"grid\":{\"gridWidth\":3,\"gridDepth\":3,\"maxHeight\":3},\"projections\":{\"front\":[[true,true,true],[true,true,false],[true,true,false]]},\"allowRotate\":false,\"note\":\"보이지 않는 쌓기나무는 없다고 가정해요.\",\"choices\":[]}",
+        "screenProblemId": null,
+        "screenStatus": "BLOCKED"
+      },
+      {
+        "order": 15,
+        "problemId": "GEN-L5-S123-15-V2",
+        "templateId": "lesson5-hidden-max",
+        "seed": 123,
+        "generatorVersion": 2,
+        "prompt": "작업판의 앞뒤 깊이는 3칸이에요. 앞에서 본 모양을 유지하며 쌓을 수 있는 최대 개수는 얼마일까요?",
+        "given": {
+          "projections": {
+            "front": [
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                false,
+                true,
+                true
+              ],
+              [
+                false,
+                true,
+                false
+              ]
+            ]
+          },
+          "allowRotate": false,
+          "note": "앞에서 본 모양만으로는 뒤쪽 블록을 모두 알 수 없어요."
+        },
+        "answerInput": "count",
+        "taskFingerprint": "{\"prompt\":\"작업판의 앞뒤 깊이는 3칸이에요. 앞에서 본 모양을 유지하며 쌓을 수 있는 최대 개수는 얼마일까요?\",\"type\":\"COUNT_AMBIGUOUS\",\"grid\":{\"gridWidth\":3,\"gridDepth\":3,\"maxHeight\":3},\"projections\":{\"front\":[[true,true,true],[false,true,true],[false,true,false]]},\"allowRotate\":false,\"note\":\"앞에서 본 모양만으로는 뒤쪽 블록을 모두 알 수 없어요.\",\"choices\":[]}",
+        "screenProblemId": null,
+        "screenStatus": "BLOCKED"
+      },
+      {
+        "order": 16,
+        "problemId": "GEN-L5-S123-16-V2",
+        "templateId": "lesson5-extra-info",
+        "seed": 123,
+        "generatorVersion": 2,
+        "prompt": "앞에서 본 모양이 주어졌어요. 전체 개수를 정확히 결정하려면 어떤 정보가 충분할까요?",
+        "given": {
+          "projections": {
+            "front": [
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                false,
+                true,
+                true
+              ]
+            ]
+          },
+          "allowRotate": false,
+          "note": "먼저 한 방향에서만 판단해 보세요."
+        },
+        "answerInput": "choice",
+        "taskFingerprint": "{\"prompt\":\"앞에서 본 모양이 주어졌어요. 전체 개수를 정확히 결정하려면 어떤 정보가 충분할까요?\",\"type\":\"CHOICE\",\"grid\":{\"gridWidth\":3,\"gridDepth\":3,\"maxHeight\":3},\"projections\":{\"front\":[[true,true,true],[true,true,true],[false,true,true]]},\"allowRotate\":false,\"note\":\"먼저 한 방향에서만 판단해 보세요.\",\"choices\":[\"각 바닥 자리의 쌓인 개수를 모두 알기\",\"블록 색깔만 알기\",\"앞에서 본 모양을 한 번 더 보기\"]}",
+        "screenProblemId": null,
+        "screenStatus": "BLOCKED"
+      },
+      {
+        "order": 17,
+        "problemId": "GEN-L5-S123-17-V2",
+        "templateId": "lesson5-same-view",
+        "seed": 123,
+        "generatorVersion": 2,
+        "prompt": "한 학생이 “앞에서 7칸이 보이니 전체도 반드시 7개”라고 했어요. 이 설명의 문제점은 무엇일까요?",
+        "given": {
+          "projections": {
+            "front": [
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                false,
+                false
+              ]
+            ]
+          },
+          "allowRotate": false
+        },
+        "answerInput": "choice",
+        "taskFingerprint": "{\"prompt\":\"한 학생이 “앞에서 7칸이 보이니 전체도 반드시 7개”라고 했어요. 이 설명의 문제점은 무엇일까요?\",\"type\":\"CHOICE\",\"grid\":{\"gridWidth\":3,\"gridDepth\":3,\"maxHeight\":3},\"projections\":{\"front\":[[true,true,true],[true,true,true],[true,false,false]]},\"allowRotate\":false,\"choices\":[\"뒤에 가려진 블록이 있을 가능성을 생각하지 않았어요.\",\"보이는 한 칸은 언제나 두 개의 블록이에요.\",\"앞에서 본 모양은 개수와 아무 관계가 없어요.\"]}",
+        "screenProblemId": null,
+        "screenStatus": "BLOCKED"
+      },
+      {
+        "order": 18,
+        "problemId": "GEN-L5-S123-18-V2",
+        "templateId": "lesson5-reveal-count",
+        "seed": 123,
+        "generatorVersion": 2,
+        "prompt": "이제 자유롭게 돌려 모든 자리를 살펴볼 수 있어요. 실제 쌓기나무는 모두 몇 개인가요?",
+        "given": {
+          "allowRotate": true
+        },
+        "answerInput": "count",
+        "taskFingerprint": "{\"prompt\":\"이제 자유롭게 돌려 모든 자리를 살펴볼 수 있어요. 실제 쌓기나무는 모두 몇 개인가요?\",\"type\":\"COUNT\",\"grid\":{\"gridWidth\":3,\"gridDepth\":3,\"maxHeight\":3},\"allowRotate\":true,\"model\":[{\"x\":0,\"y\":0,\"z\":0},{\"x\":2,\"y\":0,\"z\":0},{\"x\":1,\"y\":0,\"z\":1},{\"x\":2,\"y\":0,\"z\":1},{\"x\":0,\"y\":0,\"z\":2},{\"x\":2,\"y\":0,\"z\":2},{\"x\":0,\"y\":1,\"z\":0},{\"x\":2,\"y\":1,\"z\":1},{\"x\":0,\"y\":1,\"z\":2},{\"x\":0,\"y\":2,\"z\":0}],\"choices\":[]}",
+        "screenProblemId": null,
+        "screenStatus": "BLOCKED"
+      },
+      {
+        "order": 19,
+        "problemId": "GEN-L5-S123-19-V2",
+        "templateId": "lesson5-unknown-choice",
+        "seed": 123,
+        "generatorVersion": 2,
+        "prompt": "지금 앞에서 본 모양만으로 쌓기나무의 전체 개수를 정확히 알 수 있을까요?",
+        "given": {
+          "projections": {
+            "front": [
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                false,
+                true,
+                true
+              ],
+              [
+                false,
+                true,
+                false
+              ]
+            ]
+          },
+          "allowRotate": false,
+          "note": "먼저 한 방향에서만 판단해 보세요."
+        },
+        "answerInput": "choice",
+        "taskFingerprint": "{\"prompt\":\"지금 앞에서 본 모양만으로 쌓기나무의 전체 개수를 정확히 알 수 있을까요?\",\"type\":\"CHOICE\",\"grid\":{\"gridWidth\":3,\"gridDepth\":3,\"maxHeight\":3},\"projections\":{\"front\":[[true,true,true],[false,true,true],[false,true,false]]},\"allowRotate\":false,\"note\":\"먼저 한 방향에서만 판단해 보세요.\",\"choices\":[\"알 수 없어요\",\"알 수 있어요\"]}",
+        "screenProblemId": null,
+        "screenStatus": "BLOCKED"
+      },
+      {
+        "order": 20,
+        "problemId": "GEN-L5-S123-20-V2",
+        "templateId": "lesson5-hidden-min",
+        "seed": 123,
+        "generatorVersion": 2,
+        "prompt": "보이지 않는 쌓기나무는 없다고 가정할 때, 앞에서 본 모양의 칸마다 한 개씩 있다면 몇 개인가요?",
+        "given": {
+          "projections": {
+            "front": [
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                true,
+                true
+              ]
+            ]
+          },
+          "allowRotate": false,
+          "note": "보이지 않는 쌓기나무는 없다고 가정해요."
+        },
+        "answerInput": "count",
+        "taskFingerprint": "{\"prompt\":\"보이지 않는 쌓기나무는 없다고 가정할 때, 앞에서 본 모양의 칸마다 한 개씩 있다면 몇 개인가요?\",\"type\":\"COUNT\",\"grid\":{\"gridWidth\":3,\"gridDepth\":3,\"maxHeight\":3},\"projections\":{\"front\":[[true,true,true],[true,true,true],[true,true,true]]},\"allowRotate\":false,\"note\":\"보이지 않는 쌓기나무는 없다고 가정해요.\",\"choices\":[]}",
+        "screenProblemId": null,
+        "screenStatus": "BLOCKED"
+      },
+      {
+        "order": 21,
+        "problemId": "GEN-L5-S123-21-V2",
+        "templateId": "lesson5-hidden-max",
+        "seed": 123,
+        "generatorVersion": 2,
+        "prompt": "작업판의 앞뒤 깊이는 3칸이에요. 앞에서 본 모양을 유지하며 쌓을 수 있는 최대 개수는 얼마일까요?",
+        "given": {
+          "projections": {
+            "front": [
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                false,
+                false
+              ]
+            ]
+          },
+          "allowRotate": false,
+          "note": "앞에서 본 모양만으로는 뒤쪽 블록을 모두 알 수 없어요."
+        },
+        "answerInput": "count",
+        "taskFingerprint": "{\"prompt\":\"작업판의 앞뒤 깊이는 3칸이에요. 앞에서 본 모양을 유지하며 쌓을 수 있는 최대 개수는 얼마일까요?\",\"type\":\"COUNT_AMBIGUOUS\",\"grid\":{\"gridWidth\":3,\"gridDepth\":3,\"maxHeight\":3},\"projections\":{\"front\":[[true,true,true],[true,true,true],[true,false,false]]},\"allowRotate\":false,\"note\":\"앞에서 본 모양만으로는 뒤쪽 블록을 모두 알 수 없어요.\",\"choices\":[]}",
+        "screenProblemId": null,
+        "screenStatus": "BLOCKED"
+      },
+      {
+        "order": 22,
+        "problemId": "GEN-L5-S123-22-V2",
+        "templateId": "lesson5-extra-info",
+        "seed": 104852,
+        "generatorVersion": 2,
+        "prompt": "앞에서 본 모양이 주어졌어요. 전체 개수를 정확히 결정하려면 어떤 정보가 충분할까요?",
+        "given": {
+          "projections": {
+            "front": [
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                false,
+                false,
+                true
+              ]
+            ]
+          },
+          "allowRotate": false,
+          "note": "먼저 한 방향에서만 판단해 보세요."
+        },
+        "answerInput": "choice",
+        "taskFingerprint": "{\"prompt\":\"앞에서 본 모양이 주어졌어요. 전체 개수를 정확히 결정하려면 어떤 정보가 충분할까요?\",\"type\":\"CHOICE\",\"grid\":{\"gridWidth\":3,\"gridDepth\":3,\"maxHeight\":3},\"projections\":{\"front\":[[true,true,true],[true,true,true],[false,false,true]]},\"allowRotate\":false,\"note\":\"먼저 한 방향에서만 판단해 보세요.\",\"choices\":[\"각 바닥 자리의 쌓인 개수를 모두 알기\",\"블록 색깔만 알기\",\"앞에서 본 모양을 한 번 더 보기\"]}",
+        "screenProblemId": null,
+        "screenStatus": "BLOCKED"
+      },
+      {
+        "order": 23,
+        "problemId": "GEN-L5-S123-23-V2",
+        "templateId": "lesson5-same-view",
+        "seed": 123,
+        "generatorVersion": 2,
+        "prompt": "한 학생이 “앞에서 8칸이 보이니 전체도 반드시 8개”라고 했어요. 이 설명의 문제점은 무엇일까요?",
+        "given": {
+          "projections": {
+            "front": [
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                false,
+                true,
+                true
+              ]
+            ]
+          },
+          "allowRotate": false
+        },
+        "answerInput": "choice",
+        "taskFingerprint": "{\"prompt\":\"한 학생이 “앞에서 8칸이 보이니 전체도 반드시 8개”라고 했어요. 이 설명의 문제점은 무엇일까요?\",\"type\":\"CHOICE\",\"grid\":{\"gridWidth\":3,\"gridDepth\":3,\"maxHeight\":3},\"projections\":{\"front\":[[true,true,true],[true,true,true],[false,true,true]]},\"allowRotate\":false,\"choices\":[\"뒤에 가려진 블록이 있을 가능성을 생각하지 않았어요.\",\"보이는 한 칸은 언제나 두 개의 블록이에요.\",\"앞에서 본 모양은 개수와 아무 관계가 없어요.\"]}",
+        "screenProblemId": null,
+        "screenStatus": "BLOCKED"
+      },
+      {
+        "order": 24,
+        "problemId": "GEN-L5-S123-24-V2",
+        "templateId": "lesson5-reveal-count",
+        "seed": 123,
+        "generatorVersion": 2,
+        "prompt": "이제 자유롭게 돌려 모든 자리를 살펴볼 수 있어요. 실제 쌓기나무는 모두 몇 개인가요?",
+        "given": {
+          "allowRotate": true
+        },
+        "answerInput": "count",
+        "taskFingerprint": "{\"prompt\":\"이제 자유롭게 돌려 모든 자리를 살펴볼 수 있어요. 실제 쌓기나무는 모두 몇 개인가요?\",\"type\":\"COUNT\",\"grid\":{\"gridWidth\":3,\"gridDepth\":3,\"maxHeight\":3},\"allowRotate\":true,\"model\":[{\"x\":0,\"y\":0,\"z\":0},{\"x\":1,\"y\":0,\"z\":0},{\"x\":2,\"y\":0,\"z\":0},{\"x\":0,\"y\":0,\"z\":1},{\"x\":1,\"y\":0,\"z\":1},{\"x\":2,\"y\":0,\"z\":1},{\"x\":1,\"y\":0,\"z\":2},{\"x\":2,\"y\":0,\"z\":2},{\"x\":2,\"y\":1,\"z\":0},{\"x\":0,\"y\":1,\"z\":1},{\"x\":1,\"y\":1,\"z\":1},{\"x\":2,\"y\":1,\"z\":1}],\"choices\":[]}",
+        "screenProblemId": null,
+        "screenStatus": "BLOCKED"
+      },
+      {
+        "order": 25,
+        "problemId": "GEN-L5-S123-25-V2",
+        "templateId": "lesson5-unknown-choice",
+        "seed": 123,
+        "generatorVersion": 2,
+        "prompt": "지금 앞에서 본 모양만으로 쌓기나무의 전체 개수를 정확히 알 수 있을까요?",
+        "given": {
+          "projections": {
+            "front": [
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                false,
+                false
+              ]
+            ]
+          },
+          "allowRotate": false,
+          "note": "먼저 한 방향에서만 판단해 보세요."
+        },
+        "answerInput": "choice",
+        "taskFingerprint": "{\"prompt\":\"지금 앞에서 본 모양만으로 쌓기나무의 전체 개수를 정확히 알 수 있을까요?\",\"type\":\"CHOICE\",\"grid\":{\"gridWidth\":3,\"gridDepth\":3,\"maxHeight\":3},\"projections\":{\"front\":[[true,true,true],[true,true,true],[true,false,false]]},\"allowRotate\":false,\"note\":\"먼저 한 방향에서만 판단해 보세요.\",\"choices\":[\"알 수 없어요\",\"알 수 있어요\"]}",
+        "screenProblemId": null,
+        "screenStatus": "BLOCKED"
+      },
+      {
+        "order": 26,
+        "problemId": "GEN-L5-S123-26-V2",
+        "templateId": "lesson5-hidden-min",
+        "seed": 123,
+        "generatorVersion": 2,
+        "prompt": "보이지 않는 쌓기나무는 없다고 가정할 때, 앞에서 본 모양의 칸마다 한 개씩 있다면 몇 개인가요?",
+        "given": {
+          "projections": {
+            "front": [
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                false,
+                true,
+                true
+              ]
+            ]
+          },
+          "allowRotate": false,
+          "note": "보이지 않는 쌓기나무는 없다고 가정해요."
+        },
+        "answerInput": "count",
+        "taskFingerprint": "{\"prompt\":\"보이지 않는 쌓기나무는 없다고 가정할 때, 앞에서 본 모양의 칸마다 한 개씩 있다면 몇 개인가요?\",\"type\":\"COUNT\",\"grid\":{\"gridWidth\":3,\"gridDepth\":3,\"maxHeight\":3},\"projections\":{\"front\":[[true,true,true],[true,true,true],[false,true,true]]},\"allowRotate\":false,\"note\":\"보이지 않는 쌓기나무는 없다고 가정해요.\",\"choices\":[]}",
+        "screenProblemId": null,
+        "screenStatus": "BLOCKED"
+      },
+      {
+        "order": 27,
+        "problemId": "GEN-L5-S123-27-V2",
+        "templateId": "lesson5-hidden-max",
+        "seed": 123,
+        "generatorVersion": 2,
+        "prompt": "작업판의 앞뒤 깊이는 3칸이에요. 앞에서 본 모양을 유지하며 쌓을 수 있는 최대 개수는 얼마일까요?",
+        "given": {
+          "projections": {
+            "front": [
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                true,
+                true
+              ]
+            ]
+          },
+          "allowRotate": false,
+          "note": "앞에서 본 모양만으로는 뒤쪽 블록을 모두 알 수 없어요."
+        },
+        "answerInput": "count",
+        "taskFingerprint": "{\"prompt\":\"작업판의 앞뒤 깊이는 3칸이에요. 앞에서 본 모양을 유지하며 쌓을 수 있는 최대 개수는 얼마일까요?\",\"type\":\"COUNT_AMBIGUOUS\",\"grid\":{\"gridWidth\":3,\"gridDepth\":3,\"maxHeight\":3},\"projections\":{\"front\":[[true,true,true],[true,true,true],[true,true,true]]},\"allowRotate\":false,\"note\":\"앞에서 본 모양만으로는 뒤쪽 블록을 모두 알 수 없어요.\",\"choices\":[]}",
+        "screenProblemId": null,
+        "screenStatus": "BLOCKED"
+      },
+      {
+        "order": 28,
+        "problemId": "GEN-L5-S123-28-V2",
+        "templateId": "lesson5-extra-info",
+        "seed": 123,
+        "generatorVersion": 2,
+        "prompt": "앞에서 본 모양이 주어졌어요. 전체 개수를 정확히 결정하려면 어떤 정보가 충분할까요?",
+        "given": {
+          "projections": {
+            "front": [
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                false,
+                false,
+                false
+              ]
+            ]
+          },
+          "allowRotate": false,
+          "note": "먼저 한 방향에서만 판단해 보세요."
+        },
+        "answerInput": "choice",
+        "taskFingerprint": "{\"prompt\":\"앞에서 본 모양이 주어졌어요. 전체 개수를 정확히 결정하려면 어떤 정보가 충분할까요?\",\"type\":\"CHOICE\",\"grid\":{\"gridWidth\":3,\"gridDepth\":3,\"maxHeight\":3},\"projections\":{\"front\":[[true,true,true],[true,true,true],[false,false,false]]},\"allowRotate\":false,\"note\":\"먼저 한 방향에서만 판단해 보세요.\",\"choices\":[\"각 바닥 자리의 쌓인 개수를 모두 알기\",\"블록 색깔만 알기\",\"앞에서 본 모양을 한 번 더 보기\"]}",
+        "screenProblemId": null,
+        "screenStatus": "BLOCKED"
+      },
+      {
+        "order": 29,
+        "problemId": "GEN-L5-S123-29-V2",
+        "templateId": "lesson5-same-view",
+        "seed": 123,
+        "generatorVersion": 2,
+        "prompt": "한 학생이 “앞에서 6칸이 보이니 전체도 반드시 6개”라고 했어요. 이 설명의 문제점은 무엇일까요?",
+        "given": {
+          "projections": {
+            "front": [
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                true,
+                false
+              ],
+              [
+                true,
+                false,
+                false
+              ]
+            ]
+          },
+          "allowRotate": false
+        },
+        "answerInput": "choice",
+        "taskFingerprint": "{\"prompt\":\"한 학생이 “앞에서 6칸이 보이니 전체도 반드시 6개”라고 했어요. 이 설명의 문제점은 무엇일까요?\",\"type\":\"CHOICE\",\"grid\":{\"gridWidth\":3,\"gridDepth\":3,\"maxHeight\":3},\"projections\":{\"front\":[[true,true,true],[true,true,false],[true,false,false]]},\"allowRotate\":false,\"choices\":[\"뒤에 가려진 블록이 있을 가능성을 생각하지 않았어요.\",\"보이는 한 칸은 언제나 두 개의 블록이에요.\",\"앞에서 본 모양은 개수와 아무 관계가 없어요.\"]}",
+        "screenProblemId": null,
+        "screenStatus": "BLOCKED"
+      },
+      {
+        "order": 30,
+        "problemId": "GEN-L5-S123-30-V2",
+        "templateId": "lesson5-reveal-count",
+        "seed": 123,
+        "generatorVersion": 2,
+        "prompt": "이제 자유롭게 돌려 모든 자리를 살펴볼 수 있어요. 실제 쌓기나무는 모두 몇 개인가요?",
+        "given": {
+          "allowRotate": true
+        },
+        "answerInput": "count",
+        "taskFingerprint": "{\"prompt\":\"이제 자유롭게 돌려 모든 자리를 살펴볼 수 있어요. 실제 쌓기나무는 모두 몇 개인가요?\",\"type\":\"COUNT\",\"grid\":{\"gridWidth\":3,\"gridDepth\":3,\"maxHeight\":3},\"allowRotate\":true,\"model\":[{\"x\":0,\"y\":0,\"z\":0},{\"x\":1,\"y\":0,\"z\":0},{\"x\":2,\"y\":0,\"z\":0},{\"x\":0,\"y\":0,\"z\":1},{\"x\":2,\"y\":0,\"z\":1},{\"x\":0,\"y\":0,\"z\":2},{\"x\":2,\"y\":0,\"z\":2},{\"x\":0,\"y\":1,\"z\":0},{\"x\":1,\"y\":1,\"z\":0},{\"x\":0,\"y\":1,\"z\":1},{\"x\":1,\"y\":2,\"z\":0}],\"choices\":[]}",
+        "screenProblemId": null,
+        "screenStatus": "BLOCKED"
+      },
+      {
+        "order": 31,
+        "problemId": "GEN-L5-S123-31-V2",
+        "templateId": "lesson5-unknown-choice",
+        "seed": 123,
+        "generatorVersion": 2,
+        "prompt": "지금 앞에서 본 모양만으로 쌓기나무의 전체 개수를 정확히 알 수 있을까요?",
+        "given": {
+          "projections": {
+            "front": [
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                true,
+                false
+              ]
+            ]
+          },
+          "allowRotate": false,
+          "note": "먼저 한 방향에서만 판단해 보세요."
+        },
+        "answerInput": "choice",
+        "taskFingerprint": "{\"prompt\":\"지금 앞에서 본 모양만으로 쌓기나무의 전체 개수를 정확히 알 수 있을까요?\",\"type\":\"CHOICE\",\"grid\":{\"gridWidth\":3,\"gridDepth\":3,\"maxHeight\":3},\"projections\":{\"front\":[[true,true,true],[true,true,true],[true,true,false]]},\"allowRotate\":false,\"note\":\"먼저 한 방향에서만 판단해 보세요.\",\"choices\":[\"알 수 없어요\",\"알 수 있어요\"]}",
+        "screenProblemId": null,
+        "screenStatus": "BLOCKED"
+      },
+      {
+        "order": 32,
+        "problemId": "GEN-L5-S123-32-V2",
+        "templateId": "lesson5-hidden-min",
+        "seed": 123,
+        "generatorVersion": 2,
+        "prompt": "보이지 않는 쌓기나무는 없다고 가정할 때, 앞에서 본 모양의 칸마다 한 개씩 있다면 몇 개인가요?",
+        "given": {
+          "projections": {
+            "front": [
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                false,
+                true,
+                true
+              ],
+              [
+                false,
+                false,
+                true
+              ]
+            ]
+          },
+          "allowRotate": false,
+          "note": "보이지 않는 쌓기나무는 없다고 가정해요."
+        },
+        "answerInput": "count",
+        "taskFingerprint": "{\"prompt\":\"보이지 않는 쌓기나무는 없다고 가정할 때, 앞에서 본 모양의 칸마다 한 개씩 있다면 몇 개인가요?\",\"type\":\"COUNT\",\"grid\":{\"gridWidth\":3,\"gridDepth\":3,\"maxHeight\":3},\"projections\":{\"front\":[[true,true,true],[false,true,true],[false,false,true]]},\"allowRotate\":false,\"note\":\"보이지 않는 쌓기나무는 없다고 가정해요.\",\"choices\":[]}",
+        "screenProblemId": null,
+        "screenStatus": "BLOCKED"
+      },
+      {
+        "order": 33,
+        "problemId": "GEN-L5-S123-33-V2",
+        "templateId": "lesson5-hidden-max",
+        "seed": 104852,
+        "generatorVersion": 2,
+        "prompt": "작업판의 앞뒤 깊이는 3칸이에요. 앞에서 본 모양을 유지하며 쌓을 수 있는 최대 개수는 얼마일까요?",
+        "given": {
+          "projections": {
+            "front": [
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                false,
+                false,
+                true
+              ],
+              [
+                false,
+                false,
+                true
+              ]
+            ]
+          },
+          "allowRotate": false,
+          "note": "앞에서 본 모양만으로는 뒤쪽 블록을 모두 알 수 없어요."
+        },
+        "answerInput": "count",
+        "taskFingerprint": "{\"prompt\":\"작업판의 앞뒤 깊이는 3칸이에요. 앞에서 본 모양을 유지하며 쌓을 수 있는 최대 개수는 얼마일까요?\",\"type\":\"COUNT_AMBIGUOUS\",\"grid\":{\"gridWidth\":3,\"gridDepth\":3,\"maxHeight\":3},\"projections\":{\"front\":[[true,true,true],[false,false,true],[false,false,true]]},\"allowRotate\":false,\"note\":\"앞에서 본 모양만으로는 뒤쪽 블록을 모두 알 수 없어요.\",\"choices\":[]}",
+        "screenProblemId": null,
+        "screenStatus": "BLOCKED"
+      },
+      {
+        "order": 34,
+        "problemId": "GEN-L5-S123-34-V2",
+        "templateId": "lesson5-extra-info",
+        "seed": 123,
+        "generatorVersion": 2,
+        "prompt": "앞에서 본 모양이 주어졌어요. 전체 개수를 정확히 결정하려면 어떤 정보가 충분할까요?",
+        "given": {
+          "projections": {
+            "front": [
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                false,
+                true,
+                false
+              ]
+            ]
+          },
+          "allowRotate": false,
+          "note": "먼저 한 방향에서만 판단해 보세요."
+        },
+        "answerInput": "choice",
+        "taskFingerprint": "{\"prompt\":\"앞에서 본 모양이 주어졌어요. 전체 개수를 정확히 결정하려면 어떤 정보가 충분할까요?\",\"type\":\"CHOICE\",\"grid\":{\"gridWidth\":3,\"gridDepth\":3,\"maxHeight\":3},\"projections\":{\"front\":[[true,true,true],[true,true,true],[false,true,false]]},\"allowRotate\":false,\"note\":\"먼저 한 방향에서만 판단해 보세요.\",\"choices\":[\"각 바닥 자리의 쌓인 개수를 모두 알기\",\"블록 색깔만 알기\",\"앞에서 본 모양을 한 번 더 보기\"]}",
+        "screenProblemId": null,
+        "screenStatus": "BLOCKED"
+      },
+      {
+        "order": 35,
+        "problemId": "GEN-L5-S123-35-V2",
+        "templateId": "lesson5-same-view",
+        "seed": 123,
+        "generatorVersion": 2,
+        "prompt": "한 학생이 “앞에서 8칸이 보이니 전체도 반드시 8개”라고 했어요. 이 설명의 문제점은 무엇일까요?",
+        "given": {
+          "projections": {
+            "front": [
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                true,
+                false
+              ]
+            ]
+          },
+          "allowRotate": false
+        },
+        "answerInput": "choice",
+        "taskFingerprint": "{\"prompt\":\"한 학생이 “앞에서 8칸이 보이니 전체도 반드시 8개”라고 했어요. 이 설명의 문제점은 무엇일까요?\",\"type\":\"CHOICE\",\"grid\":{\"gridWidth\":3,\"gridDepth\":3,\"maxHeight\":3},\"projections\":{\"front\":[[true,true,true],[true,true,true],[true,true,false]]},\"allowRotate\":false,\"choices\":[\"뒤에 가려진 블록이 있을 가능성을 생각하지 않았어요.\",\"보이는 한 칸은 언제나 두 개의 블록이에요.\",\"앞에서 본 모양은 개수와 아무 관계가 없어요.\"]}",
+        "screenProblemId": null,
+        "screenStatus": "BLOCKED"
+      }
+    ]
+  },
+  "otherLessons": [
+    {
+      "lesson": 1,
+      "count": 5,
+      "category": "LOCAL_LOGIC",
+      "actualAssignmentCount": null,
+      "uniqueTasks": 5,
+      "families": {
+        "BLOCK_POSITION": 2,
+        "COUNT": 2,
+        "CHOICE": 1
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_CONTENT_CHECK_PASS",
+      "screenMismatches": null
+    },
+    {
+      "lesson": 1,
+      "count": 10,
+      "category": "LOCAL_LOGIC",
+      "actualAssignmentCount": null,
+      "uniqueTasks": 10,
+      "families": {
+        "BLOCK_POSITION": 4,
+        "COUNT": 5,
+        "CHOICE": 1
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_CONTENT_CHECK_PASS",
+      "screenMismatches": null
+    },
+    {
+      "lesson": 1,
+      "count": 15,
+      "category": "LOCAL_LOGIC",
+      "actualAssignmentCount": null,
+      "uniqueTasks": 15,
+      "families": {
+        "BLOCK_POSITION": 6,
+        "COUNT": 7,
+        "CHOICE": 2
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_CONTENT_CHECK_PASS",
+      "screenMismatches": null
+    },
+    {
+      "lesson": 1,
+      "count": 20,
+      "category": "LOCAL_LOGIC",
+      "actualAssignmentCount": null,
+      "uniqueTasks": 20,
+      "families": {
+        "BLOCK_POSITION": 8,
+        "COUNT": 9,
+        "CHOICE": 3
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_CONTENT_CHECK_PASS",
+      "screenMismatches": null
+    },
+    {
+      "lesson": 2,
+      "count": 5,
+      "category": "LOCAL_LOGIC",
+      "actualAssignmentCount": null,
+      "uniqueTasks": 5,
+      "families": {
+        "CAMERA_DIRECTION": 5
+      },
+      "duplicates": [],
+      "longestRun": 5,
+      "status": "NEEDS_FAMILY_REVIEW",
+      "screenMismatches": null
+    },
+    {
+      "lesson": 2,
+      "count": 10,
+      "category": "LOCAL_LOGIC",
+      "actualAssignmentCount": null,
+      "uniqueTasks": 10,
+      "families": {
+        "CAMERA_DIRECTION": 10
+      },
+      "duplicates": [],
+      "longestRun": 10,
+      "status": "NEEDS_FAMILY_REVIEW",
+      "screenMismatches": null
+    },
+    {
+      "lesson": 2,
+      "count": 15,
+      "category": "LOCAL_LOGIC",
+      "actualAssignmentCount": null,
+      "uniqueTasks": 15,
+      "families": {
+        "CAMERA_DIRECTION": 15
+      },
+      "duplicates": [],
+      "longestRun": 15,
+      "status": "NEEDS_FAMILY_REVIEW",
+      "screenMismatches": null
+    },
+    {
+      "lesson": 2,
+      "count": 20,
+      "category": "LOCAL_LOGIC",
+      "actualAssignmentCount": null,
+      "uniqueTasks": 20,
+      "families": {
+        "CAMERA_DIRECTION": 20
+      },
+      "duplicates": [],
+      "longestRun": 20,
+      "status": "NEEDS_FAMILY_REVIEW",
+      "screenMismatches": null
+    },
+    {
+      "lesson": 3,
+      "count": 5,
+      "category": "LOCAL_LOGIC",
+      "actualAssignmentCount": null,
+      "uniqueTasks": 5,
+      "families": {
+        "PROJECTION_DRAW": 5
+      },
+      "duplicates": [],
+      "longestRun": 5,
+      "status": "NEEDS_FAMILY_REVIEW",
+      "screenMismatches": null
+    },
+    {
+      "lesson": 3,
+      "count": 10,
+      "category": "LOCAL_LOGIC",
+      "actualAssignmentCount": null,
+      "uniqueTasks": 10,
+      "families": {
+        "PROJECTION_DRAW": 10
+      },
+      "duplicates": [],
+      "longestRun": 10,
+      "status": "NEEDS_FAMILY_REVIEW",
+      "screenMismatches": null
+    },
+    {
+      "lesson": 3,
+      "count": 15,
+      "category": "LOCAL_LOGIC",
+      "actualAssignmentCount": null,
+      "uniqueTasks": 15,
+      "families": {
+        "PROJECTION_DRAW": 15
+      },
+      "duplicates": [],
+      "longestRun": 15,
+      "status": "NEEDS_FAMILY_REVIEW",
+      "screenMismatches": null
+    },
+    {
+      "lesson": 3,
+      "count": 20,
+      "category": "LOCAL_LOGIC",
+      "actualAssignmentCount": null,
+      "uniqueTasks": 20,
+      "families": {
+        "PROJECTION_DRAW": 20
+      },
+      "duplicates": [],
+      "longestRun": 20,
+      "status": "NEEDS_FAMILY_REVIEW",
+      "screenMismatches": null
+    },
+    {
+      "lesson": 4,
+      "count": 5,
+      "category": "LOCAL_LOGIC",
+      "actualAssignmentCount": null,
+      "uniqueTasks": 5,
+      "families": {
+        "COUNT": 2,
+        "HEIGHTMAP_FROM_BUILD": 1,
+        "LAYER_DRAW": 1,
+        "CHOICE": 1
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_CONTENT_CHECK_PASS",
+      "screenMismatches": null
+    },
+    {
+      "lesson": 4,
+      "count": 10,
+      "category": "LOCAL_LOGIC",
+      "actualAssignmentCount": null,
+      "uniqueTasks": 10,
+      "families": {
+        "COUNT": 4,
+        "HEIGHTMAP_FROM_BUILD": 3,
+        "LAYER_DRAW": 2,
+        "CHOICE": 1
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_CONTENT_CHECK_PASS",
+      "screenMismatches": null
+    },
+    {
+      "lesson": 4,
+      "count": 15,
+      "category": "LOCAL_LOGIC",
+      "actualAssignmentCount": null,
+      "uniqueTasks": 15,
+      "families": {
+        "COUNT": 6,
+        "HEIGHTMAP_FROM_BUILD": 5,
+        "LAYER_DRAW": 2,
+        "CHOICE": 2
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_CONTENT_CHECK_PASS",
+      "screenMismatches": null
+    },
+    {
+      "lesson": 4,
+      "count": 20,
+      "category": "LOCAL_LOGIC",
+      "actualAssignmentCount": null,
+      "uniqueTasks": 20,
+      "families": {
+        "COUNT": 7,
+        "HEIGHTMAP_FROM_BUILD": 7,
+        "LAYER_DRAW": 3,
+        "CHOICE": 3
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_CONTENT_CHECK_PASS",
+      "screenMismatches": null
+    },
+    {
+      "lesson": 5,
+      "count": 5,
+      "category": "LOCAL_LOGIC",
+      "actualAssignmentCount": null,
+      "uniqueTasks": 5,
+      "families": {
+        "lesson5-unknown-choice": 1,
+        "lesson5-hidden-min": 1,
+        "lesson5-hidden-max": 1,
+        "lesson5-extra-info": 1,
+        "lesson5-same-view": 1
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_CONTENT_CHECK_PASS",
+      "screenMismatches": null
+    },
+    {
+      "lesson": 5,
+      "count": 10,
+      "category": "LOCAL_LOGIC",
+      "actualAssignmentCount": null,
+      "uniqueTasks": 10,
+      "families": {
+        "lesson5-unknown-choice": 2,
+        "lesson5-hidden-min": 2,
+        "lesson5-hidden-max": 2,
+        "lesson5-extra-info": 2,
+        "lesson5-same-view": 1,
+        "lesson5-reveal-count": 1
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_CONTENT_CHECK_PASS",
+      "screenMismatches": null
+    },
+    {
+      "lesson": 5,
+      "count": 15,
+      "category": "LOCAL_LOGIC",
+      "actualAssignmentCount": null,
+      "uniqueTasks": 15,
+      "families": {
+        "lesson5-unknown-choice": 3,
+        "lesson5-hidden-min": 3,
+        "lesson5-hidden-max": 3,
+        "lesson5-extra-info": 2,
+        "lesson5-same-view": 2,
+        "lesson5-reveal-count": 2
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_CONTENT_CHECK_PASS",
+      "screenMismatches": null
+    },
+    {
+      "lesson": 5,
+      "count": 20,
+      "category": "LOCAL_LOGIC",
+      "actualAssignmentCount": null,
+      "uniqueTasks": 20,
+      "families": {
+        "lesson5-unknown-choice": 4,
+        "lesson5-hidden-min": 4,
+        "lesson5-hidden-max": 3,
+        "lesson5-extra-info": 3,
+        "lesson5-same-view": 3,
+        "lesson5-reveal-count": 3
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_CONTENT_CHECK_PASS",
+      "screenMismatches": null
+    },
+    {
+      "lesson": 6,
+      "count": 5,
+      "category": "LOCAL_LOGIC",
+      "actualAssignmentCount": null,
+      "uniqueTasks": 5,
+      "families": {
+        "BUILD_FROM_VIEWS": 5
+      },
+      "duplicates": [],
+      "longestRun": 5,
+      "status": "NEEDS_FAMILY_REVIEW",
+      "screenMismatches": null
+    },
+    {
+      "lesson": 6,
+      "count": 10,
+      "category": "LOCAL_LOGIC",
+      "actualAssignmentCount": null,
+      "uniqueTasks": 10,
+      "families": {
+        "BUILD_FROM_VIEWS": 10
+      },
+      "duplicates": [],
+      "longestRun": 10,
+      "status": "NEEDS_FAMILY_REVIEW",
+      "screenMismatches": null
+    },
+    {
+      "lesson": 6,
+      "count": 15,
+      "category": "LOCAL_LOGIC",
+      "actualAssignmentCount": null,
+      "uniqueTasks": 15,
+      "families": {
+        "BUILD_FROM_VIEWS": 15
+      },
+      "duplicates": [],
+      "longestRun": 15,
+      "status": "NEEDS_FAMILY_REVIEW",
+      "screenMismatches": null
+    },
+    {
+      "lesson": 6,
+      "count": 20,
+      "category": "LOCAL_LOGIC",
+      "actualAssignmentCount": null,
+      "uniqueTasks": 20,
+      "families": {
+        "BUILD_FROM_VIEWS": 20
+      },
+      "duplicates": [],
+      "longestRun": 20,
+      "status": "NEEDS_FAMILY_REVIEW",
+      "screenMismatches": null
+    },
+    {
+      "lesson": 7,
+      "count": 5,
+      "category": "LOCAL_LOGIC",
+      "actualAssignmentCount": null,
+      "uniqueTasks": 5,
+      "families": {
+        "BUILD_FROM_HEIGHTMAP": 2,
+        "HEIGHTMAP_FROM_BUILD": 3
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_CONTENT_CHECK_PASS",
+      "screenMismatches": null
+    },
+    {
+      "lesson": 7,
+      "count": 10,
+      "category": "LOCAL_LOGIC",
+      "actualAssignmentCount": null,
+      "uniqueTasks": 10,
+      "families": {
+        "BUILD_FROM_HEIGHTMAP": 4,
+        "HEIGHTMAP_FROM_BUILD": 6
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_CONTENT_CHECK_PASS",
+      "screenMismatches": null
+    },
+    {
+      "lesson": 7,
+      "count": 15,
+      "category": "LOCAL_LOGIC",
+      "actualAssignmentCount": null,
+      "uniqueTasks": 15,
+      "families": {
+        "BUILD_FROM_HEIGHTMAP": 5,
+        "HEIGHTMAP_FROM_BUILD": 10
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_CONTENT_CHECK_PASS",
+      "screenMismatches": null
+    },
+    {
+      "lesson": 7,
+      "count": 20,
+      "category": "LOCAL_LOGIC",
+      "actualAssignmentCount": null,
+      "uniqueTasks": 20,
+      "families": {
+        "BUILD_FROM_HEIGHTMAP": 7,
+        "HEIGHTMAP_FROM_BUILD": 13
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_CONTENT_CHECK_PASS",
+      "screenMismatches": null
+    },
+    {
+      "lesson": 8,
+      "count": 5,
+      "category": "LOCAL_LOGIC",
+      "actualAssignmentCount": null,
+      "uniqueTasks": 5,
+      "families": {
+        "BUILD_FROM_LAYERS": 3,
+        "LAYER_DRAW": 2
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_CONTENT_CHECK_PASS",
+      "screenMismatches": null
+    },
+    {
+      "lesson": 8,
+      "count": 10,
+      "category": "LOCAL_LOGIC",
+      "actualAssignmentCount": null,
+      "uniqueTasks": 10,
+      "families": {
+        "BUILD_FROM_LAYERS": 7,
+        "LAYER_DRAW": 3
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_CONTENT_CHECK_PASS",
+      "screenMismatches": null
+    },
+    {
+      "lesson": 8,
+      "count": 15,
+      "category": "LOCAL_LOGIC",
+      "actualAssignmentCount": null,
+      "uniqueTasks": 15,
+      "families": {
+        "BUILD_FROM_LAYERS": 10,
+        "LAYER_DRAW": 5
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_CONTENT_CHECK_PASS",
+      "screenMismatches": null
+    },
+    {
+      "lesson": 8,
+      "count": 20,
+      "category": "LOCAL_LOGIC",
+      "actualAssignmentCount": null,
+      "uniqueTasks": 20,
+      "families": {
+        "BUILD_FROM_LAYERS": 13,
+        "LAYER_DRAW": 7
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_CONTENT_CHECK_PASS",
+      "screenMismatches": null
+    },
+    {
+      "lesson": 12,
+      "count": 5,
+      "category": "LOCAL_LOGIC",
+      "actualAssignmentCount": null,
+      "uniqueTasks": 5,
+      "families": {
+        "CAMERA_DIRECTION": 1,
+        "PROJECTION_DRAW": 1,
+        "COUNT": 2,
+        "HEIGHTMAP_FROM_BUILD": 1
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_CONTENT_CHECK_PASS",
+      "screenMismatches": null
+    },
+    {
+      "lesson": 12,
+      "count": 10,
+      "category": "LOCAL_LOGIC",
+      "actualAssignmentCount": null,
+      "uniqueTasks": 10,
+      "families": {
+        "CAMERA_DIRECTION": 2,
+        "PROJECTION_DRAW": 2,
+        "COUNT": 2,
+        "HEIGHTMAP_FROM_BUILD": 1,
+        "LAYER_DRAW": 1,
+        "COUNT_AMBIGUOUS": 1,
+        "CHOICE": 1
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_CONTENT_CHECK_PASS",
+      "screenMismatches": null
+    },
+    {
+      "lesson": 12,
+      "count": 15,
+      "category": "LOCAL_LOGIC",
+      "actualAssignmentCount": null,
+      "uniqueTasks": 15,
+      "families": {
+        "CAMERA_DIRECTION": 2,
+        "PROJECTION_DRAW": 2,
+        "COUNT": 4,
+        "HEIGHTMAP_FROM_BUILD": 2,
+        "LAYER_DRAW": 2,
+        "COUNT_AMBIGUOUS": 2,
+        "CHOICE": 1
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_CONTENT_CHECK_PASS",
+      "screenMismatches": null
+    },
+    {
+      "lesson": 12,
+      "count": 20,
+      "category": "LOCAL_LOGIC",
+      "actualAssignmentCount": null,
+      "uniqueTasks": 20,
+      "families": {
+        "CAMERA_DIRECTION": 3,
+        "PROJECTION_DRAW": 3,
+        "COUNT": 5,
+        "HEIGHTMAP_FROM_BUILD": 3,
+        "LAYER_DRAW": 2,
+        "COUNT_AMBIGUOUS": 2,
+        "CHOICE": 2
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_CONTENT_CHECK_PASS",
+      "screenMismatches": null
+    }
+  ],
+  "browser": {
+    "executed": 0,
+    "status": "BLOCKED",
+    "screenshots": [],
+    "reason": "기존 포트 제한 재시도하지 않음. qa:local T14 실행 대기"
+  },
+  "sourcePdf": {
+    "status": "BLOCKED",
+    "reason": "검색한 workspace/attachments에서 5차시 원자료 PDF 미발견"
+  }
+}

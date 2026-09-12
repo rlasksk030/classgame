@@ -321,3 +321,19 @@
 - 공식 OAuth/Management API 조사: client secret을 안전하게 보관할 실행부가 필요. 정적 Cloudflare만으로 자동 설치 성공을 만들지 않음. 새 중앙 실행부·비용·권한은 승인 대상. 외부 수동 준비 제거 0개, 신규 설치/업데이트/중단 복구 실제 검증 NOT_RUN.
 - 검증 시각 2026-09-12T11:43Z, 대상은 시작 HEAD + 이번 distribution/SetupPage/tests 변경. typecheck PASS, lint PASS, npm test 47 PASS, build PASS, git diff --check PASS. 브라우저 및 LIVE_SUPABASE 검사는 실행하지 않았으며 기존 QA 미완료를 승격하지 않음.
 - 원격 push/DB/migration/RLS/Secret 변경 없음. 학생 화면 P0와 qa:local 실패 분석은 기존 체크포인트 그대로 미완료이며 설치 문서로 대체하지 않음.
+# 2026-09-12 5차시 반복 세트 — 로컬 수정 체크포인트
+
+- 기준 HEAD ac0b3f32673871350655a0846aaad19b70aabc97, 미추적 supabase/.temp/ 보존. 첨부 bbb095a2 지시문 전문 확인.
+- 운영 35문항 응답/학생 세션/교사 배정 설정은 미확보. 실제 URL·누적 여부·문항 버전 및 1~35 운영 대조표는 BLOCKED. 35를 임의로 줄이거나 운영 기록을 수정하지 않음.
+- 코드상 APP 결함: (1) shape 식이 seed mod 3만 사용 (2) lessonProblems가 생성 없는 재조회에서 seed 필터 전 problemRows를 반환 (3) practice:new-set 저장 seed를 목록 조회가 무시 (4) 전역 class_id NULL 문항은 UNIQUE(class_id,code)로 중복 삽입 방지 불가. 마지막 항목은 PGlite 실제 SQL로 재현.
+- 새 v2 모형은 결정적 PRNG, 공개 과제 fingerprint, 슬롯별 최대 256회 재시도, 부족 시 오류. v1 기본 함수와 기존 DB 행은 유지. v2 생성 ID는 code 해시 기반 안정 UUID로 기존 PK를 이용해 삽입 중복을 방지한다. migration 변경 없음.
+- 5차시 신규 6계열: 충분성 판단/숨은 블록 없음 가정/명시된 깊이에서 최대/추가 정보/설명 오류/회전 후 실제 개수. 질문·보기·정답·힌트·해설을 연결. 3차시 v2의 면 순서와 문구 불일치도 수정.
+- lessonProblems는 항상 현재 seed로 필터하고 기존 세트가 있으면 보존. 신규 추가량은 교사 practice_count 자체를 사용하며 필수 문항 수를 빼지 않는다. 읽기/쓰기 실패 시 성공으로 처리하지 않는다. 새 세트는 생성·저장 이후 seed 전환. 실제 원격 동시성/중단 관통은 미검증.
+- 학생에게 중복 묶음 안내와 명시적 새 세트 확인을 제공. 기존 답안/시도/XP 삭제 또는 재채점 없음. 이전 기록 열람·복원과 보상 집계의 실제 서버 확인은 남음. 기존 오류 세트를 자동 교체하지 않음.
+- 테스트 우선 재현: 수정 전 합성 seed123 35개 중 공개 과제 6개로 FAIL. 수정 후 35개/6계열(6,6,6,6,6,5). 여러 seed 반복 복원 PASS. 실제 35문항이 전부 하나였다는 신고를 이 합성 수치로 대체하지 않는다.
+- qa/practice-sets/2026-09-12T12-06-36-885Z/report.json 및 comparison.md: 합성 전후 1~35 대조표와 1~8/12차시 5/10/15/20 표본. 2·3·6차시 동일 입력 행동 편중은 NEEDS_FAMILY_REVIEW, 모든 차시 품질 완료 아님. 9~11 반복 작품/공유 문제와 기존 조작/복원 오류는 미완료 유지.
+- qa:local T14 추가: 실제 학생 /lesson/5/practice에 합성 v2 35개, 실제 클릭/숫자 입력/제출 ID·grade 확인, 문항별 캡처/대조표. 기존 13건 보존. 외부 네트워크 기본 차단. 브라우저 실행 0, BLOCKED. Babylon Scene 내용 비교·지연 응답 변형·기존 운영 세트 순회·로그아웃 복원은 아직 미검증이며 이 테스트 추가만으로 완료 처리하지 않는다.
+- workspace/attachments에서 5차시 PDF를 찾지 못해 수학66~67/익힘48~49/지도서 원자료 적합성 확인 BLOCKED. 6계열은 앱 구성이지 교과서 공인 분류가 아니다.
+- 실행(2026-09-12T12:06~12:15Z, 기준 HEAD+이번 작업 트리): typecheck/lint/unit54/security1/typecheck:edge/build PASS. qa 실행기 구문 검사 및 diff --check PASS. 마지막 DB 읽기 오류 분기 추가 뒤 lint/edge 재확인. 최종 커밋 후 동일 검사 재실행 예정.
+- 설치 상태는 '완료 판정 오류 수정 완료 / 간편 설치 미구현'. getInstallationStatus는 학생/교사 route의 진입 gate로 사용되지 않아 첫 저장을 READY로 막는 순환 조건 없음.
+- 원격 함수/DB/RLS/Secret/학생 데이터 변경·push 없음. student-api 재배포 전 실제 운영 증거/승인 범위를 확인해야 한다. 전체 요구 완료 아님.

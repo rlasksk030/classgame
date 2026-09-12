@@ -85,7 +85,14 @@ export function validateGeneratedProblem(problem: Pick<SeedProblem, 'grid'|'give
 const G3:GridConfig={gridWidth:3,gridDepth:3,maxHeight:3};
 const G4:GridConfig={gridWidth:4,gridDepth:4,maxHeight:4};
 
-function shape(seed:number, lesson:number, maxHeight=4, gridWidth=4, gridDepth=4):BlockCoord[]{
+function shape(seed:number, lesson:number, maxHeight=4, gridWidth=4, gridDepth=4, version=1):BlockCoord[]{
+  if (version === 2) {
+    let state = (seed ^ Math.imul(lesson, 0x9e3779b9)) >>> 0 || 1;
+    const next = () => { state ^= state << 13; state ^= state >>> 17; state ^= state << 5; return state >>> 0; };
+    const heights = Array.from({length:gridDepth}, () => Array.from({length:gridWidth}, () => next() % (maxHeight + 1)));
+    heights[0][0] = Math.max(1, heights[0][0]);
+    return fromHeightMap(heights);
+  }
   const rows=Math.min(lesson%2===0?4:3, gridDepth);
   const cols=Math.min(lesson%3===0?4:3, gridWidth);
   const heights:number[][]=Array.from({length:rows},(_,z)=>Array.from({length:cols},(_,x)=>{
@@ -104,7 +111,7 @@ function base(lesson:number,index:number,blocks:BlockCoord[],type:ProblemType,gi
 }
 
 /** 저장된 seed 없이도 같은 lesson/index가 늘 같은 문제를 만드는 순수 생성기. */
-export function generatePracticeProblems(lesson:number,count:number,seed=0):GeneratedProblem[]{
+export function generatePracticeProblems(lesson:number,count:number,seed=0,version=1):GeneratedProblem[]{
   const out:GeneratedProblem[]=[];
   const grid=lesson%2===0?G4:G3;
   for(let i=0;i<count;i++){
@@ -114,12 +121,12 @@ export function generatePracticeProblems(lesson:number,count:number,seed=0):Gene
         ? 'front' as const
         : null;
     let shapeSeed = seed + i + 1;
-    let blocks=shape(shapeSeed,lesson,grid.maxHeight,grid.gridWidth,grid.gridDepth);
+    let blocks=shape(shapeSeed,lesson,grid.maxHeight,grid.gridWidth,grid.gridDepth,version);
     // 방향 하나를 고르는 문제는 같은 그림을 만드는 다른 방향을 제외한다.
     if (direction) {
       for (let attempt = 0; attempt < 100 && !hasUniqueDirectionProjection(blocks, grid, direction); attempt++) {
         shapeSeed += 1;
-        blocks = shape(shapeSeed, lesson, grid.maxHeight, grid.gridWidth, grid.gridDepth);
+        blocks = shape(shapeSeed, lesson, grid.maxHeight, grid.gridWidth, grid.gridDepth,version);
       }
     }
     const p=project(blocks,grid);
@@ -137,10 +144,31 @@ export function generatePracticeProblems(lesson:number,count:number,seed=0):Gene
     else if(lesson===8){const draw=i%3===1; item=draw?base(lesson,i,blocks,'LAYER_DRAW',{layers:cells(blocks,grid),allowRotate:true,allowLayerView:true},{kind:'layers',layers:cells(blocks,grid)},grid,'exact',selectedTemplate):base(lesson,i,blocks,'BUILD_FROM_LAYERS',{layers:cells(blocks,grid),allowRotate:true,allowLayerView:true},{kind:'blocks',blocks},grid,'exact',selectedTemplate); item.prompt=draw?'3D 모양의 층별 표현을 그려 보세요.':'층별 표현을 보고 3D 모양을 쌓아 보세요.';}
     else if(lesson===12){const mode=i%8; if(mode===0)item=base(lesson,i,blocks,'CAMERA_DIRECTION',{projections:{front:p.front},shownFrom:'front',allowRotate:true},{kind:'direction',value:'front'},grid,'exact',selectedTemplate); else if(mode===1)item=base(lesson,i,blocks,'PROJECTION_DRAW',{projections:p,allowRotate:true},{kind:'projections',projections:p},grid,'exact',selectedTemplate); else if(mode===3)item=base(lesson,i,blocks,'HEIGHTMAP_FROM_BUILD',{allowRotate:true},{kind:'heightMap',heightMap:h},grid,'exact',selectedTemplate); else if(mode===5)item=base(lesson,i,blocks,'LAYER_DRAW',{layers:cells(blocks,grid),allowRotate:true},{kind:'layers',layers:cells(blocks,grid)},grid,'exact',selectedTemplate); else if(mode===6)item=base(lesson,i,blocks,'COUNT_AMBIGUOUS',{allowRotate:false},{kind:'count',value:blocks.length},grid,'exact',selectedTemplate); else if(mode===7)item=base(lesson,i,blocks,'CHOICE',{allowRotate:true},{kind:'choice',index:0},grid,'exact',selectedTemplate); else item=base(lesson,i,blocks,'COUNT',{allowRotate:true},{kind:'count',value:blocks.length},grid,'exact',selectedTemplate);}
     else {item=base(lesson,i,blocks,'COUNT',{allowRotate:true,allowLayerView:true},{kind:'count',value:blocks.length},grid);}
+    if (version === 2 && lesson === 5) {
+      const mode = i % 6;
+      const visible = filledCells(p.front);
+      if (mode === 2) item.prompt = `작업판의 앞뒤 깊이는 ${grid.gridDepth}칸이에요. 앞에서 본 모양을 유지하며 쌓을 수 있는 최대 개수는 얼마일까요?`;
+      if (mode === 3) {
+        item.prompt = '앞에서 본 모양이 주어졌어요. 전체 개수를 정확히 결정하려면 어떤 정보가 충분할까요?';
+        item.choices = ['각 바닥 자리의 쌓인 개수를 모두 알기', '블록 색깔만 알기', '앞에서 본 모양을 한 번 더 보기'];
+        item.answer = {kind:'choice', index:0};
+      }
+      if (mode === 4) {
+        item.given = {projections:{front:p.front}, allowRotate:false};
+        item.prompt = `한 학생이 “앞에서 ${visible}칸이 보이니 전체도 반드시 ${visible}개”라고 했어요. 이 설명의 문제점은 무엇일까요?`;
+        item.choices = ['뒤에 가려진 블록이 있을 가능성을 생각하지 않았어요.', '보이는 한 칸은 언제나 두 개의 블록이에요.', '앞에서 본 모양은 개수와 아무 관계가 없어요.'];
+        item.answer = {kind:'choice',index:0};
+      }
+      if (mode === 5) item.prompt = '이제 자유롭게 돌려 모든 자리를 살펴볼 수 있어요. 실제 쌓기나무는 모두 몇 개인가요?';
+      item.hint = mode === 1 ? '보이는 앞면의 칸을 줄별로 세어 보세요.' : mode === 2 ? '앞모습의 각 기둥 높이를 유지하며 뒤쪽 자리도 채워 보세요.' : mode === 5 ? '모형을 돌려 각 자리의 높이를 세어 보세요.' : '같은 앞모습 뒤에 블록을 더 놓을 수 있는지 생각해 보세요.';
+      item.explanation = mode === 1 ? `숨은 블록이 없다는 가정에서는 보이는 ${visible}칸이 각각 한 개이므로 ${visible}개예요.` : mode === 2 ? `각 앞면 칸마다 깊이 ${grid.gridDepth}칸을 모두 채울 수 있어 최대 ${visible * grid.gridDepth}개예요.` : mode === 5 ? `각 자리의 높이를 모두 더하면 ${blocks.length}개예요.` : mode === 3 ? '모든 바닥 자리의 개수를 알면 그 수를 더해 전체를 정확히 구할 수 있어요.' : '같은 앞모습에서도 뒤에 블록을 더 놓으면 전체 개수가 달라질 수 있어요.';
+    }
+    if (version === 2 && lesson === 3) item.prompt = ['위에서 본 모양','앞에서 본 모양','옆에서 본 모양','위·앞·옆 세 방향에서 본 모양','옆에서 본 모양','위에서 본 모양'][i%6] + '을 격자에 나타내 보세요.';
     if (!validateGeneratedProblem(item)) continue;
     out.push(item);
     item.stage='more';
     item.code=`GEN-L${lesson}-S${seed}-${String(i+1).padStart(2,'0')}`;
+    if (version === 2) { item.generatorVersion=2; item.seed=seed; item.code += '-V2'; }
   }
   return out;
 }

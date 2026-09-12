@@ -2,6 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, readdirSync } from 'node:fs';
 import { PGlite } from '@electric-sql/pglite';
+import { generatedProblemId } from '../shared/practiceSet.ts';
 
 test('PostgreSQL migrations, RLS isolation and atomic progression', async () => {
   const db = new PGlite();
@@ -19,6 +20,12 @@ test('PostgreSQL migrations, RLS isolation and atomic progression', async () => 
       // PGlite supplies gen_random_uuid natively; pgcrypto is a Supabase extension.
       await db.exec(readFileSync('supabase/migrations/'+file,'utf8').replace('create extension if not exists "pgcrypto";', ''));
     }
+    // 기존 nullable 복합 unique는 전역 생성 문항 중복을 막지 않는다.
+    for(let i=0;i<2;i++) await db.query("insert into sb_problems(code,lesson,problem_type,title,answer) values('QA-LEGACY-DUP',5,'COUNT','QA', $1)",[{kind:'count',value:1}]);
+    assert.equal((await db.query("select id from sb_problems where code='QA-LEGACY-DUP'")).rows.length,2);
+    const generatedId=await generatedProblemId('GEN-L5-S123-01-V2');
+    for(let i=0;i<2;i++) await db.query("insert into sb_problems(id,code,lesson,problem_type,title,answer) values($1,'QA-V2',5,'COUNT','QA',$2) on conflict(id) do nothing",[generatedId,{kind:'count',value:1}]);
+    assert.equal((await db.query("select id from sb_problems where code='QA-V2'")).rows.length,1);
     const teacherA='11111111-1111-4111-8111-111111111111', teacherB='22222222-2222-4222-8222-222222222222';
     const classA='33333333-3333-4333-8333-333333333333',classB='44444444-4444-4444-8444-444444444444';
     const student='55555555-5555-4555-8555-555555555555';
