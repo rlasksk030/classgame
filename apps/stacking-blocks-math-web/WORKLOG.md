@@ -312,3 +312,12 @@
 - `local-browser-qa.ts`에 실제 학생 route 준비 대기, 유효 칸 후보를 순회하는 마우스/터치 drag, 실패 단계(`render-input`/`interact`/`assert-grade` 등), 원인 분류(`APP`/`FIXTURE`/`TEST`/`ENVIRONMENT`/`UNKNOWN`), 콘솔 오류 안전 요약을 추가했다.
 - 보고서의 계획/실행 범위는 12개 대표 흐름으로 유지하며, 전체 inventory는 여전히 NOT_RUN 후속 대상이다. 새 합성 데이터·원격 DB 변경은 없다.
 - 현재 커밋에서 `npm run typecheck`, `npm run lint`, `npm test`(46), `npm run build`, `node --experimental-strip-types --check scripts/local-browser-qa.ts`가 통과했다. 수정된 실행기의 실제 맥 재실행은 다음 운영자 실행에서 확인한다.
+# 2026-09-12 간편 설치 요구 통합 및 완료 판정 보정
+
+- 시작 HEAD: ac5d871b14c99f33ccdb7015f3aa3601c2c991df. 기존 미추적 supabase/.temp/ 보존.
+- 최신 메시지 10개 요구를 CURRENT_REQUIREMENTS와 DISTRIBUTION_ARCHITECTURE에 반영. 첨부 제목 검색 결과 없음: 별도 전문 미확인.
+- /setup은 Auth settings 읽기와 공개 config 저장만 수행한다. 자동 학생 화면 이동을 없애고 교사 로그인으로 명시적으로 이어가며 설치 완료와 연결 성공을 구분했다.
+- getInstallationStatus가 설정 존재만으로 연결 성공을 추정하거나 선행 단계 없이 READY에 도달하지 않도록 수정. 학생 인증·활동 저장·새 세션 복원 증거 플래그 추가. 실제 증거 수집 실행부는 아직 없음.
+- 공식 OAuth/Management API 조사: client secret을 안전하게 보관할 실행부가 필요. 정적 Cloudflare만으로 자동 설치 성공을 만들지 않음. 새 중앙 실행부·비용·권한은 승인 대상. 외부 수동 준비 제거 0개, 신규 설치/업데이트/중단 복구 실제 검증 NOT_RUN.
+- 검증 시각 2026-09-12T11:43Z, 대상은 시작 HEAD + 이번 distribution/SetupPage/tests 변경. typecheck PASS, lint PASS, npm test 47 PASS, build PASS, git diff --check PASS. 브라우저 및 LIVE_SUPABASE 검사는 실행하지 않았으며 기존 QA 미완료를 승격하지 않음.
+- 원격 push/DB/migration/RLS/Secret 변경 없음. 학생 화면 P0와 qa:local 실패 분석은 기존 체크포인트 그대로 미완료이며 설치 문서로 대체하지 않음.

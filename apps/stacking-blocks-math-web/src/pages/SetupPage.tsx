@@ -46,8 +46,7 @@ export default function SetupPage() {
       await checkSupabaseConnection(config.supabaseUrl, config.supabasePublishableKey);
       saveRuntimeSupabaseConfig(config);
       setPublishableKey("");
-      setMessage("Supabase 연결됨 ✓ 공개 연결 설정을 이 기기에 저장했어요.");
-      window.setTimeout(() => navigate(`/${window.location.search}`, { replace: true }), 250);
+      setMessage("공개 연결 설정을 저장했어요. 아직 설치 완료는 아니에요. 교사 로그인과 학생의 첫 활동 저장·재접속 복원을 확인해야 해요.");
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "연결을 확인하지 못했습니다.");
     } finally {
@@ -76,6 +75,7 @@ export default function SetupPage() {
         </div>
         {error && <p className="error" role="alert">{error}</p>}
         {message && <p className="success" role="status">{message}</p>}
+        {message && <button className="btn" type="button" onClick={() => navigate("/teacher")}>교사 로그인으로 계속</button>}
         <button className="btn btn-primary" type="submit" disabled={busy}>{busy ? "연결 확인 중…" : "연결 확인"}</button>
         <p className="muted" style={{ fontSize: 13 }}>연결 확인은 Auth 설정 엔드포인트만 읽습니다. DB 설치·Storage 생성은 자동으로 실행하지 않습니다.</p>
       </form>

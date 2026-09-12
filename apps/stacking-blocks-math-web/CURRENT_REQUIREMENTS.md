@@ -1,5 +1,19 @@
 # 현재 요구사항 기준표
 
+## 교사용 간편 설치·업데이트 (2026-09-12 추가)
+
+이번 메시지의 10개 요구를 통합한다. attachments 검색에서 해당 제목의 별도 첨부 전문은 찾지 못했다. R01~R06, 학습·채점·3D·자동 QA 요구는 유지하며 설치 작업으로 대체하지 않는다.
+
+| 요구 ID | 최신 요구 | 폐기한 이전 요구 | 실제 구현 파일 | 완료 확인 방법 | 상태 |
+|---|---|---|---|---|---|
+| INSTALL-01 | 처음 시작하기→우리 반 만들기→수업 시작; 기본 설치에서 터미널/SQL/GitHub/함수 배포/env/관리 토큰 복사 제거 | 외부 수동 준비를 3단계 뒤에 숨김 | 기존 SetupPage·TeacherPage 재사용 대상 | 빈 프로젝트 실제 교사 작업 기록 | BLOCKED: 안전한 실행부 없음 |
+| INSTALL-02 | 공개 설정 연결과 설치 완료를 구분 | 설정/학급만으로 READY | src/lib/distribution.ts, src/pages/SetupPage.tsx | 선행 조건·학생 로그인·저장·복원 누락 시 READY 금지 | IMPLEMENTED |
+| INSTALL-03 | OAuth API·권한·실행 장소·비용 확인 후 자동화 | 브라우저에 관리 토큰·Secret 요구 | DISTRIBUTION_ARCHITECTURE.md | 공식 API 대조 및 실행부 승인 | BLOCKED |
+| INSTALL-04 | 재설치·업데이트·재개 시 기존 학생/PIN/진도/작품/Secret 보존 | SQL 전체 재실행·Secret 재생성 | 기존 VersionService와 migration 재사용 대상 | 원격 이력/해시 비교·중단 복구 | NOT_STARTED: 실행부 없음 |
+| INSTALL-05 | 교사 인증→학급/학생 생성→학생 인증→첫 활동 저장→새 세션 복원까지 완료 확인 | 연결 성공 화면만 제공 | src/lib/distribution.ts | 실제 신규 설치·업데이트 관통 증거 | BLOCKED: 상태 계약만 구현 |
+
+설계·구현·LOCAL_LOGIC·UI_WITH_TEST_DATA·실제 신규 설치·실제 업데이트를 각각 보고한다. 점검 플래그는 실제 서버 검증 증거를 대신하지 않는다.
+
 이 문서는 2026-09-12 최신 사용자 지시를 기준으로 작성했다. 상태는 코드/단위 검증과 실제 브라우저·Supabase 검증을 구분한다.
 
 | 요구 ID | 최신 요구 | 폐기한 이전 요구 | 실제 구현 파일 | 완료 확인 방법 | 상태 |

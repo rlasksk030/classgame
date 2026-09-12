@@ -16,8 +16,20 @@ test("설치 상태는 점검 결과를 받아 READY까지 계산한다", () => 
     edgeFunctionsReady: true,
     adminReady: true,
     classReady: true,
+    storageReady: true,
+    studentLoginVerified: true,
+    activitySaved: true,
+    activityRestored: true,
   });
   assert.equal(status.stage, "READY");
+});
+
+test("연결·학급만으로 설치 완료를 표시하거나 선행 점검을 건너뛰지 않는다", () => {
+  assert.equal(getInstallationStatus({ classReady: true }).stage, "NOT_CONFIGURED");
+  const infrastructure = { supabaseConnected: true, migrationsReady: true, edgeFunctionsReady: true, storageReady: true, adminReady: true, classReady: true };
+  assert.equal(getInstallationStatus(infrastructure).stage, "CLASS_READY");
+  assert.equal(getInstallationStatus({ ...infrastructure, studentLoginVerified: true, activitySaved: true }).stage, "CLASS_READY");
+  assert.equal(getInstallationStatus({ ...infrastructure, storageReady: false, studentLoginVerified: true, activitySaved: true, activityRestored: true }).stage, "FUNCTIONS_READY");
 });
 
 test("로컬 버전 서비스는 원격 업데이트를 가장하지 않는다", async () => {
