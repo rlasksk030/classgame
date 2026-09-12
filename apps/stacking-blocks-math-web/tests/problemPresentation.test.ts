@@ -21,6 +21,14 @@ test("구버전 문제 응답도 투영 정답에서 실제 입력 격자 계약
   assert.equal(answerRendererFor(presentation.answerInput), "SingleGridRenderer");
 });
 
+test("투영 자료와 방향 단서가 모두 없는 문항은 자동으로 답안을 추정하지 않는다", () => {
+  const problem = SEED_PROBLEMS.find(item => item.code === "L3-01")!;
+  const broken = { ...problem, prompt: "모양을 표현해 보세요.", given: { ...problem.given, projections: undefined }, answer: { kind: "projections" as const, projections: {} } };
+  const presentation = deriveProblemPresentation(broken);
+  assert.deepEqual(presentation.gridSpecs, {});
+  assert.equal(validateProblemPresentation(broken).includes("그릴 투영 누락"), true);
+});
+
 test("4차시 높이 지도 개수 문제는 학생에게 숫자 지도를 표시한다", () => {
   const problem = SEED_PROBLEMS.find(item => item.code === "L4-01")!;
   const presentation = deriveProblemPresentation(problem);

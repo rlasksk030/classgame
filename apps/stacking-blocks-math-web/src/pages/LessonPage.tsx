@@ -70,7 +70,9 @@ function projectionFacesFor(problem: StudentProblem): ("top" | "front" | "side")
   if (problem.prompt.includes("위")) inferred.push("top");
   if (problem.prompt.includes("앞")) inferred.push("front");
   if (problem.prompt.includes("옆")) inferred.push("side");
-  return inferred.length ? inferred : ["top", "front", "side"];
+  // 방향·정답 자료가 모두 없으면 임의로 세 격자를 만들어 내지 않는다.
+  // 이런 문항은 학생에게 오답 불이익을 주지 않고 표시 오류로 중단한다.
+  return inferred;
 }
 
 function isBuildType(problemType: ProblemType) {
