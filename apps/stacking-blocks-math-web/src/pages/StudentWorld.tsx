@@ -86,7 +86,7 @@ export default function StudentWorld() {
           <div className="panel reward-summary">
             <div className="summary-label">학습 성취</div>
             <strong className="summary-number">⭐ {home?.rewards.totalStars ?? 0}</strong>
-            <p className="muted">별은 ① 개념 배우기·② 문제로 익히기·③ 더 풀어보기를 완성하면 모아요.</p>
+            <p className="muted">별은 ① 개념 배우기·② 문제 풀기·③ 더 풀어보기를 완성하면 모아요.</p>
             <div className="lesson-progress" aria-label={`전체 진행률 ${progressPercent}%`}><span style={{ width: `${progressPercent}%` }} /></div>
             <p className="muted">전체 진행률 {progressPercent}% · 완료 {completedLessons}/{LESSON_COUNT}차시</p>
           </div>
@@ -107,7 +107,7 @@ export default function StudentWorld() {
             const done = info?.completedProblems ?? 0;
             const completed = info?.completed ?? false;
             return (
-              <Link key={lesson} className="lesson-card" to={locked ? "#" : `/lesson/${lesson}${lesson===10||lesson===11?"/project":""}`} onClick={event => { if (locked) { event.preventDefault(); setError("선생님이 아직 열지 않은 차시예요."); } }}>
+              <Link key={lesson} className="lesson-card" to={locked ? "#" : `/lesson/${lesson}${lesson===10||lesson===11?"/project":"/learn"}`} onClick={event => { if (locked) { event.preventDefault(); setError("선생님이 아직 열지 않은 차시예요."); } }}>
                 <div className="lesson-number" aria-hidden>{String(lesson).padStart(2, "0")}</div>
                 <div className="lesson-body">
                   <h3 style={{ margin: 0 }}>

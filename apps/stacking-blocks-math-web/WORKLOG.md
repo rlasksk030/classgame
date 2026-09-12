@@ -1,5 +1,13 @@
 # MVP 작업 기록
 
+## 교과서 흐름·단계 페이지·10×10 작업판 보완 (2026-09-12)
+- 학생 월드의 일반 차시 카드를 `/lesson/:lesson/learn`으로 연결하고, 실제 라우트 `/learn`, `/solve`, `/practice`를 분리했다. `① 개념 배우기`는 기존 채점 패널을 재사용하지 않고 차시별 관찰·직접 해 보기·정리 안내와 안내된 Babylon.js 탐구를 제공한다.
+- `LessonPage`는 `/solve`와 `/practice`를 라우트 기준으로 선택하며, 단계별 문항 위치와 숫자·선택·격자 답안 초안을 브라우저 세션 범위에서 문항별로 복원한다. 더 풀어보기는 필수 학습 완료 전 자동으로 문제 풀기 단계로 안내한다.
+- 단계 버튼, 완료 후 이동, 틀린 문제 다시 풀기, 유사 문제 풀기의 URL과 실제 문항을 함께 갱신하도록 연결했다. 기존 문제·진도·Supabase 저장 계약은 변경하지 않았다.
+- `BlockScene`의 초기/방향 보기 프레임을 작업판 크기에 맞게 조정해 10×10 설계판의 유효한 바닥 칸이 첫 화면에서 보이도록 했다. 정사영 프레임도 넓은 판 전체가 잘리지 않도록 여유를 둔다.
+- `qa:local`은 실제 단계 URL과 새 표시명을 사용하도록 갱신했고, 개념 배우기 페이지에서 문제 풀기로 전환하는 대표 브라우저 검사를 추가했다. 기존 `qa/local-browser-qa/history/9518934/` 실패 증거는 보존한다.
+- 검증: `npm run audit:problems`, `audit:presentation`, `audit:semantics`, `audit:solvability`, `qa:curriculum`, `npm run typecheck`, `npm run lint`, `npm test`(46개), `npm run test:security`, `npm run typecheck:edge`, `npm run build` 통과. 맥용 Chromium 재실행은 이 환경의 기존 포트 실행 제한으로 별도 실행하지 않았다.
+
 ## 문제 진행 위치 복원 P0 수정 (2026-09-12)
 - `LessonPage`에서 단계 필터 effect가 `problemIndex`를 매 렌더링마다 0으로 되돌리던 경로를 제거했다. 단계 이동·이전/다음·틀린 문제 재풀기·새 연습 세트처럼 사용자가 명시적으로 위치를 바꾸는 동작에서만 인덱스를 변경한다.
 - `sb_student_progress.last_problem_id`를 `lessonProblems` 응답에 포함하고, `position` 학생 API로 이동 위치를 저장한다. 자동 진행과 수동 이동 모두 DB 위치를 갱신하며 seed 문제는 안전하게 건너뛴다.

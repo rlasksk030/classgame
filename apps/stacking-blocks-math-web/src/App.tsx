@@ -7,6 +7,7 @@ import { clearStudentToken } from './lib/studentApi';
 const StudentWorld = lazy(() => import('./pages/StudentWorld'));
 const RewardsPage = lazy(() => import('./pages/RewardsPage'));
 const LessonPage = lazy(() => import('./pages/LessonPage'));
+const LessonLearnPage = lazy(() => import('./pages/LessonLearnPage'));
 const TeacherPage = lazy(() => import('./pages/TeacherPage'));
 const TeacherGate = lazy(() => import('./pages/TeacherGate'));
 const TeacherProblemEditor = lazy(() => import('./pages/TeacherProblemEditor'));
@@ -38,6 +39,9 @@ export default function App() {
     <Route path="/world/rewards" element={<RewardsPage />} />
     <Route path="/lesson/9" element={<PeerChallengePage />} />
     <Route path="/lesson/:lesson/project" element={<ArchitecturePage />} />
+    <Route path="/lesson/:lesson/learn" element={<LessonLearnPage />} />
+    <Route path="/lesson/:lesson/solve" element={<LessonPage />} />
+    <Route path="/lesson/:lesson/practice" element={<LessonPage />} />
     <Route path="/lesson/:lesson" element={<LessonRoute />} />
     <Route path="/teacher" element={<TeacherGate><TeacherPage /></TeacherGate>} />
     <Route path="/teacher/worksheet-import" element={<TeacherGate><WorksheetImportPage /></TeacherGate>} />

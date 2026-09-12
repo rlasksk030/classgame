@@ -59,7 +59,10 @@ export class BlockScene {
     this.scene = new Scene(this.engine);
     this.scene.clearColor = Color4.FromHexString('#f4f7faff');
     const size = Math.max(grid.gridWidth, grid.gridDepth, grid.maxHeight);
-    this.camera = new ArcRotateCamera('camera', -Math.PI / 3, Math.PI / 3, size * 1.9, new Vector3(grid.gridWidth / 2, grid.maxHeight / 3, grid.gridDepth / 2), this.scene);
+    // 넓은 설계판도 첫 화면에서 작업 가능한 영역으로 보이도록 발판 크기에
+    // 비례해 프레임을 잡는다. 기존의 1.9배 반경은 10×10 판을 너무 멀리
+    // 보여 주어 학생이 유효한 칸을 찾기 어려웠다.
+    this.camera = new ArcRotateCamera('camera', -Math.PI / 3, Math.PI / 3, this.frameRadius(), new Vector3(grid.gridWidth / 2, grid.maxHeight / 3, grid.gridDepth / 2), this.scene);
     this.camera.lowerRadiusLimit = 2;
     this.camera.upperRadiusLimit = size * 5;
     this.camera.lowerBetaLimit = 0.001;
@@ -183,12 +186,18 @@ export class BlockScene {
     const beta = preset === 'top' ? 0.001 : preset === 'front' || preset === 'side' ? Math.PI / 2 : Math.PI / 3;
     const nearestAlpha = this.camera.alpha + Math.atan2(Math.sin(alpha - this.camera.alpha), Math.cos(alpha - this.camera.alpha));
     this.camera.mode = orthographic && ['top', 'front', 'side'].includes(preset) ? Camera.ORTHOGRAPHIC_CAMERA : Camera.PERSPECTIVE_CAMERA;
-    this.cameraTween = { start: performance.now(), alpha: this.camera.alpha, beta: this.camera.beta, radius: this.camera.radius, targetAlpha: nearestAlpha, targetBeta: beta, targetRadius: Math.max(this.grid.gridWidth, this.grid.gridDepth, this.grid.maxHeight) * 2.4 };
+    this.cameraTween = { start: performance.now(), alpha: this.camera.alpha, beta: this.camera.beta, radius: this.camera.radius, targetAlpha: nearestAlpha, targetBeta: beta, targetRadius: this.frameRadius() };
+  }
+
+  private frameRadius() {
+    const footprint = Math.max(this.grid.gridWidth, this.grid.gridDepth);
+    return Math.max(4.8, footprint * 1.2);
   }
 
   private updateOrtho() {
     if (this.camera.mode !== Camera.ORTHOGRAPHIC_CAMERA) return;
-    const half = this.camera.radius * 0.3;
+    // 정사영에서도 10×10 바닥 전체가 세로로 잘리지 않도록 여유를 둔다.
+    const half = Math.max(2, this.camera.radius * 0.42);
     const aspect = this.engine.getRenderWidth() / Math.max(1, this.engine.getRenderHeight());
     this.camera.orthoLeft = -half * aspect; this.camera.orthoRight = half * aspect;
     this.camera.orthoTop = half; this.camera.orthoBottom = -half;

@@ -37,7 +37,7 @@ const reportJsonPath = join(artifactDir, "report.json");
 const reportMarkdownPath = join(artifactDir, "report.md");
 const previewLogPath = join(artifactDir, "preview.log");
 const headed = process.argv.includes("--headed") || process.env.QA_HEADED === "1";
-const representativeCount = 12;
+const representativeCount = 13;
 
 mkdirSync(screenshotDir, { recursive: true });
 
@@ -101,7 +101,7 @@ const tripleProjection = grid(2, 2, [[0, 0]]);
 const front3x3 = grid(3, 3, [[0, 0], [0, 1], [0, 2], [1, 0], [1, 1], [1, 2], [2, 0], [2, 1], [2, 2]]);
 
 const projectionFixture = studentProblem({
-  id: "qa-live-l3-grid", code: "qa-live-l3-grid", lesson: 3, orderIndex: 1, stage: "concept", problemType: "PROJECTION_DRAW",
+  id: "qa-live-l3-grid", code: "qa-live-l3-grid", lesson: 3, orderIndex: 2, stage: "check", problemType: "PROJECTION_DRAW",
   title: "세 방향 격자 표현", prompt: "위·앞·옆에서 본 모양을 모두 그려 보세요.",
   grid: { gridWidth: 2, gridDepth: 2, maxHeight: 2 }, givenBlocks: [{ x: 0, y: 0, z: 0 }], startBlocks: [],
   given: { projections: { top: tripleProjection, front: tripleProjection, side: tripleProjection }, allowRotate: true }, choices: [],
@@ -358,7 +358,7 @@ async function main() {
     try {
       const run = (spec: Parameters<typeof runCase>[2]) => runCase(browser, baseUrl, spec);
       initial.push(await run({ id: "T01-l3-triple-grid", title: "3차시 실제 세 격자 입력·제출", problemId: projectionFixture.id, problems: [projectionFixture], run: async (page, state) => {
-        await page.goto(`${baseUrl}/lesson/3`);
+        await page.goto(`${baseUrl}/lesson/3/solve`);
         await waitForStudentPage(page);
         assertCondition(await visible(page, '[data-answer-renderer="TripleProjectionGridRenderer"]'), "세 방향 답안 Renderer가 보이지 않습니다.");
         const cells = page.locator('[data-answer-renderer="TripleProjectionGridRenderer"] button.cell-btn');
@@ -374,7 +374,7 @@ async function main() {
         assertCondition(await textVisible(page, "정답이에요"), "채점 결과가 화면에 표시되지 않았습니다.");
       }}));
       initial.push(await run({ id: "T02-l12-triple-grid", title: "12차시 실제 세 격자 입력·제출", problemId: lesson12Fixture.id, problems: [lesson12Fixture], run: async (page, state) => {
-        await page.goto(`${baseUrl}/lesson/12`);
+        await page.goto(`${baseUrl}/lesson/12/solve`);
         await waitForStudentPage(page);
         assertCondition(await page.locator('[data-answer-renderer="TripleProjectionGridRenderer"] table.projection-table').count() === 3, "12차시 세 격자가 보이지 않습니다.");
         const cells = page.locator('[data-answer-renderer="TripleProjectionGridRenderer"] button.cell-btn');
@@ -412,7 +412,7 @@ async function main() {
         await page.goto(`${baseUrl}/lesson/2`);
         await waitForStudentPage(page);
         assertCondition(await textVisible(page, "개념 단계 문항"), "개념 단계 문항이 시작 화면에 없습니다.");
-        await page.getByRole("button", { name: /② 문제로 익히기/ }).click();
+        await page.getByRole("button", { name: /② 문제 풀기/ }).click();
         assertCondition(await textVisible(page, "확인 단계 문항"), "문제 확인 단계로 전환되지 않았습니다.");
         await page.getByRole("button", { name: "정답 확인", exact: true }).click();
         assertCondition(await textVisible(page, "확인 단계 문항"), "제출 후 현재 문항이 바뀌거나 초기화되었습니다.");
@@ -454,7 +454,7 @@ async function main() {
         assertCondition(await textVisible(page, "위에서 본 모양"), "소개서의 투영 자료가 보이지 않습니다.");
       }}));
       initial.push(await run({ id: "T11-grid-shape-orientation", title: "격자 셀 정사각형·앞/옆 위치", problemId: projectionFixture.id, problems: [projectionFixture], run: async (page) => {
-        await page.goto(`${baseUrl}/lesson/3`);
+        await page.goto(`${baseUrl}/lesson/3/solve`);
         await waitForStudentPage(page);
         const grid = page.locator('[data-answer-renderer="TripleProjectionGridRenderer"] .projection-frame').first();
         const table = grid.locator("table.projection-table");
@@ -469,13 +469,24 @@ async function main() {
         assertCondition(frontBox.y >= tableBox.y + tableBox.height - 1, "앞 라벨이 격자 아래쪽에 붙어 있지 않습니다.");
         assertCondition(sideBox.x >= tableBox.x + tableBox.width - 1, "옆 라벨이 격자 오른쪽에 붙어 있지 않습니다.");
       }}));
+      initial.push(await run({ id: "T13-learn-stage-page", title: "개념 배우기 독립 페이지와 문제 풀기 전환", problems: [projectionFixture], run: async (page) => {
+        await page.goto(`${baseUrl}/lesson/3/learn`);
+        await waitForStudentPage(page);
+        assertCondition(await textVisible(page, "① 개념 배우기"), "개념 배우기 페이지 제목이 보이지 않습니다.");
+        assertCondition(await textVisible(page, "안내된 탐구"), "개념 배우기 안내 활동이 보이지 않습니다.");
+        assertCondition(await textVisible(page, "직접 해 보기"), "개념 배우기 조작 안내가 보이지 않습니다.");
+        await page.getByRole("button", { name: "② 문제 풀기 시작", exact: true }).click();
+        await waitForStudentPage(page);
+        assertCondition(page.url().endsWith("/lesson/3/solve"), "문제 풀기 페이지 URL로 이동하지 않았습니다.");
+        assertCondition(await textVisible(page, "세 방향 격자 표현"), "문제 풀기 단계의 실제 문항이 보이지 않습니다.");
+      }}));
       initial.push(await run({ id: "T12-completion-navigation", title: "4차시 완료 후 다음 학습 단계 이동", problemId: completionFixtures[0].id, problems: completionFixtures, requiredComplete: true, run: async (page) => {
         await page.goto(`${baseUrl}/lesson/4`);
         await waitForStudentPage(page);
         await page.getByRole("button", { name: "2. 두 번째", exact: true }).click();
         await page.getByRole("button", { name: "정답 확인", exact: true }).click();
         assertCondition(await textVisible(page, "개념 단계 문항"), "제출 뒤 현재 완료 문항이 사라졌습니다.");
-        await page.getByRole("button", { name: "문제로 익히기 시작", exact: true }).click();
+        await page.getByRole("button", { name: "문제 풀기 시작", exact: true }).click();
         assertCondition(await textVisible(page, "확인 단계 문항"), "완료 후 다음 학습 단계로 이동하지 못했습니다.");
       }}));
     } finally {
