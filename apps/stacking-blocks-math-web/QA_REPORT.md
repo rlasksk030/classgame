@@ -121,3 +121,12 @@ npm run test:e2e
 `npm run inventory:problems`가 현재 코드 경로에서 고정 문항 30개, practice template 대표 56개, 9~12차시 활동 6개, 수업용 practice manifest 140개를 수집해 `PROBLEM_INVENTORY.json`으로 기록한다. template 반복 생성 수와 실제 문항 유형 수를 분리 집계하며, 원격 Supabase 문항을 읽지 못한 범위는 LIVE 검증으로 올리지 않는다.
 
 현재 inventory의 화면 상태는 코드 경로 기준 `IMPLEMENTED`이고, 실제 학생 입력·채점·렌더링은 Playwright 포트 제한으로 `BLOCKED`다.
+
+## 맥용 로컬 브라우저 QA 실행기
+
+- 등록된 명령: `npm run qa:local`
+- 실행 대상: production `dist/`를 임시 loopback preview로 열고 실제 학생 route의 9개 대표 흐름을 Chromium으로 검사한다. 합성 `student-api` 응답만 사용하며 원격 쓰기 요청은 만들지 않는다.
+- 검사 범위: 3차시·12차시 세 격자 셀 입력/제출, 5차시 판단형·숨은 블록 없음 3×3 개수, 숫자 정답 공개, 단계/현재 문항 유지, 보관함 드래그와 snapshot, 10×10 건축판·재료 저장, 11차시 소개서 복원.
+- 결과 경로: `qa/local-browser-qa/report.json`, `qa/local-browser-qa/report.md`, `qa/local-browser-qa/screenshots/`, `qa/local-browser-qa/preview.log`, 실패 case별 `qa/local-browser-qa/<case-id>.trace.zip`.
+- 실행 시 production 환경변수에서 `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`, `VITE_INSTALLATION_ID`를 제거하고 런타임 설치 설정을 합성값으로 주입한다. Secret·PIN·운영 토큰은 사용하지 않는다.
+- 이 샌드박스에서는 새 실행기를 한 번 실행했고 production build까지 성공했지만 preview 포트 확보 단계에서 `listen EPERM: operation not permitted 127.0.0.1`로 BLOCKED됐다. 실행기는 `qa/local-browser-qa/report.json`과 `report.md`를 생성했으며, 운영자 맥에서 다시 한 번 실행해야 한다. 실행되지 않은 inventory 전체 항목은 자동으로 PASS 처리하지 않는다.

@@ -17,6 +17,7 @@
     "audit:solvability": "node --experimental-strip-types scripts/audit-solvability.ts",
     "qa:curriculum": "node --experimental-strip-types scripts/qa-curriculum.ts",
     "audit:lessons": "node --experimental-strip-types scripts/qa-curriculum.ts",
+    "qa:local": "node --experimental-strip-types scripts/local-browser-qa.ts",
     "qa:visual": "playwright test e2e/visual.spec.ts",
     "qa:renderer": "playwright test e2e/renderer-mount.spec.ts",
     "lint": "eslint .",
