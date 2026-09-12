@@ -338,3 +338,18 @@
 - 코드 커밋 b7ae120b6c58b7d31c12832ab3d78bd817e0c449에서 2026-09-12T12:11:55Z 이후 typecheck/lint/unit54/security1/typecheck:edge/build 모두 다시 PASS. 이후 변경은 이 검증 기록뿐이다. 브라우저 실행 0/BLOCKED, LIVE 검증 없음.
 - 설치 상태는 '완료 판정 오류 수정 완료 / 간편 설치 미구현'. getInstallationStatus는 학생/교사 route의 진입 gate로 사용되지 않아 첫 저장을 READY로 막는 순환 조건 없음.
 - 원격 함수/DB/RLS/Secret/학생 데이터 변경·push 없음. student-api 재배포 전 실제 운영 증거/승인 범위를 확인해야 한다. 전체 요구 완료 아님.
+
+# 2026-09-12 실제 반복 세트 조사와 보존 복구 체크포인트
+
+- 시작 HEAD875229ab7bf45ce40b8dd1ce882d88422e368ebe. b7ae120→875229a 차이는 WORKLOG만이다. 이번 실행 코드 커밋 `d6bbe6612b63dd2669321183dd1f6dbc901e4802`. 기존 supabase/.temp/ 보존.
+- 실제 Chrome /lesson/5/practice에서1~35 화면을 읽기 순회한 후 원래11/35로 돌아왔다. 제출/새세트시작/로그아웃은 하지 않았다. DB 공개 문항과 대조: 기본추가1+17코드×2=35, 공개 과제6개. 교사배정20, 저장seed603756, 반환문항seed595837. 같은ID만35번/첫화면고정이라는 추측은 배제했다. 동일code 두 UUID의 화면 순서는 DOM에 ID가 없어 미확정. 실제 화면 캡처는 도구 결과에 있고 로컬 PNG export는 브라우저 미지원이다.
+- READ ONLY로 확인한 원격student-api: ACTIVE v4, SHA256 d746eef83edbaedf647e5a83ed89da92ac0df36f5921f38f2385d520825329a2. 저장seed 무시·17개생성·NULL class_id/code unique의 중복허용·생성없는목록에서 필터누락이 현재원인이다. 브라우저는 Vite HMR이며 실행commit 확인불가: 최신코드 화면PASS로 보고하지 않는다.
+- 신규 변경: practiceSet 계약2/실제배정량과기본추가량 구분/구서버전환 차단. 직접practice재접속의 서버cursor 사용, 설치·학생별로 로컬cursor/답안 분리. 기대seed CAS로 중복 새세트 요청1회전환. 개별generated ID는 현재seed 또는 본인기존기록 검증. DB읽기실패를 빈데이터로 처리하지 않음.
+- 안전복구: 저장seed에 준비된 세트가 없고 기존원래seed세트가 남으면 기존35개 유지+awaitingReplacement 안내. 명시적new-set 요청 후611675의 배정20개를 먼저 저장하고 전환. 기존문항/답안/XP삭제·재채점 없음. 원격복구 실행없음. 과거세트 목록UI, 실제로그아웃복원, 기존 비소유자정보 없는 로컬cursor의 이관/현재위치 유지, 보상관통 검증은 BLOCKED로 남긴다.
+- 생성ID PK 중복8요청/다른버전ID분리/CAS 경쟁2요청 및 재전송은 로컬PGlite로 검증. 실제 Supabase 동시 HTTP·네트워크유실은 미검증. 같은학생완료사건 XP중복방지 기존 DB검사를 유지했으며 새세트관통 성공으로 확대하지 않음.
+- seed0,1,2,3,42,123,7919,595837,603756,611675,999999 × 배정5,10,15,20,35. 5차시55세트 공개fingerprint고유수=배정수, 최장같은계열1. 6계열 목표/자료/행동/답근거와 의미검사한계는 comparison.md. 과제수가 다른 모든세트에35/6계열을 강제하지 않음.
+- 다른차시1~8/12도 같은표본 검사. 2/3/6은 각 CAMERA_DIRECTION/PROJECTION_DRAW/BUILD_FROM_VIEWS에 편중, 최장35. 문제타입수와 세부template수는 다르며 전체 의미품질PASS 아님. 이번에는 근거없이 새로운template을 추가하지 않았다. 기존 P0/UI/작품복원 미완료 유지.
+- 기존 qa:local T14에 실제공개격자표시값/입력payload문항ID/3번답안 reload복원을 보강. 새실행기/인증우회/운영쓰기mock 없음. 수정후35문항 입력·제출 브라우저 실행0, BLOCKED. 이전 운영35개 읽기순회를 신규세트 자동검증으로 세지 않음. 단계왕복·Babylon매문항모형·깨끗한세션과기존복원·재료/11차시 실제화면은 미검증. 알려진 로컬포트제한 재시도/우회 없음, 사용자에게qa명령 재실행 요청하지 않음.
+- 검증 `2026-09-12T12:47:14.924448+00:00`, 대상 `d6bbe6612b63dd2669321183dd1f6dbc901e4802`: typecheck/lint/unit/security/typecheck:edge/build/QA구문/diff검사 PASS. 실행원본은 verification.json/log. 이후 문서·결과파일 기록만 변경. 현재검사를 과거PASS로 대체하지 않음.
+- 간편설치: 이전요청의 실행안1개를 DISTRIBUTION_ARCHITECTURE에 구체화(제작자전용 Supabase Free OAuth실행부). 공식API/권한/한도/중단·재개/승인범위 명시. 실제 수동작업 감소0, 실행부 미구현/승인전. READY기존수정 재작업 없음.
+- 원격 함수/DB/RLS/Secret/학생기록 변경·배포·push 없음. migration추가없음. 원격migration 이력은[]이지만 schema는존재하므로 빈DB라고판정하지 않는다.

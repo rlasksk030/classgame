@@ -1,0 +1,186 @@
+$ npm run typecheck
+
+> stacking-blocks-math-web@1.0.0 typecheck
+> tsc -b --noEmit
+
+
+$ npm run lint
+
+> stacking-blocks-math-web@1.0.0 lint
+> eslint .
+
+
+$ npm test
+
+> stacking-blocks-math-web@1.0.0 test
+> node --experimental-strip-types --test tests/*.test.ts
+
+✔ lesson 9 challenge requires exactly ten physically valid blocks (1.532ms)
+✔ lesson 9 challenge cards are generated from the same projections (0.441917ms)
+✔ lesson 9 score is two points without hint and one after hint (0.131625ms)
+✔ architecture project requires complete text, three floors and a third floor block (0.208416ms)
+✔ practice generator is deterministic and scales by lesson (9.009167ms)
+✔ all practice lesson generators produce valid seeded problems (135.32925ms)
+✔ practice sets mix templates and do not repeat one template three times (16.960584ms)
+✔ changing the student seed changes the generated practice content (28.192208ms)
+✔ direction practice uses the selected direction projection and avoids ambiguous views (70.932792ms)
+✔ lesson 5 separates information sufficiency from no-hidden-block counting (1.226541ms)
+✔ practice position restores by problem id and clamps safely (0.881875ms)
+✔ reward catalog unlocks usable materials and themes at deterministic XP thresholds (0.407291ms)
+✔ appearance metadata is sanitized independently from mathematical coordinates (0.674583ms)
+✔ 교과서 옆 기준은 오른쪽 관찰(+x)이고 신규 건축판은 10×10이다 (0.216208ms)
+✔ canonical order is y/z/x, independent of insertion order (3.111958ms)
+✔ asymmetric projections preserve front/right-side orientation (0.258417ms)
+✔ physics reject floating, out-of-bounds, noninteger and occupied placements (5.627167ms)
+✔ grading exact coordinates cannot silently settle floating or malformed submissions (1.58175ms)
+✔ constraint accepts distinct physically valid models with same projections (0.244083ms)
+✔ third wrong answer reveals only hint; fourth reveals answer; reconstruction completes once (0.542958ms)
+✔ feedback reflects prior mistakes instead of claiming a first-try success (0.354792ms)
+✔ non-building answers reveal their answer without forcing a rebuild (0.354084ms)
+✔ cannot bypass construction by submitting only a numeric block count (0.292ms)
+✔ 학급 생성 실패를 인증·권한·검증·서버 코드로 분류한다 (1.350167ms)
+✔ PostgreSQL migrations, RLS isolation and atomic progression (1694.592458ms)
+✔ 배포판 버전 계약은 package/migration 버전을 노출한다 (0.467917ms)
+✔ 설치 상태는 점검 결과를 받아 READY까지 계산한다 (0.118584ms)
+✔ 연결·학급만으로 설치 완료를 표시하거나 선행 점검을 건너뛰지 않는다 (1.8525ms)
+✔ 로컬 버전 서비스는 원격 업데이트를 가장하지 않는다 (0.123ms)
+✔ 앱과 설치된 DB 버전의 호환 상태를 계산한다 (0.094834ms)
+✔ 직접 practice 재접속은 해당 단계의 서버 현재 문항을 복원한다 (0.527ms)
+✔ 실제 DB 공개 문항 형식의 35행 반복을 보존하고 새 20개와 별도 35개를 검증한다 (73.071875ms)
+✔ 실제 35행 형태는 기본 추가 1개와 생성 34개/중복 코드 17개로 진단하며 삭제하지 않는다 (3.538167ms)
+✔ 새 35문항은 번호·숨은 모형을 제외한 공개 과제가 반복되지 않는다 (35.461334ms)
+✔ 구버전 35문항 재현 및 내용 중복 변형 탐지 (45.71675ms)
+✔ 5차시 35개는 6계열이며 결정적으로 복원되고 기존 v1을 바꾸지 않는다 (237.265083ms)
+✔ 5차시 여러 seed·실제 배정량에서 고유성과 짧은 세트 배분을 보존한다 (339.130375ms)
+✔ 이미 생성된 세트 재조회에서도 다른 seed/학생 문항을 섞지 않는다 (0.137042ms)
+✔ 같은 정답은 서로 다른 공개 자료를 중복으로 만들지 않는다 (11.766042ms)
+✔ 개별 생성 문항 접근도 현재 배정 seed/차시와 비교한다 (0.149083ms)
+✔ 동시 생성·재시도에서도 같은 문항은 같은 DB PK를 사용한다 (11.749125ms)
+✔ 5차시 가정/최대의 개수는 공개 앞면에서 독립 계산하며 원본 총개수로 바꾸지 않는다 (12.537ms)
+✔ 3차시 격자는 실제 정답 투영의 행·열을 사용한다 (2.848083ms)
+✔ 구버전 문제 응답도 투영 정답에서 실제 입력 격자 계약을 복원한다 (1.193042ms)
+✔ 투영 자료와 방향 단서가 모두 없는 문항은 자동으로 답안을 추정하지 않는다 (0.257459ms)
+✔ 4차시 높이 지도 개수 문제는 학생에게 숫자 지도를 표시한다 (0.325125ms)
+✔ 세 방향 쌓기 문제는 세 조건이 모두 없으면 출제할 수 없다 (0.170875ms)
+✔ 세 방향 그리기와 층별 그리기는 전용 입력 Renderer 계약을 갖는다 (0.193792ms)
+✔ 품질 게이트는 격자 자료와 정답이 함께 사라진 문항을 거부한다 (5.5075ms)
+✔ 독립 고정값 3×3 앞면의 ‘숨은 블록 없음’ 정답은 9이며 변조된 20을 거부한다 (2.575458ms)
+✔ 고정 비대칭 기준은 오른쪽 투영을 좌우 반전한 답으로 통과하지 않는다 (0.898375ms)
+✔ runtime installation config round-trips through a URL fragment (0.976625ms)
+✔ runtime config rejects server secrets and unsafe URLs (0.103959ms)
+✔ changing the runtime installation switches the shared Supabase client (83.601292ms)
+✔ 방향별 투영은 뒤·왼쪽에서 본 화면의 좌우를 반전한다 (2.197291ms)
+✔ 방향 문제가 하나의 정답을 만드는지 검사한다 (0.258291ms)
+✔ 학생 로그인 오류를 단계별 한국어 메시지로 분류한다 (0.464042ms)
+✔ 학생 이름과 반 코드는 저장·로그인에 같은 정규화 규칙을 사용한다 (0.637333ms)
+✔ 교사 Auth 오류를 원인별 코드로 분류한다 (0.488375ms)
+ℹ tests 59
+ℹ suites 0
+ℹ pass 59
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1928.886125
+
+$ npm run test:security
+
+> stacking-blocks-math-web@1.0.0 test:security
+> deno test --allow-env=APP_SESSION_SECRET supabase/tests
+
+Check supabase/tests/security.test.ts
+running 1 test from ./supabase/tests/security.test.ts
+PIN hashes are scoped by student; session tampering fails ... ok (32ms)
+
+ok | 1 passed | 0 failed (35ms)
+
+
+$ npm run typecheck:edge
+
+> stacking-blocks-math-web@1.0.0 typecheck:edge
+> deno check supabase/functions/student-api/index.ts supabase/functions/student-auth/index.ts
+
+Check supabase/functions/student-api/index.ts
+Check supabase/functions/student-auth/index.ts
+
+$ npm run build
+
+> stacking-blocks-math-web@1.0.0 build
+> tsc -b && vite build
+
+vite v6.4.3 building for production...
+transforming...
+✓ 515 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                                        0.60 kB │ gzip:   0.40 kB
+dist/assets/pdf.worker.min-Dswkl-cV.mjs            1,265.41 kB
+dist/assets/index-DsAGWzt0.css                        11.32 kB │ gzip:   3.26 kB
+dist/assets/pdf.worker.min-CWpYdfRJ.js                 0.07 kB │ gzip:   0.09 kB
+dist/assets/rewards-Dc0dHNJH.js                        0.13 kB │ gzip:   0.12 kB
+dist/assets/pass.fragment-DLRUERus.js                  0.38 kB │ gzip:   0.29 kB
+dist/assets/answerUi-BJNFcVGY.js                       0.39 kB │ gzip:   0.24 kB
+dist/assets/supabase-B0X37Ryo.js                       0.39 kB │ gzip:   0.32 kB
+dist/assets/rgbdDecode.fragment-BYOd2ztz.js            0.48 kB │ gzip:   0.34 kB
+dist/assets/pass.fragment-DsMVQlWV.js                  0.51 kB │ gzip:   0.34 kB
+dist/assets/spatialConventions-CP31rJAS.js             0.56 kB │ gzip:   0.35 kB
+dist/assets/rgbdDecode.fragment-BdteATrr.js            0.61 kB │ gzip:   0.39 kB
+dist/assets/snapshotDraft-B86A_uFv.js                  0.66 kB │ gzip:   0.35 kB
+dist/assets/Representations-BM5c5iG9.js                0.79 kB │ gzip:   0.50 kB
+dist/assets/color.fragment-B7S12M91.js                 0.81 kB │ gzip:   0.41 kB
+dist/assets/passCube.fragment-Smp28UMV.js              0.89 kB │ gzip:   0.39 kB
+dist/assets/color.fragment-D8tr63wT.js                 0.91 kB │ gzip:   0.45 kB
+dist/assets/mesh.vertexData.functions-ayNlGC5K.js      0.96 kB │ gzip:   0.49 kB
+dist/assets/activities-B6MvMX7I.js                     1.16 kB │ gzip:   0.57 kB
+dist/assets/passCube.fragment-RUUuQ3cV.js              1.19 kB │ gzip:   0.44 kB
+dist/assets/color.vertex-DYzNzafZ.js                   1.21 kB │ gzip:   0.56 kB
+dist/assets/color.vertex-BJz1FKhr.js                   1.28 kB │ gzip:   0.56 kB
+dist/assets/ActivityBuilder-B0MRmHkz.js                1.29 kB │ gzip:   0.71 kB
+dist/assets/ProjectionGrid-DlyrTRh4.js                 1.29 kB │ gzip:   0.69 kB
+dist/assets/ddsTextureLoader-DPpxIPI6.js               1.36 kB │ gzip:   0.68 kB
+dist/assets/teacherErrors-w-MDL-eg.js                  1.68 kB │ gzip:   0.87 kB
+dist/assets/logDepthDeclaration-CWBHAxVf.js            1.96 kB │ gzip:   0.75 kB
+dist/assets/fogFragment-_fOdYjyG.js                    2.09 kB │ gzip:   0.65 kB
+dist/assets/TeacherGate-CzAm4-LA.js                    2.11 kB │ gzip:   1.06 kB
+dist/assets/fogFragment-DqX9eDAZ.js                    2.32 kB │ gzip:   0.70 kB
+dist/assets/logDepthDeclaration-C7Bql72X.js            2.33 kB │ gzip:   0.75 kB
+dist/assets/hdrTextureLoader-DutqJcoC.js               2.48 kB │ gzip:   1.20 kB
+dist/assets/iesTextureLoader-CnP1X9Cs.js               2.76 kB │ gzip:   1.21 kB
+dist/assets/RewardsPage-DgMfFRaB.js                    2.95 kB │ gzip:   1.48 kB
+dist/assets/lessons-C2PhnTZU.js                        3.02 kB │ gzip:   1.31 kB
+dist/assets/dumpTools-CCPpDHGq.js                      3.31 kB │ gzip:   1.59 kB
+dist/assets/tgaTextureLoader-CLqn_xgU.js               3.59 kB │ gzip:   1.42 kB
+dist/assets/problemPresentation-BQF8ZJ4V.js            4.03 kB │ gzip:   1.59 kB
+dist/assets/StudentWorld-C-tQYTVV.js                   5.04 kB │ gzip:   2.10 kB
+dist/assets/LessonLearnPage-4MmXw-kK.js                5.52 kB │ gzip:   2.39 kB
+dist/assets/TeacherProblemEditor-CZBOfIqq.js           5.84 kB │ gzip:   2.56 kB
+dist/assets/helperFunctions-dxEq7595.js                5.87 kB │ gzip:   1.97 kB
+dist/assets/TeacherStudentRecord-BfIAnXOp.js           6.10 kB │ gzip:   2.52 kB
+dist/assets/helperFunctions-D1RQpQR-.js                6.22 kB │ gzip:   2.09 kB
+dist/assets/PeerChallengePage-Cfum96w1.js              7.12 kB │ gzip:   2.50 kB
+dist/assets/envTextureLoader-Cxh1oESA.js               8.02 kB │ gzip:   3.21 kB
+dist/assets/basisTextureLoader-DxoLZGFQ.js             8.29 kB │ gzip:   3.29 kB
+dist/assets/ArchitecturePage-iYXUntTJ.js               8.76 kB │ gzip:   3.44 kB
+dist/assets/dds-DWGPI28G.js                            9.77 kB │ gzip:   3.77 kB
+dist/assets/vertexColorMixing-CSOy4oN-.js              9.96 kB │ gzip:   1.92 kB
+dist/assets/WorksheetImportPage-PbvrmxQN.js           10.30 kB │ gzip:   4.19 kB
+dist/assets/vertexColorMixing-Bk5Z-TtQ.js             11.31 kB │ gzip:   1.95 kB
+dist/assets/TeacherPage-BIFRpOEG.js                   14.36 kB │ gzip:   5.09 kB
+dist/assets/exrTextureLoader-BYUUY5Z_.js              15.59 kB │ gzip:   5.84 kB
+dist/assets/ktxTextureLoader-D2gEg9vy.js              15.92 kB │ gzip:   4.67 kB
+dist/assets/TeacherProblemPreview-DkIusyD2.js         18.44 kB │ gzip:   6.38 kB
+dist/assets/default.vertex-BE2ffaVk.js                18.95 kB │ gzip:   4.02 kB
+dist/assets/default.vertex-6qIUoKNU.js                20.94 kB │ gzip:   4.10 kB
+dist/assets/LessonPage-BgAEkZor.js                    27.05 kB │ gzip:   9.10 kB
+dist/assets/passPostProcess-DxLDm6KS.js               59.65 kB │ gzip:  14.78 kB
+dist/assets/default.fragment-C7ItuwwE.js              99.83 kB │ gzip:  19.33 kB
+dist/assets/default.fragment-D8HI7Arl.js             106.27 kB │ gzip:  19.45 kB
+dist/assets/supabase-D_iOwayF.js                     227.02 kB │ gzip:  58.86 kB
+dist/assets/index-DH5VlaA2.js                        281.72 kB │ gzip:  89.82 kB
+dist/assets/pdf-CfP-JzcY.js                          483.14 kB │ gzip: 144.26 kB
+dist/assets/BlockWorld-BPwIKW7f.js                 1,052.34 kB │ gzip: 254.67 kB
+✓ built in 3.01s
+
+$ node --experimental-strip-types --check scripts/local-browser-qa.ts
+
+$ git diff --check

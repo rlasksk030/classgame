@@ -150,3 +150,32 @@ LOCAL_LOGIC: v1 합성 5차시 seed123 35개 중 고유6 → v2 고유35, 계열
 새 문항 없는 API 재조회 필터 누락, 저장 seed 무시, NULL 복합 unique의 중복 삽입 가능성을 확인하고 로컬 수정했다. 기존 세트·기록은 보존한다. typecheck/lint/unit54/security1/edge/build PASS(대상과 시각 WORKLOG 참조).
 
 UI_WITH_TEST_DATA: qa:local T14 35문항 순회 구현, 실행 0/BLOCKED. 기존 13개는 제거하지 않음. LIVE_SUPABASE 운영 35문항·배정량·복원은 미확보/BLOCKED. 화면 캡처 없음. 모든 문항과 원자료 적합성 검증 완료를 뜻하지 않는다. 2·3·6차시 입력 행동 편중, 9~11차시 조작·복원과 이전 P0는 미완료 유지.
+
+## 2026-09-12 후속 검증 — 현재 완료 아님
+
+실행 코드와 증거: qa/practice-sets/2026-09-12-live-investigation/verification.json, comparison.md, report.json, seed-matrix.json.
+
+|범위|결과|
+|---|---|
+|운영 기존35개|읽기35/35, 원래11번 복귀. 6고유/35, 입력·제출 미실행|
+|새35개 실제학생경로|실행0 / BLOCKED. T14 보강은 구현상태|
+|같은seed·배정량|5차시11seed×5배정량 재현·고유성 로컬확인|
+|단계·현재위치|순수함수/서버cursor계약 로컬PASS. 기존운영저장cursor 이관·단계왕복 실제검증 BLOCKED|
+|동시삽입/전환|안정PK/CAS PGlite PASS. 실서버HTTP 동시성 미검증|
+|기존세트 복구|구세트 유지·명시전환 구현. 실제원격/과거목록UI 검증 미완료|
+|2·3·6차시|입력행동 편중 유지, 의미품질 미완료|
+|기존P0·10/11차시|이번작업으로 화면PASS 승격하지 않음|
+
+### 적용 위치와 배포 경계
+
+|변경기능|실행위치|수정파일|현재적용|필요반영|검증|
+|---|---|---|---|---|---|
+|묶음안내·현재문항|학생브라우저|src/pages/LessonPage.tsx, shared/problemSession.ts|로컬새코드 / 운영HMR commit미확정|정적build 갱신|로컬논리PASS, 새화면BLOCKED|
+|고유세트·안정ID·복구진단|Edge서버|shared/practiceSet.ts|원격v4는 구generator번들|student-api 재배포 승인필요|유한seed/DB검사PASS|
+|목록·개별접근·CAS저장|Edge서버|supabase/functions/student-api/index.ts|원격v4|동일함수만대상; schema호환확인선행|실원격읽기확인 / 수정후쓰기NOT_RUN|
+|서버채점|Edge서버|shared/grading.ts(이번변경없음)|원격v4번들|student-api 번들계약 함께확인|로컬정답형식PASS, 원격새문항NOT_RUN|
+|세트문항/기록|교사Supabase|DB변경파일없음|구행35와저장seed 유지|승인된배포후 명시new-set만 신규삽입|원격변경없음|
+
+`practiceSet/practiceGenerator`를 직접import하는 배포함수는 student-api다. student-auth 재배포 불필요. 새schema/migration 작성·적용 없음.
+권장 반영순서: 현재schema/함수번들 백업과계약 확인→정적프런트 반영(구서버면 전환차단)→승인된 student-api 반영→기존세트 불변확인→명시새세트와저장/복원검증. 구프런트 캐시의 expectedSeed 누락은 안전한새로고침오류로 처리한다.
+되돌리기: 신규세트시작을 중지하고 검증된 호환프런트/함수로만 복귀; 생성된새행과기록/Secret을 삭제하지 않는다. 결함확인된원격v4로 무조건롤백하지 않는다. 호환안전버전은 아직 실서버검증되지 않아 배포승인전 준비항목이다.
