@@ -57,6 +57,14 @@ test('feedback reflects prior mistakes instead of claiming a first-try success',
   const solved = applyAttempt(firstWrong.state, true);
   assert.equal(solved.message, '다시 도전해서 해결했어요!');
 });
+test('non-building answers reveal their answer without forcing a rebuild', () => {
+  let state={...INITIAL_ATTEMPT};
+  for(let i=0;i<4;i++) state=applyAttempt(state,false,false).state;
+  const revealed=applyAttempt(state,false,false);
+  assert.equal(revealed.state.answerRevealed,true);
+  assert.equal(revealed.needsRebuild,false);
+  assert.match(revealed.message, /다시 답해/);
+});
 test('cannot bypass construction by submitting only a numeric block count', () => {
   assert.equal(grade({problemType:'BUILD_FROM_VIEWS',gradingMode:'exact',answer:{kind:'blocks',blocks},given:{},grid,submission:{kind:'count',value:blocks.length}}).correct,false);
 });

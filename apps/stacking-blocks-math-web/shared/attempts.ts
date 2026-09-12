@@ -75,7 +75,7 @@ const WRONG_MESSAGES = [
  * 한 번의 제출 결과를 상태 기계에 통과시킨다.
  * 서버(Edge Function)에서 호출해 그 결과만 학생에게 내려보낸다.
  */
-export function applyAttempt(prev: AttemptState, correct: boolean): AttemptOutcome {
+export function applyAttempt(prev: AttemptState, correct: boolean, requiresRebuild = true): AttemptOutcome {
   // 이미 완료한 문제를 다시 풀어도 보상은 중복 지급하지 않는다.
   if (prev.completed) {
     return {
@@ -103,8 +103,10 @@ export function applyAttempt(prev: AttemptState, correct: boolean): AttemptOutco
         ? STAR_REWARD.afterHint
         : STAR_REWARD.withoutHint;
 
-    const message = prev.answerRevealed
+    const message = prev.answerRevealed && requiresRebuild
       ? "정답 모양대로 다시 잘 쌓았어요. 완료!"
+      : prev.answerRevealed
+        ? "정답을 확인한 뒤 다시 해결했어요. 완료!"
       : prev.hintShown
         ? "힌트를 잘 활용했어요. 정답이에요!"
         : prev.wrongCount > 0
@@ -126,7 +128,7 @@ export function applyAttempt(prev: AttemptState, correct: boolean): AttemptOutco
   const wrongCount = prev.wrongCount + 1;
 
   // 정답을 이미 본 상태 - 스스로 다시 쌓을 때까지 기다린다.
-  if (prev.answerRevealed) {
+  if (prev.answerRevealed && requiresRebuild) {
     return {
       state: { ...prev, wrongCount },
       action: "rebuild_required",
@@ -144,10 +146,10 @@ export function applyAttempt(prev: AttemptState, correct: boolean): AttemptOutco
     return {
       state: { ...prev, wrongCount, answerRevealed: true },
       action: "reveal_answer",
-      message: "정답 모양을 보여 줄게요. 잘 살펴보고 똑같이 다시 쌓아 보세요.",
+      message: requiresRebuild ? "정답 모양을 보여 줄게요. 잘 살펴보고 똑같이 다시 쌓아 보세요." : "정답을 보여 줄게요. 풀이 방법을 확인하고 다시 답해 보세요.",
       sendHint: true,
       sendAnswer: true,
-      needsRebuild: true,
+      needsRebuild: requiresRebuild,
       xpEarned: 0,
       stars: 0,
     };

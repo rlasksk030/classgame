@@ -100,6 +100,22 @@ test('direction practice uses the selected direction projection and avoids ambig
   }
 });
 
+test('lesson 5 separates information sufficiency from no-hidden-block counting', () => {
+  const problems = generatePracticeProblems(5, 6, 17);
+  const sufficiency = problems.find(problem => problem.templateId === 'lesson5-unknown-choice');
+  const noHidden = problems.find(problem => problem.templateId === 'lesson5-hidden-min');
+  assert.equal(sufficiency?.problemType, 'CHOICE');
+  assert.deepEqual(sufficiency?.choices, ['알 수 있어요', '알 수 없어요']);
+  assert.equal(sufficiency?.answer.kind, 'choice');
+  assert.equal(noHidden?.problemType, 'COUNT');
+  assert.equal(noHidden?.answer.kind, 'count');
+  if (noHidden?.answer.kind === 'count') {
+    const front = noHidden.given.projections?.front ?? [];
+    assert.equal(noHidden.answer.value, front.flat().filter(Boolean).length);
+    assert.notEqual(noHidden.answer.value, noHidden.givenBlocks.length);
+  }
+});
+
 test('practice position restores by problem id and clamps safely', () => {
   const problems = [{ id: 'p1' }, { id: 'p2' }, { id: 'p3' }];
   assert.equal(problemIndexForId(problems, 'p2'), 1);

@@ -34,7 +34,7 @@ export function ProjectionGrid({ title, rows, editable, onChange, valueType, rev
   return (
     <div className="projection-area">
       <p className="muted">{title}</p>
-      {orientation === "floor" && <div className="projection-orientation" aria-label="바닥 지도 관찰 기준"><span>↑ 앞에서 바라봄</span><span>← 오른쪽(옆)에서 바라봄</span></div>}
+      {orientation === "floor" && <div className="projection-orientation" aria-label="바닥 지도 관찰 기준"><span>↑ 앞</span><span>← 옆</span></div>}
       <table className="projection-table" aria-label={title}>
         <tbody>
           {Array.from({ length: rowCount }, (_, i) => reverseRows ? rowCount - 1 - i : i).map((r) => (

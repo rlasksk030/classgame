@@ -830,6 +830,7 @@ Deno.serve(async (req: Request) => {
           completed: prev.completed,
         },
         verdict.correct,
+        ["FREE_BUILD", "BUILD_FROM_VIEWS", "BUILD_FROM_HEIGHTMAP", "BUILD_FROM_LAYERS"].includes(parsed.problemType),
       );
       const state = nextAttempt.state;
 
@@ -853,7 +854,9 @@ Deno.serve(async (req: Request) => {
                 blocks:
                   parsed.answer.kind === "blocks"
                     ? (state.answerRevealed ? canonicalize(parsed.answer.blocks) : undefined)
-                    : undefined,
+                    : parsed.problemType === "BUILD_FROM_VIEWS" && state.answerRevealed && parsed.givenBlocks.length
+                      ? canonicalize(parsed.givenBlocks)
+                      : undefined,
                 count: parsed.answer.kind === "count" ? (state.answerRevealed ? parsed.answer.value : undefined) : undefined,
                 direction:
                   parsed.answer.kind === "direction"

@@ -93,7 +93,7 @@ export default function BlockWorld(props: WorldProps) {
     {error ? <p role="alert">{error}</p> : null}
     <div className="world-canvas-shell">
       <canvas ref={canvas} className="world-canvas" aria-label="쌓기나무 3D 작업판" tabIndex={0} style={{ width: '100%', height: 'clamp(360px, 55vh, 560px)', display: 'block', touchAction: 'none' }} />
-      <div className="front-direction-label" aria-label="작업판 앞쪽 경계">앞쪽 경계 ↑</div>
+      <div className="front-direction-label" aria-label="작업판 앞">앞</div>
     </div>
     {!props.disabled && <div className="toolbar-row" style={{ padding: 10, flexWrap: 'wrap' }}>
       {props.allowedMaterials?.length ? <div className="material-picker" aria-label="블록 재료 선택"><strong>재료</strong>{props.allowedMaterials.map(material => <button key={material} type="button" className={`btn btn-sm material-${material} ${activeMaterial === material ? 'btn-primary' : ''}`} onClick={() => { setActiveMaterial(material); if (props.selected && props.onAppearanceChange) props.onAppearanceChange({ ...(props.appearance ?? {}), [appearanceKey(props.selected.x, props.selected.y, props.selected.z)]: material }); props.onMessage?.(props.selected ? '선택한 블록의 재료를 바꿨어요.' : '새 블록 재료를 선택했어요.'); }}>{material === 'wood' ? '원목' : material === 'pastel' ? '파스텔' : material === 'brick' ? '벽돌' : '타일'}</button>)}</div> : null}
@@ -105,7 +105,11 @@ export default function BlockWorld(props: WorldProps) {
         onPointerDown={e => { e.preventDefault(); markPaletteUse(); scene.current?.beginPalette(e.nativeEvent); }}
         onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); markPaletteUse(); scene.current?.armPalette(); } }}
       >
-        <div className="palette-cube" aria-hidden="true"><span /><span /><span /></div>
+        <svg className="palette-cube" viewBox="0 0 96 100" aria-hidden="true" focusable="false">
+          <polygon points="48,8 84,29 48,50 12,29" className="palette-cube-top" />
+          <polygon points="12,29 48,50 48,92 12,71" className="palette-cube-left" />
+          <polygon points="48,50 84,29 84,71 48,92" className="palette-cube-right" />
+        </svg>
         <div><strong>쌓기나무 보관함</strong><small>블록을 잡아 작업판에 놓아 보세요.</small></div>
       </div>
       <button type="button" className="btn" disabled={!props.selected} onClick={() => {

@@ -57,6 +57,22 @@ function emptyGridFor(problem: StudentProblem, key: "top" | "front" | "side" | "
   return createBoolGrid(problem.grid.gridDepth, problem.grid.gridWidth);
 }
 
+function projectionFacesFor(problem: StudentProblem): ("top" | "front" | "side")[] {
+  const allowed = ["top", "front", "side"] as const;
+  const presentationFaces = Object.keys(problem.presentation?.gridSpecs ?? {}).filter((face): face is (typeof allowed)[number] => allowed.includes(face as (typeof allowed)[number]));
+  const givenFaces = Object.keys(problem.given.projections ?? {}).filter((face): face is (typeof allowed)[number] => allowed.includes(face as (typeof allowed)[number]));
+  const known = [...new Set([...presentationFaces, ...givenFaces])];
+  if (known.length || problem.problemType !== "PROJECTION_DRAW") return known;
+  // 구버전 Edge Function이 presentation을 내려주지 않아도 문제 문구와
+  // givenBlocks만으로 입력 격자를 복원해 제출을 막지 않는다.
+  if (problem.prompt.includes("세 방향") || problem.prompt.includes("모두")) return ["top", "front", "side"];
+  const inferred: ("top" | "front" | "side")[] = [];
+  if (problem.prompt.includes("위")) inferred.push("top");
+  if (problem.prompt.includes("앞")) inferred.push("front");
+  if (problem.prompt.includes("옆")) inferred.push("side");
+  return inferred.length ? inferred : ["top", "front", "side"];
+}
+
 function isBuildType(problemType: ProblemType) {
   return [
     "FREE_BUILD",
@@ -96,7 +112,10 @@ export default function LessonPage() {
 
   const [problems, setProblems] = useState<StudentProblem[]>([]);
   const [wrongProblemIds, setWrongProblemIds] = useState<string[]>([]);
-  const [stageFilter, setStageFilter] = useState<"all"|"concept"|"check"|"more">("all");
+  // 학생은 한 번에 한 학습 단계의 문항만 풉니다. `all`을 허용하면
+  // 개념 문제를 끝내기 전에 확인/추가 문항으로 섞여 들어가고 번호도
+  // 단계와 실제 문항 위치가 달라집니다.
+  const [stageFilter, setStageFilter] = useState<"concept"|"check"|"more">("concept");
   const [requiredComplete, setRequiredComplete] = useState(false);
   const [problemImage,setProblemImage]=useState("");
   const [problem, setProblem] = useState<StudentProblem | null>(null);
@@ -117,11 +136,11 @@ export default function LessonPage() {
   const [sideMap, setSideMap] = useState<Grid2D>(createBoolGrid(4, 4));
   const [heightMap, setHeightMap] = useState<HeightMap>(createBoolGrid(4, 4).map((r) => r.map(() => 0)));
   const [layerMaps, setLayerMaps] = useState<Grid2D[]>([]);
-  const visibleProblems = useMemo(() => stageFilter === "all" ? problems : problems.filter(item => item.stage === stageFilter), [problems, stageFilter]);
-  const currentStage = problem?.stage ?? (stageFilter === "all" ? "concept" : stageFilter);
+  const visibleProblems = useMemo(() => problems.filter(item => item.stage === stageFilter), [problems, stageFilter]);
+  const currentStage = problem?.stage ?? stageFilter;
   const stageProblems = useMemo(() => problems.filter(item => item.stage === currentStage), [problems, currentStage]);
   const stageIndex = problem ? stageProblems.findIndex(item => item.id === problem.id) : -1;
-  const stageLabel = currentStage === "concept" ? "개념 익히기" : currentStage === "check" ? "개념 확인" : "더 풀어보기";
+  const stageLabel = currentStage === "concept" ? "① 개념 배우기" : currentStage === "check" ? "② 문제로 익히기" : "③ 더 풀어보기";
 
   const [attempt, setAttempt] = useState<ProblemAttempt>(DEFAULT_ATTEMPT_STATE);
   const attemptRef = useRef(attempt);
@@ -167,14 +186,13 @@ export default function LessonPage() {
     }
 
     if (current.problemType === "PROJECTION_DRAW") {
-      return {
-        kind: "projections",
-        projections: {
-          top: topMap,
-          front: frontMap,
-          side: sideMap,
-        },
-      };
+      const faces = projectionFacesFor(current);
+      if (!faces.length) return null;
+      const projections: Partial<{ top: Grid2D; front: Grid2D; side: Grid2D }> = {};
+      if (faces.includes("top")) projections.top = topMap;
+      if (faces.includes("front")) projections.front = frontMap;
+      if (faces.includes("side")) projections.side = sideMap;
+      return { kind: "projections", projections };
     }
 
     if (current.problemType === "COUNT" || current.problemType === "COUNT_AMBIGUOUS") {
@@ -224,12 +242,13 @@ export default function LessonPage() {
 
     clearHistory();
     setBlocks(next.startBlocks);
-    setTopMap(next.given?.projections?.top ? next.given.projections.top.map(row => [...row]) : emptyGridFor(next, "top"));
+    const clearProjectionAnswers = next.problemType === "PROJECTION_DRAW";
+    setTopMap(!clearProjectionAnswers && next.given?.projections?.top ? next.given.projections.top.map(row => [...row]) : emptyGridFor(next, "top"));
     setFrontMap(
-      next.given?.projections?.front ? next.given.projections.front.map(row => [...row]) : emptyGridFor(next, "front"),
+      !clearProjectionAnswers && next.given?.projections?.front ? next.given.projections.front.map(row => [...row]) : emptyGridFor(next, "front"),
     );
     setSideMap(
-      next.given?.projections?.side ? next.given.projections.side.map(row => [...row]) : emptyGridFor(next, "side"),
+      !clearProjectionAnswers && next.given?.projections?.side ? next.given.projections.side.map(row => [...row]) : emptyGridFor(next, "side"),
     );
     setHeightMap(next.given?.heightMap ? next.given.heightMap.map(row => [...row]) : emptyGridFor(next, "heightMap").map((row) => row.map(() => 0)));
     setLayerMaps(layers.map((row) => row.map((r) => [...r])));
@@ -272,7 +291,7 @@ export default function LessonPage() {
         if (envelope.attempt.completed) {
           setMessage("이 문제는 이미 완료했습니다.");
         } else if (envelope.attempt.answerRevealed) {
-          setMessage("정답이 공개된 상태입니다. 정답 모양대로 다시 쌓아보세요.");
+          setMessage(isBuildType(next.problemType) ? "정답이 공개된 상태입니다. 정답 모양대로 다시 쌓아보세요." : "정답이 공개된 상태입니다. 답을 확인하고 다시 풀어 보세요.");
         } else if (envelope.attempt.hintShown) {
           setMessage("이전 시도에서 힌트가 공개되었어요.");
         }
@@ -338,11 +357,15 @@ export default function LessonPage() {
         setSeedMode(list.seedFallback);
         setProblems(parsed);
         setRequiredComplete(Boolean(list.requiredComplete));
-        setStageFilter("all");
-
         if (parsed.length > 0) {
           const restoredIndex = problemIndexForId(parsed, list.currentProblemId);
-          setProblemIndex(restoredIndex);
+          const restoredProblem = parsed[restoredIndex] ?? parsed[0];
+          const restoredStage = restoredProblem?.stage ?? "concept";
+          const restoredStageIndex = parsed
+            .filter(item => item.stage === restoredStage)
+            .findIndex(item => item.id === restoredProblem?.id);
+          setStageFilter(restoredStage);
+          setProblemIndex(Math.max(0, restoredStageIndex));
           applyProblem(parsed[restoredIndex]);
         } else {
           setProblem(null);
@@ -524,7 +547,8 @@ export default function LessonPage() {
     }
 
     if (problem.problemType === "PROJECTION_DRAW") {
-      const faces = (Object.keys(problem.presentation?.gridSpecs ?? {}) as ("top" | "front" | "side")[]).filter(face => ["top", "front", "side"].includes(face));
+      const faces = projectionFacesFor(problem);
+      if (!faces.length) return <p role="alert">문제를 표시하지 못했어요. 잠시 뒤 다시 시도해 주세요.</p>;
       return (
         <div className="answer-box">
           {faces.includes("top") && <ProjectionGrid title="위에서 본 모양" rows={topMap} orientation="floor" editable onChange={next => setTopMap(next as Grid2D)} valueType="boolean" />}
@@ -564,6 +588,7 @@ export default function LessonPage() {
   };
 
   const allowLayer = !!problem?.given.allowLayerView;
+  const answerUnavailable = problem?.problemType === "PROJECTION_DRAW" && projectionFacesFor(problem).length === 0;
   const totalLayerButtons = useMemo(() => {
     if (!problem) return [] as number[];
     return Array.from({ length: Math.max(1, problem.grid.maxHeight) }, (_, idx) => idx + 1);
@@ -623,14 +648,14 @@ export default function LessonPage() {
         <section className="panel stack" aria-label="차시 학습 단계">
           <strong>학습 단계</strong>
           <div className="toolbar-row">
-            {([['all','전체 학습'],['concept','개념 익히기'],['check','개념 확인'],['more','더 풀어보기']] as const).map(([value,label])=><button key={value} className={`btn btn-sm ${stageFilter===value?'btn-primary':''}`} disabled={value==='more'&&!requiredComplete} onClick={()=>{
+            {([['concept','① 개념 배우기'],['check','② 문제로 익히기'],['more','③ 더 풀어보기']] as const).map(([value,label])=><button key={value} className={`btn btn-sm ${currentStage===value?'btn-primary':''}`} disabled={value==='more'&&!requiredComplete} onClick={()=>{
               setStageFilter(value);
               setProblemIndex(0);
-              const first = problems.find(item => value === 'all' || item.stage === value);
+              const first = problems.find(item => item.stage === value);
               if (first && !first.id.startsWith('seed:')) void saveProblemPosition(first.id, lessonNum);
             }}>{label} {value==='more'&&!requiredComplete?'(필수 학습 후 열림)':''}</button>)}
           </div>
-          <p className="muted">개념 {problems.filter(item=>item.stage==='concept').length} · 확인 {problems.filter(item=>item.stage==='check').length} · 추가 {problems.filter(item=>item.stage==='more').length}문제{requiredComplete?' · 필수 학습 완료':' · 개념 확인을 먼저 완료해 주세요.'}</p>
+          <p className="muted">① {problems.filter(item=>item.stage==='concept').length}문제 · ② {problems.filter(item=>item.stage==='check').length}문제 · ③ {problems.filter(item=>item.stage==='more').length}문제{requiredComplete?' · 필수 학습 완료':' · ② 문제로 익히기를 먼저 완료해 주세요.'}</p>
           {requiredComplete && problems.some(item => item.stage === 'more') && (
             <div className="toolbar-row">
               <button className="btn btn-sm" disabled={!wrongProblemIds.length} onClick={() => {
@@ -754,7 +779,7 @@ export default function LessonPage() {
               >{renderEditor()}</div>
 
               <div className="toolbar-row" style={{ marginTop: 12 }}>
-                <button className="btn" onClick={submit} disabled={restoring || busy || attempt.completed}>
+                <button className="btn" onClick={submit} disabled={restoring || busy || attempt.completed || answerUnavailable}>
                   {busy ? "채점 중…" : "정답 확인"}
                 </button>
                 <button className="btn btn-sm" onClick={() => {
@@ -789,6 +814,11 @@ export default function LessonPage() {
                 {attempt.revealedAnswer?.count != null && <p>정답: {attempt.revealedAnswer.count}개</p>}
                 {attempt.revealedAnswer?.direction && <p>정답 방향: {DIRECTION_LABELS[normalizeDirection(attempt.revealedAnswer.direction)]}</p>}
                 {attempt.revealedAnswer?.choiceIndex != null && <p>정답: {problem.choices[attempt.revealedAnswer.choiceIndex]}</p>}
+                {attempt.revealedAnswer?.projections?.top && <ProjectionGrid title="정답 · 위에서 본 모양" rows={attempt.revealedAnswer.projections.top} orientation="floor" editable={false} onChange={() => undefined} valueType="boolean" />}
+                {attempt.revealedAnswer?.projections?.front && <ProjectionGrid title="정답 · 앞에서 본 모양" rows={attempt.revealedAnswer.projections.front} reverseRows editable={false} onChange={() => undefined} valueType="boolean" />}
+                {attempt.revealedAnswer?.projections?.side && <ProjectionGrid title="정답 · 옆에서 본 모양(오른쪽)" rows={attempt.revealedAnswer.projections.side} reverseRows editable={false} onChange={() => undefined} valueType="boolean" />}
+                {attempt.revealedAnswer?.heightMap && <ProjectionGrid title="정답 · 숫자 지도" rows={attempt.revealedAnswer.heightMap} orientation="floor" editable={false} onChange={() => undefined} valueType="number" />}
+                {attempt.revealedAnswer?.layers?.map((rows, index) => <ProjectionGrid key={`revealed-layer-${index}`} title={`정답 · ${index + 1}층`} rows={rows} orientation="floor" editable={false} onChange={() => undefined} valueType="boolean" />)}
                 {attempt.revealedAnswer?.blocks && <button className="btn" onClick={()=>{setBlocksWithHistory(problem.startBlocks);setSelection(null);setMessage("정답 모양을 살펴보고 직접 다시 쌓아 보세요.");}}>정답 모양대로 다시 쌓기</button>}
                 <p>{attempt.revealedAnswer?.explanation}</p>
               </div>}

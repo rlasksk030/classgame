@@ -263,3 +263,12 @@
 - 위에서 본 모양·높이 지도·층별 지도·학생 답안 격자에 `앞에서 바라봄`과 `오른쪽(옆)에서 바라봄` 관찰 기준을 표시했다. 앞·옆 실루엣에는 바닥 지도 화살표를 붙이지 않는다.
 - 교사 학생 기록과 놀이·건축물 기록이 저장된 `grid_width/grid_depth/max_height`를 사용해 10×10 작품과 기존 5×5·8×8 작품을 각자의 작업판으로 다시 렌더링하도록 수정했다. 작품 외형 metadata도 유지한다.
 - 자동 감사: `audit:problems`, `audit:presentation`, `audit:semantics`, `audit:solvability`, `qa:curriculum` 모두 통과. DOM/기기 캡처는 포트 권한 제한으로 BLOCKED다.
+
+## 학생 화면 긴급 오류 R01~R06 수정 (2026-09-12)
+- 실제 학생 route의 `LessonPage`가 문제 `presentation.gridSpecs`와 구버전 응답의 `given`/문구를 함께 해석하도록 보강했다. 3차시 `PROJECTION_DRAW`는 답안 격자를 빈 상태로 mount하고 제출 payload에는 문제에서 요구한 면만 포함한다. 필요한 면 정보가 없으면 제출을 막고 오답 횟수를 올리지 않는다.
+- 5차시 대표 문항을 정보 충분성 판단(`CHOICE`)과 ‘숨은 블록 없음’ 가정하의 숫자 세기(`COUNT`)로 분리했다. 숫자 정답은 원본 3D 총개수가 아니라 제시된 앞면의 채워진 칸 수를 사용한다. 연습 생성기의 최대 개수 문항도 앞 투영에서 가능한 상한을 계산한다.
+- 정답 공개 후 후속 활동은 답안 유형에 맞춘다. 숫자·선택·격자·높이 지도·층별 지도는 자료와 다시 답하기를 제공하고, 실제 블록 쌓기 유형만 정답 3D Ghost와 재구성 단계를 요구한다. `applyAttempt`에 `requiresRebuild` 계약을 추가하고 Edge Function이 문제 유형에 따라 전달한다.
+- 학생 단계 표시를 `① 개념 배우기 → ② 문제로 익히기 → ③ 더 풀어보기`로 고정하고 한 단계씩 문항을 탐색하도록 초기 `all` 혼합 상태를 제거했다. 저장된 현재 문항은 해당 단계 안에서 복원한다.
+- 학생 화면의 앞 표시는 `앞`으로 단순화하고, 보관함 아이콘은 세 면이 같은 꼭짓점을 공유하는 닫힌 SVG 정육면체로 교체했다. 기존 Pointer Events 드래그·탭 배치와 원목 색상 토큰은 유지한다.
+- 현재 작업 트리 기준 회귀: `npm run audit:problems`(5,600 생성), `audit:presentation`(14,030), `audit:semantics`(2,830), `audit:solvability`(2,830), `npm test`(41개), `test:security`, `typecheck`, `lint`, `typecheck:edge`, `build` 모두 통과했다. 테스트 실행 대상은 이 변경을 포함한 작업 트리이며 커밋 전 HEAD는 `4ebd1995`다.
+- Playwright 시각 캡처/Renderer DOM mount는 이 환경의 Vite 포트 바인딩 오류 `listen EPERM: 127.0.0.1:4173`로 실행하지 못했다. 따라서 실제 브라우저 화면 증거는 BLOCKED이며 자동 감사 PASS를 화면 VERIFIED로 승격하지 않는다.

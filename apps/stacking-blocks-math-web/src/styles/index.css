@@ -538,13 +538,12 @@ button {
   width: 56px;
   height: 56px;
   flex: 0 0 56px;
-  transform: rotate(-10deg) skewY(-4deg);
-  transform-style: preserve-3d;
+  overflow: visible;
 }
-.palette-cube span { position: absolute; display: block; border: 2px solid var(--block-outline); }
-.palette-cube span:nth-child(1) { width: 40px; height: 40px; left: 8px; top: 10px; background: var(--block-top); }
-.palette-cube span:nth-child(2) { width: 16px; height: 40px; left: 48px; top: 4px; transform: skewY(34deg); transform-origin: left top; background: var(--block-side); }
-.palette-cube span:nth-child(3) { width: 40px; height: 14px; left: 8px; top: 50px; transform: skewX(55deg); transform-origin: left top; background: var(--block-front); }
+.palette-cube polygon { stroke: var(--block-outline); stroke-width: 2.5; stroke-linejoin: round; }
+.palette-cube-top { fill: var(--block-top); }
+.palette-cube-left { fill: var(--block-front); }
+.palette-cube-right { fill: var(--block-side); }
 .first-use-hint { margin: 4px 12px 0; color: var(--ink-soft); font-size: 13px; }
 .material-picker { display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
 .material-picker strong { margin-right:2px; }

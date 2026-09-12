@@ -12,6 +12,15 @@ test("3차시 격자는 실제 정답 투영의 행·열을 사용한다", () =>
   assert.equal(validateProblemPresentation(problem).length, 0);
 });
 
+test("구버전 문제 응답도 투영 정답에서 실제 입력 격자 계약을 복원한다", () => {
+  const problem = SEED_PROBLEMS.find(item => item.code === "L3-01")!;
+  const legacy = { ...problem, given: { ...problem.given, projections: undefined } };
+  const presentation = deriveProblemPresentation(legacy);
+  assert.equal(presentation.answerInput, "GRID");
+  assert.deepEqual(presentation.gridSpecs.top, { rows: 3, cols: 3 });
+  assert.equal(answerRendererFor(presentation.answerInput), "SingleGridRenderer");
+});
+
 test("4차시 높이 지도 개수 문제는 학생에게 숫자 지도를 표시한다", () => {
   const problem = SEED_PROBLEMS.find(item => item.code === "L4-01")!;
   const presentation = deriveProblemPresentation(problem);

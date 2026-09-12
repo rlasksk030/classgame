@@ -25,3 +25,14 @@
 - `NOT_STARTED`: 코드 경로가 아직 없다.
 
 현재 브라우저 QA는 이 환경의 Vite/Playwright 포트 바인딩 제한으로 BLOCKED다. 원격 migration 016 적용과 Supabase 관통 검증도 운영자 승인·접속이 필요한 별도 작업이다.
+
+## 긴급 학생 화면 오류 기준 (2026-09-12)
+
+| 요구 ID | 최신 요구 | 폐기한 이전 요구 | 실제 구현 파일 | 완료 확인 방법 | 상태 |
+|---|---|---|---|---|---|
+| R01 | 3차시 그리기 문항은 실제 입력 격자를 mount하고, 면 정보가 없으면 제출/오답을 막는다. | `gridSpec` 데이터만 있으면 화면도 정상이라고 판정 | `src/pages/LessonPage.tsx`, `shared/problemPresentation.ts` | Renderer 계약 및 실제 DOM QA (`qa:renderer`) | IMPLEMENTED (브라우저 BLOCKED) |
+| R02 | 5차시 정보 충분성 선택과 ‘숨은 블록 없음’ 숫자 세기를 분리한다. | 앞모습 자료를 원본 3D 총개수로 채점 | `shared/seedProblems.ts`, `shared/practiceGenerator.ts`, `shared/grading.ts` | 고정 대표값·생성 seed 독립 테스트 | VERIFIED_LOCAL |
+| R03 | 답안 유형에 맞는 정답 공개/후속 활동만 제공한다. | 모든 오답에 ‘다시 쌓기’ 공통 문구 | `shared/attempts.ts`, `supabase/functions/student-api/index.ts`, `src/pages/LessonPage.tsx` | 비쌓기 `requiresRebuild=false`, 쌓기 재구성 상태 기계 | VERIFIED_LOCAL |
+| R04 | 학생 표시는 `앞`·`옆`으로 단순화하고 기준 안내를 짧게 제공한다. | `앞쪽 경계`·긴 관찰자 문구 반복 | `src/components/world/BlockWorld.tsx`, `src/components/world/ProjectionGrid.tsx`, `src/pages/LessonPage.tsx` | 소스/DOM 문자열 및 화면 캡처 | IMPLEMENTED (브라우저 BLOCKED) |
+| R05 | 보관함은 세 면이 맞붙은 닫힌 정육면체이며 기존 드래그·탭 배치를 유지한다. | 펼쳐진 CSS 전개도 형태 | `src/components/world/BlockWorld.tsx`, `src/styles/index.css` | SVG 꼭짓점 검사·화면 조작 | IMPLEMENTED (브라우저 BLOCKED) |
+| R06 | 학생 단계는 `① 개념 배우기 → ② 문제로 익히기 → ③ 더 풀어보기`이며 단계별 위치를 보존한다. | `전체 학습 / 개념 익히기 / 개념 확인` 혼합 표시 | `src/pages/LessonPage.tsx`, `src/pages/StudentWorld.tsx` | 단계별 인덱스/복원 회귀 및 화면 확인 | VERIFIED_LOCAL |
