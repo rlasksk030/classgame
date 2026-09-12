@@ -377,3 +377,10 @@ Start 3454fd7, branch feature/spatial-math-redesign-v1. Pre-existing work backed
 - Final qa:redesign production run 19/19 PASS including all three complete new student flows and full16 previous cases. Source SHA256 239c096753738198e5f31e035f3681f6a83cba21375a5bf50c46716ff0563a83; build 9be2701d9eb96a68f132e1a88f10829ae67fbb4f9801eba8c17e65ecf773b620. Test target includes existing working changes; not a claim about pristine start commit. Screenshots visually reviewed; fixed-photo stale rotation help removed and full browser run repeated.
 - Full unit initially found one obsolete left/back→free expectation. Updated to explicit left/back and retained noncanonical/zero free assertions; final81/81 PASS. typecheck/lint/build/edge/security1 PASS. Timestamped logs in checks/, including the retained initial failure.
 - LOCAL_ONLY / UI_WITH_TEST_DATA: synthetic browser identity, all remote browser requests aborted. No Supabase/Auth/DB/migration/secret/operating data/push/deployment changes. Existing broader P0 and INSTALL_EASY not declared complete. Phase 3 begins only as design preparation after these gates.
+
+
+## 2026-09-13 — Overnight Phase 3 design preparation only
+
+- After Phase2 gate and local commit762780a, read existing coordinate conversion, display adapter, contract validation and grading. Existing projection-constraints checks candidates but min/max remains unsupported; no full-model enumerator is implemented.
+- qa/overnight-20260913/PHASE3_PREP.md proposes bounded height-variable search, pruning, COMPLETE/LIMIT_REACHED separation, fixed independently enumerated fixtures, height/layer input validation, missing-layer ambiguity and next gate order.
+- No solver or lesson5~8 implementation; performance numbers are candidate-space arithmetic/initial budgets, not benchmark results. No remote actions. Installation simplification and existing unresolved learning scope stay open.
