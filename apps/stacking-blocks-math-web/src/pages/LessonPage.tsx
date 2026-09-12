@@ -527,7 +527,7 @@ export default function LessonPage() {
       const faces = (Object.keys(problem.presentation?.gridSpecs ?? {}) as ("top" | "front" | "side")[]).filter(face => ["top", "front", "side"].includes(face));
       return (
         <div className="answer-box">
-          {faces.includes("top") && <ProjectionGrid title="위에서 본 모양" rows={topMap} editable onChange={next => setTopMap(next as Grid2D)} valueType="boolean" />}
+          {faces.includes("top") && <ProjectionGrid title="위에서 본 모양" rows={topMap} orientation="floor" editable onChange={next => setTopMap(next as Grid2D)} valueType="boolean" />}
           {faces.includes("front") && <ProjectionGrid title="앞에서 본 모양" reverseRows rows={frontMap} editable onChange={next => setFrontMap(next as Grid2D)} valueType="boolean" />}
           {faces.includes("side") && <ProjectionGrid title="옆에서 본 모양(오른쪽)" reverseRows rows={sideMap} editable onChange={next => setSideMap(next as Grid2D)} valueType="boolean" />}
         </div>
@@ -537,7 +537,7 @@ export default function LessonPage() {
     if (problem.problemType === "HEIGHTMAP_FROM_BUILD") {
       return (
         <div className="answer-box">
-          <ProjectionGrid title="숫자 지도" rows={heightMap} editable onChange={next => setHeightMap(next as HeightMap)} valueType="number" />
+          <ProjectionGrid title="숫자 지도" rows={heightMap} orientation="floor" editable onChange={next => setHeightMap(next as HeightMap)} valueType="number" />
         </div>
       );
     }
@@ -551,6 +551,7 @@ export default function LessonPage() {
               title={`${index + 1}층`}
               rows={layer}
               editable
+              orientation="floor"
               valueType="boolean"
               onChange={(next) => updateLayer(index, next as Grid2D)}
             />
@@ -576,9 +577,9 @@ export default function LessonPage() {
     return <div className="panel stack" aria-label="문제에서 함께 제시한 정보">
       <strong>함께 제시된 정보</strong>
       <div className="toolbar-row" style={{ alignItems: "flex-start" }}>
-        {faces.map(face => <ProjectionGrid key={face} title={{ top: "위에서 본 조건", front: "앞에서 본 조건", side: "옆에서 본 조건(오른쪽)" }[face]} rows={evidence.projections![face]!} reverseRows={face !== "top"} editable={false} onChange={() => undefined} valueType="boolean" />)}
-        {evidence.heightMap && <ProjectionGrid title="표시된 숫자 지도" rows={evidence.heightMap} editable={false} onChange={() => undefined} valueType="number" />}
-        {evidence.layers?.map((rows, index) => <ProjectionGrid key={`evidence-layer-${index}`} title={`${index + 1}층 모양`} rows={rows} editable={false} onChange={() => undefined} valueType="boolean" />)}
+        {faces.map(face => <ProjectionGrid key={face} title={{ top: "위에서 본 조건", front: "앞에서 본 조건", side: "옆에서 본 조건(오른쪽)" }[face]} rows={evidence.projections![face]!} reverseRows={face !== "top"} orientation={face === "top" ? "floor" : undefined} editable={false} onChange={() => undefined} valueType="boolean" />)}
+        {evidence.heightMap && <ProjectionGrid title="표시된 숫자 지도" rows={evidence.heightMap} orientation="floor" editable={false} onChange={() => undefined} valueType="number" />}
+        {evidence.layers?.map((rows, index) => <ProjectionGrid key={`evidence-layer-${index}`} title={`${index + 1}층 모양`} rows={rows} orientation="floor" editable={false} onChange={() => undefined} valueType="boolean" />)}
       </div>
     </div>;
   };
@@ -744,7 +745,7 @@ export default function LessonPage() {
                 const direction = normalizeDirection(problem.given.shownFrom ?? "front");
                 const face = direction === "top" ? "top" : direction === "front" || direction === "back" ? "front" : "side";
                 const projection = problem.given.projections[face];
-                return projection ? <ProjectionGrid title={`${DIRECTION_LABELS[direction]}에서 본 모양`} rows={projection} reverseRows={face !== "top"} editable={false} onChange={() => undefined} valueType="boolean" /> : null;
+                return projection ? <ProjectionGrid title={`${DIRECTION_LABELS[direction]}에서 본 모양`} rows={projection} reverseRows={face !== "top"} orientation={face === "top" ? "floor" : undefined} editable={false} onChange={() => undefined} valueType="boolean" /> : null;
               })()}
               <div
                 className="answer-box"

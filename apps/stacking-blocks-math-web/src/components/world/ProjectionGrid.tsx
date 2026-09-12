@@ -7,9 +7,11 @@ interface ProjectionGridProps {
   onChange: (next: Grid2D | HeightMap) => void;
   valueType: "boolean" | "number";
   reverseRows?: boolean;
+  /** 바닥을 내려다보는 지도에만 관찰자 기준을 표시한다. 실루엣에는 화살표를 복사하지 않는다. */
+  orientation?: "floor";
 }
 
-export function ProjectionGrid({ title, rows, editable, onChange, valueType, reverseRows = false }: ProjectionGridProps) {
+export function ProjectionGrid({ title, rows, editable, onChange, valueType, reverseRows = false, orientation }: ProjectionGridProps) {
   const rowCount = rows.length;
   const colCount = rows[0]?.length ?? 0;
 
@@ -32,6 +34,7 @@ export function ProjectionGrid({ title, rows, editable, onChange, valueType, rev
   return (
     <div className="projection-area">
       <p className="muted">{title}</p>
+      {orientation === "floor" && <div className="projection-orientation" aria-label="바닥 지도 관찰 기준"><span>↑ 앞에서 바라봄</span><span>← 오른쪽(옆)에서 바라봄</span></div>}
       <table className="projection-table" aria-label={title}>
         <tbody>
           {Array.from({ length: rowCount }, (_, i) => reverseRows ? rowCount - 1 - i : i).map((r) => (
