@@ -279,3 +279,9 @@
 - `scripts/generate-problem-inventory.ts`와 `npm run inventory:problems`를 추가해 현재 코드에서 고정 30개, practice template 대표 56개, 9~12차시·교사 기능 활동 6개, 수업용 practice manifest 140개를 `PROBLEM_INVENTORY.json`으로 생성한다. 원격 데이터가 수집되지 않은 범위는 LIVE로 표시하지 않는다.
 - 의도적으로 격자 자료를 제거한 문항, 3×3 앞면의 9/20 변조, 오른쪽 투영 좌우 반전을 품질 게이트 테스트에서 거부하도록 `tests/qualityGate.test.ts`를 추가했다.
 - 현재 HEAD `418890b` 이후 품질 게이트 변경을 포함한 작업 트리에서 `npm test` 45개, 감사·typecheck·lint·edge typecheck·build를 통과했다. 실제 학생 화면 DOM/터치/서버 관통은 기존 포트 권한 제약으로 BLOCKED다.
+
+## 최종 품질 기준 보강 (2026-09-12)
+- 실제 학생 route를 모의 API로 여는 `e2e/renderer-mount.spec.ts`에 셀 입력 상호작용 검사를 추가했다. 3방향 격자의 셀을 클릭하면 선택 상태가 바뀌고 `attempt` 제출 payload의 해당 투영 좌표가 변경되는지 확인한다.
+- 자료와 방향 단서가 없는 투영 문항은 학생 route에서 답안 Renderer가 준비되지 않은 상태로 안내하고, 정답 확인 버튼을 비활성화하며, attempt 요청이 발생하지 않는지 검사한다. 이는 화면 표식만 있는 빈 영역을 통과로 보지 않기 위한 회귀 사례다.
+- 이번 보강은 실제 브라우저 실행이나 원격 Supabase를 변경하지 않았다. Playwright는 현재 환경의 `listen EPERM: 127.0.0.1:4173` 제약으로 여전히 `BLOCKED`다.
+- 기준 HEAD `a53724c19b8151326787f477f2a00b1bb8b7cfbe`에서 시작한 변경이며, 추적되지 않은 `supabase/.temp/`는 보존한다.

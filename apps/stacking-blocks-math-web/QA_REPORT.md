@@ -11,8 +11,8 @@
 | Semantic QA | PASS — 2,830개 문구·답안 계약 |
 | Solvability QA | PASS — 2,830개 유효 구조·정답 존재 |
 | Curriculum QA | PASS — 1~12차시 route·단계·Renderer 계약 |
-| Renderer DOM mount | TEST READY — 3방향/층별 입력 검증 스위트는 로컬 포트 제한으로 미실행 |
-| Unit | PASS — 45개 |
+| Renderer DOM mount | TEST READY — 실제 학생 route에서 3방향/층별 입력 셀 mount, 셀 상태 변화, 제출 payload, 누락 자료 제출 차단을 검사하도록 준비했으나 로컬 포트 제한으로 미실행 |
+| Unit | PASS — 46개 |
 | Security | PASS — PIN hash 범위 및 session 위변조 검사 |
 | TypeScript / ESLint | PASS |
 | Edge Function typecheck | PASS |
@@ -102,7 +102,7 @@ npm run test:e2e
 
 | 요구 ID | 실제 원인 | 수정 파일 | 재현 테스트 | 화면 증거 | 상태 |
 |---|---|---|---|---|---|
-| R01 | 구버전/부분 투영 응답에서 답안 격자 면을 렌더러가 알 수 없었음 | `src/pages/LessonPage.tsx`, `shared/problemPresentation.ts`, `tests/problemPresentation.test.ts` | 3차시 단일·세 방향 Renderer 계약, 41개 회귀 | Playwright 포트 제한 | IMPLEMENTED (브라우저 BLOCKED) |
+| R01 | 구버전/부분 투영 응답에서 답안 격자 면을 렌더러가 알 수 없었음 | `src/pages/LessonPage.tsx`, `shared/problemPresentation.ts`, `tests/problemPresentation.test.ts`, `e2e/renderer-mount.spec.ts` | 3차시 단일·세 방향 Renderer 계약, 실제 셀 클릭→제출 payload, 누락 자료 제출 차단 스위트 준비 | Playwright 포트 제한 | IMPLEMENTED (브라우저 BLOCKED) |
 | R02 | 5차시 숫자 문항이 원본 블록 총개수를 정답으로 사용하고 정보 충분성 문항과 섞였음 | `shared/seedProblems.ts`, `shared/practiceGenerator.ts`, `tests/activities.test.ts` | 정보 충분성 CHOICE와 숨은 블록 없음 COUNT의 독립 정답 | Playwright 포트 제한 | VERIFIED_LOCAL |
 | R03 | 정답 공개 후 모든 유형에 재구성 문구가 공통 적용됨 | `shared/attempts.ts`, `supabase/functions/student-api/index.ts`, `src/pages/LessonPage.tsx`, `tests/blocks.test.ts` | 비쌓기 유형 `requiresRebuild=false` 상태 기계 | Playwright 포트 제한 | VERIFIED_LOCAL |
 | R04 | 앞 방향 UI가 긴 경계 문구로 표시됨 | `src/components/world/BlockWorld.tsx`, `src/components/world/ProjectionGrid.tsx`, `src/pages/LessonPage.tsx` | 라벨 소스 검색·TypeScript 회귀 | Playwright 포트 제한 | IMPLEMENTED (브라우저 BLOCKED) |
@@ -112,8 +112,9 @@ npm run test:e2e
 ### 실행 증거
 
 - 현재 변경 작업 트리에서 `npm run audit:problems` 5,600개, `audit:presentation` 14,030개, `audit:semantics` 2,830개, `audit:solvability` 2,830개가 통과했다.
-- `npm test` 41개, `npm run test:security`, `npm run typecheck`, `npm run lint`, `npm run typecheck:edge`, `npm run build`가 모두 통과했다.
+- `npm test` 46개, `npm run test:security`, `npm run typecheck`, `npm run lint`, `npm run typecheck:edge`, `npm run build`가 모두 통과했다.
 - 실제 DOM mount와 화면 조작은 `npm run qa:renderer`, `npm run qa:visual`, `npm run test:e2e`가 이 환경의 포트 권한 오류로 실행되지 않아 BLOCKED다. 스크린샷은 생성되지 않았다.
+- `qa:renderer`에는 대표 실패를 먼저 재현하는 두 검사가 포함된다. 실제 학생 route의 셀 입력이 제출 payload로 전달되는지, 자료가 없는 투영 문항은 제출과 오답 증가를 차단하는지 확인한다.
 
 ## 전체 문항 inventory (2026-09-12)
 
