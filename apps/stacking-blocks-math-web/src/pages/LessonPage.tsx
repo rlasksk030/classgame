@@ -529,7 +529,7 @@ export default function LessonPage() {
         <div className="answer-box">
           {faces.includes("top") && <ProjectionGrid title="위에서 본 모양" rows={topMap} editable onChange={next => setTopMap(next as Grid2D)} valueType="boolean" />}
           {faces.includes("front") && <ProjectionGrid title="앞에서 본 모양" reverseRows rows={frontMap} editable onChange={next => setFrontMap(next as Grid2D)} valueType="boolean" />}
-          {faces.includes("side") && <ProjectionGrid title="옆에서 본 모양" reverseRows rows={sideMap} editable onChange={next => setSideMap(next as Grid2D)} valueType="boolean" />}
+          {faces.includes("side") && <ProjectionGrid title="옆에서 본 모양(오른쪽)" reverseRows rows={sideMap} editable onChange={next => setSideMap(next as Grid2D)} valueType="boolean" />}
         </div>
       );
     }
@@ -576,7 +576,7 @@ export default function LessonPage() {
     return <div className="panel stack" aria-label="문제에서 함께 제시한 정보">
       <strong>함께 제시된 정보</strong>
       <div className="toolbar-row" style={{ alignItems: "flex-start" }}>
-        {faces.map(face => <ProjectionGrid key={face} title={{ top: "위에서 본 조건", front: "앞에서 본 조건", side: "옆에서 본 조건" }[face]} rows={evidence.projections![face]!} reverseRows={face !== "top"} editable={false} onChange={() => undefined} valueType="boolean" />)}
+        {faces.map(face => <ProjectionGrid key={face} title={{ top: "위에서 본 조건", front: "앞에서 본 조건", side: "옆에서 본 조건(오른쪽)" }[face]} rows={evidence.projections![face]!} reverseRows={face !== "top"} editable={false} onChange={() => undefined} valueType="boolean" />)}
         {evidence.heightMap && <ProjectionGrid title="표시된 숫자 지도" rows={evidence.heightMap} editable={false} onChange={() => undefined} valueType="number" />}
         {evidence.layers?.map((rows, index) => <ProjectionGrid key={`evidence-layer-${index}`} title={`${index + 1}층 모양`} rows={rows} editable={false} onChange={() => undefined} valueType="boolean" />)}
       </div>
@@ -617,6 +617,7 @@ export default function LessonPage() {
           {problem.title}
           {seedMode ? " (기본문제)" : ""}
         </p>
+        <p className="direction-note" role="note">이 단원에서 ‘옆’은 오른쪽에서 본 모양이에요. 앞쪽 기준은 3D 작업판과 자료에서 같아요.</p>
 
         <section className="panel stack" aria-label="차시 학습 단계">
           <strong>학습 단계</strong>

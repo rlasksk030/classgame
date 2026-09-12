@@ -253,3 +253,8 @@
 - 신규 `ARCHITECTURE_GRID`를 10×10×3으로 변경했다. `sb_projects` 새 행의 기본값과 저장 RPC의 메타데이터 없는 신규 입력 기본값도 10×10으로 맞췄다. 기존 5×5·8×8 저장 행의 grid metadata/좌표는 변경하지 않는다.
 - 오른쪽 관찰 기준은 기존 코드의 `side[y][depth-1-z]`, `projectionForDirection(..., 'right')`, Babylon side camera 경로와 일치함을 고정 비대칭 fixture로 확인했다. 표시명만 바꾼 것이 아니다.
 - 현재 환경에서는 실제 브라우저 캡처와 live Supabase 관통 검증을 수행하지 못했으므로 `CURRENT_REQUIREMENTS.md`와 QA 보고서에 BLOCKED로 기록했다.
+
+## 오른쪽 관찰 기준 표시 보강 (2026-09-12)
+- 학생 답안 격자와 문제에서 함께 제시한 투영 자료의 `옆` 제목을 `오른쪽에서 본 모양`으로 명확히 표시했다.
+- 차시 화면에 단원 공통 기준 안내를 추가했다. 계산 로직과 좌표 규칙은 기존 오른쪽 관찰 기준을 그대로 사용한다.
+- 로컬 회귀: `npm run typecheck`, `npm run lint`, `npm test`(39개), `npm run build` 통과. 실제 브라우저 캡처는 포트 바인딩 제한으로 여전히 BLOCKED다.
