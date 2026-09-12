@@ -1,0 +1,42 @@
+{
+  "head": "fcb1d28f37b92ecd61deb8680f5485b152beb4a5",
+  "sourceSha256": "239c096753738198e5f31e035f3681f6a83cba21375a5bf50c46716ff0563a83",
+  "results": [
+    {
+      "command": "npm run test",
+      "start": "2026-09-12T16:42:20.757168+00:00",
+      "end": "2026-09-12T16:42:23.458968+00:00",
+      "exitCode": 1
+    },
+    {
+      "command": "npm run typecheck",
+      "start": "2026-09-12T16:42:23.487095+00:00",
+      "end": "2026-09-12T16:42:27.707693+00:00",
+      "exitCode": 0
+    },
+    {
+      "command": "npm run lint",
+      "start": "2026-09-12T16:42:27.727455+00:00",
+      "end": "2026-09-12T16:42:31.010553+00:00",
+      "exitCode": 0
+    },
+    {
+      "command": "npm run build",
+      "start": "2026-09-12T16:42:31.037441+00:00",
+      "end": "2026-09-12T16:42:44.297244+00:00",
+      "exitCode": 0
+    },
+    {
+      "command": "npm run typecheck:edge",
+      "start": "2026-09-12T16:42:44.347950+00:00",
+      "end": "2026-09-12T16:42:47.762644+00:00",
+      "exitCode": 0
+    },
+    {
+      "command": "npm run test:security",
+      "start": "2026-09-12T16:42:47.788345+00:00",
+      "end": "2026-09-12T16:42:49.217345+00:00",
+      "exitCode": 0
+    }
+  ]
+}

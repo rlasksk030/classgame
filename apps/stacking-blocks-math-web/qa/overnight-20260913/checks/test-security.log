@@ -1,0 +1,10 @@
+
+> stacking-blocks-math-web@1.0.0 test:security
+> deno test --allow-env=APP_SESSION_SECRET supabase/tests
+
+Check supabase/tests/security.test.ts
+running 1 test from ./supabase/tests/security.test.ts
+PIN hashes are scoped by student; session tampering fails ... ok (33ms)
+
+ok | 1 passed | 0 failed (37ms)
+

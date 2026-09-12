@@ -1,0 +1,24 @@
+
+Running 19 tests using 1 worker
+
+  ✓   1 e2e/redesign-phase2.spec.ts:34:1 › P21 lesson1 learn four, solve eight, practice five actual flow (16.9s)
+  ✓   2 e2e/redesign-phase2.spec.ts:35:1 › P22 lesson2 learn four directions, solve nine, practice five (28.4s)
+  ✓   3 e2e/redesign-phase2.spec.ts:36:1 › P24 lesson4 synchronized heights/layers, solve nine, practice five (16.9s)
+  ✓   4 e2e/redesign.spec.ts:55:1 › T01 learn five distinct activities and concept summary (11.5s)
+  ✓   5 e2e/redesign.spec.ts:68:1 › T02 canonical camera buttons render three different views (7.3s)
+  ✓   6 e2e/redesign.spec.ts:69:1 › T03 right side reference matches actual asymmetric camera image (3.6s)
+  ✓   7 e2e/redesign.spec.ts:78:1 › T04 top bottom row is front and click restores canonical z0 (5.3s)
+  ✓   8 e2e/redesign.spec.ts:79:1 › T05 full cell click changes actual submission answer (5.7s)
+  ✓   9 e2e/redesign.spec.ts:80:1 › T06 square cells at desktop and tablet sizes (4.8s)
+  ✓  10 e2e/redesign.spec.ts:81:1 › T07 real mouse drag, undo, redo and blocks reload (9.6s)
+  ✓  11 e2e/redesign.spec.ts:88:1 › T08 synthetic touch drag on actual canvas (8.3s)
+  ✓  12 e2e/redesign.spec.ts:89:1 › T09 common six then adaptive four actual input and grading (23.8s)
+  ✓  13 e2e/redesign.spec.ts:91:1 › T10 current problem remains after reload and stage round trip (3.8s)
+  ✓  14 e2e/redesign.spec.ts:92:1 › T11 in-progress grid survives reload unchanged (2.6s)
+  ✓  15 e2e/redesign.spec.ts:93:1 › T12 wrong one/two/three/reveal then independent correction (5.9s)
+  ✓  16 e2e/redesign.spec.ts:98:1 › T13 practice five full inputs complete (10.9s)
+  ✓  17 e2e/redesign.spec.ts:99:1 › T14 legacy student login route still renders input form (1.3s)
+  ✓  18 e2e/redesign.spec.ts:100:1 › T15 legacy teacher login route still renders Auth form (1.6s)
+  ✓  19 e2e/redesign.spec.ts:102:1 › R16 legacy ProjectionGrid floor display and click coordinates (2.6s)
+
+  19 passed (2.9m)

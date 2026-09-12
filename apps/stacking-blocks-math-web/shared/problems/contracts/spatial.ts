@@ -2,7 +2,7 @@ import type { BlockCoord, GridConfig, Grid2D, HeightMap } from '../../types.ts';
 export const CURRICULUM_VERSION = 'spatial-v2' as const;
 export type Stage = 'learn' | 'solve' | 'practice' | 'remediation' | 'challenge';
 export type Face = 'top' | 'front' | 'side';
-export type ConceptTag = 'projection-direction' | 'projection-top' | 'projection-front' | 'projection-side' | 'projection-error-analysis' | 'projection-change';
+export type ConceptTag = 'position-right' | 'position-up' | 'layer-count' | 'total-count' | 'description-to-model' | 'direction-front' | 'direction-back' | 'direction-left' | 'direction-right' | 'observer-position' | 'photo-camera-position' | 'column-height' | 'height-map' | 'layer-map' | 'strategy-comparison' | 'projection-direction' | 'projection-top' | 'projection-front' | 'projection-side' | 'projection-error-analysis' | 'projection-change';
 export type Choice = { id: string; label: string };
 export type AnswerInput =
  | { kind: 'choice'; choices: Choice[] }
@@ -35,11 +35,12 @@ export type GradingPolicy =
  | { kind: 'determinability'; determinable: boolean; evidence: string }
  | { kind: 'min-count' | 'max-count'; solver: 'projection-search-v1'; constraints: Partial<Record<Face, Grid2D>> };
 export type Material =
- | { kind: 'model'; blocks: BlockCoord[]; caption: string }
+ | { kind: 'model'; blocks: BlockCoord[]; caption: string; view?: 'front'|'back'|'left'|'right' }
  | { kind: 'projection'; face: Face; grid: Grid2D; caption: string }
  | { kind: 'height-map'; grid: HeightMap; caption: string }
  | { kind: 'layer-map'; grids: Grid2D[]; caption: string };
-export type CameraPolicy = { kind: 'free' | 'fixed'; initialView: Face | 'home'; allowedViews: (Face | 'home')[] };
+export type ObservationView = Face | 'home' | 'back' | 'left' | 'right';
+export type CameraPolicy = { kind: 'free' | 'fixed'; initialView: ObservationView; allowedViews: ObservationView[] };
 export interface Problem {
  id: string; curriculumVersion: typeof CURRICULUM_VERSION; version: 1; seed: number;
  lessonId: number; stage: Stage; conceptTags: ConceptTag[]; prompt: string; learningIntent: string;

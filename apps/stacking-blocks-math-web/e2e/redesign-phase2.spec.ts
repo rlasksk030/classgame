@@ -1,0 +1,36 @@
+import { test,expect,type Page } from '@playwright/test';
+import { mkdirSync } from 'node:fs';
+import { join } from 'node:path';
+import process from 'node:process';
+import { initialLesson,localProgressKey,type LessonState } from '../shared/progress/spatial';
+import { phase2Solve } from '../shared/progress/phase2';
+import { phase2Practice,OBSERVER_LABELS,type Observer } from '../shared/problems/templates/phase2';
+import { answerForComparison } from '../shared/problems/grading/spatial';
+import { projectionToDisplayGrid } from '../shared/problems/contracts/display';
+import type { Problem } from '../shared/problems/contracts/spatial';
+import type { Phase2Lesson } from '../shared/curriculum/phase2';
+const key=(id:Phase2Lesson)=>localProgressKey('https://spatial-qa.invalid','phase2','synthetic-student','synthetic-class').replace(/lesson3$/,`lesson${id}`);
+async function boot(page:Page,id:Phase2Lesson){await page.route('**/*',r=>new URL(r.request().url()).hostname==='127.0.0.1'?r.continue():r.abort());await page.addInitScript(({state,key})=>{
+ localStorage.setItem('stacking-installation-config',JSON.stringify({installationId:'phase2',supabaseUrl:'https://spatial-qa.invalid',supabasePublishableKey:'synthetic-public-key'}));localStorage.setItem('sb.student.token',btoa(JSON.stringify({sid:'synthetic-student',cid:'synthetic-class'}))+'.not-a-server-token');if(!localStorage.getItem(key))localStorage.setItem(key,JSON.stringify(state));},{state:initialLesson(314159),key:key(id)});await page.goto(`/student/lesson/${id}/redesign`);await expect(page.locator('[data-activity-id]')).toBeVisible({timeout:15000});}
+async function shot(page:Page,name:string){const dir=join(process.env.SPATIAL_QA_OUTPUT!,'screenshots');mkdirSync(dir,{recursive:true});await page.screenshot({path:join(dir,name+'.png'),fullPage:true});}
+async function saved(page:Page,id:Phase2Lesson){return page.evaluate(k=>JSON.parse(localStorage.getItem(k)!) as LessonState,key(id));}
+async function click(page:Page,name:string){await page.getByRole('button',{name,exact:true}).click();}
+async function view(page:Page,v:Observer){await click(page,`${OBSERVER_LABELS[v]}에서 보기`);await expect(page.getByLabel('현재 관찰 시점',{exact:true}).first()).toHaveText(OBSERVER_LABELS[v]);await page.waitForTimeout(350);}
+async function next(page:Page){await click(page,'다음 활동');}
+async function cube(page:Page,x:number,y:number){const c=page.locator('canvas').first();await c.scrollIntoViewIfNeeded();const b=(await c.boundingBox())!,u=b.height/(2*4.8*.42);await page.mouse.click(b.x+b.width/2+(x-1)*u,b.y+b.height/2+(.5-y)*u);}
+async function fill(page:Page,p:Problem){const a=answerForComparison(p)!;const host=page.getByRole('group',{name:'내 답 입력',exact:true});
+ if(a.kind==='choice'&&p.answerInput.kind==='choice')await host.getByRole('button',{name:p.answerInput.choices.find(c=>c.id===a.value)!.label,exact:true}).click();
+ else if(a.kind==='number')await host.getByRole('spinbutton').fill(String(a.value));
+ else if(a.kind==='height-map'){const values=projectionToDisplayGrid(a.grid).flat();for(let i=0;i<values.length;i++)await host.locator('input.math-cell').nth(i).fill(String(values[i]));}
+ else if(a.kind==='layer-map'){for(let l=0;l<a.grids.length;l++){const values=projectionToDisplayGrid(a.grids[l]).flat(),cells=host.getByRole('region',{name:`${l+1}층 답안`,exact:true}).locator('.math-cell');for(let i=0;i<values.length;i++){await expect(cells.nth(i)).toBeVisible();if(values[i])await cells.nth(i).click();}}}
+ else throw new Error('Browser solver missing answer type');
+}
+async function solveAll(page:Page,id:Phase2Lesson){await click(page,'문제 풀기 시작');const n=id===1?8:9;for(let i=0;i<n;i++){const s=await saved(page,id),p=phase2Solve(id,s)[i];await expect(page.locator('[data-problem-id]')).toHaveAttribute('data-problem-id',p.id);await fill(page,p);if(i===2){const draft=(await saved(page,id)).answers[p.id];await page.reload();await expect(page.locator('[data-problem-id]')).toHaveAttribute('data-problem-id',p.id);expect((await saved(page,id)).answers[p.id]).toEqual(draft);}
+ await click(page,'정답 확인');await expect(page.getByText('정답이에요. 잘 살펴보았어요.',{exact:true})).toBeVisible();expect((await saved(page,id)).attempts[p.id].submitted).toEqual(answerForComparison(p));if(i===4)await shot(page,`lesson-${id}-solve`);if(i<n-1)await click(page,'다음 문제');}
+ await expect(page.getByRole('heading',{name:`문제 풀기 ${n}문제 완료`,exact:true})).toBeVisible();await click(page,'더 풀어보기 시작');for(const [i,p]of phase2Practice(id,314159).entries()){await expect(page.locator('[data-problem-id]')).toHaveAttribute('data-problem-id',p.id);await fill(page,p);await click(page,'정답 확인');await expect(page.getByText('정답이에요. 잘 살펴보았어요.',{exact:true})).toBeVisible();if(i<4)await click(page,'다음 문제');}
+ await expect(page.getByRole('heading',{name:'더 풀어보기 기본 5문제 완료'})).toBeVisible();await shot(page,`lesson-${id}-practice-complete`);
+}
+test.afterEach(async({page},info)=>{if(page.url()!=='about:blank')await page.screenshot({path:info.outputPath('screen.png'),fullPage:true});});
+test('P21 lesson1 learn four, solve eight, practice five actual flow',async({page})=>{test.setTimeout(180000);await boot(page,1);await expect(page.getByRole('button',{name:'다음 활동',exact:true})).toBeDisabled();await click(page,'도서관');await view(page,'front');await next(page);await click(page,'한 층씩 나누어 세기');await next(page);await view(page,'front');await cube(page,1,0);await expect(page.getByText('오른쪽 찾기: 확인했어요',{exact:true})).toBeVisible();await cube(page,0,1);await expect(page.getByText('위 찾기: 확인했어요',{exact:true})).toBeVisible();await shot(page,'lesson-1-position');await next(page);for(const n of [1,2,3])await click(page,`${n}층`);await page.reload();await expect(page.locator('[data-activity-id]')).toHaveAttribute('data-activity-id','l1-layers');await next(page);await solveAll(page,1);});
+test('P22 lesson2 learn four directions, solve nine, practice five',async({page})=>{test.setTimeout(180000);await boot(page,2);for(const v of ['front','back','left','right'] as const)await view(page,v);await shot(page,'lesson-2-directions');await next(page);await click(page,'뒤');await view(page,'back');await next(page);for(const [person,d]of [['나','뒤'],['다','왼쪽'],['라','오른쪽']])await page.getByRole('group',{name:`${person} 관찰자의 위치`}).getByRole('button',{name:d,exact:true}).click();await next(page);await click(page,'왼쪽');await view(page,'left');await shot(page,'lesson-2-camera');await next(page);await solveAll(page,2);});
+test('P24 lesson4 synchronized heights/layers, solve nine, practice five',async({page})=>{test.setTimeout(240000);await boot(page,4);await click(page,'자리마다 쌓인 수 세기');await next(page);await page.getByRole('region',{name:'자리별 높이',exact:true}).locator('.math-cell').nth(6).click();await view(page,'front');await cube(page,1,0);await expect(page.getByText('지도 선택: 확인 · 3D 선택: 확인',{exact:true})).toBeVisible();await expect(page.getByRole('region',{name:'자리별 높이',exact:true}).locator('.changed')).toHaveCount(1);await shot(page,'lesson-4-columns');await next(page);await page.getByRole('spinbutton').fill('10');await click(page,'합 비교하기');await next(page);for(const n of [1,2,3])await click(page,`${n}층`);await shot(page,'lesson-4-layers');await next(page);await click(page,'같은 전체 개수를 확인했어요');await next(page);await solveAll(page,4);});

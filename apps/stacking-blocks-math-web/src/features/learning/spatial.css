@@ -9,3 +9,7 @@
 @media(min-width:1200px){.spatial-layout.choice-primary:has(.spatial-model>section+section){grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(320px,1.15fr)}.spatial-layout.choice-primary>.spatial-model:has(>section+section){display:contents}}
 
 .comparison-pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.comparison-pair>section{min-width:0}@media(max-width:760px){.comparison-pair{grid-template-columns:1fr}}
+
+/* A photographed direction is evidence, not an answer-bearing toolbar. */
+.observer-photo .world-toolbar,.observer-photo .front-direction-label,.observer-photo .muted{display:none}.observer-photo{pointer-events:none}.observer-photo .world-canvas{height:280px!important}
+.observer-map{display:grid;grid-template-columns:repeat(3,70px);grid-template-rows:repeat(3,55px);text-align:center;align-items:center;justify-content:center;margin:12px}.observer-back{grid-area:1/2}.observer-left{grid-area:2/1}.observer-building{grid-area:2/2;border:2px solid #71869b;background:#f0ede6}.observer-right{grid-area:2/3}.observer-front{grid-area:3/2}

@@ -1,0 +1,18 @@
+{
+  "head": "fcb1d28f37b92ecd61deb8680f5485b152beb4a5",
+  "note": "Only tests/spatial-redesign.test.ts changed after full checks; application and browser sources unchanged.",
+  "results": [
+    {
+      "command": "npm run test",
+      "start": "2026-09-12T16:43:19.978867+00:00",
+      "end": "2026-09-12T16:43:22.679707+00:00",
+      "exitCode": 0
+    },
+    {
+      "command": "npm run lint",
+      "start": "2026-09-12T16:43:22.679834+00:00",
+      "end": "2026-09-12T16:43:25.128235+00:00",
+      "exitCode": 0
+    }
+  ]
+}

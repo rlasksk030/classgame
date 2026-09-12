@@ -28,7 +28,15 @@ import { initialActivity } from '../shared/progress/spatial.ts';
 test('learn requires real actions; prediction alone or next clicks cannot complete',()=>{for(const def of LESSON3_ACTIVITIES)assert.equal(activityCompleted(def,initialActivity()),false);const a=initialActivity();a.views=['top','side'];assert.equal(activityCompleted(LESSON3_ACTIVITIES[0],a),true);a.top[0][0]=true;assert.equal(activityCompleted(LESSON3_ACTIVITIES[1],a),true);a.prediction=['front'];a.predictionConfirmed=true;a.blocks=[...LESSON3_MODEL,{x:0,y:1,z:0}];assert.equal(activityCompleted(LESSON3_ACTIVITIES[4],a),false);a.changeCompared=true;assert.equal(activityCompleted(LESSON3_ACTIVITIES[4],a),true);});
 
 import { observedView } from '../shared/problems/contracts/camera.ts';
-test('actual canonical camera offsets distinguish right side from left/back',()=>{assert.equal(observedView({x:0,y:0,z:-5}),'front');assert.equal(observedView({x:5,y:0,z:0}),'side');assert.equal(observedView({x:-5,y:0,z:0}),'free');assert.equal(observedView({x:0,y:5,z:0}),'top');assert.equal(observedView({x:0,y:0,z:5}),'free');});
+test('actual canonical camera offsets distinguish all four lesson2 directions and free rotation',()=>{
+ assert.equal(observedView({x:0,y:0,z:-5}),'front');
+ assert.equal(observedView({x:5,y:0,z:0}),'side');
+ assert.equal(observedView({x:-5,y:0,z:0}),'left');
+ assert.equal(observedView({x:0,y:5,z:0}),'top');
+ assert.equal(observedView({x:0,y:0,z:5}),'back');
+ assert.equal(observedView({x:3,y:2,z:-4}),'free');
+ assert.equal(observedView({x:0,y:0,z:0}),'free');
+});
 
 import { projectionToDisplayGrid, projectionDisplayCellToMathCoord } from '../shared/problems/contracts/display.ts';
 test('right observer display mirrors legacy storage columns with exact inverse, not stored answers',()=>{

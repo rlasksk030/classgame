@@ -93,8 +93,8 @@ export default function BlockWorld(props: WorldProps) {
   };
   return <div className="world-wrap">
     <div className="world-toolbar toolbar-row">
-      <output aria-label="현재 관찰 시점">{{top: '위', front: '앞', side: '옆(오른쪽)', free: '자유'}[cameraView]}</output>
-      {(Object.keys(VIEW_PRESET_LABELS) as ViewPreset[]).filter(view => !props.allowedViews || props.allowedViews.includes(view)).map(preset => <button type="button" className="btn btn-sm" disabled={props.allowRotate === false} key={preset} onClick={() => { props.onPreset?.(preset); scene.current?.setView(preset, orthographic); }}>{VIEW_PRESET_LABELS[preset]}</button>)}
+      <output aria-label="현재 관찰 시점">{{top: '위', front: '앞', side: props.allowedViews?.includes('right') ? '오른쪽' : '옆(오른쪽)', back: '뒤', left: '왼쪽', free: '자유'}[cameraView]}</output>
+      {(Object.keys(VIEW_PRESET_LABELS) as ViewPreset[]).filter(view => props.allowedViews ? props.allowedViews.includes(view) : !['back','left','right'].includes(view)).map(preset => <button type="button" className="btn btn-sm" disabled={props.allowRotate === false} key={preset} onClick={() => { props.onPreset?.(preset); scene.current?.setView(preset, orthographic); }}>{VIEW_PRESET_LABELS[preset]}</button>)}
       <label><input type="checkbox" disabled={props.allowRotate === false} checked={orthographic} onChange={e => setOrthographic(e.target.checked)} /> 방향에 맞춰 보기</label>
       <select disabled={props.allowRotate === false} aria-label="현재 층만 보기" value={layerOnly ?? ''} onChange={e => setLayerOnly(e.target.value === '' ? null : Number(e.target.value))}>
         <option value="">모든 층</option>

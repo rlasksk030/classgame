@@ -1,0 +1,116 @@
+
+> stacking-blocks-math-web@1.0.0 test
+> node --experimental-strip-types --test tests/*.test.ts
+
+✔ lesson 9 challenge requires exactly ten physically valid blocks (0.747083ms)
+✔ lesson 9 challenge cards are generated from the same projections (0.265875ms)
+✔ lesson 9 score is two points without hint and one after hint (0.077333ms)
+✔ architecture project requires complete text, three floors and a third floor block (0.160708ms)
+✔ practice generator is deterministic and scales by lesson (12.04775ms)
+✔ all practice lesson generators produce valid seeded problems (97.297125ms)
+✔ practice sets mix templates and do not repeat one template three times (15.032083ms)
+✔ changing the student seed changes the generated practice content (20.841ms)
+✔ direction practice uses the selected direction projection and avoids ambiguous views (91.746042ms)
+✔ lesson 5 separates information sufficiency from no-hidden-block counting (1.062584ms)
+✔ practice position restores by problem id and clamps safely (0.642791ms)
+✔ reward catalog unlocks usable materials and themes at deterministic XP thresholds (0.134375ms)
+✔ appearance metadata is sanitized independently from mathematical coordinates (0.634042ms)
+✔ 교과서 옆 기준은 오른쪽 관찰(+x)이고 신규 건축판은 10×10이다 (0.353709ms)
+✔ canonical order is y/z/x, independent of insertion order (3.883833ms)
+✔ asymmetric projections preserve front/right-side orientation (2.737084ms)
+✔ physics reject floating, out-of-bounds, noninteger and occupied placements (0.369041ms)
+✔ grading exact coordinates cannot silently settle floating or malformed submissions (5.353584ms)
+✔ constraint accepts distinct physically valid models with same projections (0.226958ms)
+✔ third wrong answer reveals only hint; fourth reveals answer; reconstruction completes once (0.133708ms)
+✔ feedback reflects prior mistakes instead of claiming a first-try success (0.110333ms)
+✔ non-building answers reveal their answer without forcing a rebuild (5.092917ms)
+✔ cannot bypass construction by submitting only a numeric block count (0.165208ms)
+✔ 학급 생성 실패를 인증·권한·검증·서버 코드로 분류한다 (1.225583ms)
+✔ PostgreSQL migrations, RLS isolation and atomic progression (2097.689209ms)
+✔ 배포판 버전 계약은 package/migration 버전을 노출한다 (1.740125ms)
+✔ 설치 상태는 점검 결과를 받아 READY까지 계산한다 (4.521375ms)
+✔ 연결·학급만으로 설치 완료를 표시하거나 선행 점검을 건너뛰지 않는다 (1.874958ms)
+✔ 로컬 버전 서비스는 원격 업데이트를 가장하지 않는다 (0.142ms)
+✔ 앱과 설치된 DB 버전의 호환 상태를 계산한다 (0.106583ms)
+✔ 직접 practice 재접속은 해당 단계의 서버 현재 문항을 복원한다 (0.537334ms)
+✔ 실제 DB 공개 문항 형식의 35행 반복을 보존하고 새 20개와 별도 35개를 검증한다 (105.497667ms)
+✔ 실제 35행 형태는 기본 추가 1개와 생성 34개/중복 코드 17개로 진단하며 삭제하지 않는다 (1.394125ms)
+✔ 과거 기록 열람은 허용하되 위치·답안·블록 재저장으로 활성세트를 되돌리지 않는다 (0.098375ms)
+✔ 새 35문항은 번호·숨은 모형을 제외한 공개 과제가 반복되지 않는다 (32.355ms)
+✔ 구버전 35문항 재현 및 내용 중복 변형 탐지 (16.035042ms)
+✔ 5차시 35개는 6계열이며 결정적으로 복원되고 기존 v1을 바꾸지 않는다 (313.268458ms)
+✔ 5차시 여러 seed·실제 배정량에서 고유성과 짧은 세트 배분을 보존한다 (666.40725ms)
+✔ 이미 생성된 세트 재조회에서도 다른 seed/학생 문항을 섞지 않는다 (0.188375ms)
+✔ 같은 정답은 서로 다른 공개 자료를 중복으로 만들지 않는다 (11.080958ms)
+✔ 개별 생성 문항 접근도 현재 배정 seed/차시와 비교한다 (0.138167ms)
+✔ 동시 생성·재시도에서도 같은 문항은 같은 DB PK를 사용한다 (5.801583ms)
+✔ 5차시 가정/최대의 개수는 공개 앞면에서 독립 계산하며 원본 총개수로 바꾸지 않는다 (11.636708ms)
+✔ 3차시 격자는 실제 정답 투영의 행·열을 사용한다 (7.287708ms)
+✔ 구버전 문제 응답도 투영 정답에서 실제 입력 격자 계약을 복원한다 (0.333ms)
+✔ 투영 자료와 방향 단서가 모두 없는 문항은 자동으로 답안을 추정하지 않는다 (0.345834ms)
+✔ 4차시 높이 지도 개수 문제는 학생에게 숫자 지도를 표시한다 (0.165584ms)
+✔ 세 방향 쌓기 문제는 세 조건이 모두 없으면 출제할 수 없다 (1.759666ms)
+✔ 세 방향 그리기와 층별 그리기는 전용 입력 Renderer 계약을 갖는다 (1.564792ms)
+✔ 품질 게이트는 격자 자료와 정답이 함께 사라진 문항을 거부한다 (1.42275ms)
+✔ 독립 고정값 3×3 앞면의 ‘숨은 블록 없음’ 정답은 9이며 변조된 20을 거부한다 (0.324125ms)
+✔ 고정 비대칭 기준은 오른쪽 투영을 좌우 반전한 답으로 통과하지 않는다 (0.165875ms)
+✔ runtime installation config round-trips through a URL fragment (1.005875ms)
+✔ runtime config rejects server secrets and unsafe URLs (0.103292ms)
+✔ changing the runtime installation switches the shared Supabase client (78.380083ms)
+✔ lesson 4 independently fixed heights/layer counts and 10 cubes (1.48425ms)
+✔ four horizontal directions are distinguishable; fixed front/right expectations (0.26275ms)
+✔ phase2 all generated contracts admit their answer and reject wrong answer across boundary seeds (58.772917ms)
+✔ intro avoids projection and height materials; all activity gates require real evidence (1.005875ms)
+✔ adaptive assignment stable, keyed by error concepts; restoration preserves independent lesson state (0.896167ms)
+✔ P01-03 independent asymmetric top/front/right expected grids (1.380584ms)
+✔ P04-05 display bottom is z0/front and every cell has inverse mapping (0.500459ms)
+✔ height and layer maps use the identical display adapter (0.326ms)
+✔ P06 addition changes front cell only, using fixed expectations (0.433416ms)
+✔ P07 removal changes independently expected front/right heights (0.268958ms)
+✔ P08 floating, duplicate, and out of bounds coordinates rejected (0.120459ms)
+✔ P09 actual display clicks produce canonical projection answer (3.274792ms)
+✔ P10 right side differs from left on fixed asymmetric fixture (0.289458ms)
+✔ deterministic bounded generator, separated direction projections, all outputs solvable (18.240416ms)
+✔ adaptive four reflect tags and are assigned only after six completions (1.169875ms)
+✔ four feedback stages reveal only on fourth wrong, then student corrects (0.197917ms)
+✔ all answers and current position serialize in isolated version namespace (0.313833ms)
+✔ empty constraints and unimplemented min/max cannot silently pass (0.254833ms)
+✔ learn requires real actions; prediction alone or next clicks cannot complete (0.797042ms)
+✖ actual canonical camera offsets distinguish right side from left/back (0.948875ms)
+✔ right observer display mirrors legacy storage columns with exact inverse, not stored answers (0.141958ms)
+✔ 방향별 투영은 뒤·왼쪽에서 본 화면의 좌우를 반전한다 (1.076083ms)
+✔ 방향 문제가 하나의 정답을 만드는지 검사한다 (0.24175ms)
+✔ 학생 로그인 오류를 단계별 한국어 메시지로 분류한다 (1.321875ms)
+✔ 학생 이름과 반 코드는 저장·로그인에 같은 정규화 규칙을 사용한다 (0.621459ms)
+✔ 교사 Auth 오류를 원인별 코드로 분류한다 (0.759167ms)
+ℹ tests 81
+ℹ suites 0
+ℹ pass 80
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2369.122125
+
+✖ failing tests:
+
+test at tests/spatial-redesign.test.ts:31:1
+✖ actual canonical camera offsets distinguish right side from left/back (0.948875ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  'left' !== 'free'
+  
+      at TestContext.<anonymous> (file:///Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/tests/spatial-redesign.test.ts:31:190)
+      at Test.runInAsyncScope (node:async_hooks:228:14)
+      at Test.run (node:internal/test_runner/test:1118:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:787:18)
+      at Test.postRun (node:internal/test_runner/test:1247:19)
+      at Test.run (node:internal/test_runner/test:1175:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:787:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'left',
+    expected: 'free',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

@@ -1,0 +1,3 @@
+(node:47541) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ➜  Local:   http://127.0.0.1:4186/

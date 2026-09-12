@@ -1,0 +1,6 @@
+
+> stacking-blocks-math-web@1.0.0 typecheck:edge
+> deno check supabase/functions/student-api/index.ts supabase/functions/student-auth/index.ts
+
+Check supabase/functions/student-api/index.ts
+Check supabase/functions/student-auth/index.ts

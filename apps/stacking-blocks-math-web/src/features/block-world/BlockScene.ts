@@ -17,6 +17,7 @@ import type { BlockCoord, GridConfig, ViewPreset } from '../../../shared/types.t
 import type { RewardMaterial } from '../../../shared/rewards.ts';
 
 export interface SceneState {
+  inspectable?: boolean;
   blocks: BlockCoord[];
   selected: BlockCoord | null;
   layerMax: number | null;
@@ -178,10 +179,10 @@ export class BlockScene {
   }
 
   setView(preset: ViewPreset, orthographic = false) {
-    const alpha = preset === 'side' ? 0 : preset === 'top' || preset === 'front' ? -Math.PI / 2 : -Math.PI / 3;
-    const beta = preset === 'top' ? 0.001 : preset === 'front' || preset === 'side' ? Math.PI / 2 : Math.PI / 3;
+    const alpha = preset === 'back' ? Math.PI / 2 : preset === 'left' ? Math.PI : preset === 'right' || preset === 'side' ? 0 : preset === 'top' || preset === 'front' ? -Math.PI / 2 : -Math.PI / 3;
+    const beta = preset === 'top' ? 0.001 : ['front','back','left','right','side'].includes(preset) ? Math.PI / 2 : Math.PI / 3;
     const nearestAlpha = this.camera.alpha + Math.atan2(Math.sin(alpha - this.camera.alpha), Math.cos(alpha - this.camera.alpha));
-    this.camera.mode = orthographic && ['top', 'front', 'side'].includes(preset) ? Camera.ORTHOGRAPHIC_CAMERA : Camera.PERSPECTIVE_CAMERA;
+    this.camera.mode = orthographic && ['top', 'front', 'side', 'back', 'left', 'right'].includes(preset) ? Camera.ORTHOGRAPHIC_CAMERA : Camera.PERSPECTIVE_CAMERA;
     this.cameraTween = { start: performance.now(), alpha: this.camera.alpha, beta: this.camera.beta, radius: this.camera.radius, targetAlpha: nearestAlpha, targetBeta: beta, targetRadius: this.frameRadius() * (preset === 'home' || preset === 'free' ? 1.4 : 1) };
   }
 
@@ -231,7 +232,11 @@ export class BlockScene {
     this.pointers.add(event.pointerId);
     this.cameraTween = null;
     if (this.pointers.size > 1) { this.paletteArmed = false; this.finish(); return; }
-    if (this.state.disabled || event.button !== 0) return;
+    if (event.button !== 0) return;
+    if (this.state.disabled) {
+      if (this.state.inspectable) { const block=this.pick(event)?.pickedMesh?.metadata?.block as BlockCoord|undefined; if(block)this.callbacks.select(block); }
+      return;
+    }
     const picked = this.pick(event);
     const block = picked?.pickedMesh?.metadata?.block as BlockCoord | undefined;
     if (this.paletteArmed && picked) {

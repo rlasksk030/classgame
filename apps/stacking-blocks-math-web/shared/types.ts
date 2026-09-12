@@ -23,9 +23,12 @@ export const DEFAULT_GRID: GridConfig = { gridWidth: 4, gridDepth: 4, maxHeight:
 
 /** 카메라 시점 버튼 (명세 13). */
 export const VIEW_PRESETS = ["free", "top", "front", "side", "home"] as const;
-export type ViewPreset = (typeof VIEW_PRESETS)[number];
+export type ViewPreset = (typeof VIEW_PRESETS)[number] | "back" | "left" | "right";
 
 export const VIEW_PRESET_LABELS: Record<ViewPreset, string> = {
+  back: "뒤에서 보기",
+  left: "왼쪽에서 보기",
+  right: "오른쪽에서 보기",
   free: "자유 보기",
   top: "위에서 보기",
   front: "앞에서 보기",
