@@ -1,3 +1,4 @@
+import { displayCellToMathCoord } from "../../../shared/problems/contracts/display.ts";
 import type { Grid2D, HeightMap } from "@shared/types.ts";
 
 interface ProjectionGridProps {
@@ -33,7 +34,7 @@ export function ProjectionGrid({ title, rows, editable, onChange, valueType, rev
 
   const table = <table className="projection-table" aria-label={title}>
         <tbody>
-          {Array.from({ length: rowCount }, (_, i) => reverseRows ? rowCount - 1 - i : i).map((r) => (
+          {Array.from({ length: rowCount }, (_, i) => reverseRows || orientation === "floor" ? displayCellToMathCoord(i, 0, rowCount).row : i).map((r) => (
             <tr key={`${title}-${r}`}>
               {Array.from({ length: colCount }).map((__, c) => {
                 const value = valueType === "number" ? Number((rows[r] as number[])[c] ?? 0) : Boolean((rows[r] as boolean[])[c]);

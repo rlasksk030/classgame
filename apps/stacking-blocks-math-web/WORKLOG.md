@@ -353,3 +353,7 @@
 - 검증 `2026-09-12T12:47:14.924448+00:00`, 대상 `d6bbe6612b63dd2669321183dd1f6dbc901e4802`: typecheck/lint/unit/security/typecheck:edge/build/QA구문/diff검사 PASS. 실행원본은 verification.json/log. 이후 문서·결과파일 기록만 변경. 현재검사를 과거PASS로 대체하지 않음.
 - 간편설치: 이전요청의 실행안1개를 DISTRIBUTION_ARCHITECTURE에 구체화(제작자전용 Supabase Free OAuth실행부). 공식API/권한/한도/중단·재개/승인범위 명시. 실제 수동작업 감소0, 실행부 미구현/승인전. READY기존수정 재작업 없음.
 - 원격 함수/DB/RLS/Secret/학생기록 변경·배포·push 없음. migration추가없음. 원격migration 이력은[]이지만 schema는존재하므로 빈DB라고판정하지 않는다.
+
+## 2026-09-13 — redesign Phase 1 (local only, browser BLOCKED)
+
+Start 3454fd7, branch feature/spatial-math-redesign-v1. Pre-existing work backed up at /private/tmp/stacking-blocks-pre-redesign-20260912-235523. New isolated /student/lesson/3/redesign route: explicit contracts, display inverse, five action-based activities, 6+4 adaptive solve, 5+5 practice, four-step feedback, versioned local persistence. Existing 3D math/scene and authentication reused; no remote mutation. See qa/redesign-phase1/README.md for scope and evidence. New + existing unit suite 75 passed; browser attempt executed 0 because preview process exited before launch. T01–T15 remain BLOCKED. No installation completion or whole-app completion claimed.

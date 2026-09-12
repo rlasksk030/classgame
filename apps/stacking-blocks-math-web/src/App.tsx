@@ -4,6 +4,7 @@ import StudentLogin from './pages/StudentLogin';
 import SetupPage from './pages/SetupPage';
 import { getPendingInstallationConfig, hasInvalidInstallationConfigHash, saveRuntimeSupabaseConfig } from './lib/config';
 import { clearStudentToken } from './lib/studentApi';
+const Lesson3Redesign = lazy(() => import('./features/learning/Lesson3Redesign'));
 const StudentWorld = lazy(() => import('./pages/StudentWorld'));
 const RewardsPage = lazy(() => import('./pages/RewardsPage'));
 const LessonPage = lazy(() => import('./pages/LessonPage'));
@@ -33,6 +34,7 @@ function InstallationSwitchPrompt(){
 }
 export default function App() {
   return <Suspense fallback={<main className="screen app-max"><p role="status">화면을 준비하고 있어요…</p></main>}><InstallationSwitchPrompt/><Routes>
+    <Route path="/student/lesson/3/redesign" element={<Lesson3Redesign />} />
     <Route path="/setup" element={<SetupPage />} />
     <Route path="/" element={<StudentLogin />} />
     <Route path="/world" element={<StudentWorld />} />

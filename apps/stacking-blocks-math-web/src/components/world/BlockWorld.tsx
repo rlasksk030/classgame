@@ -1,3 +1,4 @@
+import type { ObservedView } from '../../../shared/problems/contracts/camera.ts';
 import { useEffect, useRef, useState } from 'react';
 import { BlockScene, type SceneState } from '../../features/block-world/BlockScene';
 import { canonicalize, placeOnColumn, moveBlock, removeBlock } from '@shared/blocks.ts';
@@ -12,6 +13,7 @@ interface WorldProps extends SceneState {
   onSnapshotChange?: (next: BlockCoord[]) => void;
   onPreset?: (next: ViewPreset) => void;
   preset: ViewPreset;
+  allowedViews?: ViewPreset[];
   appearance?: Record<string, RewardMaterial>;
   activeMaterial?: RewardMaterial;
   allowedMaterials?: RewardMaterial[];
@@ -23,6 +25,7 @@ export default function BlockWorld(props: WorldProps) {
   const scene = useRef<BlockScene | null>(null);
   const latest = useRef(props);
   latest.current = props;
+  const [cameraView, setCameraView] = useState<ObservedView>('free');
   const [error, setError] = useState('');
   const [orthographic, setOrthographic] = useState(true);
   const [layerOnly, setLayerOnly] = useState<number | null>(null);
@@ -59,6 +62,7 @@ export default function BlockWorld(props: WorldProps) {
     let world: BlockScene | undefined;
     try {
       world = new BlockScene(canvas.current, props.grid, {
+        view: setCameraView,
         change: commit,
         select: block => latest.current.onSelect(block),
         message: message => latest.current.onMessage(message),
@@ -73,7 +77,7 @@ export default function BlockWorld(props: WorldProps) {
     }
     return () => { world?.dispose(); scene.current = null; };
   }, [props.grid.gridWidth, props.grid.gridDepth, props.grid.maxHeight]);
-  useEffect(() => { scene.current?.update({ ...props, layerOnly }); }, [props.blocks, props.selected, props.layerMax, props.answerGhost, props.disabled, props.allowRotate, props.appearance, layerOnly]);
+  useEffect(() => { scene.current?.update({ ...props, layerOnly }); }, [props.blocks, props.selected, props.layerMax, props.answerGhost, props.disabled, props.allowRotate, props.appearance, props.highlightedBlocks, layerOnly]);
   useEffect(() => { scene.current?.setView(props.preset, orthographic); }, [props.preset, orthographic]);
 
   const place = () => {
@@ -83,7 +87,8 @@ export default function BlockWorld(props: WorldProps) {
   };
   return <div className="world-wrap">
     <div className="world-toolbar toolbar-row">
-      {(Object.keys(VIEW_PRESET_LABELS) as ViewPreset[]).map(preset => <button type="button" className="btn btn-sm" disabled={props.allowRotate === false} key={preset} onClick={() => { props.onPreset?.(preset); scene.current?.setView(preset, orthographic); }}>{VIEW_PRESET_LABELS[preset]}</button>)}
+      <output aria-label="현재 관찰 시점">{{top: '위', front: '앞', side: '옆(오른쪽)', free: '자유'}[cameraView]}</output>
+      {(Object.keys(VIEW_PRESET_LABELS) as ViewPreset[]).filter(view => !props.allowedViews || props.allowedViews.includes(view)).map(preset => <button type="button" className="btn btn-sm" disabled={props.allowRotate === false} key={preset} onClick={() => { props.onPreset?.(preset); scene.current?.setView(preset, orthographic); }}>{VIEW_PRESET_LABELS[preset]}</button>)}
       <label><input type="checkbox" disabled={props.allowRotate === false} checked={orthographic} onChange={e => setOrthographic(e.target.checked)} /> 방향에 맞춰 보기</label>
       <select disabled={props.allowRotate === false} aria-label="현재 층만 보기" value={layerOnly ?? ''} onChange={e => setLayerOnly(e.target.value === '' ? null : Number(e.target.value))}>
         <option value="">모든 층</option>

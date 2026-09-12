@@ -23,7 +23,8 @@
     "lint": "eslint .",
     "test:e2e": "playwright test",
     "test:security": "deno test --allow-env=APP_SESSION_SECRET supabase/tests",
-    "typecheck:edge": "deno check supabase/functions/student-api/index.ts supabase/functions/student-auth/index.ts"
+    "typecheck:edge": "deno check supabase/functions/student-api/index.ts supabase/functions/student-auth/index.ts",
+    "qa:redesign": "node scripts/run-redesign-qa.mjs"
   },
   "dependencies": {
     "@babylonjs/core": "^8.0.0",

@@ -1,3 +1,4 @@
+import { observedView, type ObservedView } from '../../../shared/problems/contracts/camera.ts';
 import { Engine } from '@babylonjs/core/Engines/engine';
 import { Scene } from '@babylonjs/core/scene';
 import { ArcRotateCamera } from '@babylonjs/core/Cameras/arcRotateCamera';
@@ -21,11 +22,13 @@ export interface SceneState {
   layerMax: number | null;
   layerOnly?: number | null;
   answerGhost?: BlockCoord[];
+  highlightedBlocks?: BlockCoord[];
   disabled?: boolean;
   allowRotate?: boolean;
   appearance?: Record<string, RewardMaterial>;
 }
 export interface SceneCallbacks {
+  view?: (view: ObservedView) => void;
   change: (blocks: BlockCoord[]) => void;
   select: (block: BlockCoord | null) => void;
   message: (message: string | null) => void;
@@ -33,6 +36,7 @@ export interface SceneCallbacks {
 
 /** Owns GPU resources and pointer listeners. Network and persistence stay outside the engine. */
 export class BlockScene {
+  private previousView: ObservedView | null = null;
   private engine: Engine;
   private scene: Scene;
   private camera: ArcRotateCamera;
@@ -144,6 +148,8 @@ export class BlockScene {
       }
       this.updateOrtho();
       this.scene.render();
+      const view = observedView(this.camera.position.subtract(this.camera.target));
+      if (view !== this.previousView) { this.previousView = view; this.callbacks.view?.(view); }
     });
   }
 
@@ -163,7 +169,7 @@ export class BlockScene {
         this.cubes.set(key, mesh);
       }
       const appearance = state.appearance?.[key] ?? 'wood';
-      mesh.material = state.selected && keyOf(state.selected) === key ? this.selectedMaterial : (this.blockMaterials.get(appearance) ?? this.material);
+      mesh.material = (state.selected && keyOf(state.selected) === key) || state.highlightedBlocks?.some(b => keyOf(b) === key) ? this.selectedMaterial : (this.blockMaterials.get(appearance) ?? this.material);
       mesh.setEnabled(this.visible(block));
     }
     this.answers.forEach(mesh => mesh.dispose());

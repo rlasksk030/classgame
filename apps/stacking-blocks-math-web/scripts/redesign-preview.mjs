@@ -1,0 +1,13 @@
+import process from 'node:process';
+import { spawn } from 'node:child_process';
+import { createWriteStream, mkdirSync } from 'node:fs';
+import { join } from 'node:path';
+const dir=process.env.SPATIAL_QA_OUTPUT;
+if(!dir)throw new Error('Missing QA output directory');
+mkdirSync(dir,{recursive:true});
+const log=createWriteStream(join(dir,'preview.log'),{flags:'a'});
+const child=spawn(process.execPath,['node_modules/vite/bin/vite.js','preview','--host','127.0.0.1','--port','4186','--strictPort'],{stdio:['ignore','pipe','pipe']});
+for(const [stream,target] of [[child.stdout,process.stdout],[child.stderr,process.stderr]])stream.on('data',data=>{log.write(data);target.write(data);});
+for(const signal of ['SIGTERM','SIGINT'])process.on(signal,()=>child.kill(signal));
+child.on('error',error=>{log.end(error.message);process.exitCode=1;});
+child.on('exit',code=>{log.end();process.exitCode=code??1;});
