@@ -1,0 +1,16 @@
+{
+  "command": [
+    "node",
+    "scripts/redesign-preview.mjs"
+  ],
+  "wrapperPID": 39928,
+  "exitCode": 1,
+  "durationSeconds": 0.7543249999999999,
+  "timeout": false,
+  "url": "http://127.0.0.1:4186",
+  "localhostAddresses": [
+    "127.0.0.1",
+    "::1"
+  ],
+  "healthCheck": "NOT_RUN: server exited before listen"
+}

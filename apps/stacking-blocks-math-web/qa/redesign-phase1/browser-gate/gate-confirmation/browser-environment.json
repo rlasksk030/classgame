@@ -1,0 +1,23 @@
+{
+  "browser": "Chromium",
+  "version": "153.0.8010.12",
+  "platform": "darwin",
+  "node": "v24.14.1",
+  "baseURL": "http://127.0.0.1:4186",
+  "viewports": [
+    [
+      1366,
+      768
+    ],
+    [
+      1024,
+      768
+    ],
+    [
+      768,
+      768
+    ]
+  ],
+  "touch": "CDP synthetic touch; not physical iPad",
+  "category": "UI_WITH_TEST_DATA"
+}

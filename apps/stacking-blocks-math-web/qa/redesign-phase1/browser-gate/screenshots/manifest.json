@@ -1,0 +1,82 @@
+[
+  {
+    "file": "screenshots/feedback-answer-comparison.png",
+    "source": "gate-confirmation/screenshots/feedback-answer-comparison.png",
+    "sha256": "6b2f8844c04c9d0ddf21c69ab78651c4d4b73f6ad660343a923894156da083a7"
+  },
+  {
+    "file": "screenshots/feedback-highlight.png",
+    "source": "gate-confirmation/screenshots/feedback-highlight.png",
+    "sha256": "1df0b38bc740b0635ca389844051bf2f1912e5ad40d072593c585c56b25c1b16"
+  },
+  {
+    "file": "screenshots/learn-1.png",
+    "source": "gate-confirmation/screenshots/learn-1.png",
+    "sha256": "2d9add36d5e5e1b5303ca2098267962a5ee720a2f7506441e7d6674d25bc4fc0"
+  },
+  {
+    "file": "screenshots/learn-3.png",
+    "source": "gate-confirmation/screenshots/learn-3.png",
+    "sha256": "58fd0dc883535a523a44060302f814303a9da2f691789f3777028dac4edc3bf6"
+  },
+  {
+    "file": "screenshots/learn-5.png",
+    "source": "gate-confirmation/screenshots/learn-5.png",
+    "sha256": "e63f3946663f8e8b01c2d5775627e82ce6e3de0ba0ff24a681701975c7d545d7"
+  },
+  {
+    "file": "screenshots/legacy-projection-grid.png",
+    "source": "gate-confirmation/screenshots/legacy-projection-grid.png",
+    "sha256": "8c58620e6ff0d8bb785dc1aaa8df756cda2cef9afb75489c8de207c71460aa4e"
+  },
+  {
+    "file": "screenshots/mouse-builder-restored.png",
+    "source": "gate-confirmation/screenshots/mouse-builder-restored.png",
+    "sha256": "24bdee75d54feb9b02b8922c9cad1aa52c671df96ba86e94f6c1cc4995319b2c"
+  },
+  {
+    "file": "screenshots/practice-complete.png",
+    "source": "gate-confirmation/screenshots/practice-complete.png",
+    "sha256": "3cb595f1eb4cb4f20be2b7c65e108db1b0e84a11259e471eb9c1ae5a5b9cd072"
+  },
+  {
+    "file": "screenshots/right-side-matches-reference.png",
+    "source": "gate-confirmation/screenshots/right-side-matches-reference.png",
+    "sha256": "85eee0ecd75eafe3d92700eed39dd9191cfcd2db59910440c7af096cef99e9e4"
+  },
+  {
+    "file": "screenshots/solve-grid.png",
+    "source": "gate-confirmation/screenshots/solve-grid.png",
+    "sha256": "25d11a8709c22b9c8474b8339d3d48f2e191f861ecd20877f567f5ef45f60bd1"
+  },
+  {
+    "file": "screenshots/solve-two-3d-models.png",
+    "source": "gate-confirmation/screenshots/solve-two-3d-models.png",
+    "sha256": "99ed03825213ef241fd696c70298cb0543e61c413a2f3b7ed4cec3494a882381"
+  },
+  {
+    "file": "screenshots/top-projection.png",
+    "source": "gate-confirmation/screenshots/top-projection.png",
+    "sha256": "ae7bbf7cbc3c7a06adfd330b0438a06223ebb6832dc3e60670c5f45075aeb453"
+  },
+  {
+    "file": "screenshots/view-front.png",
+    "source": "gate-confirmation/screenshots/view-front.png",
+    "sha256": "c9f95a893fb6d43a77f062e763aa5f51f31a34817e0e004fe9ca1ff1a9c8b417"
+  },
+  {
+    "file": "screenshots/view-side.png",
+    "source": "gate-confirmation/screenshots/view-side.png",
+    "sha256": "2b20046de5b67f07875bf32466fa0bca7af897d1ec7d492ff59dcc0803fda352"
+  },
+  {
+    "file": "screenshots/view-top.png",
+    "source": "gate-confirmation/screenshots/view-top.png",
+    "sha256": "ea71169ffc4e90086b7f46b60c9728c7aa330b1ebc7b0dc49e2c5502fb8d168c"
+  },
+  {
+    "file": "screenshots/touch-placement.png",
+    "source": "gate-confirmation/evidence/redesign-T08-synthetic-touch-drag-on-actual-canvas/touch.png",
+    "sha256": "066b672fe5b1c2453c616bc00da2c335c4956f26069ec021ea98d9c3e29e168c"
+  }
+]

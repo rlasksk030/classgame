@@ -1,0 +1,16 @@
+{
+  "command": [
+    "npm",
+    "run",
+    "qa:redesign"
+  ],
+  "cwd": "/Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web",
+  "startedAt": "2026-09-13T00:24:40.908499",
+  "launcherPID": 39618,
+  "host": "127.0.0.1",
+  "port": 4186,
+  "waitURL": "http://127.0.0.1:4186",
+  "webServerCommand": "node scripts/redesign-preview.mjs",
+  "exitCode": 1,
+  "durationSeconds": 29.137
+}

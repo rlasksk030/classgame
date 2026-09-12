@@ -1,0 +1,30 @@
+{
+  "command": [
+    "node",
+    "scripts/redesign-preview.mjs"
+  ],
+  "wrapperPID": 39963,
+  "checks": [
+    {
+      "route": "/",
+      "status": 200,
+      "html": true
+    },
+    {
+      "route": "/?class=TEST",
+      "status": 200,
+      "html": true
+    },
+    {
+      "route": "/student/lesson/3/redesign",
+      "status": 200,
+      "html": true
+    },
+    {
+      "route": "/teacher",
+      "status": 200,
+      "html": true
+    }
+  ],
+  "cleanup": "only owned preview wrapper terminated"
+}

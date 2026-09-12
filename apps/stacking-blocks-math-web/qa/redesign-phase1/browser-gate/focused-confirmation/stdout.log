@@ -1,0 +1,8 @@
+
+Running 3 tests using 1 worker
+
+  ✓  1 e2e/redesign.spec.ts:81:1 › T07 real mouse drag, undo, redo and blocks reload (5.4s)
+  ✓  2 e2e/redesign.spec.ts:88:1 › T08 synthetic touch drag on actual canvas (3.7s)
+  ✓  3 e2e/redesign.spec.ts:98:1 › T13 practice five full inputs complete (10.4s)
+
+  3 passed (21.5s)

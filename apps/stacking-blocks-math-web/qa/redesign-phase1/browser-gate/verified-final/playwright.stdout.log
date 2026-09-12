@@ -1,0 +1,129 @@
+
+Running 16 tests using 1 worker
+
+  ✓   1 e2e/redesign.spec.ts:55:1 › T01 learn five distinct activities and concept summary (41.1s)
+  ✓   2 e2e/redesign.spec.ts:68:1 › T02 canonical camera buttons render three different views (1.2m)
+  ✓   3 e2e/redesign.spec.ts:69:1 › T03 right side reference matches actual asymmetric camera image (32.7s)
+  ✓   4 e2e/redesign.spec.ts:78:1 › T04 top bottom row is front and click restores canonical z0 (39.6s)
+  ✓   5 e2e/redesign.spec.ts:79:1 › T05 full cell click changes actual submission answer (1.1m)
+  ✓   6 e2e/redesign.spec.ts:80:1 › T06 square cells at desktop and tablet sizes (15.8s)
+  ✘   7 e2e/redesign.spec.ts:81:1 › T07 real mouse drag, undo, redo and blocks reload (16.3s)
+  ✘   8 e2e/redesign.spec.ts:88:1 › T08 synthetic touch drag on actual canvas (866ms)
+  ✓   9 e2e/redesign.spec.ts:89:1 › T09 common six then adaptive four actual input and grading (1.6m)
+  ✓  10 e2e/redesign.spec.ts:91:1 › T10 current problem remains after reload and stage round trip (14.2s)
+  ✓  11 e2e/redesign.spec.ts:92:1 › T11 in-progress grid survives reload unchanged (16.4s)
+  ✓  12 e2e/redesign.spec.ts:93:1 › T12 wrong one/two/three/reveal then independent correction (15.4s)
+  ✘  13 e2e/redesign.spec.ts:98:1 › T13 practice five full inputs complete (14.5s)
+  ✓  14 e2e/redesign.spec.ts:99:1 › T14 legacy student login route still renders input form (49.5s)
+  ✓  15 e2e/redesign.spec.ts:100:1 › T15 legacy teacher login route still renders Auth form (43.8s)
+  ✓  16 e2e/redesign.spec.ts:102:1 › R16 legacy ProjectionGrid floor display and click coordinates (25.4s)
+
+
+  1) e2e/redesign.spec.ts:81:1 › T07 real mouse drag, undo, redo and blocks reload ─────────────────
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator: getByRole('heading', { level: 1 })
+    Expected: "위·앞·옆으로 살펴봐요"
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveText" getByRole('heading', { level: 1 }) with timeout 5000ms
+      - waiting for getByRole('heading', { level: 1 })
+
+
+      23 |   if(!localStorage.getItem(key))localStorage.setItem(key,JSON.stringify(state));
+      24 |  },{state,key:storageKey});
+    > 25 |  await page.goto(path);await expect(page.getByRole('heading',{level:1})).toHaveText('위·앞·옆으로 살펴봐요');
+         |                                                                          ^
+      26 |  await expect(page.getByText('3D 화면을 열 수 없어요.',{exact:false})).toHaveCount(0);
+      27 | }
+      28 | async function saved(page:Page){return page.evaluate(key=>JSON.parse(localStorage.getItem(key)!) as LessonState,storageKey);}
+        at boot (/Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/e2e/redesign.spec.ts:25:74)
+        at /Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/e2e/redesign.spec.ts:81:140
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    qa/redesign-phase1/browser-gate/verified-final/evidence/redesign-T07-real-mouse-drag-undo-redo-and-blocks-reload/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: qa/redesign-phase1/browser-gate/verified-final/evidence/redesign-T07-real-mouse-drag-undo-redo-and-blocks-reload/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    qa/redesign-phase1/browser-gate/verified-final/evidence/redesign-T07-real-mouse-drag-undo-redo-and-blocks-reload/trace.zip
+    Usage:
+
+        npx playwright show-trace qa/redesign-phase1/browser-gate/verified-final/evidence/redesign-T07-real-mouse-drag-undo-redo-and-blocks-reload/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) e2e/redesign.spec.ts:88:1 › T08 synthetic touch drag on actual canvas ─────────────────────────
+
+    Error: tracing.start: Tracing has been already started
+
+      86 |  await page.getByRole('button',{name:'Redo · 다시 실행',exact:true}).click();await expect(page.getByText('블록 수: 7',{exact:true})).toBeVisible();
+      87 |  await page.getByRole('button',{name:'Undo · 되돌리기',exact:true}).click();await page.reload();await expect(page.getByText('블록 수: 8',{exact:true})).toBeVisible();await capture(page,'mouse-builder-restored');});
+    > 88 | test('T08 synthetic touch drag on actual canvas',async({browser})=>{const context=await browser.newContext({viewport:{width:1024,height:768},hasTouch:true});await context.tracing.start({screenshots:false,snapshots:true});const page=await context.newPage();const s=activityState(4);s.activities[4].predictionConfirmed=true;try{await boot(page,s);await camera(page,'top');const palette=page.getByRole('button',{name:'쌓기나무 보관함. 블록을 작업판에 놓기'});await palette.scrollIntoViewIfNeeded();const a=(await palette.boundingBox())!,b=(await page.locator('canvas').boundingBox())!;const start={x:a.x+a.width/2,y:a.y+a.height/2};const end={x:b.x+b.width/2-b.height/(2*4.8*.42),y:b.y+b.height/2+b.height/(2*4.8*.42)};const session=await context.newCDPSession(page);await session.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[start]});for(let i=1;i<=12;i++)await session.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:start.x+(end.x-start.x)*i/12,y:start.y+(end.y-start.y)*i/12}]});await session.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});await expect(page.getByText('블록 수: 8',{exact:true})).toBeVisible();await page.screenshot({path:test.info().outputPath('touch.png'),fullPage:true});}catch(error){await page.screenshot({path:test.info().outputPath('touch-failure.png'),fullPage:true});throw error;}finally{await context.tracing.stop({path:test.info().outputPath('touch.trace.zip')});await context.close();}});
+         |                                                                                                                                                                                    ^
+      89 | test('T09 common six then adaptive four actual input and grading',async({page})=>{test.setTimeout(180000); // Ten full submissions and named screenshots, with unchanged per-assertion waits.
+      90 | const s=initialLesson(314159);s.learnComplete=true;s.section='solve';await boot(page,s);for(let i=0;i<10;i++){const current=await saved(page);const problems=[...commonProblems(s.seed),...(current.adaptive??[])];const p=problems[i];await expect(page.locator('[data-problem-id]')).toHaveAttribute('data-problem-id',p.id);if(i===2)await capture(page,'solve-grid');if(i===6)await capture(page,'solve-two-3d-models');await solve(page,p);if(i<9)await page.getByRole('button',{name:'다음 문제',exact:true}).click();}await expect(page.getByRole('heading',{name:'문제 풀기 10문제 완료'})).toBeVisible();await page.getByRole('button',{name:'더 풀어보기 시작',exact:true}).click();await expect(page.locator('[data-problem-id]')).toHaveAttribute('data-problem-id',practiceProblems(s.seed,5)[0].id);});
+      91 | test('T10 current problem remains after reload and stage round trip',async({page})=>{const s=initialLesson(11);s.learnComplete=true;s.section='solve';s.solveIndex=4;await boot(page,s);const id=commonProblems(s.seed)[4].id;await page.reload();await expect(page.locator('[data-problem-id]')).toHaveAttribute('data-problem-id',id);await page.getByRole('button',{name:'① 개념 배우기',exact:true}).click();await page.getByRole('button',{name:'② 문제 풀기',exact:true}).click();await expect(page.locator('[data-problem-id]')).toHaveAttribute('data-problem-id',id);});
+        at /Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/e2e/redesign.spec.ts:88:180
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    qa/redesign-phase1/browser-gate/verified-final/evidence/redesign-T08-synthetic-touch-drag-on-actual-canvas/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: qa/redesign-phase1/browser-gate/verified-final/evidence/redesign-T08-synthetic-touch-drag-on-actual-canvas/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    qa/redesign-phase1/browser-gate/verified-final/evidence/redesign-T08-synthetic-touch-drag-on-actual-canvas/trace.zip
+    Usage:
+
+        npx playwright show-trace qa/redesign-phase1/browser-gate/verified-final/evidence/redesign-T08-synthetic-touch-drag-on-actual-canvas/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) e2e/redesign.spec.ts:98:1 › T13 practice five full inputs complete ────────────────────────────
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator: getByRole('heading', { level: 1 })
+    Expected: "위·앞·옆으로 살펴봐요"
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveText" getByRole('heading', { level: 1 }) with timeout 5000ms
+      - waiting for getByRole('heading', { level: 1 })
+
+
+      23 |   if(!localStorage.getItem(key))localStorage.setItem(key,JSON.stringify(state));
+      24 |  },{state,key:storageKey});
+    > 25 |  await page.goto(path);await expect(page.getByRole('heading',{level:1})).toHaveText('위·앞·옆으로 살펴봐요',{timeout:15000}); // Bounded cold lazy-chunk/WebGL bootstrap; interaction assertions remain 5s.
+         |                                                                          ^
+      26 |  await expect(page.getByText('3D 화면을 열 수 없어요.',{exact:false})).toHaveCount(0);
+      27 | }
+      28 | async function saved(page:Page){return page.evaluate(key=>JSON.parse(localStorage.getItem(key)!) as LessonState,storageKey);}
+        at boot (/Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/e2e/redesign.spec.ts:25:74)
+        at /Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/e2e/redesign.spec.ts:98:327
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    qa/redesign-phase1/browser-gate/verified-final/evidence/redesign-T13-practice-five-full-inputs-complete/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: qa/redesign-phase1/browser-gate/verified-final/evidence/redesign-T13-practice-five-full-inputs-complete/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    qa/redesign-phase1/browser-gate/verified-final/evidence/redesign-T13-practice-five-full-inputs-complete/trace.zip
+    Usage:
+
+        npx playwright show-trace qa/redesign-phase1/browser-gate/verified-final/evidence/redesign-T13-practice-five-full-inputs-complete/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3 failed
+    e2e/redesign.spec.ts:81:1 › T07 real mouse drag, undo, redo and blocks reload ──────────────────
+    e2e/redesign.spec.ts:88:1 › T08 synthetic touch drag on actual canvas ──────────────────────────
+    e2e/redesign.spec.ts:98:1 › T13 practice five full inputs complete ─────────────────────────────
+  13 passed (10.1m)

@@ -1,0 +1,15 @@
+{
+  "sourceSha256": "6a8daf9f64e82d5dc90cd286fbd01b21b4e76424d791f08432dcaafa7ccf77ec",
+  "head": "5b43a2504085443235afed4c55ba0064ea043150",
+  "time": "2026-09-12T16:14:09.108Z",
+  "workingTree": "M CURRENT_REQUIREMENTS.md\n M QUALITY_GATE.md\n M e2e/redesign.spec.ts\n M eslint.config.js\n M playwright.redesign.config.ts\n M scripts/local-browser-qa.ts\n M scripts/redesign-preview.mjs\n M scripts/run-redesign-qa.mjs\n M shared/practiceSet.ts\n M shared/problems/contracts/display.ts\n M src/components/world/BlockWorld.tsx\n M src/features/answers/AnswerRenderer.tsx\n M src/features/answers/MathGrid.tsx\n M src/features/block-world/BlockScene.ts\n M src/features/learning/Lesson3Redesign.tsx\n M src/features/learning/spatial.css\n M src/features/representations/SpatialMaterials.tsx\n M src/pages/ArchitecturePage.tsx\n M src/pages/LessonPage.tsx\n M src/styles/index.css\n M supabase/functions/student-api/index.ts\n M tests/practice-recovery.test.ts\n M tests/spatial-redesign.test.ts\n?? qa/deployment-readiness/\n?? qa/redesign-browser/\n?? qa/redesign-phase1/browser-gate/\n?? supabase/.temp/",
+  "diffSha256": "d0cea349015a90733391eed28d9b6e899ddf87e6d58a3d2a02ebc2f077dd5c47",
+  "category": "UI_WITH_TEST_DATA",
+  "remoteWrites": false,
+  "persistence": "LOCAL_ONLY",
+  "buildSha256": "9021a0c7d760e7e518ab4f73928d63984b55d12ee78dd5df24c449cf319c2541",
+  "appSourceSha256": "4fec14808304a7e6357d91618db28a9ef9ce20270bad6ad43c3215c46d8ca42c",
+  "testSha256": "7044cd2e0bd7f004ff75ef779dec7102f8d1856dbd2520cae018347e5a21abda",
+  "buildSourceRun": "../verified-final",
+  "note": "Same unchanged production dist. Only test bootstrap wait and duplicate trace start changed after the build. No operating credentials or remote writes."
+}

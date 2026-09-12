@@ -1,0 +1,11 @@
+{
+  "sourceSha256": "daa608c86a1b22c19b4c9e4077bc4cca45ad9a266aff1e93082a131a857def7c",
+  "head": "5b43a2504085443235afed4c55ba0064ea043150",
+  "time": "2026-09-12T15:59:35.821Z",
+  "workingTree": "M CURRENT_REQUIREMENTS.md\n M QUALITY_GATE.md\n M e2e/redesign.spec.ts\n M eslint.config.js\n M playwright.redesign.config.ts\n M scripts/local-browser-qa.ts\n M scripts/redesign-preview.mjs\n M scripts/run-redesign-qa.mjs\n M shared/practiceSet.ts\n M shared/problems/contracts/display.ts\n M src/components/world/BlockWorld.tsx\n M src/features/answers/AnswerRenderer.tsx\n M src/features/answers/MathGrid.tsx\n M src/features/block-world/BlockScene.ts\n M src/features/learning/Lesson3Redesign.tsx\n M src/features/learning/spatial.css\n M src/features/representations/SpatialMaterials.tsx\n M src/pages/ArchitecturePage.tsx\n M src/pages/LessonPage.tsx\n M src/styles/index.css\n M supabase/functions/student-api/index.ts\n M tests/practice-recovery.test.ts\n M tests/spatial-redesign.test.ts\n?? qa/deployment-readiness/\n?? qa/redesign-browser/\n?? qa/redesign-phase1/browser-gate/\n?? supabase/.temp/",
+  "diffSha256": "d0cea349015a90733391eed28d9b6e899ddf87e6d58a3d2a02ebc2f077dd5c47",
+  "category": "UI_WITH_TEST_DATA",
+  "remoteWrites": false,
+  "persistence": "LOCAL_ONLY",
+  "buildSha256": "9021a0c7d760e7e518ab4f73928d63984b55d12ee78dd5df24c449cf319c2541"
+}

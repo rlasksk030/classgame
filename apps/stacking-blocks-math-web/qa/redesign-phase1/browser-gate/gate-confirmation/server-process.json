@@ -1,0 +1,15 @@
+{
+  "startedAt": "2026-09-12T16:15:03.344Z",
+  "pid": 44451,
+  "command": [
+    "/usr/local/bin/node",
+    "node_modules/vite/bin/vite.js",
+    "preview",
+    "--host",
+    "127.0.0.1",
+    "--port",
+    "4186",
+    "--strictPort"
+  ],
+  "cwd": "/Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web"
+}

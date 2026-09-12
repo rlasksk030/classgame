@@ -1,0 +1,38 @@
+Recorded 2026-09-13T00:24:27.100947
+$ git status --short
+ M CURRENT_REQUIREMENTS.md
+ M QUALITY_GATE.md
+ M scripts/local-browser-qa.ts
+ M shared/practiceSet.ts
+ M src/components/world/BlockWorld.tsx
+ M src/pages/ArchitecturePage.tsx
+ M src/pages/LessonPage.tsx
+ M src/styles/index.css
+ M supabase/functions/student-api/index.ts
+ M tests/practice-recovery.test.ts
+?? qa/deployment-readiness/
+?? qa/redesign-browser/
+?? qa/redesign-phase1/browser-gate/
+?? supabase/.temp/
+exit=0
+$ git branch --show-current
+feature/spatial-math-redesign-v1
+exit=0
+$ git rev-parse HEAD
+5b43a2504085443235afed4c55ba0064ea043150
+exit=0
+$ node --version
+v24.14.1
+exit=0
+$ npm --version
+11.11.0
+exit=0
+$ npx --no-install playwright --version
+Version 1.63.0
+exit=0
+$ node -e const fs=require('fs');const p=require('@playwright/test').chromium.executablePath();console.log('Chromium binary: '+p);console.log('exists: '+fs.existsSync(p))
+Chromium binary: /Users/kimnana/Library/Caches/ms-playwright/chromium-1243/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing
+exists: true
+exit=0
+$ lsof -nP -iTCP:4186 -sTCP:LISTEN
+exit=1

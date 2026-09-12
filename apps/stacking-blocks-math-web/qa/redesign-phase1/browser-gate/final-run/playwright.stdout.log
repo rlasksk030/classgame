@@ -1,0 +1,98 @@
+
+Running 16 tests using 1 worker
+
+  ✓   1 e2e/redesign.spec.ts:54:1 › T01 learn five distinct activities and concept summary (1.5m)
+  ✓   2 e2e/redesign.spec.ts:66:1 › T02 canonical camera buttons render three different views (52.6s)
+  ✓   3 e2e/redesign.spec.ts:67:1 › T03 right side reference matches actual asymmetric camera image (16.9s)
+  ✓   4 e2e/redesign.spec.ts:76:1 › T04 top bottom row is front and click restores canonical z0 (33.9s)
+  ✓   5 e2e/redesign.spec.ts:77:1 › T05 full cell click changes actual submission answer (31.1s)
+  ✓   6 e2e/redesign.spec.ts:78:1 › T06 square cells at desktop and tablet sizes (14.5s)
+  ✓   7 e2e/redesign.spec.ts:79:1 › T07 real mouse drag, undo, redo and blocks reload (40.4s)
+  ✓   8 e2e/redesign.spec.ts:86:1 › T08 synthetic touch drag on actual canvas (27.9s)
+  ✘   9 e2e/redesign.spec.ts:87:1 › T09 common six then adaptive four actual input and grading (2.1m)
+  ✓  10 e2e/redesign.spec.ts:88:1 › T10 current problem remains after reload and stage round trip (24.9s)
+  ✓  11 e2e/redesign.spec.ts:89:1 › T11 in-progress grid survives reload unchanged (18.9s)
+  ✓  12 e2e/redesign.spec.ts:90:1 › T12 wrong one/two/three/reveal then independent correction (36.6s)
+  ✘  13 e2e/redesign.spec.ts:95:1 › T13 practice five full inputs complete (1.2m)
+  ✓  14 e2e/redesign.spec.ts:96:1 › T14 legacy student login route still renders input form (5.8s)
+  ✓  15 e2e/redesign.spec.ts:97:1 › T15 legacy teacher login route still renders Auth form (4.9s)
+  ✓  16 e2e/redesign.spec.ts:99:1 › R16 legacy ProjectionGrid floor display and click coordinates (14.7s)
+
+
+  1) e2e/redesign.spec.ts:87:1 › T09 common six then adaptive four actual input and grading ────────
+
+    Test timeout of 90000ms exceeded.
+
+    Error: browserContext._wrapApiCall: file data stream has unexpected number of bytes
+
+    Error: locator.click: Test ended.
+    Call log:
+      - waiting for getByRole('button', { name: '정답 확인', exact: true })
+        - locator resolved to <button class="btn btn-primary">정답 확인</button>
+      - attempting click action
+        - waiting for element to be visible, enabled and stable
+        - element is visible, enabled and stable
+        - scrolling into view if needed
+        - done scrolling
+
+
+      40 |  }else throw new Error('This browser solver must implement the input contract');
+      41 | }
+    > 42 | async function solve(page:Page,p:Problem){await fillAnswer(page,p);await page.getByRole('button',{name:'정답 확인',exact:true}).click();await expect(page.getByText('정답이에요. 잘 살펴보았어요.',{exact:true})).toBeVisible();const s=await saved(page);expect(s.attempts[p.id]?.completed).toBe(true);expect(s.attempts[p.id]?.submitted).toEqual(answerForComparison(p));}
+         |                                                                                                                             ^
+      43 | function activityState(index:number){const s=initialLesson(314159);s.activity=index;s.activities[index]=initialActivity();return s;}
+      44 | async function placeMouse(page:Page,x=0,z=0){
+      45 |  await camera(page,'top');const canvas=page.locator('canvas').first();await canvas.scrollIntoViewIfNeeded();
+        at solve (/Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/e2e/redesign.spec.ts:42:125)
+        at /Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/e2e/redesign.spec.ts:87:495
+
+    Error: End of central directory record signature not found. Either not a zip file, or file is truncated.
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    qa/redesign-phase1/browser-gate/final-run/evidence/redesign-T09-common-six-th-3942a-ur-actual-input-and-grading/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: qa/redesign-phase1/browser-gate/final-run/evidence/redesign-T09-common-six-th-3942a-ur-actual-input-and-grading/error-context.md
+
+  2) e2e/redesign.spec.ts:95:1 › T13 practice five full inputs complete ────────────────────────────
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('heading', { level: 2 })
+    Expected substring: "6/10"
+    Error: strict mode violation: getByRole('heading', { level: 2 }) resolved to 2 elements:
+        1) <h2>더 풀어보기 6/10 · 위에서 본 모양을 격자에 표시하세요.</h2> aka getByRole('heading', { name: '더 풀어보기 6/10' })
+        2) <h2>더 풀어보기 기본 5문제 완료</h2> aka getByRole('heading', { name: '더 풀어보기 기본 5문제 완료' })
+
+    Call log:
+      - Expect "toContainText" getByRole('heading', { level: 2 }) with timeout 5000ms
+      - waiting for getByRole('heading', { level: 2 })
+
+
+      93 | test('T12 wrong one/two/three/reveal then independent correction',async({page})=>{const s=initialLesson(11);s.learnComplete=true;s.section='solve';s.solveIndex=2;await boot(page,s);for(let i=1;i<=4;i++){await page.getByRole('button',{name:'정답 확인',exact:true}).click();const p=commonProblems(s.seed)[2];expect((await saved(page)).attempts[p.id].wrong).toBe(i);if(i<4)await expect(page.getByRole('heading',{name:'정답과 내 답 비교'})).toHaveCount(0);
+      94 |  if(i===1)await expect(page.locator('.spatial-feedback')).toHaveText(p.feedbackPolicy.first);
+    > 95 |  if(i===2){await expect(page.locator('.spatial-feedback')).toContainText('파란 블록');await expect(page.getByLabel('현재 관찰 시점',{exact:true})).toHaveText('위');await capture(page,'feedback-highlight');}
+         |                                                                                                                                                                                                    ^
+      96 |  if(i===3)await expect(page.locator('.spatial-feedback')).toHaveText(`힌트: ${p.feedbackPolicy.hint}`);
+      97 |  await expect(page.locator('[data-problem-id]')).toHaveAttribute('data-problem-id',p.id);}await expect(page.getByRole('heading',{name:'정답과 내 답 비교'})).toBeVisible();await capture(page,'feedback-answer-comparison');await fillAnswer(page,commonProblems(s.seed)[2]);await page.getByRole('button',{name:'정답 확인',exact:true}).click();await expect(page.getByText('정답이에요. 잘 살펴보았어요.',{exact:true})).toBeVisible();});
+      98 | test('T13 practice five full inputs complete',async({page})=>{const s=initialLesson(11);s.section='practice';s.learnComplete=true;await boot(page,s);for(const [i,p] of practiceProblems(s.seed,5).entries()){await solve(page,p);if(i<4)await page.getByRole('button',{name:'다음 문제',exact:true}).click();}await expect(page.getByRole('heading',{name:'더 풀어보기 기본 5문제 완료'})).toBeVisible();await capture(page,'practice-complete');await page.getByRole('button',{name:'새 문제 5개 더 풀기'}).click();await expect(page.locator('[data-problem-id]')).toHaveAttribute('data-problem-id',practiceProblems(s.seed,10)[5].id);await expect(page.getByRole('heading',{level:2})).toContainText('6/10');});
+        at /Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/e2e/redesign.spec.ts:95:648
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    qa/redesign-phase1/browser-gate/final-run/evidence/redesign-T13-practice-five-full-inputs-complete/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: qa/redesign-phase1/browser-gate/final-run/evidence/redesign-T13-practice-five-full-inputs-complete/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    qa/redesign-phase1/browser-gate/final-run/evidence/redesign-T13-practice-five-full-inputs-complete/trace.zip
+    Usage:
+
+        npx playwright show-trace qa/redesign-phase1/browser-gate/final-run/evidence/redesign-T13-practice-five-full-inputs-complete/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    e2e/redesign.spec.ts:87:1 › T09 common six then adaptive four actual input and grading ─────────
+    e2e/redesign.spec.ts:95:1 › T13 practice five full inputs complete ─────────────────────────────
+  14 passed (11.1m)

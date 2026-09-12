@@ -1,0 +1,6 @@
+error when starting preview server:
+Error: listen EPERM: operation not permitted 127.0.0.1:4186
+    at Server.setupListenHandle [as _listen2] (node:net:1926:21)
+    at listenInCluster (node:net:2005:12)
+    at node:net:2214:7
+    at process.processTicksAndRejections (node:internal/process/task_queues:90:21)

@@ -1,0 +1,101 @@
+{
+  "sourceSha256": "836e2d0ea254b70f9da20417c472ca7808657f29c979bb348ad0d38708489790",
+  "head": "5b43a2504085443235afed4c55ba0064ea043150",
+  "time": "2026-09-12T15:45:16.818Z",
+  "workingTree": "M CURRENT_REQUIREMENTS.md\n M QUALITY_GATE.md\n M e2e/redesign.spec.ts\n M eslint.config.js\n M playwright.redesign.config.ts\n M scripts/local-browser-qa.ts\n M scripts/redesign-preview.mjs\n M scripts/run-redesign-qa.mjs\n M shared/practiceSet.ts\n M shared/problems/contracts/display.ts\n M src/components/world/BlockWorld.tsx\n M src/features/answers/AnswerRenderer.tsx\n M src/features/answers/MathGrid.tsx\n M src/features/block-world/BlockScene.ts\n M src/features/learning/Lesson3Redesign.tsx\n M src/features/learning/spatial.css\n M src/features/representations/SpatialMaterials.tsx\n M src/pages/ArchitecturePage.tsx\n M src/pages/LessonPage.tsx\n M src/styles/index.css\n M supabase/functions/student-api/index.ts\n M tests/practice-recovery.test.ts\n M tests/spatial-redesign.test.ts\n?? qa/deployment-readiness/\n?? qa/redesign-browser/\n?? qa/redesign-phase1/browser-gate/\n?? supabase/.temp/",
+  "diffSha256": "75e7851db77700fd45f1833800d757b8412fb3ef8dc798e7264d0cc697cabdbf",
+  "category": "UI_WITH_TEST_DATA",
+  "remoteWrites": false,
+  "persistence": "LOCAL_ONLY",
+  "buildSha256": "62f3191aec8e37e6a03a32adda672baf3b2d62c6c82ea9bf1c9ad882a7e63745",
+  "phase": "browser",
+  "planned": 16,
+  "executed": 16,
+  "pass": 14,
+  "fail": 2,
+  "notRun": 0,
+  "status": "FAIL",
+  "cases": [
+    {
+      "id": "T01 learn five distinct activities and concept summary",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "id": "T02 canonical camera buttons render three different views",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "id": "T03 right side reference matches actual asymmetric camera image",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "id": "T04 top bottom row is front and click restores canonical z0",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "id": "T05 full cell click changes actual submission answer",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "id": "T06 square cells at desktop and tablet sizes",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "id": "T07 real mouse drag, undo, redo and blocks reload",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "id": "T08 synthetic touch drag on actual canvas",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "id": "T09 common six then adaptive four actual input and grading",
+      "status": "unexpected",
+      "attempts": 1
+    },
+    {
+      "id": "T10 current problem remains after reload and stage round trip",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "id": "T11 in-progress grid survives reload unchanged",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "id": "T12 wrong one/two/three/reveal then independent correction",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "id": "T13 practice five full inputs complete",
+      "status": "unexpected",
+      "attempts": 1
+    },
+    {
+      "id": "T14 legacy student login route still renders input form",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "id": "T15 legacy teacher login route still renders Auth form",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "id": "R16 legacy ProjectionGrid floor display and click coordinates",
+      "status": "expected",
+      "attempts": 1
+    }
+  ],
+  "errors": []
+}

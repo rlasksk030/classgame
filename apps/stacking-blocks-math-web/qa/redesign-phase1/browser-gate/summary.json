@@ -1,0 +1,191 @@
+{
+  "status": "PASS",
+  "category": "UI_WITH_TEST_DATA",
+  "persistence": "LOCAL_ONLY",
+  "planned": 16,
+  "executed": 16,
+  "pass": 16,
+  "fail": 0,
+  "blocked": 0,
+  "notRun": 0,
+  "startTime": "2026-09-12T16:15:03.288Z",
+  "durationMs": 86582.333,
+  "identity": {
+    "sourceSha256": "6a8daf9f64e82d5dc90cd286fbd01b21b4e76424d791f08432dcaafa7ccf77ec",
+    "head": "5b43a2504085443235afed4c55ba0064ea043150",
+    "time": "2026-09-12T16:15:03.344Z",
+    "workingTree": "M CURRENT_REQUIREMENTS.md\n M QUALITY_GATE.md\n M e2e/redesign.spec.ts\n M eslint.config.js\n M playwright.redesign.config.ts\n M scripts/local-browser-qa.ts\n M scripts/redesign-preview.mjs\n M scripts/run-redesign-qa.mjs\n M shared/practiceSet.ts\n M shared/problems/contracts/display.ts\n M src/components/world/BlockWorld.tsx\n M src/features/answers/AnswerRenderer.tsx\n M src/features/answers/MathGrid.tsx\n M src/features/block-world/BlockScene.ts\n M src/features/learning/Lesson3Redesign.tsx\n M src/features/learning/spatial.css\n M src/features/representations/SpatialMaterials.tsx\n M src/pages/ArchitecturePage.tsx\n M src/pages/LessonPage.tsx\n M src/styles/index.css\n M supabase/functions/student-api/index.ts\n M tests/practice-recovery.test.ts\n M tests/spatial-redesign.test.ts\n?? qa/deployment-readiness/\n?? qa/redesign-browser/\n?? qa/redesign-phase1/browser-gate/\n?? supabase/.temp/",
+    "diffSha256": "d0cea349015a90733391eed28d9b6e899ddf87e6d58a3d2a02ebc2f077dd5c47",
+    "category": "UI_WITH_TEST_DATA",
+    "remoteWrites": false,
+    "persistence": "LOCAL_ONLY",
+    "buildSha256": "9021a0c7d760e7e518ab4f73928d63984b55d12ee78dd5df24c449cf319c2541",
+    "appSourceSha256": "4fec14808304a7e6357d91618db28a9ef9ce20270bad6ad43c3215c46d8ca42c",
+    "testSha256": "7044cd2e0bd7f004ff75ef779dec7102f8d1856dbd2520cae018347e5a21abda",
+    "buildSourceRun": "../verified-final",
+    "note": "Same unchanged production dist. Only test bootstrap wait and duplicate trace start changed after the build. No operating credentials or remote writes."
+  },
+  "cases": [
+    {
+      "id": "T01",
+      "name": "T01 learn five distinct activities and concept summary",
+      "status": "PASS",
+      "executions": 1,
+      "durationMs": 7851,
+      "trace": [
+        "/Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/qa/redesign-phase1/browser-gate/gate-confirmation/evidence/redesign-T01-learn-five-di-959eb-ivities-and-concept-summary/trace.zip"
+      ]
+    },
+    {
+      "id": "T02",
+      "name": "T02 canonical camera buttons render three different views",
+      "status": "PASS",
+      "executions": 1,
+      "durationMs": 5297,
+      "trace": [
+        "/Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/qa/redesign-phase1/browser-gate/gate-confirmation/evidence/redesign-T02-canonical-cam-daa9f-ender-three-different-views/trace.zip"
+      ]
+    },
+    {
+      "id": "T03",
+      "name": "T03 right side reference matches actual asymmetric camera image",
+      "status": "PASS",
+      "executions": 1,
+      "durationMs": 2364,
+      "trace": [
+        "/Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/qa/redesign-phase1/browser-gate/gate-confirmation/evidence/redesign-T03-right-side-re-641f4-ual-asymmetric-camera-image/trace.zip"
+      ]
+    },
+    {
+      "id": "T04",
+      "name": "T04 top bottom row is front and click restores canonical z0",
+      "status": "PASS",
+      "executions": 1,
+      "durationMs": 3052,
+      "trace": [
+        "/Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/qa/redesign-phase1/browser-gate/gate-confirmation/evidence/redesign-T04-top-bottom-ro-2023e-click-restores-canonical-z0/trace.zip"
+      ]
+    },
+    {
+      "id": "T05",
+      "name": "T05 full cell click changes actual submission answer",
+      "status": "PASS",
+      "executions": 1,
+      "durationMs": 3702,
+      "trace": [
+        "/Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/qa/redesign-phase1/browser-gate/gate-confirmation/evidence/redesign-T05-full-cell-cli-bd07b-es-actual-submission-answer/trace.zip"
+      ]
+    },
+    {
+      "id": "T06",
+      "name": "T06 square cells at desktop and tablet sizes",
+      "status": "PASS",
+      "executions": 1,
+      "durationMs": 1444,
+      "trace": [
+        "/Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/qa/redesign-phase1/browser-gate/gate-confirmation/evidence/redesign-T06-square-cells-at-desktop-and-tablet-sizes/trace.zip"
+      ]
+    },
+    {
+      "id": "T07",
+      "name": "T07 real mouse drag, undo, redo and blocks reload",
+      "status": "PASS",
+      "executions": 1,
+      "durationMs": 6383,
+      "trace": [
+        "/Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/qa/redesign-phase1/browser-gate/gate-confirmation/evidence/redesign-T07-real-mouse-drag-undo-redo-and-blocks-reload/trace.zip"
+      ]
+    },
+    {
+      "id": "T08",
+      "name": "T08 synthetic touch drag on actual canvas",
+      "status": "PASS",
+      "executions": 1,
+      "durationMs": 3560,
+      "trace": [
+        "/Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/qa/redesign-phase1/browser-gate/gate-confirmation/evidence/redesign-T08-synthetic-touch-drag-on-actual-canvas/trace.zip"
+      ]
+    },
+    {
+      "id": "T09",
+      "name": "T09 common six then adaptive four actual input and grading",
+      "status": "PASS",
+      "executions": 1,
+      "durationMs": 19314,
+      "trace": [
+        "/Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/qa/redesign-phase1/browser-gate/gate-confirmation/evidence/redesign-T09-common-six-th-3942a-ur-actual-input-and-grading/trace.zip"
+      ]
+    },
+    {
+      "id": "T10",
+      "name": "T10 current problem remains after reload and stage round trip",
+      "status": "PASS",
+      "executions": 1,
+      "durationMs": 4536,
+      "trace": [
+        "/Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/qa/redesign-phase1/browser-gate/gate-confirmation/evidence/redesign-T10-current-probl-2fe1a-reload-and-stage-round-trip/trace.zip"
+      ]
+    },
+    {
+      "id": "T11",
+      "name": "T11 in-progress grid survives reload unchanged",
+      "status": "PASS",
+      "executions": 1,
+      "durationMs": 2670,
+      "trace": [
+        "/Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/qa/redesign-phase1/browser-gate/gate-confirmation/evidence/redesign-T11-in-progress-grid-survives-reload-unchanged/trace.zip"
+      ]
+    },
+    {
+      "id": "T12",
+      "name": "T12 wrong one/two/three/reveal then independent correction",
+      "status": "PASS",
+      "executions": 1,
+      "durationMs": 4935,
+      "trace": [
+        "/Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/qa/redesign-phase1/browser-gate/gate-confirmation/evidence/redesign-T12-wrong-one-two-801c6-then-independent-correction/trace.zip"
+      ]
+    },
+    {
+      "id": "T13",
+      "name": "T13 practice five full inputs complete",
+      "status": "PASS",
+      "executions": 1,
+      "durationMs": 12767,
+      "trace": [
+        "/Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/qa/redesign-phase1/browser-gate/gate-confirmation/evidence/redesign-T13-practice-five-full-inputs-complete/trace.zip"
+      ]
+    },
+    {
+      "id": "T14",
+      "name": "T14 legacy student login route still renders input form",
+      "status": "PASS",
+      "executions": 1,
+      "durationMs": 1931,
+      "trace": [
+        "/Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/qa/redesign-phase1/browser-gate/gate-confirmation/evidence/redesign-T14-legacy-studen-73543-te-still-renders-input-form/trace.zip"
+      ]
+    },
+    {
+      "id": "T15",
+      "name": "T15 legacy teacher login route still renders Auth form",
+      "status": "PASS",
+      "executions": 1,
+      "durationMs": 1723,
+      "trace": [
+        "/Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/qa/redesign-phase1/browser-gate/gate-confirmation/evidence/redesign-T15-legacy-teache-6c570-ute-still-renders-Auth-form/trace.zip"
+      ]
+    },
+    {
+      "id": "R16",
+      "name": "R16 legacy ProjectionGrid floor display and click coordinates",
+      "status": "PASS",
+      "executions": 1,
+      "durationMs": 2839,
+      "trace": [
+        "/Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/qa/redesign-phase1/browser-gate/gate-confirmation/evidence/redesign-R16-legacy-Projec-1e44d-splay-and-click-coordinates/trace.zip"
+      ]
+    }
+  ],
+  "scope": "T01-T15 + legacy floor ProjectionGrid R16; no LIVE_SUPABASE or physical iPad verification."
+}

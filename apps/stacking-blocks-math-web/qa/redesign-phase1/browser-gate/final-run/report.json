@@ -1,0 +1,809 @@
+{
+  "config": {
+    "argv": [
+      "/usr/local/bin/node",
+      "/Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/node_modules/@playwright/test/cli.js",
+      "test",
+      "--config",
+      "playwright.redesign.config.ts"
+    ],
+    "configFile": "/Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/playwright.redesign.config.ts",
+    "rootDir": "/Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "head": "5b43a25",
+      "category": "UI_WITH_TEST_DATA",
+      "persistence": "LOCAL_ONLY",
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/qa/redesign-phase1/browser-gate/final-run/evidence",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "head": "5b43a25",
+          "category": "UI_WITH_TEST_DATA",
+          "persistence": "LOCAL_ONLY",
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "redesign.spec.ts"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "qa/redesign-phase1/browser-gate/final-run/report.json"
+        }
+      ],
+      [
+        "html",
+        {
+          "outputFolder": "qa/redesign-phase1/browser-gate/final-run/html",
+          "open": "never"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.63.0",
+    "workers": 1,
+    "webServer": {
+      "command": "node scripts/redesign-preview.mjs",
+      "env": {
+        "SPATIAL_QA_OUTPUT": "qa/redesign-phase1/browser-gate/final-run"
+      },
+      "url": "http://127.0.0.1:4186",
+      "reuseExistingServer": false,
+      "timeout": 15000
+    }
+  },
+  "suites": [
+    {
+      "title": "redesign.spec.ts",
+      "file": "redesign.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "T01 learn five distinct activities and concept summary",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 89910,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-12T15:47:06.991Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/qa/redesign-phase1/browser-gate/final-run/evidence/redesign-T01-learn-five-di-959eb-ivities-and-concept-summary/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8c55c0801a27607fa79e-8144469aa3dfac9a8912",
+          "file": "redesign.spec.ts",
+          "line": 54,
+          "column": 1
+        },
+        {
+          "title": "T02 canonical camera buttons render three different views",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 52583,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-12T15:48:44.933Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/qa/redesign-phase1/browser-gate/final-run/evidence/redesign-T02-canonical-cam-daa9f-ender-three-different-views/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8c55c0801a27607fa79e-ac8e325499b31cce4fa5",
+          "file": "redesign.spec.ts",
+          "line": 66,
+          "column": 1
+        },
+        {
+          "title": "T03 right side reference matches actual asymmetric camera image",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 16930,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-12T15:49:40.199Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/qa/redesign-phase1/browser-gate/final-run/evidence/redesign-T03-right-side-re-641f4-ual-asymmetric-camera-image/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8c55c0801a27607fa79e-27e27d52ae84b26a20a5",
+          "file": "redesign.spec.ts",
+          "line": 67,
+          "column": 1
+        },
+        {
+          "title": "T04 top bottom row is front and click restores canonical z0",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 33913,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-12T15:49:57.850Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/qa/redesign-phase1/browser-gate/final-run/evidence/redesign-T04-top-bottom-ro-2023e-click-restores-canonical-z0/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8c55c0801a27607fa79e-2ad686622a53d3f68b29",
+          "file": "redesign.spec.ts",
+          "line": 76,
+          "column": 1
+        },
+        {
+          "title": "T05 full cell click changes actual submission answer",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 31067,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-12T15:50:32.295Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/qa/redesign-phase1/browser-gate/final-run/evidence/redesign-T05-full-cell-cli-bd07b-es-actual-submission-answer/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8c55c0801a27607fa79e-4284fbea15ce8d517431",
+          "file": "redesign.spec.ts",
+          "line": 77,
+          "column": 1
+        },
+        {
+          "title": "T06 square cells at desktop and tablet sizes",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 14485,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-12T15:51:07.770Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/qa/redesign-phase1/browser-gate/final-run/evidence/redesign-T06-square-cells-at-desktop-and-tablet-sizes/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8c55c0801a27607fa79e-bf8801077dc65cffb9ab",
+          "file": "redesign.spec.ts",
+          "line": 78,
+          "column": 1
+        },
+        {
+          "title": "T07 real mouse drag, undo, redo and blocks reload",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 40379,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-12T15:51:22.838Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/qa/redesign-phase1/browser-gate/final-run/evidence/redesign-T07-real-mouse-drag-undo-redo-and-blocks-reload/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8c55c0801a27607fa79e-e897af455832312ec19f",
+          "file": "redesign.spec.ts",
+          "line": 79,
+          "column": 1
+        },
+        {
+          "title": "T08 synthetic touch drag on actual canvas",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 27939,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-12T15:52:05.211Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/qa/redesign-phase1/browser-gate/final-run/evidence/redesign-T08-synthetic-touch-drag-on-actual-canvas/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8c55c0801a27607fa79e-723b41242c2535743dad",
+          "file": "redesign.spec.ts",
+          "line": 86,
+          "column": 1
+        },
+        {
+          "title": "T09 common six then adaptive four actual input and grading",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "timedOut",
+                  "duration": 126058,
+                  "error": {
+                    "message": "\u001b[31mTest timeout of 90000ms exceeded.\u001b[39m",
+                    "stack": "\u001b[31mTest timeout of 90000ms exceeded.\u001b[39m"
+                  },
+                  "errors": [
+                    {
+                      "message": "\u001b[31mTest timeout of 90000ms exceeded.\u001b[39m"
+                    },
+                    {
+                      "message": "Error: browserContext._wrapApiCall: file data stream has unexpected number of bytes"
+                    },
+                    {
+                      "location": {
+                        "file": "/Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/e2e/redesign.spec.ts",
+                        "column": 125,
+                        "line": 42
+                      },
+                      "message": "Error: locator.click: Test ended.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: '정답 확인', exact: true })\u001b[22m\n\u001b[2m    - locator resolved to <button class=\"btn btn-primary\">정답 확인</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m    - element is visible, enabled and stable\u001b[22m\n\u001b[2m    - scrolling into view if needed\u001b[22m\n\u001b[2m    - done scrolling\u001b[22m\n\n\n  40 |  }else throw new Error('This browser solver must implement the input contract');\n  41 | }\n> 42 | async function solve(page:Page,p:Problem){await fillAnswer(page,p);await page.getByRole('button',{name:'정답 확인',exact:true}).click();await expect(page.getByText('정답이에요. 잘 살펴보았어요.',{exact:true})).toBeVisible();const s=await saved(page);expect(s.attempts[p.id]?.completed).toBe(true);expect(s.attempts[p.id]?.submitted).toEqual(answerForComparison(p));}\n     |                                                                                                                             ^\n  43 | function activityState(index:number){const s=initialLesson(314159);s.activity=index;s.activities[index]=initialActivity();return s;}\n  44 | async function placeMouse(page:Page,x=0,z=0){\n  45 |  await camera(page,'top');const canvas=page.locator('canvas').first();await canvas.scrollIntoViewIfNeeded();\n    at solve (/Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/e2e/redesign.spec.ts:42:125)\n    at /Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/e2e/redesign.spec.ts:87:495"
+                    },
+                    {
+                      "message": "Error: End of central directory record signature not found. Either not a zip file, or file is truncated."
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-12T15:52:34.444Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/qa/redesign-phase1/browser-gate/final-run/evidence/redesign-T09-common-six-th-3942a-ur-actual-input-and-grading/test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/qa/redesign-phase1/browser-gate/final-run/evidence/redesign-T09-common-six-th-3942a-ur-actual-input-and-grading/error-context.md"
+                    }
+                  ]
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "8c55c0801a27607fa79e-cd05857a72474ec1cfc5",
+          "file": "redesign.spec.ts",
+          "line": 87,
+          "column": 1
+        },
+        {
+          "title": "T10 current problem remains after reload and stage round trip",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 24876,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-12T15:54:49.638Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/qa/redesign-phase1/browser-gate/final-run/evidence/redesign-T10-current-probl-2fe1a-reload-and-stage-round-trip/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8c55c0801a27607fa79e-b3f89211cc0f7a19c1d6",
+          "file": "redesign.spec.ts",
+          "line": 88,
+          "column": 1
+        },
+        {
+          "title": "T11 in-progress grid survives reload unchanged",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 18894,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-12T15:55:18.814Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/qa/redesign-phase1/browser-gate/final-run/evidence/redesign-T11-in-progress-grid-survives-reload-unchanged/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8c55c0801a27607fa79e-d3275b3684e1fc113fa4",
+          "file": "redesign.spec.ts",
+          "line": 89,
+          "column": 1
+        },
+        {
+          "title": "T12 wrong one/two/three/reveal then independent correction",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 36587,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-12T15:55:38.161Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/qa/redesign-phase1/browser-gate/final-run/evidence/redesign-T12-wrong-one-two-801c6-then-independent-correction/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8c55c0801a27607fa79e-83f4b683ceba644a0746",
+          "file": "redesign.spec.ts",
+          "line": 90,
+          "column": 1
+        },
+        {
+          "title": "T13 practice five full inputs complete",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 70935,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('heading', { level: 2 })\nExpected substring: \u001b[32m\"6/10\"\u001b[39m\nError: strict mode violation: getByRole('heading', { level: 2 }) resolved to 2 elements:\n    1) <h2>더 풀어보기 6/10 · 위에서 본 모양을 격자에 표시하세요.</h2> aka getByRole('heading', { name: '더 풀어보기 6/10' })\n    2) <h2>더 풀어보기 기본 5문제 완료</h2> aka getByRole('heading', { name: '더 풀어보기 기본 5문제 완료' })\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" getByRole('heading', { level: 2 }) with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('heading', { level: 2 })\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('heading', { level: 2 })\nExpected substring: \u001b[32m\"6/10\"\u001b[39m\nError: strict mode violation: getByRole('heading', { level: 2 }) resolved to 2 elements:\n    1) <h2>더 풀어보기 6/10 · 위에서 본 모양을 격자에 표시하세요.</h2> aka getByRole('heading', { name: '더 풀어보기 6/10' })\n    2) <h2>더 풀어보기 기본 5문제 완료</h2> aka getByRole('heading', { name: '더 풀어보기 기본 5문제 완료' })\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" getByRole('heading', { level: 2 }) with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('heading', { level: 2 })\u001b[22m\n\n    at /Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/e2e/redesign.spec.ts:95:648",
+                    "location": {
+                      "file": "/Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/e2e/redesign.spec.ts",
+                      "column": 648,
+                      "line": 95
+                    },
+                    "snippet": "  93 | test('T12 wrong one/two/three/reveal then independent correction',async({page})=>{const s=initialLesson(11);s.learnComplete=true;s.section='solve';s.solveIndex=2;await boot(page,s);for(let i=1;i<=4;i++){await page.getByRole('button',{name:'정답 확인',exact:true}).click();const p=commonProblems(s.seed)[2];expect((await saved(page)).attempts[p.id].wrong).toBe(i);if(i<4)await expect(page.getByRole('heading',{name:'정답과 내 답 비교'})).toHaveCount(0);\n  94 |  if(i===1)await expect(page.locator('.spatial-feedback')).toHaveText(p.feedbackPolicy.first);\n> 95 |  if(i===2){await expect(page.locator('.spatial-feedback')).toContainText('파란 블록');await expect(page.getByLabel('현재 관찰 시점',{exact:true})).toHaveText('위');await capture(page,'feedback-highlight');}\n     |                                                                                                                                                                                                    ^\n  96 |  if(i===3)await expect(page.locator('.spatial-feedback')).toHaveText(`힌트: ${p.feedbackPolicy.hint}`);\n  97 |  await expect(page.locator('[data-problem-id]')).toHaveAttribute('data-problem-id',p.id);}await expect(page.getByRole('heading',{name:'정답과 내 답 비교'})).toBeVisible();await capture(page,'feedback-answer-comparison');await fillAnswer(page,commonProblems(s.seed)[2]);await page.getByRole('button',{name:'정답 확인',exact:true}).click();await expect(page.getByText('정답이에요. 잘 살펴보았어요.',{exact:true})).toBeVisible();});\n  98 | test('T13 practice five full inputs complete',async({page})=>{const s=initialLesson(11);s.section='practice';s.learnComplete=true;await boot(page,s);for(const [i,p] of practiceProblems(s.seed,5).entries()){await solve(page,p);if(i<4)await page.getByRole('button',{name:'다음 문제',exact:true}).click();}await expect(page.getByRole('heading',{name:'더 풀어보기 기본 5문제 완료'})).toBeVisible();await capture(page,'practice-complete');await page.getByRole('button',{name:'새 문제 5개 더 풀기'}).click();await expect(page.locator('[data-problem-id]')).toHaveAttribute('data-problem-id',practiceProblems(s.seed,10)[5].id);await expect(page.getByRole('heading',{level:2})).toContainText('6/10');});"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/e2e/redesign.spec.ts",
+                        "column": 648,
+                        "line": 95
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('heading', { level: 2 })\nExpected substring: \u001b[32m\"6/10\"\u001b[39m\nError: strict mode violation: getByRole('heading', { level: 2 }) resolved to 2 elements:\n    1) <h2>더 풀어보기 6/10 · 위에서 본 모양을 격자에 표시하세요.</h2> aka getByRole('heading', { name: '더 풀어보기 6/10' })\n    2) <h2>더 풀어보기 기본 5문제 완료</h2> aka getByRole('heading', { name: '더 풀어보기 기본 5문제 완료' })\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" getByRole('heading', { level: 2 }) with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('heading', { level: 2 })\u001b[22m\n\n\n  93 | test('T12 wrong one/two/three/reveal then independent correction',async({page})=>{const s=initialLesson(11);s.learnComplete=true;s.section='solve';s.solveIndex=2;await boot(page,s);for(let i=1;i<=4;i++){await page.getByRole('button',{name:'정답 확인',exact:true}).click();const p=commonProblems(s.seed)[2];expect((await saved(page)).attempts[p.id].wrong).toBe(i);if(i<4)await expect(page.getByRole('heading',{name:'정답과 내 답 비교'})).toHaveCount(0);\n  94 |  if(i===1)await expect(page.locator('.spatial-feedback')).toHaveText(p.feedbackPolicy.first);\n> 95 |  if(i===2){await expect(page.locator('.spatial-feedback')).toContainText('파란 블록');await expect(page.getByLabel('현재 관찰 시점',{exact:true})).toHaveText('위');await capture(page,'feedback-highlight');}\n     |                                                                                                                                                                                                    ^\n  96 |  if(i===3)await expect(page.locator('.spatial-feedback')).toHaveText(`힌트: ${p.feedbackPolicy.hint}`);\n  97 |  await expect(page.locator('[data-problem-id]')).toHaveAttribute('data-problem-id',p.id);}await expect(page.getByRole('heading',{name:'정답과 내 답 비교'})).toBeVisible();await capture(page,'feedback-answer-comparison');await fillAnswer(page,commonProblems(s.seed)[2]);await page.getByRole('button',{name:'정답 확인',exact:true}).click();await expect(page.getByText('정답이에요. 잘 살펴보았어요.',{exact:true})).toBeVisible();});\n  98 | test('T13 practice five full inputs complete',async({page})=>{const s=initialLesson(11);s.section='practice';s.learnComplete=true;await boot(page,s);for(const [i,p] of practiceProblems(s.seed,5).entries()){await solve(page,p);if(i<4)await page.getByRole('button',{name:'다음 문제',exact:true}).click();}await expect(page.getByRole('heading',{name:'더 풀어보기 기본 5문제 완료'})).toBeVisible();await capture(page,'practice-complete');await page.getByRole('button',{name:'새 문제 5개 더 풀기'}).click();await expect(page.locator('[data-problem-id]')).toHaveAttribute('data-problem-id',practiceProblems(s.seed,10)[5].id);await expect(page.getByRole('heading',{level:2})).toContainText('6/10');});\n    at /Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/e2e/redesign.spec.ts:95:648"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-12T15:56:18.185Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/qa/redesign-phase1/browser-gate/final-run/evidence/redesign-T13-practice-five-full-inputs-complete/test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/qa/redesign-phase1/browser-gate/final-run/evidence/redesign-T13-practice-five-full-inputs-complete/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/qa/redesign-phase1/browser-gate/final-run/evidence/redesign-T13-practice-five-full-inputs-complete/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/e2e/redesign.spec.ts",
+                    "column": 648,
+                    "line": 95
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "8c55c0801a27607fa79e-0b6265d881955c772374",
+          "file": "redesign.spec.ts",
+          "line": 95,
+          "column": 1
+        },
+        {
+          "title": "T14 legacy student login route still renders input form",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5790,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-12T15:57:37.908Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/qa/redesign-phase1/browser-gate/final-run/evidence/redesign-T14-legacy-studen-73543-te-still-renders-input-form/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8c55c0801a27607fa79e-fc80e35d50ec16519ea8",
+          "file": "redesign.spec.ts",
+          "line": 96,
+          "column": 1
+        },
+        {
+          "title": "T15 legacy teacher login route still renders Auth form",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4914,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-12T15:57:46.492Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/qa/redesign-phase1/browser-gate/final-run/evidence/redesign-T15-legacy-teache-6c570-ute-still-renders-Auth-form/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8c55c0801a27607fa79e-0998d5bded9e1d054ca0",
+          "file": "redesign.spec.ts",
+          "line": 97,
+          "column": 1
+        },
+        {
+          "title": "R16 legacy ProjectionGrid floor display and click coordinates",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 14653,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-12T15:57:51.534Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/qa/redesign-phase1/browser-gate/final-run/evidence/redesign-R16-legacy-Projec-1e44d-splay-and-click-coordinates/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8c55c0801a27607fa79e-3ead20c3f8661a669e86",
+          "file": "redesign.spec.ts",
+          "line": 99,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-09-12T15:47:01.688Z",
+    "duration": 667858.836,
+    "expected": 14,
+    "skipped": 0,
+    "unexpected": 2,
+    "flaky": 0
+  }
+}

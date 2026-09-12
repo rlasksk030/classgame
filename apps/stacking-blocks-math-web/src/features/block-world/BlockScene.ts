@@ -3,7 +3,7 @@ import { Engine } from '@babylonjs/core/Engines/engine';
 import { Scene } from '@babylonjs/core/scene';
 import { ArcRotateCamera } from '@babylonjs/core/Cameras/arcRotateCamera';
 import { Camera } from '@babylonjs/core/Cameras/camera';
-import { Vector3 } from '@babylonjs/core/Maths/math.vector';
+import { Vector3, Matrix } from '@babylonjs/core/Maths/math.vector';
 import { Color3, Color4 } from '@babylonjs/core/Maths/math.color';
 import { HemisphericLight } from '@babylonjs/core/Lights/hemisphericLight';
 import { CreateGround } from '@babylonjs/core/Meshes/Builders/groundBuilder';
@@ -29,6 +29,7 @@ export interface SceneState {
 }
 export interface SceneCallbacks {
   view?: (view: ObservedView) => void;
+  frontPosition?: (point:{x:number;y:number}|null)=>void;
   change: (blocks: BlockCoord[]) => void;
   select: (block: BlockCoord | null) => void;
   message: (message: string | null) => void;
@@ -36,6 +37,7 @@ export interface SceneCallbacks {
 
 /** Owns GPU resources and pointer listeners. Network and persistence stay outside the engine. */
 export class BlockScene {
+  private previousFrontPosition = "";
   private previousView: ObservedView | null = null;
   private engine: Engine;
   private scene: Scene;
@@ -66,7 +68,7 @@ export class BlockScene {
     // 넓은 설계판도 첫 화면에서 작업 가능한 영역으로 보이도록 발판 크기에
     // 비례해 프레임을 잡는다. 기존의 1.9배 반경은 10×10 판을 너무 멀리
     // 보여 주어 학생이 유효한 칸을 찾기 어려웠다.
-    this.camera = new ArcRotateCamera('camera', -Math.PI / 3, Math.PI / 3, this.frameRadius(), new Vector3(grid.gridWidth / 2, grid.maxHeight / 3, grid.gridDepth / 2), this.scene);
+    this.camera = new ArcRotateCamera('camera', -Math.PI / 3, Math.PI / 3, this.frameRadius() * 1.4, new Vector3(grid.gridWidth / 2, grid.maxHeight / 3, grid.gridDepth / 2), this.scene);
     this.camera.lowerRadiusLimit = 2;
     this.camera.upperRadiusLimit = size * 5;
     this.camera.lowerBetaLimit = 0.001;
@@ -100,7 +102,8 @@ export class BlockScene {
     const floorMaterial = makeMaterial('floor', '#cfd8df');
     const tileMaterial = makeMaterial('grid-tile', '#f0ede6');
     const ground = CreateGround('pickable-ground', { width: grid.gridWidth, height: grid.gridDepth }, this.scene);
-    ground.position.set(grid.gridWidth / 2, -0.005, grid.gridDepth / 2);
+    // Keep the picking plane below the tiles (tile top is -0.01), so their grid gaps remain visible.
+    ground.position.set(grid.gridWidth / 2, -0.02, grid.gridDepth / 2);
     ground.material = floorMaterial;
     ground.metadata = { floor: true };
     for (let z = 0; z < grid.gridDepth; z++) for (let x = 0; x < grid.gridWidth; x++) {
@@ -109,27 +112,9 @@ export class BlockScene {
       tile.material = tileMaterial;
       tile.isPickable = false;
     }
-    // 좌표의 앞(z=0)을 카메라가 회전해도 알아볼 수 있도록 작업판에 표시한다.
-    const markerColor = Color3.FromHexString('#4b6680');
-    const markerZ = -0.28;
-    const markerY = 0.04;
-    const markerX = grid.gridWidth / 2;
-    const shaft = CreateLines('front-direction-shaft', {
-      points: [new Vector3(markerX, markerY, 0.75), new Vector3(markerX, markerY, markerZ)],
-    }, this.scene);
-    shaft.color = markerColor;
-    shaft.isPickable = false;
-    const tips: Array<[string, Vector3[]]> = [
-      ['front-direction-tip-a', [new Vector3(markerX, markerY, markerZ), new Vector3(markerX - 0.18, markerY, markerZ + 0.2)]],
-      ['front-direction-tip-b', [new Vector3(markerX, markerY, markerZ), new Vector3(markerX + 0.18, markerY, markerZ + 0.2)]],
-    ];
-    for (const [name, points] of tips) {
-      const line = CreateLines(name, { points }, this.scene);
-      line.color = markerColor;
-      line.isPickable = false;
-      this.frontMarker.push(line);
-    }
-    this.frontMarker.push(shaft);
+    // Mark the actual z=0 edge; the text tracks this same world-space edge.
+    const frontEdge=CreateLines('front-edge',{points:[new Vector3(0,0.04,-0.03),new Vector3(grid.gridWidth,0.04,-0.03)]},this.scene);
+    frontEdge.color=Color3.FromHexString('#4b6680');frontEdge.isPickable=false;this.frontMarker.push(frontEdge);
     this.ghost = CreateBox('placement-preview', { size: 0.96 }, this.scene);
     this.ghost.material = this.ghostMaterial;
     this.ghost.isPickable = false;
@@ -148,6 +133,11 @@ export class BlockScene {
       }
       this.updateOrtho();
       this.scene.render();
+      const rect=this.canvas.getBoundingClientRect();
+      const marker=Vector3.Project(new Vector3(this.grid.gridWidth/2,0.08,-0.22),Matrix.Identity(),this.scene.getTransformMatrix(),this.camera.viewport.toGlobal(rect.width,rect.height));
+      const point=marker.z>=0&&marker.z<=1&&marker.x>=0&&marker.x<=rect.width&&marker.y>=0&&marker.y<=rect.height?{x:Math.round(marker.x*10)/10,y:Math.round(marker.y*10)/10}:null;
+      const positionKey=point?`${point.x},${point.y}`:'hidden';
+      if(positionKey!==this.previousFrontPosition){this.previousFrontPosition=positionKey;this.callbacks.frontPosition?.(point);}
       const view = observedView(this.camera.position.subtract(this.camera.target));
       if (view !== this.previousView) { this.previousView = view; this.callbacks.view?.(view); }
     });
@@ -192,7 +182,7 @@ export class BlockScene {
     const beta = preset === 'top' ? 0.001 : preset === 'front' || preset === 'side' ? Math.PI / 2 : Math.PI / 3;
     const nearestAlpha = this.camera.alpha + Math.atan2(Math.sin(alpha - this.camera.alpha), Math.cos(alpha - this.camera.alpha));
     this.camera.mode = orthographic && ['top', 'front', 'side'].includes(preset) ? Camera.ORTHOGRAPHIC_CAMERA : Camera.PERSPECTIVE_CAMERA;
-    this.cameraTween = { start: performance.now(), alpha: this.camera.alpha, beta: this.camera.beta, radius: this.camera.radius, targetAlpha: nearestAlpha, targetBeta: beta, targetRadius: this.frameRadius() };
+    this.cameraTween = { start: performance.now(), alpha: this.camera.alpha, beta: this.camera.beta, radius: this.camera.radius, targetAlpha: nearestAlpha, targetBeta: beta, targetRadius: this.frameRadius() * (preset === 'home' || preset === 'free' ? 1.4 : 1) };
   }
 
   private frameRadius() {

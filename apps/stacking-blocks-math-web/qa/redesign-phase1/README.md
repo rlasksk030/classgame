@@ -49,3 +49,9 @@ The original ten modified files remain uncommitted. Nine were byte-identical to 
 
 No push, deploy, remote migration, student-data modification, new installation executor, or other lesson redesign.
 Overall: PARTIAL — IMPLEMENTED / VERIFIED_UNIT; NOT VERIFIED_LOCAL_BROWSER; REMOTE_NOT_VERIFIED.
+
+## Phase 1B follow-up — actual browser gate PASS (2026-09-13 KST)
+
+The original Phase 1 BLOCKED result above is historical and preserved. Phase 1B reproduced the actual sandbox EPERM, then used tool-approved local execution with the same production preview. Final single Chromium run: required T01–T15 and legacy ProjectionGrid R16 all PASS (16/16), real inputs/submissions/feedback/reload. A screenshot-discovered right-side display mismatch was reproduced by independent canvas-pixel expectations and fixed with a redesign-only display/inverse adapter. Board front label, floor grid visibility and minimal desktop comparison framing were corrected. Unit suite is now 76 PASS.
+
+See [Phase 1B report](browser-gate/report.md), [final results](browser-gate/gate-confirmation/report.json), [screenshots](browser-gate/screenshots/manifest.json). Tested production build hash: 9021a0c7d760e7e518ab4f73928d63984b55d12ee78dd5df24c449cf319c2541. Start HEAD 5b43a2504085443235afed4c55ba0064ea043150 plus preserved working changes and Phase 1B edits. This is UI_WITH_TEST_DATA / LOCAL_ONLY, not live authentication, remote persistence or actual iPad/Safari verification. READY_FOR_PHASE_2 for this gate only; no next lesson implemented or deployed.

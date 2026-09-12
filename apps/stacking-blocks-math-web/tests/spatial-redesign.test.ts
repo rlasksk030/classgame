@@ -29,3 +29,14 @@ test('learn requires real actions; prediction alone or next clicks cannot comple
 
 import { observedView } from '../shared/problems/contracts/camera.ts';
 test('actual canonical camera offsets distinguish right side from left/back',()=>{assert.equal(observedView({x:0,y:0,z:-5}),'front');assert.equal(observedView({x:5,y:0,z:0}),'side');assert.equal(observedView({x:-5,y:0,z:0}),'free');assert.equal(observedView({x:0,y:5,z:0}),'top');assert.equal(observedView({x:0,y:0,z:5}),'free');});
+
+import { projectionToDisplayGrid, projectionDisplayCellToMathCoord } from '../shared/problems/contracts/display.ts';
+test('right observer display mirrors legacy storage columns with exact inverse, not stored answers',()=>{
+ const before=JSON.stringify(right);
+ assert.deepEqual(projectionToDisplayGrid(right,'side'),[[false,false,true],[true,false,true],[true,true,true]]);
+ for(let r=0;r<3;r++)for(let c=0;c<3;c++){
+  const p=projectionDisplayCellToMathCoord(r,c,3,3,'side');
+  assert.equal(projectionToDisplayGrid(right,'side')[r][c],right[p.row][p.col]);
+ }
+ assert.equal(JSON.stringify(right),before);
+});

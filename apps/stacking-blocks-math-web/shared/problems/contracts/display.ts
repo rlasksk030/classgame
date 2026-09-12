@@ -5,3 +5,15 @@ export function displayCellToMathCoord(row: number, col: number, rowCount: numbe
  return { row: rowCount - 1 - row, col };
 }
 export function mathCellToDisplayCoord(row: number, col: number, rowCount: number) { return displayCellToMathCoord(row,col,rowCount); }
+
+/** Stored side columns run back-to-front; the actual +X observer sees front-to-back.
+ * Keep legacy coordinates/grades intact and transform only redesign presentation/input.
+ */
+export function projectionToDisplayGrid<T>(rows:T[][],face?:'top'|'front'|'side'):T[][] {
+ const display=mathGridToDisplayGrid(rows);
+ return face==='side'?display.map(row=>row.reverse()):display;
+}
+export function projectionDisplayCellToMathCoord(row:number,col:number,rows:number,cols:number,face?:'top'|'front'|'side') {
+ const p=displayCellToMathCoord(row,col,rows);
+ return {...p,col:face==='side'?cols-1-col:col};
+}

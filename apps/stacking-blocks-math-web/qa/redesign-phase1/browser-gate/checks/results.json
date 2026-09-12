@@ -1,0 +1,56 @@
+[
+  {
+    "name": "typecheck",
+    "command": [
+      "npm",
+      "run",
+      "typecheck"
+    ],
+    "startedAt": "2026-09-13T01:03:02.422829+09:00",
+    "seconds": 201.09,
+    "exitCode": 0
+  },
+  {
+    "name": "lint",
+    "command": [
+      "npm",
+      "run",
+      "lint"
+    ],
+    "startedAt": "2026-09-13T01:06:23.519509+09:00",
+    "seconds": 18.12,
+    "exitCode": 0
+  },
+  {
+    "name": "unit",
+    "command": [
+      "npm",
+      "test"
+    ],
+    "startedAt": "2026-09-13T01:06:41.645655+09:00",
+    "seconds": 27.37,
+    "exitCode": 0
+  },
+  {
+    "name": "security",
+    "command": [
+      "npm",
+      "run",
+      "test:security"
+    ],
+    "startedAt": "2026-09-13T01:07:09.027596+09:00",
+    "seconds": 7.34,
+    "exitCode": 0
+  },
+  {
+    "name": "edge",
+    "command": [
+      "npm",
+      "run",
+      "typecheck:edge"
+    ],
+    "startedAt": "2026-09-13T01:07:16.398011+09:00",
+    "seconds": 23.17,
+    "exitCode": 0
+  }
+]

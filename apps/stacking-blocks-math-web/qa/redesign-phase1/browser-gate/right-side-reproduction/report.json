@@ -1,0 +1,184 @@
+{
+  "config": {
+    "argv": [
+      "/usr/local/bin/node",
+      "/Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/node_modules/@playwright/test/cli.js",
+      "test",
+      "--config",
+      "playwright.redesign.config.ts",
+      "--grep",
+      "T03"
+    ],
+    "configFile": "/Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/playwright.redesign.config.ts",
+    "rootDir": "/Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "head": "5b43a25",
+      "category": "UI_WITH_TEST_DATA",
+      "persistence": "LOCAL_ONLY",
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/qa/redesign-phase1/browser-gate/right-side-reproduction/evidence",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "head": "5b43a25",
+          "category": "UI_WITH_TEST_DATA",
+          "persistence": "LOCAL_ONLY",
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "redesign.spec.ts"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "qa/redesign-phase1/browser-gate/right-side-reproduction/report.json"
+        }
+      ],
+      [
+        "html",
+        {
+          "outputFolder": "qa/redesign-phase1/browser-gate/right-side-reproduction/html",
+          "open": "never"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.63.0",
+    "workers": 1,
+    "webServer": {
+      "command": "node scripts/redesign-preview.mjs",
+      "env": {
+        "SPATIAL_QA_OUTPUT": "qa/redesign-phase1/browser-gate/right-side-reproduction"
+      },
+      "url": "http://127.0.0.1:4186",
+      "reuseExistingServer": false,
+      "timeout": 15000
+    }
+  },
+  "suites": [
+    {
+      "title": "redesign.spec.ts",
+      "file": "redesign.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "T03 right side reference matches actual asymmetric camera image",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 4630,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  - 1\u001b[39m\n\u001b[31m+ Received  + 1\u001b[39m\n\n\u001b[33m@@ -1,9 +1,9 @@\u001b[39m\n\u001b[2m  Array [\u001b[22m\n\u001b[31m+   true,\u001b[39m\n\u001b[2m    false,\u001b[22m\n\u001b[2m    false,\u001b[22m\n\u001b[32m-   true,\u001b[39m\n\u001b[2m    true,\u001b[22m\n\u001b[2m    false,\u001b[22m\n\u001b[2m    true,\u001b[22m\n\u001b[2m    true,\u001b[22m\n\u001b[2m    true,\u001b[22m",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  - 1\u001b[39m\n\u001b[31m+ Received  + 1\u001b[39m\n\n\u001b[33m@@ -1,9 +1,9 @@\u001b[39m\n\u001b[2m  Array [\u001b[22m\n\u001b[31m+   true,\u001b[39m\n\u001b[2m    false,\u001b[22m\n\u001b[2m    false,\u001b[22m\n\u001b[32m-   true,\u001b[39m\n\u001b[2m    true,\u001b[22m\n\u001b[2m    false,\u001b[22m\n\u001b[2m    true,\u001b[22m\n\u001b[2m    true,\u001b[22m\n\u001b[2m    true,\u001b[22m\n    at /Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/e2e/redesign.spec.ts:63:17",
+                    "location": {
+                      "file": "/Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/e2e/redesign.spec.ts",
+                      "column": 17,
+                      "line": 63
+                    },
+                    "snippet": "  61 |  const expected=[false,false,true,true,false,true,true,true,true];expect(pixels).toEqual(expected);\n  62 |  const actual=await page.getByRole('region',{name:'옆에서 본 모양',exact:true}).locator('.math-cell').evaluateAll(cells=>cells.map(c=>c.getAttribute('aria-pressed')==='true'));\n> 63 |  expect(actual).toEqual(expected);\n     |                 ^\n  64 |  await expect(page.getByText('이 단원에서 옆은 오른쪽에서 본 모양입니다.',{exact:true})).toBeVisible();\n  65 | });\n  66 | test('T04 top bottom row is front and click restores canonical z0',async({page})=>{await boot(page,activityState(1));await camera(page,'top');const region=page.getByRole('region',{name:'위에서 본 자리',exact:true});await region.locator('.math-cell').nth(6).click();expect((await saved(page)).activities[1].top[0][0]).toBe(true);const label=await region.locator('.math-front').boundingBox();const grid=await region.locator('.math-grid-cells').boundingBox();expect(label!.y).toBeGreaterThan(grid!.y+grid!.height);});"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/e2e/redesign.spec.ts",
+                        "column": 17,
+                        "line": 63
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  - 1\u001b[39m\n\u001b[31m+ Received  + 1\u001b[39m\n\n\u001b[33m@@ -1,9 +1,9 @@\u001b[39m\n\u001b[2m  Array [\u001b[22m\n\u001b[31m+   true,\u001b[39m\n\u001b[2m    false,\u001b[22m\n\u001b[2m    false,\u001b[22m\n\u001b[32m-   true,\u001b[39m\n\u001b[2m    true,\u001b[22m\n\u001b[2m    false,\u001b[22m\n\u001b[2m    true,\u001b[22m\n\u001b[2m    true,\u001b[22m\n\u001b[2m    true,\u001b[22m\n\n  61 |  const expected=[false,false,true,true,false,true,true,true,true];expect(pixels).toEqual(expected);\n  62 |  const actual=await page.getByRole('region',{name:'옆에서 본 모양',exact:true}).locator('.math-cell').evaluateAll(cells=>cells.map(c=>c.getAttribute('aria-pressed')==='true'));\n> 63 |  expect(actual).toEqual(expected);\n     |                 ^\n  64 |  await expect(page.getByText('이 단원에서 옆은 오른쪽에서 본 모양입니다.',{exact:true})).toBeVisible();\n  65 | });\n  66 | test('T04 top bottom row is front and click restores canonical z0',async({page})=>{await boot(page,activityState(1));await camera(page,'top');const region=page.getByRole('region',{name:'위에서 본 자리',exact:true});await region.locator('.math-cell').nth(6).click();expect((await saved(page)).activities[1].top[0][0]).toBe(true);const label=await region.locator('.math-front').boundingBox();const grid=await region.locator('.math-grid-cells').boundingBox();expect(label!.y).toBeGreaterThan(grid!.y+grid!.height);});\n    at /Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/e2e/redesign.spec.ts:63:17"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-12T15:31:20.140Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/qa/redesign-phase1/browser-gate/right-side-reproduction/evidence/redesign-T03-right-side-re-641f4-ual-asymmetric-camera-image/test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/qa/redesign-phase1/browser-gate/right-side-reproduction/evidence/redesign-T03-right-side-re-641f4-ual-asymmetric-camera-image/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/qa/redesign-phase1/browser-gate/right-side-reproduction/evidence/redesign-T03-right-side-re-641f4-ual-asymmetric-camera-image/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/e2e/redesign.spec.ts",
+                    "column": 17,
+                    "line": 63
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "8c55c0801a27607fa79e-27e27d52ae84b26a20a5",
+          "file": "redesign.spec.ts",
+          "line": 56,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-09-12T15:31:18.980Z",
+    "duration": 7466.884,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}
