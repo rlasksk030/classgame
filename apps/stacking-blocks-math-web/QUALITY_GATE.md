@@ -10,7 +10,7 @@
 - 10차시 건축 설계, 11차시 소개서, 12차시 자기평가
 - 교사 제작·학습지 가져오기 문항이 학생 route에 연결되는 경로
 
-각 항목은 `lessonId`, `stage`, `problemId/activityId`, `sourceType`, `templateId`, `generatorVersion`, 질문 의도, 제공 자료, 입력 방식, 채점 방식, 공개 방식, 완료 조건, route, 상태를 가진다. `PROBLEM_INVENTORY.json`은 현재 코드에서 생성한다.
+각 항목은 `lessonId`, `stage`, `problemId/activityId`, `sourceType`, `templateId`, `generatorVersion`, 질문 의도, 제공 자료, 입력 방식, 채점 방식, 공개 방식, 완료 조건, route, 상태를 가진다. `PROBLEM_INVENTORY.json`은 현재 코드에서 생성하며, template 대표 목록과 별도로 이번 버전 수업용 15/20문제 `assignmentManifest`를 기록한다.
 
 ## 상태
 

@@ -276,6 +276,6 @@
 ## 최종 품질 게이트·문항 inventory 추가 (2026-09-12)
 - 앱 전용 `AGENTS.md`에 `CURRENT_REQUIREMENTS.md`와 `QUALITY_GATE.md` 선독, 실제 학생 route 우선 확인, 브라우저 미검증 항목의 BLOCKED 기록 규칙을 추가했다.
 - `QUALITY_GATE.md`에 문항·활동 목록, 상태 정의, 수학·자료·Renderer·grader 계약, 오답/복원/실제 서버와 모의 UI 검증 분리 기준을 고정했다.
-- `scripts/generate-problem-inventory.ts`와 `npm run inventory:problems`를 추가해 현재 코드에서 고정 30개, practice template 대표 56개, 9~12차시 활동 4개를 `PROBLEM_INVENTORY.json`으로 생성한다. 원격 데이터가 수집되지 않은 범위는 LIVE로 표시하지 않는다.
+- `scripts/generate-problem-inventory.ts`와 `npm run inventory:problems`를 추가해 현재 코드에서 고정 30개, practice template 대표 56개, 9~12차시·교사 기능 활동 6개, 수업용 practice manifest 140개를 `PROBLEM_INVENTORY.json`으로 생성한다. 원격 데이터가 수집되지 않은 범위는 LIVE로 표시하지 않는다.
 - 의도적으로 격자 자료를 제거한 문항, 3×3 앞면의 9/20 변조, 오른쪽 투영 좌우 반전을 품질 게이트 테스트에서 거부하도록 `tests/qualityGate.test.ts`를 추가했다.
 - 현재 HEAD `418890b` 이후 품질 게이트 변경을 포함한 작업 트리에서 `npm test` 45개, 감사·typecheck·lint·edge typecheck·build를 통과했다. 실제 학생 화면 DOM/터치/서버 관통은 기존 포트 권한 제약으로 BLOCKED다.

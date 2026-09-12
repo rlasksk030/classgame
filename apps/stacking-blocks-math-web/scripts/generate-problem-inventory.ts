@@ -82,7 +82,25 @@ const activities: InventoryEntry[] = [
   { lessonId: 10, stage: "activity", problemId: "activity:architecture-design", sourceType: "PROJECT", problemVersion: "activity-v1", questionIntent: "건축물 이름·이유·설명과 3층 구조 설계", evidence: ["10×10×3 Builder", "floor notes"], answerInput: "BLOCK_BUILD", gradingMode: "structure validation", revealMode: "3D preview", completion: "설계 저장", route: "/lesson/10/project", status: "IMPLEMENTED" },
   { lessonId: 11, stage: "activity", problemId: "activity:architecture-introduction", sourceType: "PROJECT", problemVersion: "activity-v1", questionIntent: "10차시 건축물을 소개서로 완성", evidence: ["3D preview", "top/front/side", "layer maps"], answerInput: "TEXT_AND_PREVIEW", gradingMode: "building validation", revealMode: "introduction sheet", completion: "소개서 완성", route: "/lesson/11/project", status: "IMPLEMENTED" },
   { lessonId: 12, stage: "activity", problemId: "activity:unit-review", sourceType: "REVIEW", problemVersion: "activity-v1", questionIntent: "개수·방향·투영·높이 지도·층별 표현 종합", evidence: ["mixed problem set", "self assessment"], answerInput: "MIXED", gradingMode: "per-problem", revealMode: "answer-specific material", completion: "단원 완료·별·XP·배지·자기평가", route: "/lesson/12", status: "IMPLEMENTED" },
+  { lessonId: 0, stage: "teacher", problemId: "activity:teacher-problem-editor", sourceType: "TEACHER_CREATED", problemVersion: "activity-v1", questionIntent: "교사가 문제·정답·힌트를 직접 작성하고 3D 구조를 확정", evidence: ["teacher form", "Babylon.js Builder"], answerInput: "MIXED", gradingMode: "teacher configured", revealMode: "answer-specific material", completion: "문제은행 등록", route: "/teacher/problems/new", status: "IMPLEMENTED" },
+  { lessonId: 0, stage: "teacher", problemId: "activity:worksheet-import", sourceType: "WORKSHEET_IMPORT", problemVersion: "activity-v1", questionIntent: "학습지 문제를 교사가 검토·수정한 뒤 등록", evidence: ["PDF/image preview", "manual crop", "review form"], answerInput: "MANUAL_REVIEW", gradingMode: "teacher configured", revealMode: "answer-specific material", completion: "검토 후 문제은행 등록", route: "/teacher/worksheet-import", status: "IMPLEMENTED" },
 ];
+
+const assignmentManifest = [1, 2, 3, 4, 5, 6, 7, 8, 12].flatMap(lesson => {
+  const count = lesson === 12 ? 20 : 15;
+  return generatePracticeProblems(lesson, count, 17).map((problem, index) => ({
+    lessonId: lesson,
+    stage: "more",
+    problemId: problem.code,
+    templateId: problem.templateId,
+    seed: problem.seed,
+    generatorVersion: problem.generatorVersion,
+    problemVersion: "generator-v1",
+    orderIndex: index + 1,
+    route: routeFor(lesson),
+    status: "IMPLEMENTED" as const,
+  }));
+});
 
 const inventory = {
   generatedAt: "generated-from-current-source",
@@ -91,9 +109,11 @@ const inventory = {
     fixed: fixed.length,
     templates: generated.length,
     activities: activities.length,
+    assignedPractice: assignmentManifest.length,
     byLesson: Object.fromEntries(LESSONS.map(lesson => [lesson.lesson, { fixed: fixed.filter(item => item.lessonId === lesson.lesson).length, templates: generated.filter(item => item.lessonId === lesson.lesson).length, activities: activities.filter(item => item.lessonId === lesson.lesson).length }])),
   },
   entries: [...fixed, ...generated, ...activities],
+  assignmentManifest,
 };
 
 writeFileSync(resolve(process.cwd(), "PROBLEM_INVENTORY.json"), `${JSON.stringify(inventory, null, 2)}\n`);

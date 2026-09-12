@@ -117,6 +117,6 @@ npm run test:e2e
 
 ## 전체 문항 inventory (2026-09-12)
 
-`npm run inventory:problems`가 현재 코드 경로에서 고정 문항 30개, practice template 대표 56개, 9~12차시 활동 4개를 수집해 `PROBLEM_INVENTORY.json`으로 기록한다. template 반복 생성 수와 실제 문항 유형 수를 분리 집계하며, 원격 Supabase 문항을 읽지 못한 범위는 LIVE 검증으로 올리지 않는다.
+`npm run inventory:problems`가 현재 코드 경로에서 고정 문항 30개, practice template 대표 56개, 9~12차시 활동 6개, 수업용 practice manifest 140개를 수집해 `PROBLEM_INVENTORY.json`으로 기록한다. template 반복 생성 수와 실제 문항 유형 수를 분리 집계하며, 원격 Supabase 문항을 읽지 못한 범위는 LIVE 검증으로 올리지 않는다.
 
 현재 inventory의 화면 상태는 코드 경로 기준 `IMPLEMENTED`이고, 실제 학생 입력·채점·렌더링은 Playwright 포트 제한으로 `BLOCKED`다.
