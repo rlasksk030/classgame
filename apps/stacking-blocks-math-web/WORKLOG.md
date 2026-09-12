@@ -291,3 +291,9 @@
 - 실제 학생 `LessonPage`, `BlockWorld`, `ArchitecturePage`를 합성 `student-api`와 함께 열어 3·12차시 격자 입력/제출, 5차시 판단·개수, 숫자 정답 공개, 단계 위치, 보관함 드래그와 snapshot, 10×10 건축 재료 저장, 11차시 복원을 자동 검사한다.
 - 테스트가 시작한 preview만 종료하며 기존 localhost 서버는 종료하지 않는다. 실패 시 문제 ID/fixture 버전/단계/기대·실제 메시지/실제 브라우저 캡처와 trace를 `qa/local-browser-qa/`에 저장한다. 보고서는 `UI_WITH_TEST_DATA`로 분류하고 LIVE_SUPABASE와 혼동하지 않는다.
 - 현재 샌드박스에서는 새 실행기를 한 번 실행했다. production build는 성공했지만 preview 포트 확보 단계의 `listen EPERM: operation not permitted 127.0.0.1`로 BLOCKED됐고, `qa/local-browser-qa/report.json`·`report.md`가 생성됐다. 같은 실패를 반복하지 않고 운영자 맥에서 `npm run qa:local`을 한 번 실행한다.
+# 공통 격자·방향 라벨·완료 후 이동 보완 (2026-09-12)
+
+- `ProjectionGrid`의 입력·참고·정답 셀을 고정 48×48 정사각형으로 통일하고, 바닥 지도 관찰 기준을 격자 아래 `앞`, 오른쪽 `옆` 라벨로 배치했다. 기존 행·열과 좌표 순서는 변경하지 않았다.
+- `LessonPage`에서 완료 상태가 제출 버튼만 막도록 분리하고, 완료 후 `다음 문제`·`문제로 익히기 시작`·`더 풀어보기 시작`·`차시 결과 보기` 행동을 제공한다. 제출 직후 자동으로 문항을 바꾸지 않아 현재 위치를 유지한다.
+- `qa:local`에 셀 bounding box 정사각형/라벨 위치 검사와 완료 후 단계 이동 회귀 사례를 추가했다(대표 흐름 12개). 실제 브라우저 실행은 운영자 맥에서 수행한다.
+- 현재 커밋에서 `npm run typecheck`, `npm run lint`, `npm test`(46), `npm run build`, QA 실행기 구문 검사가 통과했다. 샌드박스 포트 제한으로 브라우저 화면 증거는 아직 BLOCKED다.

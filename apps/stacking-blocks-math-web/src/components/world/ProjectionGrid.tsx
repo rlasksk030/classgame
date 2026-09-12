@@ -31,11 +31,7 @@ export function ProjectionGrid({ title, rows, editable, onChange, valueType, rev
     onChange(next);
   };
 
-  return (
-    <div className="projection-area">
-      <p className="muted">{title}</p>
-      {orientation === "floor" && <div className="projection-orientation" aria-label="바닥 지도 관찰 기준"><span>↑ 앞</span><span>← 옆</span></div>}
-      <table className="projection-table" aria-label={title}>
+  const table = <table className="projection-table" aria-label={title}>
         <tbody>
           {Array.from({ length: rowCount }, (_, i) => reverseRows ? rowCount - 1 - i : i).map((r) => (
             <tr key={`${title}-${r}`}>
@@ -59,7 +55,18 @@ export function ProjectionGrid({ title, rows, editable, onChange, valueType, rev
             </tr>
           ))}
         </tbody>
-      </table>
+      </table>;
+
+  return (
+    <div className="projection-area">
+      <p className="muted">{title}</p>
+      {orientation === "floor" ? (
+        <div className="projection-frame" aria-label="바닥 지도 관찰 기준">
+          {table}
+          <span className="projection-label projection-label-front">앞</span>
+          <span className="projection-label projection-label-side">옆</span>
+        </div>
+      ) : table}
     </div>
   );
 }

@@ -36,7 +36,7 @@ const reportJsonPath = join(artifactDir, "report.json");
 const reportMarkdownPath = join(artifactDir, "report.md");
 const previewLogPath = join(artifactDir, "preview.log");
 const headed = process.argv.includes("--headed") || process.env.QA_HEADED === "1";
-const representativeCount = 10;
+const representativeCount = 12;
 
 mkdirSync(screenshotDir, { recursive: true });
 
@@ -113,6 +113,7 @@ const stageFixtures = [
   studentProblem({ ...choiceFixture, id: "qa-stage-check", lesson: 2, stage: "check", title: "확인 단계 문항", problemType: "CHOICE", choices: ["첫 번째", "두 번째"], answer: { kind: "choice", index: 0 } }),
   studentProblem({ ...choiceFixture, id: "qa-stage-more", lesson: 2, stage: "more", title: "추가 단계 문항", problemType: "CHOICE", choices: ["첫 번째", "두 번째"], answer: { kind: "choice", index: 0 } }),
 ];
+const completionFixtures = stageFixtures.map((problem, index) => ({ ...problem, id: `qa-l4-stage-${index}`, lesson: 4 }));
 
 const initialBuilding: Building = { ...EMPTY_BUILDING, building_name: "QA 건축물", reason: "수업 확인", description: "합성 데이터 건축물", layer_notes: ["1층 공간\n입구", "2층 공간\n전시", "3층 공간\n전망대"], blocks: [{ x: 0, y: 0, z: 0 }], block_appearance: { "0,0,0": "pastel" } };
 
@@ -315,7 +316,10 @@ async function main() {
         const cells = page.locator('[data-answer-renderer="TripleProjectionGridRenderer"] button.cell-btn');
         assertCondition(await cells.count() === 12, "세 격자의 실제 셀 수가 12개가 아닙니다.");
         // front/side 실루엣은 화면에서 행을 뒤집어 표시하므로 underlying row 0은 두 번째 행이다.
-        for (const index of [0, 6, 10]) await cells.nth(index).click();
+        const edgeCell = await cells.nth(0).boundingBox();
+        assertCondition(edgeCell, "첫 번째 입력 셀의 화면 영역을 찾지 못했습니다.");
+        await page.mouse.click(edgeCell.x + 3, edgeCell.y + 3);
+        for (const index of [6, 10]) await cells.nth(index).click();
         await page.getByRole("button", { name: "정답 확인", exact: true }).click();
         assertCondition(state.attempts[0]?.submission.kind === "projections", "제출 payload가 projections가 아닙니다.");
         assertCondition(state.attempts[0]?.submission.projections?.top?.[0]?.[0] === true, "입력한 셀이 payload에 반영되지 않았습니다.");
@@ -391,6 +395,29 @@ async function main() {
         assertCondition(await textVisible(page, "QA 건축물"), "저장된 건축물 이름이 복원되지 않았습니다.");
         assertCondition(await textVisible(page, "1층 · 1층 공간"), "층별 설명이 복원되지 않았습니다.");
         assertCondition(await textVisible(page, "위에서 본 모양"), "소개서의 투영 자료가 보이지 않습니다.");
+      }}));
+      initial.push(await run({ id: "T11-grid-shape-orientation", title: "격자 셀 정사각형·앞/옆 위치", problemId: projectionFixture.id, problems: [projectionFixture], run: async (page) => {
+        await page.goto(`${baseUrl}/lesson/3`);
+        const grid = page.locator('[data-answer-renderer="TripleProjectionGridRenderer"] .projection-frame').first();
+        const table = grid.locator("table.projection-table");
+        const cell = grid.locator("button.cell-btn").first();
+        const frameBox = await grid.boundingBox();
+        const tableBox = await table.boundingBox();
+        const cellBox = await cell.boundingBox();
+        const frontBox = await grid.locator(".projection-label-front").boundingBox();
+        const sideBox = await grid.locator(".projection-label-side").boundingBox();
+        assertCondition(frameBox && tableBox && cellBox && frontBox && sideBox, "격자 또는 관찰 위치 라벨이 보이지 않습니다.");
+        assertCondition(Math.abs(cellBox.width - cellBox.height) <= 1, "입력 셀이 정사각형이 아닙니다.");
+        assertCondition(frontBox.y >= tableBox.y + tableBox.height - 1, "앞 라벨이 격자 아래쪽에 붙어 있지 않습니다.");
+        assertCondition(sideBox.x >= tableBox.x + tableBox.width - 1, "옆 라벨이 격자 오른쪽에 붙어 있지 않습니다.");
+      }}));
+      initial.push(await run({ id: "T12-completion-navigation", title: "4차시 완료 후 다음 학습 단계 이동", problemId: completionFixtures[0].id, problems: completionFixtures, requiredComplete: true, run: async (page) => {
+        await page.goto(`${baseUrl}/lesson/4`);
+        await page.getByRole("button", { name: "2. 두 번째", exact: true }).click();
+        await page.getByRole("button", { name: "정답 확인", exact: true }).click();
+        assertCondition(await textVisible(page, "개념 단계 문항"), "제출 뒤 현재 완료 문항이 사라졌습니다.");
+        await page.getByRole("button", { name: "문제로 익히기 시작", exact: true }).click();
+        assertCondition(await textVisible(page, "확인 단계 문항"), "완료 후 다음 학습 단계로 이동하지 못했습니다.");
       }}));
     } finally {
       await browser.close();

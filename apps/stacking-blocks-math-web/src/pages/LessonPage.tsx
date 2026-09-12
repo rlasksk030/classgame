@@ -453,19 +453,52 @@ export default function LessonPage() {
         if (refreshed) setRequiredComplete(Boolean(refreshed.requiredComplete));
       }
 
-      if (response.grade.completed && visibleProblems.length > 0 && !response.grade.needsRebuild && problem.given.allowRotate !== false) {
-        if (problemIndex + 1 < visibleProblems.length) {
-          const nextProblem = visibleProblems[problemIndex + 1];
-          setTimeout(() => {
-            if (nextProblem && !nextProblem.id.startsWith("seed:")) void saveProblemPosition(nextProblem.id, lessonNum);
-            setProblemIndex((next) => next + 1);
-          }, 700);
-        }
-      }
     } catch (err) {
       setMessage(err instanceof Error ? err.message : "채점 중 오류가 발생했습니다.");
     } finally {
       setBusy(false);
+    }
+  };
+
+  const moveToStage = (stage: "concept" | "check" | "more") => {
+    const first = problems.find(item => item.stage === stage);
+    if (!first) {
+      setMessage("다음 학습 단계가 아직 준비되지 않았어요.");
+      return;
+    }
+    setStageFilter(stage);
+    setProblemIndex(0);
+    applyProblem(first);
+    if (!first.id.startsWith("seed:")) void saveProblemPosition(first.id, lessonNum);
+  };
+
+  // 완료한 문제도 다음 행동을 선택할 수 있어야 합니다. 제출과 이동을
+  // 같은 disabled 조건으로 묶지 않고, 단계의 경계에서는 다음 단계를
+  // 명시적으로 안내해 현재 문항 위치가 갑자기 초기화되지 않게 합니다.
+  const canNavigate = Boolean(problem && visibleProblems.length > 0 && (problemIndex < visibleProblems.length - 1 || attempt.completed));
+  const nextActionLabel = (() => {
+    if (!problem || !attempt.completed) return "다음";
+    if (problemIndex < visibleProblems.length - 1) return "다음 문제";
+    if (currentStage === "concept") return "문제로 익히기 시작";
+    if (currentStage === "check") return requiredComplete && problems.some(item => item.stage === "more") ? "더 풀어보기 시작" : "차시 결과 보기";
+    return "차시 결과 보기";
+  })();
+
+  const goNext = () => {
+    if (!problem || !canNavigate) return;
+    void flushSnapshot();
+    if (problemIndex < visibleProblems.length - 1) {
+      const next = visibleProblems[problemIndex + 1];
+      if (next && !next.id.startsWith("seed:")) void saveProblemPosition(next.id, lessonNum);
+      setProblemIndex(value => value + 1);
+      return;
+    }
+    if (currentStage === "concept") {
+      moveToStage("check");
+    } else if (currentStage === "check" && requiredComplete && problems.some(item => item.stage === "more")) {
+      moveToStage("more");
+    } else {
+      navigate("/world");
     }
   };
 
@@ -796,17 +829,10 @@ export default function LessonPage() {
                 </button>
                 <button
                   className="btn btn-sm"
-                  onClick={() => {
-                    void flushSnapshot();
-                    if (problemIndex < visibleProblems.length - 1) {
-                      const next = visibleProblems[problemIndex + 1];
-                      if (next && !next.id.startsWith("seed:")) void saveProblemPosition(next.id, lessonNum);
-                      setProblemIndex((value) => value + 1);
-                    }
-                  }}
-                  disabled={problemIndex >= visibleProblems.length - 1}
+                  onClick={goNext}
+                  disabled={!canNavigate}
                 >
-                  다음
+                  {nextActionLabel}
                 </button>
               </div>
 
