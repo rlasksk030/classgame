@@ -297,3 +297,10 @@
 - `LessonPage`에서 완료 상태가 제출 버튼만 막도록 분리하고, 완료 후 `다음 문제`·`문제로 익히기 시작`·`더 풀어보기 시작`·`차시 결과 보기` 행동을 제공한다. 제출 직후 자동으로 문항을 바꾸지 않아 현재 위치를 유지한다.
 - `qa:local`에 셀 bounding box 정사각형/라벨 위치 검사와 완료 후 단계 이동 회귀 사례를 추가했다(대표 흐름 12개). 실제 브라우저 실행은 운영자 맥에서 수행한다.
 - 현재 커밋에서 `npm run typecheck`, `npm run lint`, `npm test`(46), `npm run build`, QA 실행기 구문 검사가 통과했다. 샌드박스 포트 제한으로 브라우저 화면 증거는 아직 BLOCKED다.
+# 로컬 브라우저 QA 9건 실패 원인 분리 및 실행기 보완 (2026-09-12)
+
+- 운영자 맥에서 생성된 `qa/local-browser-qa/report.json`(대상 `9518934b`, 12개 중 PASS 3/FAIL 9)과 캡처·trace를 보존했다. 기존 결과는 `qa/local-browser-qa/history/9518934/`에 복사했고, 이후 `qa:local` 재실행 때도 HEAD별 history를 자동 생성한다.
+- T01·T02·T06·T09·T10은 실제 화면이 lazy fallback인 상태에서 즉시 assertion한 테스트 타이밍 오류로 분류했다. T04·T05는 결과 렌더링을 기다리지 않은 assertion 오류였다. T07·T08은 보드 중앙을 항상 유효한 칸으로 가정한 조작 오류였다. 캡처상 앱 fallback·성공 결과·보드/보관함 표시를 각각 확인했으며, 앱 채점 계약을 완화하지 않았다.
+- `local-browser-qa.ts`에 실제 학생 route 준비 대기, 유효 칸 후보를 순회하는 마우스/터치 drag, 실패 단계(`render-input`/`interact`/`assert-grade` 등), 원인 분류(`APP`/`FIXTURE`/`TEST`/`ENVIRONMENT`/`UNKNOWN`), 콘솔 오류 안전 요약을 추가했다.
+- 보고서의 계획/실행 범위는 12개 대표 흐름으로 유지하며, 전체 inventory는 여전히 NOT_RUN 후속 대상이다. 새 합성 데이터·원격 DB 변경은 없다.
+- 현재 커밋에서 `npm run typecheck`, `npm run lint`, `npm test`(46), `npm run build`, `node --experimental-strip-types --check scripts/local-browser-qa.ts`가 통과했다. 수정된 실행기의 실제 맥 재실행은 다음 운영자 실행에서 확인한다.

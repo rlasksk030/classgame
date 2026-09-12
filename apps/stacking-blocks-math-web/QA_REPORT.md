@@ -127,6 +127,12 @@ npm run test:e2e
 - 등록된 명령: `npm run qa:local`
 - 실행 대상: production `dist/`를 임시 loopback preview로 열고 실제 학생 route의 12개 대표 흐름을 Chromium으로 검사한다. 합성 `student-api` 응답만 사용하며 원격 쓰기 요청은 만들지 않는다.
 - 검사 범위: 3차시·12차시 세 격자 셀 입력/제출, 5차시 판단형·숨은 블록 없음 3×3 개수, 숫자 정답 공개, 단계/현재 문항 유지, 마우스·터치 보관함 드래그와 snapshot, 10×10 건축판·재료 저장, 11차시 소개서 복원, 격자 셀 정사각형과 앞·옆 라벨 위치, 완료 후 다음 단계 이동.
-- 결과 경로: `qa/local-browser-qa/report.json`, `qa/local-browser-qa/report.md`, `qa/local-browser-qa/screenshots/`, `qa/local-browser-qa/preview.log`, 실패 case별 `qa/local-browser-qa/<case-id>.trace.zip`.
+- 결과 경로: `qa/local-browser-qa/report.json`, `qa/local-browser-qa/report.md`, `qa/local-browser-qa/screenshots/`, `qa/local-browser-qa/preview.log`, 실패 case별 `qa/local-browser-qa/<case-id>.trace.zip`. 재실행 전 기존 결과는 `qa/local-browser-qa/history/<HEAD>-<timestamp>/`로 자동 보존한다.
 - 실행 시 production 환경변수에서 `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`, `VITE_INSTALLATION_ID`를 제거하고 런타임 설치 설정을 합성값으로 주입한다. Secret·PIN·운영 토큰은 사용하지 않는다.
 - 이 샌드박스에서는 새 실행기를 한 번 실행했고 production build까지 성공했지만 preview 포트 확보 단계에서 `listen EPERM: operation not permitted 127.0.0.1`로 BLOCKED됐다. 실행기는 `qa/local-browser-qa/report.json`과 `report.md`를 생성했으며, 운영자 맥에서 다시 한 번 실행해야 한다. 실행되지 않은 inventory 전체 항목은 자동으로 PASS 처리하지 않는다.
+
+## 운영자 맥 12개 대표 실행 결과 분석 (2026-09-12)
+
+- 대상 커밋 `9518934b85c671a4c13669c3fc462cf09d68c715`, `UI_WITH_TEST_DATA`, 계획 12·실행 12·PASS 3·FAIL 9·BLOCKED 0이다. 원본 증거는 `qa/local-browser-qa/history/9518934/`에 보존했다.
+- T01·T02·T06·T09·T10은 lazy route가 준비되기 전 fallback에서 assertion한 **TEST** 오류, T04·T05는 결과 렌더링 전 assertion한 **TEST** 오류, T07·T08은 보드 중앙을 유효 칸으로 고정한 **TEST** 조작 오류로 분류했다. T11의 동일 3차시 fixture 통과 및 T04 캡처의 실제 정답 표시가 이 분류의 근거다.
+- 앱의 문제·정답·채점·RLS·Supabase를 수정하지 않고 실행기에 route 준비 대기, 실제 유효 칸 후보 drag, 실패 단계/원인 분류, 이전 결과 자동 보존을 추가했다. 수정 후 동일 12개 재실행은 현재 환경에서 반복하지 않았으며, 운영자 맥에서 실행 대기 상태다.

@@ -1,7 +1,7 @@
 import { chromium, type Browser, type Page } from "@playwright/test";
 import { spawn, spawnSync, execFileSync } from "node:child_process";
 import { createServer } from "node:http";
-import { mkdirSync, writeFileSync, appendFileSync, existsSync, readFileSync } from "node:fs";
+import { mkdirSync, writeFileSync, appendFileSync, existsSync, readFileSync, readdirSync, cpSync } from "node:fs";
 import { resolve, join } from "node:path";
 import { deriveProblemPresentation } from "../shared/problemPresentation.ts";
 import { EMPTY_BUILDING, ARCHITECTURE_GRID, type Building } from "../shared/activities.ts";
@@ -15,6 +15,7 @@ type CaseResult = {
   title: string;
   category: "UI_WITH_TEST_DATA" | "LOCAL_LOGIC" | "LIVE_SUPABASE";
   status: Status;
+  cause?: "APP" | "FIXTURE" | "TEST" | "ENVIRONMENT" | "UNKNOWN";
   problemId?: string;
   templateId?: string;
   seed?: number;
@@ -49,12 +50,35 @@ function assertCondition(condition: unknown, message: string): asserts condition
   if (!condition) throw new Error(message);
 }
 
+function failureStep(message: string): string {
+  if (message.includes("찾지 못했습니다") || message.includes("보이지 않습니다")) return "render-input";
+  if (message.includes("유효한 칸") || message.includes("드래그")) return "interact";
+  if (message.includes("payload") || message.includes("제출")) return "submit";
+  if (message.includes("정답") || message.includes("채점")) return "assert-grade";
+  if (message.includes("복원") || message.includes("저장")) return "restore";
+  if (message.includes("이동") || message.includes("단계")) return "navigate";
+  return "browser-flow";
+}
+
+function failureCause(message: string): CaseResult["cause"] {
+  if (/listen EPERM|Chromium 실행 파일|하드웨어 가속|WebGL|browserType|Target page, context or browser has been closed/i.test(message)) return "ENVIRONMENT";
+  if (/QA mock|fixture|모의 API/i.test(message)) return "FIXTURE";
+  if (/wait|timeout|찾지 못했습니다|보이지 않습니다|bounding box|선택자/i.test(message)) return "TEST";
+  return "UNKNOWN";
+}
+
 async function visible(page: Page, selector: string): Promise<boolean> {
   return page.locator(selector).first().isVisible().catch(() => false);
 }
 
 async function textVisible(page: Page, text: string): Promise<boolean> {
   return page.getByText(text, { exact: false }).first().isVisible().catch(() => false);
+}
+
+async function waitForStudentPage(page: Page): Promise<void> {
+  // 각 case가 새 context를 쓰므로 lazy route가 로드되기 전에 검사하면
+  // fallback 문구만 캡처하는 일이 있다. 실제 학생 route의 h1을 기다린다.
+  await page.locator("main h1, .screen h1").first().waitFor({ state: "visible", timeout: 15000 });
 }
 
 function studentProblem(input: JsonRecord): StudentProblem {
@@ -175,10 +199,16 @@ async function dragPaletteToBoard(page: Page): Promise<void> {
   const palette = await page.getByRole("button", { name: "쌓기나무 보관함. 블록을 작업판에 놓기" }).boundingBox();
   const canvas = await page.getByLabel("쌓기나무 3D 작업판").boundingBox();
   assertCondition(palette && canvas, "보관함 또는 3D 작업판의 화면 영역을 찾지 못했습니다.");
-  await page.mouse.move(palette.x + palette.width / 2, palette.y + palette.height / 2);
-  await page.mouse.down();
-  await page.mouse.move(canvas.x + canvas.width / 2, canvas.y + canvas.height / 2, { steps: 15 });
-  await page.mouse.up();
+  const targets = [[.5, .7], [.5, .8], [.4, .72], [.6, .72], [.5, .6], [.35, .8], [.65, .8]];
+  for (const [rx, ry] of targets) {
+    await page.mouse.move(palette.x + palette.width / 2, palette.y + palette.height / 2);
+    await page.mouse.down();
+    await page.mouse.move(canvas.x + canvas.width * rx, canvas.y + canvas.height * ry, { steps: 20 });
+    await page.mouse.up();
+    if (await textVisible(page, "블록 수: 1")) return;
+    await page.waitForTimeout(100);
+  }
+  throw new Error("실제 작업판의 유효한 칸에 보관함 블록을 놓지 못했습니다.");
 }
 
 async function touchDragPaletteToBoard(page: Page): Promise<void> {
@@ -187,10 +217,18 @@ async function touchDragPaletteToBoard(page: Page): Promise<void> {
   assertCondition(palette && canvas, "터치 QA에서 보관함 또는 3D 작업판의 화면 영역을 찾지 못했습니다.");
   const session = await page.context().newCDPSession(page);
   const start = { x: palette.x + palette.width / 2, y: palette.y + palette.height / 2 };
-  const end = { x: canvas.x + canvas.width / 2, y: canvas.y + canvas.height / 2 };
-  await session.send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: [start] });
-  await session.send("Input.dispatchTouchEvent", { type: "touchMove", touchPoints: [end] });
-  await session.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
+  const targets = [[.5, .7], [.5, .8], [.4, .72], [.6, .72], [.5, .6], [.35, .8], [.65, .8]];
+  for (const [rx, ry] of targets) {
+    const end = { x: canvas.x + canvas.width * rx, y: canvas.y + canvas.height * ry };
+    const middle = { x: (start.x + end.x) / 2, y: (start.y + end.y) / 2 };
+    await session.send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: [start] });
+    await session.send("Input.dispatchTouchEvent", { type: "touchMove", touchPoints: [middle] });
+    await session.send("Input.dispatchTouchEvent", { type: "touchMove", touchPoints: [end] });
+    await session.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
+    if (await textVisible(page, "블록 수: 1")) return;
+    await page.waitForTimeout(100);
+  }
+  throw new Error("터치로 실제 작업판의 유효한 칸에 보관함 블록을 놓지 못했습니다.");
 }
 
 async function runCase(browser: Browser, baseUrl: string, spec: { id: string; title: string; problemId?: string; problems: StudentProblem[]; run: (page: Page, state: MockState) => Promise<void>; project?: Building | null; requiredComplete?: boolean; touch?: boolean }): Promise<CaseResult> {
@@ -213,14 +251,16 @@ async function runCase(browser: Browser, baseUrl: string, spec: { id: string; ti
     result.screenshot = path;
   } catch (error) {
     result.status = "FAIL";
-    result.failedStep = "browser-flow";
+    const failureMessage = error instanceof Error ? error.message : String(error);
+    result.failedStep = failureStep(failureMessage);
+    result.cause = failureCause(failureMessage);
     result.expected = "학생 route의 실제 입력·제출·결과 흐름이 끝까지 동작";
     result.actual = error instanceof Error ? error.message : String(error);
     const path = join(screenshotDir, `${spec.id}-fail.png`);
     await page.screenshot({ path, fullPage: true }).catch(() => undefined);
     result.screenshot = path;
     result.trace = caseTracePath;
-    result.errors = browserErrors.slice(-10);
+    result.errors = browserErrors.length ? browserErrors.slice(-10) : ["브라우저 콘솔 오류 없음: assertion 또는 대기 단계에서 실패"];
   }
   await context.tracing.stop({ path: caseTracePath }).catch(() => undefined);
   await context.close();
@@ -271,9 +311,9 @@ function writeReport(results: CaseResult[], extra: Record<string, unknown> = {})
     `- 계획 ${report.planned} · 실행 ${report.executed} · PASS ${counts.PASS ?? 0} · FAIL ${counts.FAIL ?? 0} · BLOCKED ${counts.BLOCKED ?? 0} · NOT_RUN ${counts.NOT_RUN ?? 0}`,
     "- 이 보고서는 합성 API를 사용한 UI_WITH_TEST_DATA 결과이며 LIVE_SUPABASE 성공을 의미하지 않는다.",
     "",
-    "| ID | 상태 | 문제/활동 | 실패 단계 | 화면 증거 |",
-    "|---|---|---|---|---|",
-    ...results.map(item => `| ${item.id} | ${item.status} | ${item.problemId ?? item.title} | ${item.failedStep ?? "-"} | ${item.screenshot ? `[캡처](${item.screenshot})` : "-"} |`),
+    "| ID | 상태 | 원인 분류 | 문제/활동 | 실패 단계 | 화면 증거 |",
+    "|---|---|---|---|---|---|",
+    ...results.map(item => `| ${item.id} | ${item.status} | ${item.cause ?? "-"} | ${item.problemId ?? item.title} | ${item.failedStep ?? "-"} | ${item.screenshot ? `[캡처](${item.screenshot})` : "-"} |`),
     "",
     "## 미실행 및 제한",
     "",
@@ -290,6 +330,13 @@ async function main() {
   const initial: CaseResult[] = [];
   let preview: ReturnType<typeof spawn> | null = null;
   try {
+    if (existsSync(reportJsonPath)) {
+      const historyDir = join(artifactDir, "history", `${git(["rev-parse", "HEAD"])}-${Date.now()}`);
+      mkdirSync(historyDir, { recursive: true });
+      for (const file of [reportJsonPath, reportMarkdownPath, previewLogPath]) if (existsSync(file)) cpSync(file, join(historyDir, file.split("/").pop()!));
+      if (existsSync(screenshotDir)) cpSync(screenshotDir, join(historyDir, "screenshots"), { recursive: true });
+      for (const file of readdirSync(artifactDir).filter(name => name.endsWith(".trace.zip"))) cpSync(join(artifactDir, file), join(historyDir, file));
+    }
     writeFileSync(previewLogPath, "local-browser-qa startup\n");
     const buildEnv = { ...process.env };
     delete buildEnv.VITE_SUPABASE_URL;
@@ -312,6 +359,7 @@ async function main() {
       const run = (spec: Parameters<typeof runCase>[2]) => runCase(browser, baseUrl, spec);
       initial.push(await run({ id: "T01-l3-triple-grid", title: "3차시 실제 세 격자 입력·제출", problemId: projectionFixture.id, problems: [projectionFixture], run: async (page, state) => {
         await page.goto(`${baseUrl}/lesson/3`);
+        await waitForStudentPage(page);
         assertCondition(await visible(page, '[data-answer-renderer="TripleProjectionGridRenderer"]'), "세 방향 답안 Renderer가 보이지 않습니다.");
         const cells = page.locator('[data-answer-renderer="TripleProjectionGridRenderer"] button.cell-btn');
         assertCondition(await cells.count() === 12, "세 격자의 실제 셀 수가 12개가 아닙니다.");
@@ -327,6 +375,7 @@ async function main() {
       }}));
       initial.push(await run({ id: "T02-l12-triple-grid", title: "12차시 실제 세 격자 입력·제출", problemId: lesson12Fixture.id, problems: [lesson12Fixture], run: async (page, state) => {
         await page.goto(`${baseUrl}/lesson/12`);
+        await waitForStudentPage(page);
         assertCondition(await page.locator('[data-answer-renderer="TripleProjectionGridRenderer"] table.projection-table').count() === 3, "12차시 세 격자가 보이지 않습니다.");
         const cells = page.locator('[data-answer-renderer="TripleProjectionGridRenderer"] button.cell-btn');
         for (const index of [0, 6, 10]) await cells.nth(index).click();
@@ -335,6 +384,7 @@ async function main() {
       }}));
       initial.push(await run({ id: "T03-l5-choice", title: "5차시 정보 충분성 판단", problemId: choiceFixture.id, problems: [choiceFixture], run: async (page, state) => {
         await page.goto(`${baseUrl}/lesson/5`);
+        await waitForStudentPage(page);
         assertCondition(await page.getByRole("button", { name: "위에서 보기", exact: true }).isDisabled(), "제한 단계에서 카메라 보기 버튼이 활성화되어 있습니다.");
         await page.getByRole("button", { name: "2. 알 수 없어요", exact: true }).click();
         await page.getByRole("button", { name: "정답 확인", exact: true }).click();
@@ -343,6 +393,7 @@ async function main() {
       }}));
       initial.push(await run({ id: "T04-l5-hidden-none-count", title: "5차시 숨은 블록 없음 3×3 개수", problemId: countFixture.id, problems: [countFixture], run: async (page, state) => {
         await page.goto(`${baseUrl}/lesson/5`);
+        await waitForStudentPage(page);
         await page.locator('input[placeholder="정답을 입력"]').fill("9");
         await page.getByRole("button", { name: "정답 확인", exact: true }).click();
         assertCondition(state.attempts[0]?.submission.kind === "count" && state.attempts[0].submission.value === 9, "3×3 입력이 9로 제출되지 않았습니다.");
@@ -351,6 +402,7 @@ async function main() {
       initial.push(await run({ id: "T05-number-reveal", title: "숫자 정답 공개는 재구성을 요구하지 않음", problemId: countFixture.id, problems: [countFixture], run: async (page, state) => {
         state.countReveal = true;
         await page.goto(`${baseUrl}/lesson/5`);
+        await waitForStudentPage(page);
         await page.locator('input[placeholder="정답을 입력"]').fill("8");
         await page.getByRole("button", { name: "정답 확인", exact: true }).click();
         assertCondition(await textVisible(page, "정답: 9개"), "숫자 정답 공개 자료가 보이지 않습니다.");
@@ -358,6 +410,7 @@ async function main() {
       }}));
       initial.push(await run({ id: "T06-stage-position", title: "학습 단계와 현재 문항 위치 유지", problemId: stageFixtures[0].id, problems: stageFixtures, requiredComplete: true, run: async (page, _state) => {
         await page.goto(`${baseUrl}/lesson/2`);
+        await waitForStudentPage(page);
         assertCondition(await textVisible(page, "개념 단계 문항"), "개념 단계 문항이 시작 화면에 없습니다.");
         await page.getByRole("button", { name: /② 문제로 익히기/ }).click();
         assertCondition(await textVisible(page, "확인 단계 문항"), "문제 확인 단계로 전환되지 않았습니다.");
@@ -366,6 +419,7 @@ async function main() {
       }}));
       initial.push(await run({ id: "T07-builder-drag", title: "실제 보관함 드래그·블록 저장", problemId: builderFixture.id, problems: [builderFixture], run: async (page, state) => {
         await page.goto(`${baseUrl}/lesson/1`);
+        await waitForStudentPage(page);
         await dragPaletteToBoard(page);
         assertCondition(await textVisible(page, "블록 수: 1"), "보관함 드래그 후 블록 수가 1로 갱신되지 않았습니다.");
         await page.getByRole("button", { name: "저장", exact: true }).click();
@@ -373,11 +427,13 @@ async function main() {
       }}));
       initial.push(await run({ id: "T08-builder-touch", title: "터치 보관함 드래그·블록 배치", problemId: builderFixture.id, problems: [builderFixture], touch: true, run: async (page) => {
         await page.goto(`${baseUrl}/lesson/1`);
+        await waitForStudentPage(page);
         await touchDragPaletteToBoard(page);
         assertCondition(await textVisible(page, "블록 수: 1"), "터치 보관함 드래그 후 블록 수가 1로 갱신되지 않았습니다.");
       }}));
       initial.push(await run({ id: "T09-architecture-10x10", title: "10차시 10×10 작업판·재료·저장", problems: [], project: null, run: async (page, state) => {
         await page.goto(`${baseUrl}/lesson/10/project`);
+        await waitForStudentPage(page);
         assertCondition(await textVisible(page, "10×10"), "신규 건축판 10×10 표시가 없습니다.");
         assertCondition(await textVisible(page, "최대 3층"), "최대 3층 조건이 보이지 않습니다.");
         assertCondition(await visible(page, '[aria-label="블록 재료 선택"]'), "건축 재료 영역이 보이지 않습니다.");
@@ -392,12 +448,14 @@ async function main() {
       }}));
       initial.push(await run({ id: "T10-architecture-restore", title: "11차시 건축물 소개서 복원", problems: [], project: initialBuilding, run: async (page) => {
         await page.goto(`${baseUrl}/lesson/11/project`);
+        await waitForStudentPage(page);
         assertCondition(await textVisible(page, "QA 건축물"), "저장된 건축물 이름이 복원되지 않았습니다.");
         assertCondition(await textVisible(page, "1층 · 1층 공간"), "층별 설명이 복원되지 않았습니다.");
         assertCondition(await textVisible(page, "위에서 본 모양"), "소개서의 투영 자료가 보이지 않습니다.");
       }}));
       initial.push(await run({ id: "T11-grid-shape-orientation", title: "격자 셀 정사각형·앞/옆 위치", problemId: projectionFixture.id, problems: [projectionFixture], run: async (page) => {
         await page.goto(`${baseUrl}/lesson/3`);
+        await waitForStudentPage(page);
         const grid = page.locator('[data-answer-renderer="TripleProjectionGridRenderer"] .projection-frame').first();
         const table = grid.locator("table.projection-table");
         const cell = grid.locator("button.cell-btn").first();
@@ -413,6 +471,7 @@ async function main() {
       }}));
       initial.push(await run({ id: "T12-completion-navigation", title: "4차시 완료 후 다음 학습 단계 이동", problemId: completionFixtures[0].id, problems: completionFixtures, requiredComplete: true, run: async (page) => {
         await page.goto(`${baseUrl}/lesson/4`);
+        await waitForStudentPage(page);
         await page.getByRole("button", { name: "2. 두 번째", exact: true }).click();
         await page.getByRole("button", { name: "정답 확인", exact: true }).click();
         assertCondition(await textVisible(page, "개념 단계 문항"), "제출 뒤 현재 완료 문항이 사라졌습니다.");
@@ -426,7 +485,7 @@ async function main() {
     if (initial.some(item => item.status !== "PASS")) process.exitCode = 1;
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    writeReport([...initial, { id: "QA-BOOT", title: "QA 실행기 사전 준비", category: "UI_WITH_TEST_DATA", status: "BLOCKED", failedStep: "preflight", expected: "production build·preview·Chromium 시작", actual: message, errors: [message] }], { planned: representativeCount, previewLog: previewLogPath, traceDirectory: artifactDir });
+    writeReport([...initial, { id: "QA-BOOT", title: "QA 실행기 사전 준비", category: "UI_WITH_TEST_DATA", status: "BLOCKED", cause: failureCause(message), failedStep: "preflight", expected: "production build·preview·Chromium 시작", actual: message, errors: [message] }], { planned: representativeCount, previewLog: previewLogPath, traceDirectory: artifactDir });
     process.exitCode = 2;
   } finally {
     if (preview && preview.exitCode === null) {
