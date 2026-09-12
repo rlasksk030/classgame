@@ -10,6 +10,10 @@ alter table public.sb_projects
   add column if not exists intro_theme text not null default 'blueprint'
     check (intro_theme in ('blueprint','museum','sky'));
 
+-- 신규 건축물의 기본 작업판은 10×10이다. 기존 행의 좌표와 메타데이터는 그대로 둔다.
+alter table public.sb_projects alter column grid_width set default 10;
+alter table public.sb_projects alter column grid_depth set default 10;
+
 -- Edge Function(service_role)만 호출한다. XP 임계값은 shared/rewards.ts와 동일하게 유지한다.
 create or replace function public.sb_set_reward_loadout(
   p_student uuid,
@@ -51,8 +55,8 @@ begin
   select version into current_version from public.sb_projects where student_id=p_student;
   if coalesce(current_version,0)<>p_version then raise exception 'VERSION_CONFLICT'; end if;
   next_version:=coalesce(current_version,0)+1;
-  requested_width := case when coalesce(p_data->>'grid_width','') ~ '^[0-9]+$' then (p_data->>'grid_width')::integer else 5 end;
-  requested_depth := case when coalesce(p_data->>'grid_depth','') ~ '^[0-9]+$' then (p_data->>'grid_depth')::integer else 5 end;
+  requested_width := case when coalesce(p_data->>'grid_width','') ~ '^[0-9]+$' then (p_data->>'grid_width')::integer else 10 end;
+  requested_depth := case when coalesce(p_data->>'grid_depth','') ~ '^[0-9]+$' then (p_data->>'grid_depth')::integer else 10 end;
   requested_height := case when coalesce(p_data->>'max_height','') ~ '^[0-9]+$' then (p_data->>'max_height')::integer else 3 end;
   requested_width := greatest(4, least(10, requested_width)); requested_depth := greatest(4, least(10, requested_depth)); requested_height := 3;
   xp := coalesce((select total_xp from public.sb_student_rewards where student_id=p_student),0);

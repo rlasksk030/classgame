@@ -3,7 +3,7 @@ import type { BlockCoord } from './types.ts';
 import type { RewardMaterial, RewardTheme } from './rewards.ts';
 export const ACTIVITY_GRID = {gridWidth:5,gridDepth:5,maxHeight:3};
 /** 건축 프로젝트 전용 기본 작업판. 일반 문제/친구 문제 작업판과 분리한다. */
-export const ARCHITECTURE_GRID = {gridWidth:8,gridDepth:8,maxHeight:3};
+export const ARCHITECTURE_GRID = {gridWidth:10,gridDepth:10,maxHeight:3};
 export type ChallengeType = 'views'|'top'|'heightMap'|'layers';
 export interface Building { building_name:string;reason:string;description:string;layer_notes:string[];blocks:BlockCoord[];version:number;submitted:boolean;grid_width?:number;grid_depth?:number;max_height?:number; block_appearance?:Record<string,RewardMaterial>; intro_theme?:RewardTheme }
 export const EMPTY_BUILDING:Building={building_name:'',reason:'',description:'',layer_notes:['','',''],blocks:[],version:0,submitted:false,grid_width:ARCHITECTURE_GRID.gridWidth,grid_depth:ARCHITECTURE_GRID.gridDepth,max_height:ARCHITECTURE_GRID.maxHeight,block_appearance:{},intro_theme:'blueprint'};

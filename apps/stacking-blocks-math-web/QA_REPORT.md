@@ -12,14 +12,14 @@
 | Solvability QA | PASS — 2,830개 유효 구조·정답 존재 |
 | Curriculum QA | PASS — 1~12차시 route·단계·Renderer 계약 |
 | Renderer DOM mount | TEST READY — 3방향/층별 입력 검증 스위트는 로컬 포트 제한으로 미실행 |
-| Unit | PASS — 36개 |
+| Unit | PASS — 39개 |
 | Security | PASS — PIN hash 범위 및 session 위변조 검사 |
 | TypeScript / ESLint | PASS |
 | Edge Function typecheck | PASS |
 | Production build | PASS |
 | Practice current-position persistence | PASS — `last_problem_id` hydration and explicit position updates; reset-on-stage effect removed; unit coverage added |
 | Wide learning workspace | PASS — fluid 1600px desktop frame and horizontal multi-grid layout |
-| Architecture workspace | PASS — new projects use 8×8×3; persisted grid metadata keeps legacy records readable |
+| Architecture workspace | VERIFIED_LOCAL — new projects use 10×10×3; persisted grid metadata keeps legacy records readable |
 | Front marker / palette theme | PASS — front edge label clarified; palette cube uses the neutral wood token colors |
 
 ## 차시별 점검
@@ -35,7 +35,7 @@
 | 7 | 높이 지도 입력/생성 |
 | 8 | 층별 지도 입력/생성 |
 | 9 | 10개 Builder, 문제·힌트 카드, 미리보기 |
-| 10 | 8×8×3 건축 설계 화면 |
+| 10 | 10×10×3 신규 건축 설계 화면 |
 | 11 | 소개서 편집·미리보기 화면 및 Builder 보조 진입 |
 | 12 | 종합 문제와 투영 격자 |
 

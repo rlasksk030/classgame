@@ -249,8 +249,8 @@ create table if not exists public.sb_projects (
   blocks        jsonb not null default '[]'::jsonb,
   block_appearance jsonb not null default '{}'::jsonb,
   intro_theme   text not null default 'blueprint' check (intro_theme in ('blueprint','museum','sky')),
-  grid_width    smallint not null default 5,
-  grid_depth    smallint not null default 5,
+  grid_width    smallint not null default 10,
+  grid_depth    smallint not null default 10,
   max_height    smallint not null default 5,
   -- 3D 화면 캡처 (data URL). 소개서 화면에 자동 배치한다.
   capture       text,

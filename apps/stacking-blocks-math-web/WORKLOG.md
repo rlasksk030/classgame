@@ -248,3 +248,8 @@
 - `sb_projects.block_appearance`, `intro_theme`, `sb_student_rewards.equipped_material`, `intro_theme`을 추가하는 `202609110016_rewards_loadout.sql`을 작성했다. 기존 `sb_save_building`은 외형/테마를 함께 저장하며 service_role 전용이다. 원격 Supabase에는 아직 적용하지 않았다.
 - `/world/rewards`를 실제 `보상 공방`으로 바꾸어 해금 상태, 미리보기, 사용하기, 저장 결과를 표시한다. 작품 새로고침/재로그인 시 장착 상태를 다시 읽는다.
 - 테스트에 보상 임계값과 외형 metadata 정제 검사를 추가했다. 기존 미추적 `supabase/.temp/`는 보존한다.
+## 최신 요구사항 정정 및 신규 건축판 10×10 (2026-09-12)
+- 최신 기준 문서 `CURRENT_REQUIREMENTS.md`를 추가했다. 과거 문서의 8×8/4×4 표현은 신규 기본값 기준에서 폐기하고, 실제 검증 상태와 브라우저 BLOCKED 상태를 분리했다.
+- 신규 `ARCHITECTURE_GRID`를 10×10×3으로 변경했다. `sb_projects` 새 행의 기본값과 저장 RPC의 메타데이터 없는 신규 입력 기본값도 10×10으로 맞췄다. 기존 5×5·8×8 저장 행의 grid metadata/좌표는 변경하지 않는다.
+- 오른쪽 관찰 기준은 기존 코드의 `side[y][depth-1-z]`, `projectionForDirection(..., 'right')`, Babylon side camera 경로와 일치함을 고정 비대칭 fixture로 확인했다. 표시명만 바꾼 것이 아니다.
+- 현재 환경에서는 실제 브라우저 캡처와 live Supabase 관통 검증을 수행하지 못했으므로 `CURRENT_REQUIREMENTS.md`와 QA 보고서에 BLOCKED로 기록했다.

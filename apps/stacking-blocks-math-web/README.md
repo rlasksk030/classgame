@@ -34,7 +34,7 @@ VITE_SUPABASE_PUBLISHABLE_KEY=YOUR_PUBLIC_PUBLISHABLE_KEY
    - `supabase/migrations/202609110002_seed.sql`: UUID를 가진 기본 문제 26개
    - `supabase/migrations/202609110003_problem_sources.sql`: 문제 출처
    - `supabase/migrations/202609110004_atomic_attempts.sql`: 시도·스냅샷·진도·보상 원자적 저장
-   - `supabase/migrations/202609110005`~`202609110016`: 활동·교사 관리·연습 seed·문제 정확성·친구 카드·건축 8×8·XP 보상 외형 저장 계약
+   - `supabase/migrations/202609110005`~`202609110016`: 활동·교사 관리·연습 seed·문제 정확성·친구 카드·건축 10×10·XP 보상 외형 저장 계약
 3. Supabase CLI를 설치한 환경에서 프로젝트를 연결하고 비밀키를 설정합니다. 기존 같은 이름의 Edge Function이 있는 프로젝트에는 덮어쓰기 전에 앱별 함수 이름을 분리해야 합니다.
 
 ```bash

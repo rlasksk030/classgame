@@ -31,7 +31,7 @@ export default function ArchitecturePage() {
   const saving = useRef(false);
   const revisionRef = useRef(0);
   const key = draftKey(getStudentToken(), "architecture");
-  // 새 프로젝트는 8×8을 사용하고, grid 메타데이터가 없는 예전 5×5 저장물만
+  // 새 프로젝트는 10×10을 사용하고, grid 메타데이터가 없는 예전 저장물만
   // 기존 작업판으로 열어 호환한다.
   const builderGrid = building.grid_width && building.grid_depth && building.max_height
     ? { gridWidth: building.grid_width, gridDepth: building.grid_depth, maxHeight: building.max_height }

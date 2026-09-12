@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { challengeGiven, challengeScore, EMPTY_BUILDING, validBuilding, validChallenge } from '../shared/activities.ts';
+import { ARCHITECTURE_GRID, challengeGiven, challengeScore, EMPTY_BUILDING, validBuilding, validChallenge } from '../shared/activities.ts';
 import type { BlockCoord } from '../shared/types.ts';
 import { generatePracticeProblems, getProblemTemplates, recommendedPracticeCount, validateGeneratedProblem } from '../shared/practiceGenerator.ts';
 import { equivalentDirections, projectionForDirection } from '../shared/spatialConventions.ts';
@@ -125,4 +125,18 @@ test('appearance metadata is sanitized independently from mathematical coordinat
     '0,0,0': 'brick', '1,0,0': 'wood', '2,1,3': 'pastel',
   });
   assert.deepEqual(sanitizeAppearance(null), {});
+});
+
+test('교과서 옆 기준은 오른쪽 관찰(+x)이고 신규 건축판은 10×10이다', () => {
+  assert.deepEqual(ARCHITECTURE_GRID, { gridWidth: 10, gridDepth: 10, maxHeight: 3 });
+  const fixture = [
+    { x: 0, y: 0, z: 0 },
+    { x: 0, y: 1, z: 0 },
+    { x: 0, y: 0, z: 2 },
+  ];
+  const side = challengeGiven(fixture, 'views').projections?.side;
+  assert.equal(side?.[0]?.[4], true);
+  assert.equal(side?.[1]?.[4], true);
+  assert.equal(side?.[0]?.[2], true);
+  assert.equal(side?.[0]?.[0], false);
 });
