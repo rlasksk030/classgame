@@ -6,7 +6,7 @@ import { resolve, join } from "node:path";
 import { deriveProblemPresentation } from "../shared/problemPresentation.ts";
 import { EMPTY_BUILDING, ARCHITECTURE_GRID, type Building } from "../shared/activities.ts";
 import type { BlockCoord, Grid2D, StudentProblem, StudentSubmission } from "../shared/types.ts";
-import { generateValidatedPracticeSet } from "../shared/practiceSet.ts";
+import { generateValidatedPracticeSet, practiceSetStatus } from "../shared/practiceSet.ts";
 import { grade } from "../shared/grading.ts";
 
 type JsonRecord = Record<string, unknown>;
@@ -145,6 +145,7 @@ const completionFixtures = stageFixtures.map((problem, index) => ({ ...problem, 
 const initialBuilding: Building = { ...EMPTY_BUILDING, building_name: "QA 건축물", reason: "수업 확인", description: "합성 데이터 건축물", layer_notes: ["1층 공간\n입구", "2층 공간\n전시", "3층 공간\n전망대"], blocks: [{ x: 0, y: 0, z: 0 }], block_appearance: { "0,0,0": "pastel" } };
 
 type MockState = {
+  positions: Record<number,string>;
   problems: StudentProblem[];
   snapshots: Record<string, BlockCoord[]>;
   attempts: Array<{ problemId: string; submission: StudentSubmission }>;
@@ -159,7 +160,7 @@ function homePayload() {
 }
 
 function makeMock(problems: StudentProblem[], project: Building | null = null): MockState {
-  return { problems, snapshots: {}, attempts: [], project, savedProjectPayload: null, calls: [], countReveal: false };
+  return { positions: {}, problems, snapshots: {}, attempts: [], project, savedProjectPayload: null, calls: [], countReveal: false };
 }
 
 async function installMock(page: Page, state: MockState, baseUrl: string, requiredComplete = false) {
@@ -178,11 +179,15 @@ async function installMock(page: Page, state: MockState, baseUrl: string, requir
     state.calls.push(action);
     const current = state.problems.find(problem => problem.id === String(body.problemId)) ?? state.problems[0];
     let response: JsonRecord;
-    if (action === "lessonProblems") response = { problems: state.problems.filter(problem => problem.lesson === Number(body.lesson)), requiredComplete, seedFallback: false, currentProblemId: null };
+    if (action === "lessonProblems") {
+      const rows=state.problems.filter(problem=>problem.lesson===Number(body.lesson));
+      response={problems:rows,requiredComplete,seedFallback:false,currentProblemId:state.positions[Number(body.lesson)]??null,
+        practiceSet:practiceSetStatus(rows.map(p=>({code:p.id,order_index:p.orderIndex})),Number(body.lesson),rows.find(p=>p.seed!==undefined)?.seed??0,20)};
+    }
     else if (action === "problem") response = { problem: current, attempt: { wrongCount: 0, hintShown: false, answerRevealed: false, completed: false }, hint: null, revealedAnswer: null };
     else if (action === "snapshot:get") response = { snapshot: { blocks: state.snapshots[String(body.problemId)] ?? [] } };
     else if (action === "snapshot") { state.snapshots[String(body.problemId)] = Array.isArray(body.blocks) ? body.blocks as BlockCoord[] : []; response = { ok: true }; }
-    else if (action === "position") response = { ok: true };
+    else if (action === "position") { state.positions[Number(body.lesson)]=String(body.problemId); response = { ok: true }; }
     else if (action === "home") response = homePayload();
     else if (action === "rewards") response = { xp: 50, equippedMaterial: "pastel", introTheme: "blueprint", catalog: [] };
     else if (action === "activity:project:get") response = { building: state.project };
@@ -487,10 +492,25 @@ async function main() {
             const p=lesson5Set[index];
             await page.getByText(p.title,{exact:true}).waitFor({state:'visible'});
             await page.getByText(p.prompt,{exact:true}).waitFor({state:'visible'});
+            if(p.given.projections?.front) {
+              const table=page.getByRole('table',{name:'앞에서 본 조건',exact:true});
+              await expect(table).toBeVisible();
+              for(let y=0;y<p.given.projections.front.length;y++) for(let x=0;x<p.given.projections.front[y].length;x++) {
+                const cell=table.getByRole('button',{name:`앞에서 본 조건 ${y+1}행 ${x+1}열`,exact:true});
+                await expect(cell).toBeVisible();
+                await expect(cell).toHaveAttribute('aria-pressed',String(p.given.projections.front[y][x]));
+              }
+            }
             const submit=page.getByRole('button',{name:'정답 확인',exact:true});
             await expect(submit).toBeEnabled();
             if(p.answer.kind==='choice') await page.getByRole('button',{name:`${p.answer.index+1}. ${p.choices[p.answer.index]}`,exact:true}).click();
             else if(p.answer.kind==='count') await page.locator('input[inputmode="numeric"]').fill(String(p.answer.value));
+            if(index===2 && p.answer.kind==='count') {
+              await page.reload();
+              await page.getByText(p.title,{exact:true}).waitFor({state:'visible'});
+              await expect(page.locator('input[inputmode="numeric"]')).toHaveValue(String(p.answer.value));
+              await expect(submit).toBeEnabled();
+            }
             const response=page.waitForResponse(r=>r.url().endsWith('/student-api')&&r.request().postDataJSON()?.action==='attempt');
             await submit.click();
             const payload=await (await response).json();

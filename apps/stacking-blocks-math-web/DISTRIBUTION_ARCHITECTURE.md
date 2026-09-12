@@ -1,5 +1,73 @@
 # 배포판 아키텍처 준비
 
+## 승인 검토용 권장안 1개 — 제작자 Supabase 설치 실행부 (2026-09-12)
+
+**설계안이며 실행부는 미구현/미운영이다. 실제로 제거한 교사 수동 작업은 아직 0개다.** 아래 안은 Cloudflare 서버 사용 없이 반복적인 기술 설치를 줄이지만, 현재의 ‘새 중앙 서버 금지’ 조건에 대한 예외 승인이 필요하다. 승인하지 않으면 공개 URL/key만으로 같은 자동화를 실행할 수 없다.
+
+### 실행 장소와 담당
+
+제작자가 소유·운영하는 **별도 Supabase Free 프로젝트 1개**에 OAuth callback과 설치 작업용 Edge Functions, 작업 상태용 DB를 둔다. 기존 `/setup`만 확장한다. Cloudflare에는 기존 정적 SPA와 공개 release manifest만 둔다. 학생 로그인·PIN·진도·작품 요청은 설치 실행부를 거치지 않고 각 교사의 Supabase로 직접 간다. 중앙 DB에는 project ref, installationId, 승인한 release, 단계 결과·해시만 저장하고 학생/PIN/작품은 저장하지 않는다.
+
+공식 [OAuth 통합](https://supabase.com/docs/guides/integrations/build-a-supabase-oauth-integration)은 code 교환 때 client secret과 state 검증, 권장 PKCE를 사용하며 Edge Functions 예제를 제공한다. 따라서 정적 브라우저만으로 비밀값을 안전하게 보관하는 실행부를 대체하지 않는다.
+
+### 제작자가 처음 한 번 준비할 것
+
+1. 별도 Free 프로젝트 여유·조직 요금제를 확인하고 사용 한도를 정한다. 유료 전환과 결제수단 등록은 이번 승인안에 포함하지 않는다.
+2. OAuth 앱과 고정 callback URL, 선택 scope를 등록한다. client secret과 토큰 암호화 키는 설치 프로젝트의 서버 Secret에만 넣는다.
+3. 설치 함수/작업 상태 schema를 배포하고 인증·허용 origin·CSRF/PKCE·프로젝트 소유 권한·release 서명을 검증한다. OAuth 승인 조직과 사용자가 선택한 프로젝트를 서버에서 매 요청에 바인딩한다.
+4. 기존 migrations와 두 학생 Edge Function의 검증된 산출물을 같은 저장소에서 만들고 해시 manifest를 배포한다. 설치 실행부 안에서 npm/Vite/Deno 번들을 매번 빌드하지 않는다.
+5. 신규 설치·부분 실패·재시도·업데이트·권한 철회 시험을 합성/빈 승인 프로젝트에서 먼저 수행한다. 이 단계들은 아직 수행하지 않았다.
+
+### 다른 교사가 매번 실제로 할 일
+
+| 지금 필요한 작업 | 권장안 구현 후 | 실제 감소 여부 |
+|---|---|---|
+| Supabase 계정·조직 준비 | 최초 계정 가입/로그인 및 약관 동의는 교사 본인 | 남음 |
+| 프로젝트 수동 생성·DB 비밀번호 설정 | `/setup`에서 조직/이름/서울/무료 여유 확인 후 생성 승인; 서버가 비밀번호 생성·API 생성 | 자동화 목표 |
+| migration SQL 실행 | 승인 release의 미적용 migration만 Management API 실행 | 자동화 목표 |
+| CLI 설치·함수 배포 | 해당 release의 student-auth/student-api 배포 | 자동화 목표 |
+| APP_SESSION_SECRET 복사·설정 | 없는 경우에만 서버 생성/설정; 이미 있으면 유지 | 자동화 목표 |
+| 공개 URL/key 복사 | 서버가 공개 설정만 돌려주고 기존 RuntimeSupabaseConfig 저장 | 자동화 목표 |
+| 교사 Auth 계정 생성 | **초기 실행안에서는 교사가 Dashboard에서 1회 생성** 후 기존 `/teacher` 로그인 | 남음 |
+| 학급·학생 입력, 링크 배부 | 기존 `/teacher` 그대로 | 수업 준비로 남음 |
+| 학생 로그인→첫 저장→새 세션 복원 | 설치 진단의 TEST 학생 1명 사용에 별도 명시 동의, 실제 학생 API로 검증 | 자동화 목표, 미검증 |
+
+즉 기술 작업 5묶음(프로젝트/DB/함수/Secret/공개설정)을 없애는 목표지만 **현재 감소 0, 구현 후 목표 5**다. 계정 동의와 교사 Auth 생성은 숨기지 않는다. 완전한 ‘브라우저 세 단계 설치’ 완료안으로 광고하지 않는다. 교사 계정 자동화는 이 파일럿의 성공 조건에 몰래 포함하지 않는다.
+
+교사 Auth 생성을 남긴 이유: 현재 `/teacher`는 기존 Supabase Auth 비밀번호 로그인을 재사용한다. Management OAuth 승인이 곧 앱 교사 Auth 계정인 것은 아니다. [기본 메일 발송](https://supabase.com/docs/guides/auth/auth-smtp)은 조직 팀 주소만 허용하고 현재 2건/시간이며 운영용 SLA가 없다. 모든 교사에게 초대 메일이 배달된다고 가정하거나, 메일 확인/RLS를 끄거나, 교사마다 SMTP 비밀키 설정을 추가하여 ‘간소화’로 세지 않는다. 이 단계까지 제거하려면 별도 안전한 등록/메일 경로의 검증과 승인이 추가로 필요하다.
+
+### 자동화 API와 권한
+
+서버가 OAuth Management API로 프로젝트 조회/생성, [migration 적용](https://supabase.com/docs/reference/api/v1-apply-a-migration), [함수 배포](https://supabase.com/docs/reference/api/v1-deploy-a-function), Secrets 조회/설정을 한다. 공개 publishable key만으로 실행하지 않는다.
+
+[공식 scope 표](https://supabase.com/docs/guides/integrations/build-a-supabase-oauth-integration/oauth-scopes)를 기준으로 Organizations Read, Projects Read/Write, Database Read/Write, Edge Functions Read/Write, Secrets Read/Write, Auth Read를 승인 후보로 정한다. Storage Read는 bucket 확인에 사용한다. Billing·Domain·Branch는 요청하지 않는다. 실제 endpoint별 최소 scope 조합은 신규 설치 시험에서 확인해야 한다. 특히 Database Write/Secrets Read는 단일 앱 테이블·공개키만으로 제한된 권한이 아니므로 넓은 관리 권한이라는 사실을 교사에게 알린다. 실행부 allowlist는 위험을 줄이지만 플랫폼 권한 자체를 좁히지는 않는다.
+
+서버에 보관할 비밀값: OAuth client secret, 암호화 키, 설치 중에만 필요한 암호화 OAuth access/refresh token. 앱/URL/로그로 보내지 않는다. 생성용 DB 비밀번호는 요청 동안만 사용하고 저장하지 않는다. 기존 APP_SESSION_SECRET은 이름/존재만 검사하며 교체하지 않는다. API key 목록에서 공개키만 반환하고 service_role/secret key는 브라우저로 보내지 않는다. 교사 비밀번호·학생 PIN은 중앙 설치 DB에 보관하지 않는다.
+
+### 중단·재개·업데이트·철회
+
+- 한 프로젝트/목표 release에 작업 하나만 허용한다. 단계별 `planned/running/verified/blocked`와 remote checksum을 기록한다. HTTP 한 번에 전체 설치를 끝내지 않는다.
+- 한 요청은 migration 또는 함수 하나만 처리하고, 다음 요청이 실제 원격 상태를 재조회한 후 이어 간다. 네트워크 timeout이면 ‘성공’으로 표시하지 않고 다시 조회한다.
+- 기존 migration 이력과 파일 해시가 불명확하면 중단한다. **현재 운영 프로젝트도 MCP migration 목록이 빈 배열이지만 schema는 존재한다. 빈 이력은 빈 DB라는 증거가 아니다.** schema 대조 없이 모든 migration을 다시 실행하지 않는다.
+- 설치 중단은 다음 mutation을 정지한다. 이미 만든 프로젝트/schema를 자동 삭제하지 않는다. Secret이 이미 있으면 덮지 않고 기존 학생/PIN/진도/작품·문항 정답도 임의 갱신하지 않는다.
+- 파일럿 토큰 보존 정책은 작업 진행 중 최대 24시간, 완료/취소 때 암호화 토큰 삭제로 제안한다. 만료 후에는 다시 OAuth 승인하고 비민감 단계 기록으로 이어 간다. 플랫폼 승인도 교사가 Dashboard에서 철회할 수 있게 안내한다. 로컬 토큰 삭제만으로 플랫폼 철회가 완료됐다고 표시하지 않는다.
+- 업데이트 때 다시 승인받아 대상 release의 차이만 적용한다. 이미 적용된 파일 수정·전체 재설치·기존 Secret 재발급은 금지한다. 실패한 단계와 해당 기능을 표시하고 수업 데이터는 유지한다.
+- READY는 학생 첫 인증/저장/새 세션 복원 결과를 받은 뒤에만 표시한다. 진단용 학생 API 호출은 READY 이전에도 허용한다. 현재 코드에서 getInstallationStatus는 route/API 진입 gate로 쓰이지 않아 이 순환 차단은 없다.
+
+### 비용과 미확인 조건
+
+2026-09-12 공식 [가격표](https://supabase.com/pricing): Free $0/월, 활성 프로젝트 2개 제한, 프로젝트 DB 500MB, Storage 1GB, egress 5GB, 1주 비활성 시 pause, 자동 백업/SLA 없음. [함수 비용](https://supabase.com/docs/guides/functions/pricing)은 Free 500,000회 포함이며 Free 초과 유료 단가는 제시하지 않는다. 유료 플랜의 100만회당 $2를 Free의 자동 과금으로 해석하지 않는다.
+
+[함수 제한](https://supabase.com/docs/guides/functions/limits)은 메모리256MB, Free wall150초, CPU2초/요청, server-side bundle5MB다. 따라서 단계 분할·미리 준비한 bundle·제한된 재시도가 필요하다. 함수 호출 횟수 외에도 DB/전송량/프로젝트 여유를 확인한다. 파일럿 자체 운영 상한은 10개 설치/일, 한 작업 최대100개 함수 요청, 동시 설치1개로 제안한다(공식 quota가 아닌 제작자 제한). 한도 근접·429·pause·조직이 유료일 때 자동 유료 전환 없이 정지한다.
+
+미확인: 제작자 조직의 실제 Free 여유, OAuth 앱 공개 등록/승인 조건, Management API 실측 요청 한도, 설치당 실제 호출·전송량, 중앙 실행부 재개/삭제 정책 구현. 따라서 영구 $0·무제한 설치·항상 가용을 보장하지 않는다. 별도 중앙 프로젝트가 없어도 되는 현재 수업 실행 경로는 유지한다.
+
+### 정확한 승인 대상과 현재 상태
+
+승인 대상은 **제작자 소유의 별도 Supabase Free 설치 프로젝트와 OAuth 앱 운영, 위 관리 scope·최대24시간 암호화 토큰 보관, 명시적으로 승인된 교사 프로젝트에만 설치/업데이트 실행**이다. 중앙 실행부 금지의 예외가 필요하며 Cloudflare는 여전히 정적이다. 유료 전환·임의 기존 프로젝트 변경·학생 데이터 중앙 수집은 승인 범위 밖이다.
+
+지금은 공식 API 조사와 위 설계만 했다. 프로젝트/OAuth 앱/서버/Secret 생성, 배포, 원격 migration, 신규 설치·업데이트 실험은 **NOT_RUN**이다. 현재 설치 완료 판정 수정은 기존 체크포인트 그대로 유지했다.
+
 ## 간편 설치 추가 계약 — 2026-09-12
 
 이 절이 아래 과거 준비 설명보다 우선한다. 기존 `/setup`, RuntimeSupabaseConfig, `/teacher` 학급·학생 관리, VersionService를 재사용한다. 별도 마법사는 만들지 않는다. 아래 작업은 아직 수동이며 세 단계로 숨기지 않는다.

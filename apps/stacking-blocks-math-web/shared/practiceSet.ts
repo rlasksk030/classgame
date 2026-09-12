@@ -46,6 +46,25 @@ export function generateValidatedPracticeSet(lesson:number,count:number,seed:num
 
 /** 조회·새 문항 삽입 여부와 무관하게 현재 학생 세트만 반환한다. */
 export function selectPracticeRows<T extends {code?:string|null}>(rows:T[],lesson:number,seed:number):T[] {
-  const prefix=`GEN-L${lesson}-S${seed}-`;
-  return rows.filter(row=>!String(row.code??'').startsWith('GEN-L') || String(row.code).startsWith(prefix));
+  return rows.filter(row=>isAssignedPracticeCode(row.code,lesson,seed));
+}
+
+export function isAssignedPracticeCode(code:string|null|undefined,lesson:number,seed:number):boolean {
+  return !String(code??'').startsWith('GEN-L') || String(code).startsWith(`GEN-L${lesson}-S${seed}-`);
+}
+
+/** 진단만 수행한다. 기존 문항/답안/XP를 변경하거나 중복 행을 삭제하지 않는다. */
+export function practiceSetStatus<T extends {code?:string|null;order_index:number}>(rows:T[],lesson:number,seed:number,targetCount:number,displayedSeed=seed) {
+  const generated=rows.filter(row=>String(row.code??'').startsWith(`GEN-L${lesson}-S${displayedSeed}-`));
+  const duplicateCodes=generated.length-new Set(generated.map(row=>row.code)).size;
+  const legacy=lesson===5&&generated.some(row=>!row.code?.endsWith('-V2'));
+  return { contractVersion:2 as const, seed, displayedSeed, awaitingReplacement:displayedSeed!==seed, targetCount, generatedCount:generated.length,
+    supplementalCount:rows.filter(row=>!String(row.code??'').startsWith('GEN-L')&&row.order_index>2).length,
+    duplicateCodes, legacyVersion:legacy, requiresRepair:duplicateCodes>0||displayedSeed!==seed };
+}
+
+/** 구 API가 seed만 바꾼 뒤 옛 세트를 반환했던 경우, 명시적 재시작 전까지 화면을 보존한다. */
+export function practiceDisplaySeed(rows:{code?:string|null}[],lesson:number,savedSeed:number,originalSeed:number):number {
+  const has=(seed:number)=>rows.some(row=>String(row.code??'').startsWith(`GEN-L${lesson}-S${seed}-`));
+  return !has(savedSeed)&&has(originalSeed)?originalSeed:savedSeed;
 }

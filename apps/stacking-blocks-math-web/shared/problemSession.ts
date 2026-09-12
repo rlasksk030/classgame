@@ -9,3 +9,15 @@ export function clampProblemIndex(index: number, length: number): number {
   if (length <= 0) return 0;
   return Math.min(Math.max(0, index), length - 1);
 }
+
+/** 단계별 로컬 위치가 없으면 같은 단계의 서버 위치를 사용한다. */
+export function stageProblemIndex<T extends { id: string; stage?: string }>(
+  problems: T[], stage: string, localId?: string | null, serverId?: string | null,
+): number {
+  const rows = problems.filter(p => p.stage === stage);
+  for (const id of [localId, serverId]) {
+    const index = rows.findIndex(p => p.id === id);
+    if (index >= 0) return index;
+  }
+  return 0;
+}

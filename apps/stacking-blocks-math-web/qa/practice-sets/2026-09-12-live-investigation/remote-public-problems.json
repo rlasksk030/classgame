@@ -1,0 +1,5148 @@
+{
+  "kind": "LIVE_SUPABASE_READ_ONLY",
+  "observedAt": "2026-09-12T12:21:21.469Z",
+  "localHead": "875229ab7bf45ce40b8dd1ce882d88422e368ebe",
+  "remoteFunctionVersion": 4,
+  "remoteFunctionSha256": "d746eef83edbaedf647e5a83ed89da92ac0df36f5921f38f2385d520825329a2",
+  "rows": [
+    {
+      "id": "65245504-6ae6-4547-8b1a-34c968251534",
+      "code": "L5-01",
+      "global": true,
+      "lesson": 5,
+      "order_index": 1,
+      "problem_type": "CHOICE",
+      "title": "이 각도에서만 보고 맞혀 보기",
+      "prompt": "지금은 화면을 돌릴 수 없습니다.\n이 정보만으로 전체 개수를 정확히 알 수 있을까요?",
+      "grid_width": 4,
+      "grid_depth": 4,
+      "max_height": 4,
+      "given_blocks": [
+        {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 1
+        },
+        {
+          "x": 2,
+          "y": 2,
+          "z": 0
+        }
+      ],
+      "given": {
+        "note": "이 문제에서는 화면을 돌릴 수 없어요.",
+        "allowRotate": false
+      },
+      "choices": [
+        "정확히 알 수 있어요",
+        "가려진 곳의 정보가 더 필요해요"
+      ],
+      "source_type": "BUILT_IN"
+    },
+    {
+      "id": "ee197006-37d6-4160-8acb-78392bf39415",
+      "code": "L5-02",
+      "global": true,
+      "lesson": 5,
+      "order_index": 2,
+      "problem_type": "CHOICE",
+      "title": "왜 알 수 없었을까",
+      "prompt": "앞에서 본 모양만으로는 쌓기나무의 개수를 정확히 알 수 없습니다.\n그 까닭으로 알맞은 것을 고르세요.",
+      "grid_width": 4,
+      "grid_depth": 4,
+      "max_height": 4,
+      "given_blocks": [
+        {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 1
+        },
+        {
+          "x": 2,
+          "y": 2,
+          "z": 0
+        }
+      ],
+      "given": {
+        "allowRotate": true,
+        "projections": {
+          "front": [
+            [
+              true,
+              true,
+              true,
+              false
+            ],
+            [
+              true,
+              true,
+              true,
+              false
+            ],
+            [
+              false,
+              false,
+              true,
+              false
+            ],
+            [
+              false,
+              false,
+              false,
+              false
+            ]
+          ]
+        }
+      },
+      "choices": [
+        "앞에서 보면 뒤쪽에 놓인 쌓기나무가 가려져 보이지 않기 때문",
+        "앞에서 보면 쌓기나무가 실제보다 크게 보이기 때문",
+        "앞에서 보면 쌓기나무의 색이 달라 보이기 때문",
+        "앞에서 보면 1층이 보이지 않기 때문"
+      ],
+      "source_type": "BUILT_IN"
+    },
+    {
+      "id": "7e43aa25-5359-449c-8de5-fb73cabe8768",
+      "code": "L5-03",
+      "global": true,
+      "lesson": 5,
+      "order_index": 3,
+      "problem_type": "COUNT",
+      "title": "정보를 더 받고 다시 구하기",
+      "prompt": "이번에는 위에서 본 모양의 숫자 지도를 함께 줍니다.\n쌓기나무는 모두 몇 개인가요?",
+      "grid_width": 4,
+      "grid_depth": 4,
+      "max_height": 4,
+      "given_blocks": [
+        {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 1
+        },
+        {
+          "x": 2,
+          "y": 2,
+          "z": 0
+        }
+      ],
+      "given": {
+        "heightMap": [
+          [
+            2,
+            1,
+            3,
+            0
+          ],
+          [
+            1,
+            2,
+            2,
+            0
+          ],
+          [
+            0,
+            1,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0
+          ]
+        ],
+        "allowRotate": true,
+        "projections": {
+          "front": [
+            [
+              true,
+              true,
+              true,
+              false
+            ],
+            [
+              true,
+              true,
+              true,
+              false
+            ],
+            [
+              false,
+              false,
+              true,
+              false
+            ],
+            [
+              false,
+              false,
+              false,
+              false
+            ]
+          ]
+        },
+        "allowLayerView": true
+      },
+      "choices": [],
+      "source_type": "BUILT_IN"
+    },
+    {
+      "id": "2826f722-db44-4b6b-b382-1e846774f238",
+      "code": "GEN-L5-S595837-01",
+      "global": true,
+      "lesson": 5,
+      "order_index": 100,
+      "problem_type": "CHOICE",
+      "title": "5차시 연습 1",
+      "prompt": "한 방향에서 본 모습만 보고 전체 개수를 정확히 알 수 있을까요?",
+      "grid_width": 3,
+      "grid_depth": 3,
+      "max_height": 3,
+      "given_blocks": [
+        {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 1
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 2
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 2
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 2
+        },
+        {
+          "x": 0,
+          "y": 2,
+          "z": 0
+        },
+        {
+          "x": 1,
+          "y": 2,
+          "z": 0
+        },
+        {
+          "x": 2,
+          "y": 2,
+          "z": 0
+        },
+        {
+          "x": 0,
+          "y": 2,
+          "z": 2
+        },
+        {
+          "x": 1,
+          "y": 2,
+          "z": 2
+        },
+        {
+          "x": 2,
+          "y": 2,
+          "z": 2
+        }
+      ],
+      "given": {
+        "note": "먼저 한 방향에서만 판단해 보세요.",
+        "_generator": {
+          "seed": 0,
+          "sourceType": "GENERATED_PRACTICE",
+          "templateId": "lesson5-unknown-choice",
+          "conceptTags": [
+            "HIDDEN_BLOCK",
+            "BLOCK_COUNT",
+            "SPATIAL_REASONING"
+          ],
+          "difficultyTier": "BASIC",
+          "generatorVersion": 1
+        },
+        "allowRotate": false
+      },
+      "choices": [
+        "이 정보만으로 정확히 알 수 있어요.",
+        "가려진 곳의 정보가 더 필요해요."
+      ],
+      "source_type": "BUILT_IN"
+    },
+    {
+      "id": "a7be777f-b3ac-4a90-9a6a-9bd525b2af24",
+      "code": "GEN-L5-S595837-01",
+      "global": true,
+      "lesson": 5,
+      "order_index": 100,
+      "problem_type": "CHOICE",
+      "title": "5차시 연습 1",
+      "prompt": "한 방향에서 본 모습만 보고 전체 개수를 정확히 알 수 있을까요?",
+      "grid_width": 3,
+      "grid_depth": 3,
+      "max_height": 3,
+      "given_blocks": [
+        {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 1
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 2
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 2
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 2
+        },
+        {
+          "x": 0,
+          "y": 2,
+          "z": 0
+        },
+        {
+          "x": 1,
+          "y": 2,
+          "z": 0
+        },
+        {
+          "x": 2,
+          "y": 2,
+          "z": 0
+        },
+        {
+          "x": 0,
+          "y": 2,
+          "z": 2
+        },
+        {
+          "x": 1,
+          "y": 2,
+          "z": 2
+        },
+        {
+          "x": 2,
+          "y": 2,
+          "z": 2
+        }
+      ],
+      "given": {
+        "note": "먼저 한 방향에서만 판단해 보세요.",
+        "_generator": {
+          "seed": 0,
+          "sourceType": "GENERATED_PRACTICE",
+          "templateId": "lesson5-unknown-choice",
+          "conceptTags": [
+            "HIDDEN_BLOCK",
+            "BLOCK_COUNT",
+            "SPATIAL_REASONING"
+          ],
+          "difficultyTier": "BASIC",
+          "generatorVersion": 1
+        },
+        "allowRotate": false
+      },
+      "choices": [
+        "이 정보만으로 정확히 알 수 있어요.",
+        "가려진 곳의 정보가 더 필요해요."
+      ],
+      "source_type": "BUILT_IN"
+    },
+    {
+      "id": "b4725e54-fea1-4f99-88a5-a626203e985e",
+      "code": "GEN-L5-S595837-02",
+      "global": true,
+      "lesson": 5,
+      "order_index": 101,
+      "problem_type": "COUNT_AMBIGUOUS",
+      "title": "5차시 연습 2",
+      "prompt": "숨겨진 블록이 없다고 할 때 가능한 개수는 얼마일까요?",
+      "grid_width": 3,
+      "grid_depth": 3,
+      "max_height": 3,
+      "given_blocks": [
+        {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 1
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 1
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 2
+        },
+        {
+          "x": 0,
+          "y": 2,
+          "z": 0
+        },
+        {
+          "x": 1,
+          "y": 2,
+          "z": 0
+        },
+        {
+          "x": 2,
+          "y": 2,
+          "z": 0
+        },
+        {
+          "x": 0,
+          "y": 2,
+          "z": 1
+        }
+      ],
+      "given": {
+        "note": "먼저 한 방향에서만 판단해 보세요.",
+        "_generator": {
+          "seed": 1,
+          "sourceType": "GENERATED_PRACTICE",
+          "templateId": "lesson5-hidden-min",
+          "conceptTags": [
+            "HIDDEN_BLOCK",
+            "BLOCK_COUNT",
+            "SPATIAL_REASONING"
+          ],
+          "difficultyTier": "BASIC",
+          "generatorVersion": 1
+        },
+        "allowRotate": false
+      },
+      "choices": [],
+      "source_type": "BUILT_IN"
+    },
+    {
+      "id": "b93c6d90-509b-4177-a512-c23742d3381e",
+      "code": "GEN-L5-S595837-02",
+      "global": true,
+      "lesson": 5,
+      "order_index": 101,
+      "problem_type": "COUNT_AMBIGUOUS",
+      "title": "5차시 연습 2",
+      "prompt": "숨겨진 블록이 없다고 할 때 가능한 개수는 얼마일까요?",
+      "grid_width": 3,
+      "grid_depth": 3,
+      "max_height": 3,
+      "given_blocks": [
+        {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 1
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 1
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 2
+        },
+        {
+          "x": 0,
+          "y": 2,
+          "z": 0
+        },
+        {
+          "x": 1,
+          "y": 2,
+          "z": 0
+        },
+        {
+          "x": 2,
+          "y": 2,
+          "z": 0
+        },
+        {
+          "x": 0,
+          "y": 2,
+          "z": 1
+        }
+      ],
+      "given": {
+        "note": "먼저 한 방향에서만 판단해 보세요.",
+        "_generator": {
+          "seed": 1,
+          "sourceType": "GENERATED_PRACTICE",
+          "templateId": "lesson5-hidden-min",
+          "conceptTags": [
+            "HIDDEN_BLOCK",
+            "BLOCK_COUNT",
+            "SPATIAL_REASONING"
+          ],
+          "difficultyTier": "BASIC",
+          "generatorVersion": 1
+        },
+        "allowRotate": false
+      },
+      "choices": [],
+      "source_type": "BUILT_IN"
+    },
+    {
+      "id": "ebc40b8e-0b56-46bf-add5-609fa57375f4",
+      "code": "GEN-L5-S595837-03",
+      "global": true,
+      "lesson": 5,
+      "order_index": 102,
+      "problem_type": "COUNT_AMBIGUOUS",
+      "title": "5차시 연습 3",
+      "prompt": "숨겨진 블록이 더 있을 때 가장 많아질 수 있는 개수는 얼마일까요?",
+      "grid_width": 3,
+      "grid_depth": 3,
+      "max_height": 3,
+      "given_blocks": [
+        {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 1
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 1
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 2
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 2
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 2
+        },
+        {
+          "x": 0,
+          "y": 2,
+          "z": 1
+        },
+        {
+          "x": 1,
+          "y": 2,
+          "z": 1
+        },
+        {
+          "x": 2,
+          "y": 2,
+          "z": 1
+        },
+        {
+          "x": 0,
+          "y": 2,
+          "z": 2
+        }
+      ],
+      "given": {
+        "note": "먼저 한 방향에서만 판단해 보세요.",
+        "_generator": {
+          "seed": 2,
+          "sourceType": "GENERATED_PRACTICE",
+          "templateId": "lesson5-hidden-max",
+          "conceptTags": [
+            "HIDDEN_BLOCK",
+            "BLOCK_COUNT",
+            "SPATIAL_REASONING"
+          ],
+          "difficultyTier": "BASIC",
+          "generatorVersion": 1
+        },
+        "allowRotate": false
+      },
+      "choices": [],
+      "source_type": "BUILT_IN"
+    },
+    {
+      "id": "82229f39-b01c-434f-86a8-49935f38604f",
+      "code": "GEN-L5-S595837-03",
+      "global": true,
+      "lesson": 5,
+      "order_index": 102,
+      "problem_type": "COUNT_AMBIGUOUS",
+      "title": "5차시 연습 3",
+      "prompt": "숨겨진 블록이 더 있을 때 가장 많아질 수 있는 개수는 얼마일까요?",
+      "grid_width": 3,
+      "grid_depth": 3,
+      "max_height": 3,
+      "given_blocks": [
+        {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 1
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 1
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 2
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 2
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 2
+        },
+        {
+          "x": 0,
+          "y": 2,
+          "z": 1
+        },
+        {
+          "x": 1,
+          "y": 2,
+          "z": 1
+        },
+        {
+          "x": 2,
+          "y": 2,
+          "z": 1
+        },
+        {
+          "x": 0,
+          "y": 2,
+          "z": 2
+        }
+      ],
+      "given": {
+        "note": "먼저 한 방향에서만 판단해 보세요.",
+        "_generator": {
+          "seed": 2,
+          "sourceType": "GENERATED_PRACTICE",
+          "templateId": "lesson5-hidden-max",
+          "conceptTags": [
+            "HIDDEN_BLOCK",
+            "BLOCK_COUNT",
+            "SPATIAL_REASONING"
+          ],
+          "difficultyTier": "BASIC",
+          "generatorVersion": 1
+        },
+        "allowRotate": false
+      },
+      "choices": [],
+      "source_type": "BUILT_IN"
+    },
+    {
+      "id": "2ee4d146-44fd-4100-b0c9-43ecf21d040c",
+      "code": "GEN-L5-S595837-04",
+      "global": true,
+      "lesson": 5,
+      "order_index": 103,
+      "problem_type": "CHOICE",
+      "title": "5차시 연습 4",
+      "prompt": "정확히 알려면 어떤 정보가 더 필요할까요?",
+      "grid_width": 3,
+      "grid_depth": 3,
+      "max_height": 3,
+      "given_blocks": [
+        {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 1
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 2
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 2
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 2
+        },
+        {
+          "x": 0,
+          "y": 2,
+          "z": 0
+        },
+        {
+          "x": 1,
+          "y": 2,
+          "z": 0
+        },
+        {
+          "x": 2,
+          "y": 2,
+          "z": 0
+        },
+        {
+          "x": 0,
+          "y": 2,
+          "z": 2
+        },
+        {
+          "x": 1,
+          "y": 2,
+          "z": 2
+        },
+        {
+          "x": 2,
+          "y": 2,
+          "z": 2
+        }
+      ],
+      "given": {
+        "note": "먼저 한 방향에서만 판단해 보세요.",
+        "_generator": {
+          "seed": 3,
+          "sourceType": "GENERATED_PRACTICE",
+          "templateId": "lesson5-extra-info",
+          "conceptTags": [
+            "HIDDEN_BLOCK",
+            "BLOCK_COUNT",
+            "SPATIAL_REASONING"
+          ],
+          "difficultyTier": "BASIC",
+          "generatorVersion": 1
+        },
+        "allowRotate": false
+      },
+      "choices": [
+        "이 정보만으로 정확히 알 수 있어요.",
+        "가려진 곳의 정보가 더 필요해요."
+      ],
+      "source_type": "BUILT_IN"
+    },
+    {
+      "id": "e4f2c78a-54f3-4c22-bc33-97be9223466c",
+      "code": "GEN-L5-S595837-04",
+      "global": true,
+      "lesson": 5,
+      "order_index": 103,
+      "problem_type": "CHOICE",
+      "title": "5차시 연습 4",
+      "prompt": "정확히 알려면 어떤 정보가 더 필요할까요?",
+      "grid_width": 3,
+      "grid_depth": 3,
+      "max_height": 3,
+      "given_blocks": [
+        {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 1
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 2
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 2
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 2
+        },
+        {
+          "x": 0,
+          "y": 2,
+          "z": 0
+        },
+        {
+          "x": 1,
+          "y": 2,
+          "z": 0
+        },
+        {
+          "x": 2,
+          "y": 2,
+          "z": 0
+        },
+        {
+          "x": 0,
+          "y": 2,
+          "z": 2
+        },
+        {
+          "x": 1,
+          "y": 2,
+          "z": 2
+        },
+        {
+          "x": 2,
+          "y": 2,
+          "z": 2
+        }
+      ],
+      "given": {
+        "note": "먼저 한 방향에서만 판단해 보세요.",
+        "_generator": {
+          "seed": 3,
+          "sourceType": "GENERATED_PRACTICE",
+          "templateId": "lesson5-extra-info",
+          "conceptTags": [
+            "HIDDEN_BLOCK",
+            "BLOCK_COUNT",
+            "SPATIAL_REASONING"
+          ],
+          "difficultyTier": "BASIC",
+          "generatorVersion": 1
+        },
+        "allowRotate": false
+      },
+      "choices": [
+        "이 정보만으로 정확히 알 수 있어요.",
+        "가려진 곳의 정보가 더 필요해요."
+      ],
+      "source_type": "BUILT_IN"
+    },
+    {
+      "id": "1ce399ed-9ad7-40d4-9aee-e9cc60619972",
+      "code": "GEN-L5-S595837-05",
+      "global": true,
+      "lesson": 5,
+      "order_index": 104,
+      "problem_type": "CHOICE",
+      "title": "5차시 연습 5",
+      "prompt": "한 방향에서 본 모습만 보고 전체 개수를 정확히 알 수 있을까요?",
+      "grid_width": 3,
+      "grid_depth": 3,
+      "max_height": 3,
+      "given_blocks": [
+        {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 1
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 1
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 2
+        },
+        {
+          "x": 0,
+          "y": 2,
+          "z": 0
+        },
+        {
+          "x": 1,
+          "y": 2,
+          "z": 0
+        },
+        {
+          "x": 2,
+          "y": 2,
+          "z": 0
+        },
+        {
+          "x": 0,
+          "y": 2,
+          "z": 1
+        }
+      ],
+      "given": {
+        "note": "먼저 한 방향에서만 판단해 보세요.",
+        "_generator": {
+          "seed": 4,
+          "sourceType": "GENERATED_PRACTICE",
+          "templateId": "lesson5-same-view",
+          "conceptTags": [
+            "HIDDEN_BLOCK",
+            "BLOCK_COUNT",
+            "SPATIAL_REASONING"
+          ],
+          "difficultyTier": "BASIC",
+          "generatorVersion": 1
+        },
+        "allowRotate": false
+      },
+      "choices": [
+        "이 정보만으로 정확히 알 수 있어요.",
+        "가려진 곳의 정보가 더 필요해요."
+      ],
+      "source_type": "BUILT_IN"
+    },
+    {
+      "id": "67350577-408c-42dc-adb1-51f2ddb6c119",
+      "code": "GEN-L5-S595837-05",
+      "global": true,
+      "lesson": 5,
+      "order_index": 104,
+      "problem_type": "CHOICE",
+      "title": "5차시 연습 5",
+      "prompt": "한 방향에서 본 모습만 보고 전체 개수를 정확히 알 수 있을까요?",
+      "grid_width": 3,
+      "grid_depth": 3,
+      "max_height": 3,
+      "given_blocks": [
+        {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 1
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 1
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 2
+        },
+        {
+          "x": 0,
+          "y": 2,
+          "z": 0
+        },
+        {
+          "x": 1,
+          "y": 2,
+          "z": 0
+        },
+        {
+          "x": 2,
+          "y": 2,
+          "z": 0
+        },
+        {
+          "x": 0,
+          "y": 2,
+          "z": 1
+        }
+      ],
+      "given": {
+        "note": "먼저 한 방향에서만 판단해 보세요.",
+        "_generator": {
+          "seed": 4,
+          "sourceType": "GENERATED_PRACTICE",
+          "templateId": "lesson5-same-view",
+          "conceptTags": [
+            "HIDDEN_BLOCK",
+            "BLOCK_COUNT",
+            "SPATIAL_REASONING"
+          ],
+          "difficultyTier": "BASIC",
+          "generatorVersion": 1
+        },
+        "allowRotate": false
+      },
+      "choices": [
+        "이 정보만으로 정확히 알 수 있어요.",
+        "가려진 곳의 정보가 더 필요해요."
+      ],
+      "source_type": "BUILT_IN"
+    },
+    {
+      "id": "a1680c1e-8a6d-4043-a080-bf1200ca5a59",
+      "code": "GEN-L5-S595837-06",
+      "global": true,
+      "lesson": 5,
+      "order_index": 105,
+      "problem_type": "COUNT",
+      "title": "5차시 연습 6",
+      "prompt": "추가 정보를 받은 뒤 실제 개수를 구해 보세요.",
+      "grid_width": 3,
+      "grid_depth": 3,
+      "max_height": 3,
+      "given_blocks": [
+        {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 1
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 1
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 2
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 2
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 2
+        },
+        {
+          "x": 0,
+          "y": 2,
+          "z": 1
+        },
+        {
+          "x": 1,
+          "y": 2,
+          "z": 1
+        },
+        {
+          "x": 2,
+          "y": 2,
+          "z": 1
+        },
+        {
+          "x": 0,
+          "y": 2,
+          "z": 2
+        }
+      ],
+      "given": {
+        "_generator": {
+          "seed": 5,
+          "sourceType": "GENERATED_PRACTICE",
+          "templateId": "lesson5-reveal-count",
+          "conceptTags": [
+            "HIDDEN_BLOCK",
+            "BLOCK_COUNT",
+            "SPATIAL_REASONING"
+          ],
+          "difficultyTier": "PRACTICE",
+          "generatorVersion": 1
+        },
+        "allowRotate": true
+      },
+      "choices": [],
+      "source_type": "BUILT_IN"
+    },
+    {
+      "id": "0d426b06-9cad-4d2b-953b-e42e6c8e3bfc",
+      "code": "GEN-L5-S595837-06",
+      "global": true,
+      "lesson": 5,
+      "order_index": 105,
+      "problem_type": "COUNT",
+      "title": "5차시 연습 6",
+      "prompt": "추가 정보를 받은 뒤 실제 개수를 구해 보세요.",
+      "grid_width": 3,
+      "grid_depth": 3,
+      "max_height": 3,
+      "given_blocks": [
+        {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 1
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 1
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 2
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 2
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 2
+        },
+        {
+          "x": 0,
+          "y": 2,
+          "z": 1
+        },
+        {
+          "x": 1,
+          "y": 2,
+          "z": 1
+        },
+        {
+          "x": 2,
+          "y": 2,
+          "z": 1
+        },
+        {
+          "x": 0,
+          "y": 2,
+          "z": 2
+        }
+      ],
+      "given": {
+        "_generator": {
+          "seed": 5,
+          "sourceType": "GENERATED_PRACTICE",
+          "templateId": "lesson5-reveal-count",
+          "conceptTags": [
+            "HIDDEN_BLOCK",
+            "BLOCK_COUNT",
+            "SPATIAL_REASONING"
+          ],
+          "difficultyTier": "PRACTICE",
+          "generatorVersion": 1
+        },
+        "allowRotate": true
+      },
+      "choices": [],
+      "source_type": "BUILT_IN"
+    },
+    {
+      "id": "e19b3522-9449-48aa-be29-8dd4d575084b",
+      "code": "GEN-L5-S595837-07",
+      "global": true,
+      "lesson": 5,
+      "order_index": 106,
+      "problem_type": "CHOICE",
+      "title": "5차시 연습 7",
+      "prompt": "한 방향에서 본 모습만 보고 전체 개수를 정확히 알 수 있을까요?",
+      "grid_width": 3,
+      "grid_depth": 3,
+      "max_height": 3,
+      "given_blocks": [
+        {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 1
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 2
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 2
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 2
+        },
+        {
+          "x": 0,
+          "y": 2,
+          "z": 0
+        },
+        {
+          "x": 1,
+          "y": 2,
+          "z": 0
+        },
+        {
+          "x": 2,
+          "y": 2,
+          "z": 0
+        },
+        {
+          "x": 0,
+          "y": 2,
+          "z": 2
+        },
+        {
+          "x": 1,
+          "y": 2,
+          "z": 2
+        },
+        {
+          "x": 2,
+          "y": 2,
+          "z": 2
+        }
+      ],
+      "given": {
+        "note": "먼저 한 방향에서만 판단해 보세요.",
+        "_generator": {
+          "seed": 6,
+          "sourceType": "GENERATED_PRACTICE",
+          "templateId": "lesson5-unknown-choice",
+          "conceptTags": [
+            "HIDDEN_BLOCK",
+            "BLOCK_COUNT",
+            "SPATIAL_REASONING"
+          ],
+          "difficultyTier": "PRACTICE",
+          "generatorVersion": 1
+        },
+        "allowRotate": false
+      },
+      "choices": [
+        "이 정보만으로 정확히 알 수 있어요.",
+        "가려진 곳의 정보가 더 필요해요."
+      ],
+      "source_type": "BUILT_IN"
+    },
+    {
+      "id": "2a6a1834-efa1-48f8-8115-81b8adbe0393",
+      "code": "GEN-L5-S595837-07",
+      "global": true,
+      "lesson": 5,
+      "order_index": 106,
+      "problem_type": "CHOICE",
+      "title": "5차시 연습 7",
+      "prompt": "한 방향에서 본 모습만 보고 전체 개수를 정확히 알 수 있을까요?",
+      "grid_width": 3,
+      "grid_depth": 3,
+      "max_height": 3,
+      "given_blocks": [
+        {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 1
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 2
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 2
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 2
+        },
+        {
+          "x": 0,
+          "y": 2,
+          "z": 0
+        },
+        {
+          "x": 1,
+          "y": 2,
+          "z": 0
+        },
+        {
+          "x": 2,
+          "y": 2,
+          "z": 0
+        },
+        {
+          "x": 0,
+          "y": 2,
+          "z": 2
+        },
+        {
+          "x": 1,
+          "y": 2,
+          "z": 2
+        },
+        {
+          "x": 2,
+          "y": 2,
+          "z": 2
+        }
+      ],
+      "given": {
+        "note": "먼저 한 방향에서만 판단해 보세요.",
+        "_generator": {
+          "seed": 6,
+          "sourceType": "GENERATED_PRACTICE",
+          "templateId": "lesson5-unknown-choice",
+          "conceptTags": [
+            "HIDDEN_BLOCK",
+            "BLOCK_COUNT",
+            "SPATIAL_REASONING"
+          ],
+          "difficultyTier": "PRACTICE",
+          "generatorVersion": 1
+        },
+        "allowRotate": false
+      },
+      "choices": [
+        "이 정보만으로 정확히 알 수 있어요.",
+        "가려진 곳의 정보가 더 필요해요."
+      ],
+      "source_type": "BUILT_IN"
+    },
+    {
+      "id": "ad58b970-bbb1-4702-8931-66423d400571",
+      "code": "GEN-L5-S595837-08",
+      "global": true,
+      "lesson": 5,
+      "order_index": 107,
+      "problem_type": "COUNT_AMBIGUOUS",
+      "title": "5차시 연습 8",
+      "prompt": "숨겨진 블록이 없다고 할 때 가능한 개수는 얼마일까요?",
+      "grid_width": 3,
+      "grid_depth": 3,
+      "max_height": 3,
+      "given_blocks": [
+        {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 1
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 1
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 2
+        },
+        {
+          "x": 0,
+          "y": 2,
+          "z": 0
+        },
+        {
+          "x": 1,
+          "y": 2,
+          "z": 0
+        },
+        {
+          "x": 2,
+          "y": 2,
+          "z": 0
+        },
+        {
+          "x": 0,
+          "y": 2,
+          "z": 1
+        }
+      ],
+      "given": {
+        "note": "먼저 한 방향에서만 판단해 보세요.",
+        "_generator": {
+          "seed": 7,
+          "sourceType": "GENERATED_PRACTICE",
+          "templateId": "lesson5-hidden-min",
+          "conceptTags": [
+            "HIDDEN_BLOCK",
+            "BLOCK_COUNT",
+            "SPATIAL_REASONING"
+          ],
+          "difficultyTier": "PRACTICE",
+          "generatorVersion": 1
+        },
+        "allowRotate": false
+      },
+      "choices": [],
+      "source_type": "BUILT_IN"
+    },
+    {
+      "id": "6d2cd25f-0b9a-4581-9274-dc1534bba986",
+      "code": "GEN-L5-S595837-08",
+      "global": true,
+      "lesson": 5,
+      "order_index": 107,
+      "problem_type": "COUNT_AMBIGUOUS",
+      "title": "5차시 연습 8",
+      "prompt": "숨겨진 블록이 없다고 할 때 가능한 개수는 얼마일까요?",
+      "grid_width": 3,
+      "grid_depth": 3,
+      "max_height": 3,
+      "given_blocks": [
+        {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 1
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 1
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 2
+        },
+        {
+          "x": 0,
+          "y": 2,
+          "z": 0
+        },
+        {
+          "x": 1,
+          "y": 2,
+          "z": 0
+        },
+        {
+          "x": 2,
+          "y": 2,
+          "z": 0
+        },
+        {
+          "x": 0,
+          "y": 2,
+          "z": 1
+        }
+      ],
+      "given": {
+        "note": "먼저 한 방향에서만 판단해 보세요.",
+        "_generator": {
+          "seed": 7,
+          "sourceType": "GENERATED_PRACTICE",
+          "templateId": "lesson5-hidden-min",
+          "conceptTags": [
+            "HIDDEN_BLOCK",
+            "BLOCK_COUNT",
+            "SPATIAL_REASONING"
+          ],
+          "difficultyTier": "PRACTICE",
+          "generatorVersion": 1
+        },
+        "allowRotate": false
+      },
+      "choices": [],
+      "source_type": "BUILT_IN"
+    },
+    {
+      "id": "5c0fed3d-f792-4835-b0ef-1c76aca5303b",
+      "code": "GEN-L5-S595837-09",
+      "global": true,
+      "lesson": 5,
+      "order_index": 108,
+      "problem_type": "COUNT_AMBIGUOUS",
+      "title": "5차시 연습 9",
+      "prompt": "숨겨진 블록이 더 있을 때 가장 많아질 수 있는 개수는 얼마일까요?",
+      "grid_width": 3,
+      "grid_depth": 3,
+      "max_height": 3,
+      "given_blocks": [
+        {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 1
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 1
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 2
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 2
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 2
+        },
+        {
+          "x": 0,
+          "y": 2,
+          "z": 1
+        },
+        {
+          "x": 1,
+          "y": 2,
+          "z": 1
+        },
+        {
+          "x": 2,
+          "y": 2,
+          "z": 1
+        },
+        {
+          "x": 0,
+          "y": 2,
+          "z": 2
+        }
+      ],
+      "given": {
+        "note": "먼저 한 방향에서만 판단해 보세요.",
+        "_generator": {
+          "seed": 8,
+          "sourceType": "GENERATED_PRACTICE",
+          "templateId": "lesson5-hidden-max",
+          "conceptTags": [
+            "HIDDEN_BLOCK",
+            "BLOCK_COUNT",
+            "SPATIAL_REASONING"
+          ],
+          "difficultyTier": "PRACTICE",
+          "generatorVersion": 1
+        },
+        "allowRotate": false
+      },
+      "choices": [],
+      "source_type": "BUILT_IN"
+    },
+    {
+      "id": "4ca8275b-1e5c-42d1-883b-752e6bebbad6",
+      "code": "GEN-L5-S595837-09",
+      "global": true,
+      "lesson": 5,
+      "order_index": 108,
+      "problem_type": "COUNT_AMBIGUOUS",
+      "title": "5차시 연습 9",
+      "prompt": "숨겨진 블록이 더 있을 때 가장 많아질 수 있는 개수는 얼마일까요?",
+      "grid_width": 3,
+      "grid_depth": 3,
+      "max_height": 3,
+      "given_blocks": [
+        {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 1
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 1
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 2
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 2
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 2
+        },
+        {
+          "x": 0,
+          "y": 2,
+          "z": 1
+        },
+        {
+          "x": 1,
+          "y": 2,
+          "z": 1
+        },
+        {
+          "x": 2,
+          "y": 2,
+          "z": 1
+        },
+        {
+          "x": 0,
+          "y": 2,
+          "z": 2
+        }
+      ],
+      "given": {
+        "note": "먼저 한 방향에서만 판단해 보세요.",
+        "_generator": {
+          "seed": 8,
+          "sourceType": "GENERATED_PRACTICE",
+          "templateId": "lesson5-hidden-max",
+          "conceptTags": [
+            "HIDDEN_BLOCK",
+            "BLOCK_COUNT",
+            "SPATIAL_REASONING"
+          ],
+          "difficultyTier": "PRACTICE",
+          "generatorVersion": 1
+        },
+        "allowRotate": false
+      },
+      "choices": [],
+      "source_type": "BUILT_IN"
+    },
+    {
+      "id": "ca227f45-939b-4a56-8d03-b5f74e3320aa",
+      "code": "GEN-L5-S595837-10",
+      "global": true,
+      "lesson": 5,
+      "order_index": 109,
+      "problem_type": "CHOICE",
+      "title": "5차시 연습 10",
+      "prompt": "정확히 알려면 어떤 정보가 더 필요할까요?",
+      "grid_width": 3,
+      "grid_depth": 3,
+      "max_height": 3,
+      "given_blocks": [
+        {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 1
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 2
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 2
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 2
+        },
+        {
+          "x": 0,
+          "y": 2,
+          "z": 0
+        },
+        {
+          "x": 1,
+          "y": 2,
+          "z": 0
+        },
+        {
+          "x": 2,
+          "y": 2,
+          "z": 0
+        },
+        {
+          "x": 0,
+          "y": 2,
+          "z": 2
+        },
+        {
+          "x": 1,
+          "y": 2,
+          "z": 2
+        },
+        {
+          "x": 2,
+          "y": 2,
+          "z": 2
+        }
+      ],
+      "given": {
+        "note": "먼저 한 방향에서만 판단해 보세요.",
+        "_generator": {
+          "seed": 9,
+          "sourceType": "GENERATED_PRACTICE",
+          "templateId": "lesson5-extra-info",
+          "conceptTags": [
+            "HIDDEN_BLOCK",
+            "BLOCK_COUNT",
+            "SPATIAL_REASONING"
+          ],
+          "difficultyTier": "PRACTICE",
+          "generatorVersion": 1
+        },
+        "allowRotate": false
+      },
+      "choices": [
+        "이 정보만으로 정확히 알 수 있어요.",
+        "가려진 곳의 정보가 더 필요해요."
+      ],
+      "source_type": "BUILT_IN"
+    },
+    {
+      "id": "5b17a549-2455-448a-9582-a917d4bdb156",
+      "code": "GEN-L5-S595837-10",
+      "global": true,
+      "lesson": 5,
+      "order_index": 109,
+      "problem_type": "CHOICE",
+      "title": "5차시 연습 10",
+      "prompt": "정확히 알려면 어떤 정보가 더 필요할까요?",
+      "grid_width": 3,
+      "grid_depth": 3,
+      "max_height": 3,
+      "given_blocks": [
+        {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 1
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 2
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 2
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 2
+        },
+        {
+          "x": 0,
+          "y": 2,
+          "z": 0
+        },
+        {
+          "x": 1,
+          "y": 2,
+          "z": 0
+        },
+        {
+          "x": 2,
+          "y": 2,
+          "z": 0
+        },
+        {
+          "x": 0,
+          "y": 2,
+          "z": 2
+        },
+        {
+          "x": 1,
+          "y": 2,
+          "z": 2
+        },
+        {
+          "x": 2,
+          "y": 2,
+          "z": 2
+        }
+      ],
+      "given": {
+        "note": "먼저 한 방향에서만 판단해 보세요.",
+        "_generator": {
+          "seed": 9,
+          "sourceType": "GENERATED_PRACTICE",
+          "templateId": "lesson5-extra-info",
+          "conceptTags": [
+            "HIDDEN_BLOCK",
+            "BLOCK_COUNT",
+            "SPATIAL_REASONING"
+          ],
+          "difficultyTier": "PRACTICE",
+          "generatorVersion": 1
+        },
+        "allowRotate": false
+      },
+      "choices": [
+        "이 정보만으로 정확히 알 수 있어요.",
+        "가려진 곳의 정보가 더 필요해요."
+      ],
+      "source_type": "BUILT_IN"
+    },
+    {
+      "id": "675a604b-9ba8-4441-81a4-a3fba565e75b",
+      "code": "GEN-L5-S595837-11",
+      "global": true,
+      "lesson": 5,
+      "order_index": 110,
+      "problem_type": "CHOICE",
+      "title": "5차시 연습 11",
+      "prompt": "한 방향에서 본 모습만 보고 전체 개수를 정확히 알 수 있을까요?",
+      "grid_width": 3,
+      "grid_depth": 3,
+      "max_height": 3,
+      "given_blocks": [
+        {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 1
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 1
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 2
+        },
+        {
+          "x": 0,
+          "y": 2,
+          "z": 0
+        },
+        {
+          "x": 1,
+          "y": 2,
+          "z": 0
+        },
+        {
+          "x": 2,
+          "y": 2,
+          "z": 0
+        },
+        {
+          "x": 0,
+          "y": 2,
+          "z": 1
+        }
+      ],
+      "given": {
+        "note": "먼저 한 방향에서만 판단해 보세요.",
+        "_generator": {
+          "seed": 10,
+          "sourceType": "GENERATED_PRACTICE",
+          "templateId": "lesson5-same-view",
+          "conceptTags": [
+            "HIDDEN_BLOCK",
+            "BLOCK_COUNT",
+            "SPATIAL_REASONING"
+          ],
+          "difficultyTier": "APPLICATION",
+          "generatorVersion": 1
+        },
+        "allowRotate": false
+      },
+      "choices": [
+        "이 정보만으로 정확히 알 수 있어요.",
+        "가려진 곳의 정보가 더 필요해요."
+      ],
+      "source_type": "BUILT_IN"
+    },
+    {
+      "id": "386d4efa-dd8c-41d6-8961-a41391fbd04a",
+      "code": "GEN-L5-S595837-11",
+      "global": true,
+      "lesson": 5,
+      "order_index": 110,
+      "problem_type": "CHOICE",
+      "title": "5차시 연습 11",
+      "prompt": "한 방향에서 본 모습만 보고 전체 개수를 정확히 알 수 있을까요?",
+      "grid_width": 3,
+      "grid_depth": 3,
+      "max_height": 3,
+      "given_blocks": [
+        {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 1
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 1
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 2
+        },
+        {
+          "x": 0,
+          "y": 2,
+          "z": 0
+        },
+        {
+          "x": 1,
+          "y": 2,
+          "z": 0
+        },
+        {
+          "x": 2,
+          "y": 2,
+          "z": 0
+        },
+        {
+          "x": 0,
+          "y": 2,
+          "z": 1
+        }
+      ],
+      "given": {
+        "note": "먼저 한 방향에서만 판단해 보세요.",
+        "_generator": {
+          "seed": 10,
+          "sourceType": "GENERATED_PRACTICE",
+          "templateId": "lesson5-same-view",
+          "conceptTags": [
+            "HIDDEN_BLOCK",
+            "BLOCK_COUNT",
+            "SPATIAL_REASONING"
+          ],
+          "difficultyTier": "APPLICATION",
+          "generatorVersion": 1
+        },
+        "allowRotate": false
+      },
+      "choices": [
+        "이 정보만으로 정확히 알 수 있어요.",
+        "가려진 곳의 정보가 더 필요해요."
+      ],
+      "source_type": "BUILT_IN"
+    },
+    {
+      "id": "51202f09-f9ac-4eea-b637-63ba95955508",
+      "code": "GEN-L5-S595837-12",
+      "global": true,
+      "lesson": 5,
+      "order_index": 111,
+      "problem_type": "COUNT",
+      "title": "5차시 연습 12",
+      "prompt": "추가 정보를 받은 뒤 실제 개수를 구해 보세요.",
+      "grid_width": 3,
+      "grid_depth": 3,
+      "max_height": 3,
+      "given_blocks": [
+        {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 1
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 1
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 2
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 2
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 2
+        },
+        {
+          "x": 0,
+          "y": 2,
+          "z": 1
+        },
+        {
+          "x": 1,
+          "y": 2,
+          "z": 1
+        },
+        {
+          "x": 2,
+          "y": 2,
+          "z": 1
+        },
+        {
+          "x": 0,
+          "y": 2,
+          "z": 2
+        }
+      ],
+      "given": {
+        "_generator": {
+          "seed": 11,
+          "sourceType": "GENERATED_PRACTICE",
+          "templateId": "lesson5-reveal-count",
+          "conceptTags": [
+            "HIDDEN_BLOCK",
+            "BLOCK_COUNT",
+            "SPATIAL_REASONING"
+          ],
+          "difficultyTier": "APPLICATION",
+          "generatorVersion": 1
+        },
+        "allowRotate": true
+      },
+      "choices": [],
+      "source_type": "BUILT_IN"
+    },
+    {
+      "id": "718f6892-3cf9-4181-90ee-8f1a8beee652",
+      "code": "GEN-L5-S595837-12",
+      "global": true,
+      "lesson": 5,
+      "order_index": 111,
+      "problem_type": "COUNT",
+      "title": "5차시 연습 12",
+      "prompt": "추가 정보를 받은 뒤 실제 개수를 구해 보세요.",
+      "grid_width": 3,
+      "grid_depth": 3,
+      "max_height": 3,
+      "given_blocks": [
+        {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 1
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 1
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 2
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 2
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 2
+        },
+        {
+          "x": 0,
+          "y": 2,
+          "z": 1
+        },
+        {
+          "x": 1,
+          "y": 2,
+          "z": 1
+        },
+        {
+          "x": 2,
+          "y": 2,
+          "z": 1
+        },
+        {
+          "x": 0,
+          "y": 2,
+          "z": 2
+        }
+      ],
+      "given": {
+        "_generator": {
+          "seed": 11,
+          "sourceType": "GENERATED_PRACTICE",
+          "templateId": "lesson5-reveal-count",
+          "conceptTags": [
+            "HIDDEN_BLOCK",
+            "BLOCK_COUNT",
+            "SPATIAL_REASONING"
+          ],
+          "difficultyTier": "APPLICATION",
+          "generatorVersion": 1
+        },
+        "allowRotate": true
+      },
+      "choices": [],
+      "source_type": "BUILT_IN"
+    },
+    {
+      "id": "b1247352-aab8-412a-8277-3008a510f0a3",
+      "code": "GEN-L5-S595837-13",
+      "global": true,
+      "lesson": 5,
+      "order_index": 112,
+      "problem_type": "CHOICE",
+      "title": "5차시 연습 13",
+      "prompt": "한 방향에서 본 모습만 보고 전체 개수를 정확히 알 수 있을까요?",
+      "grid_width": 3,
+      "grid_depth": 3,
+      "max_height": 3,
+      "given_blocks": [
+        {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 1
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 2
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 2
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 2
+        },
+        {
+          "x": 0,
+          "y": 2,
+          "z": 0
+        },
+        {
+          "x": 1,
+          "y": 2,
+          "z": 0
+        },
+        {
+          "x": 2,
+          "y": 2,
+          "z": 0
+        },
+        {
+          "x": 0,
+          "y": 2,
+          "z": 2
+        },
+        {
+          "x": 1,
+          "y": 2,
+          "z": 2
+        },
+        {
+          "x": 2,
+          "y": 2,
+          "z": 2
+        }
+      ],
+      "given": {
+        "note": "먼저 한 방향에서만 판단해 보세요.",
+        "_generator": {
+          "seed": 12,
+          "sourceType": "GENERATED_PRACTICE",
+          "templateId": "lesson5-unknown-choice",
+          "conceptTags": [
+            "HIDDEN_BLOCK",
+            "BLOCK_COUNT",
+            "SPATIAL_REASONING"
+          ],
+          "difficultyTier": "APPLICATION",
+          "generatorVersion": 1
+        },
+        "allowRotate": false
+      },
+      "choices": [
+        "이 정보만으로 정확히 알 수 있어요.",
+        "가려진 곳의 정보가 더 필요해요."
+      ],
+      "source_type": "BUILT_IN"
+    },
+    {
+      "id": "b145a1e6-064b-4f17-a56a-e038dc4432fe",
+      "code": "GEN-L5-S595837-13",
+      "global": true,
+      "lesson": 5,
+      "order_index": 112,
+      "problem_type": "CHOICE",
+      "title": "5차시 연습 13",
+      "prompt": "한 방향에서 본 모습만 보고 전체 개수를 정확히 알 수 있을까요?",
+      "grid_width": 3,
+      "grid_depth": 3,
+      "max_height": 3,
+      "given_blocks": [
+        {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 1
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 2
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 2
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 2
+        },
+        {
+          "x": 0,
+          "y": 2,
+          "z": 0
+        },
+        {
+          "x": 1,
+          "y": 2,
+          "z": 0
+        },
+        {
+          "x": 2,
+          "y": 2,
+          "z": 0
+        },
+        {
+          "x": 0,
+          "y": 2,
+          "z": 2
+        },
+        {
+          "x": 1,
+          "y": 2,
+          "z": 2
+        },
+        {
+          "x": 2,
+          "y": 2,
+          "z": 2
+        }
+      ],
+      "given": {
+        "note": "먼저 한 방향에서만 판단해 보세요.",
+        "_generator": {
+          "seed": 12,
+          "sourceType": "GENERATED_PRACTICE",
+          "templateId": "lesson5-unknown-choice",
+          "conceptTags": [
+            "HIDDEN_BLOCK",
+            "BLOCK_COUNT",
+            "SPATIAL_REASONING"
+          ],
+          "difficultyTier": "APPLICATION",
+          "generatorVersion": 1
+        },
+        "allowRotate": false
+      },
+      "choices": [
+        "이 정보만으로 정확히 알 수 있어요.",
+        "가려진 곳의 정보가 더 필요해요."
+      ],
+      "source_type": "BUILT_IN"
+    },
+    {
+      "id": "f159fb9a-af57-496f-a678-a7f23d712a7c",
+      "code": "GEN-L5-S595837-14",
+      "global": true,
+      "lesson": 5,
+      "order_index": 113,
+      "problem_type": "COUNT_AMBIGUOUS",
+      "title": "5차시 연습 14",
+      "prompt": "숨겨진 블록이 없다고 할 때 가능한 개수는 얼마일까요?",
+      "grid_width": 3,
+      "grid_depth": 3,
+      "max_height": 3,
+      "given_blocks": [
+        {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 1
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 1
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 2
+        },
+        {
+          "x": 0,
+          "y": 2,
+          "z": 0
+        },
+        {
+          "x": 1,
+          "y": 2,
+          "z": 0
+        },
+        {
+          "x": 2,
+          "y": 2,
+          "z": 0
+        },
+        {
+          "x": 0,
+          "y": 2,
+          "z": 1
+        }
+      ],
+      "given": {
+        "note": "먼저 한 방향에서만 판단해 보세요.",
+        "_generator": {
+          "seed": 13,
+          "sourceType": "GENERATED_PRACTICE",
+          "templateId": "lesson5-hidden-min",
+          "conceptTags": [
+            "HIDDEN_BLOCK",
+            "BLOCK_COUNT",
+            "SPATIAL_REASONING"
+          ],
+          "difficultyTier": "APPLICATION",
+          "generatorVersion": 1
+        },
+        "allowRotate": false
+      },
+      "choices": [],
+      "source_type": "BUILT_IN"
+    },
+    {
+      "id": "71bad35a-3a15-4681-b68e-e170a77fa475",
+      "code": "GEN-L5-S595837-14",
+      "global": true,
+      "lesson": 5,
+      "order_index": 113,
+      "problem_type": "COUNT_AMBIGUOUS",
+      "title": "5차시 연습 14",
+      "prompt": "숨겨진 블록이 없다고 할 때 가능한 개수는 얼마일까요?",
+      "grid_width": 3,
+      "grid_depth": 3,
+      "max_height": 3,
+      "given_blocks": [
+        {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 1
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 1
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 2
+        },
+        {
+          "x": 0,
+          "y": 2,
+          "z": 0
+        },
+        {
+          "x": 1,
+          "y": 2,
+          "z": 0
+        },
+        {
+          "x": 2,
+          "y": 2,
+          "z": 0
+        },
+        {
+          "x": 0,
+          "y": 2,
+          "z": 1
+        }
+      ],
+      "given": {
+        "note": "먼저 한 방향에서만 판단해 보세요.",
+        "_generator": {
+          "seed": 13,
+          "sourceType": "GENERATED_PRACTICE",
+          "templateId": "lesson5-hidden-min",
+          "conceptTags": [
+            "HIDDEN_BLOCK",
+            "BLOCK_COUNT",
+            "SPATIAL_REASONING"
+          ],
+          "difficultyTier": "APPLICATION",
+          "generatorVersion": 1
+        },
+        "allowRotate": false
+      },
+      "choices": [],
+      "source_type": "BUILT_IN"
+    },
+    {
+      "id": "88c61101-975e-468f-bef0-3f51f6f838fd",
+      "code": "GEN-L5-S595837-15",
+      "global": true,
+      "lesson": 5,
+      "order_index": 114,
+      "problem_type": "COUNT_AMBIGUOUS",
+      "title": "5차시 연습 15",
+      "prompt": "숨겨진 블록이 더 있을 때 가장 많아질 수 있는 개수는 얼마일까요?",
+      "grid_width": 3,
+      "grid_depth": 3,
+      "max_height": 3,
+      "given_blocks": [
+        {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 1
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 1
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 2
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 2
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 2
+        },
+        {
+          "x": 0,
+          "y": 2,
+          "z": 1
+        },
+        {
+          "x": 1,
+          "y": 2,
+          "z": 1
+        },
+        {
+          "x": 2,
+          "y": 2,
+          "z": 1
+        },
+        {
+          "x": 0,
+          "y": 2,
+          "z": 2
+        }
+      ],
+      "given": {
+        "note": "먼저 한 방향에서만 판단해 보세요.",
+        "_generator": {
+          "seed": 14,
+          "sourceType": "GENERATED_PRACTICE",
+          "templateId": "lesson5-hidden-max",
+          "conceptTags": [
+            "HIDDEN_BLOCK",
+            "BLOCK_COUNT",
+            "SPATIAL_REASONING"
+          ],
+          "difficultyTier": "APPLICATION",
+          "generatorVersion": 1
+        },
+        "allowRotate": false
+      },
+      "choices": [],
+      "source_type": "BUILT_IN"
+    },
+    {
+      "id": "64f2c566-655b-43f1-aa97-308e3323903c",
+      "code": "GEN-L5-S595837-15",
+      "global": true,
+      "lesson": 5,
+      "order_index": 114,
+      "problem_type": "COUNT_AMBIGUOUS",
+      "title": "5차시 연습 15",
+      "prompt": "숨겨진 블록이 더 있을 때 가장 많아질 수 있는 개수는 얼마일까요?",
+      "grid_width": 3,
+      "grid_depth": 3,
+      "max_height": 3,
+      "given_blocks": [
+        {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 1
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 1
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 2
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 2
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 2
+        },
+        {
+          "x": 0,
+          "y": 2,
+          "z": 1
+        },
+        {
+          "x": 1,
+          "y": 2,
+          "z": 1
+        },
+        {
+          "x": 2,
+          "y": 2,
+          "z": 1
+        },
+        {
+          "x": 0,
+          "y": 2,
+          "z": 2
+        }
+      ],
+      "given": {
+        "note": "먼저 한 방향에서만 판단해 보세요.",
+        "_generator": {
+          "seed": 14,
+          "sourceType": "GENERATED_PRACTICE",
+          "templateId": "lesson5-hidden-max",
+          "conceptTags": [
+            "HIDDEN_BLOCK",
+            "BLOCK_COUNT",
+            "SPATIAL_REASONING"
+          ],
+          "difficultyTier": "APPLICATION",
+          "generatorVersion": 1
+        },
+        "allowRotate": false
+      },
+      "choices": [],
+      "source_type": "BUILT_IN"
+    },
+    {
+      "id": "42ec996f-464a-4691-94b1-fa1288754f8d",
+      "code": "GEN-L5-S595837-16",
+      "global": true,
+      "lesson": 5,
+      "order_index": 115,
+      "problem_type": "CHOICE",
+      "title": "5차시 연습 16",
+      "prompt": "정확히 알려면 어떤 정보가 더 필요할까요?",
+      "grid_width": 3,
+      "grid_depth": 3,
+      "max_height": 3,
+      "given_blocks": [
+        {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 1
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 2
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 2
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 2
+        },
+        {
+          "x": 0,
+          "y": 2,
+          "z": 0
+        },
+        {
+          "x": 1,
+          "y": 2,
+          "z": 0
+        },
+        {
+          "x": 2,
+          "y": 2,
+          "z": 0
+        },
+        {
+          "x": 0,
+          "y": 2,
+          "z": 2
+        },
+        {
+          "x": 1,
+          "y": 2,
+          "z": 2
+        },
+        {
+          "x": 2,
+          "y": 2,
+          "z": 2
+        }
+      ],
+      "given": {
+        "note": "먼저 한 방향에서만 판단해 보세요.",
+        "_generator": {
+          "seed": 15,
+          "sourceType": "GENERATED_PRACTICE",
+          "templateId": "lesson5-extra-info",
+          "conceptTags": [
+            "HIDDEN_BLOCK",
+            "BLOCK_COUNT",
+            "SPATIAL_REASONING"
+          ],
+          "difficultyTier": "CHALLENGE",
+          "generatorVersion": 1
+        },
+        "allowRotate": false
+      },
+      "choices": [
+        "이 정보만으로 정확히 알 수 있어요.",
+        "가려진 곳의 정보가 더 필요해요."
+      ],
+      "source_type": "BUILT_IN"
+    },
+    {
+      "id": "535f798d-e72a-4729-a1c9-b7952a9ced9c",
+      "code": "GEN-L5-S595837-16",
+      "global": true,
+      "lesson": 5,
+      "order_index": 115,
+      "problem_type": "CHOICE",
+      "title": "5차시 연습 16",
+      "prompt": "정확히 알려면 어떤 정보가 더 필요할까요?",
+      "grid_width": 3,
+      "grid_depth": 3,
+      "max_height": 3,
+      "given_blocks": [
+        {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 1
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 2
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 2
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 2
+        },
+        {
+          "x": 0,
+          "y": 2,
+          "z": 0
+        },
+        {
+          "x": 1,
+          "y": 2,
+          "z": 0
+        },
+        {
+          "x": 2,
+          "y": 2,
+          "z": 0
+        },
+        {
+          "x": 0,
+          "y": 2,
+          "z": 2
+        },
+        {
+          "x": 1,
+          "y": 2,
+          "z": 2
+        },
+        {
+          "x": 2,
+          "y": 2,
+          "z": 2
+        }
+      ],
+      "given": {
+        "note": "먼저 한 방향에서만 판단해 보세요.",
+        "_generator": {
+          "seed": 15,
+          "sourceType": "GENERATED_PRACTICE",
+          "templateId": "lesson5-extra-info",
+          "conceptTags": [
+            "HIDDEN_BLOCK",
+            "BLOCK_COUNT",
+            "SPATIAL_REASONING"
+          ],
+          "difficultyTier": "CHALLENGE",
+          "generatorVersion": 1
+        },
+        "allowRotate": false
+      },
+      "choices": [
+        "이 정보만으로 정확히 알 수 있어요.",
+        "가려진 곳의 정보가 더 필요해요."
+      ],
+      "source_type": "BUILT_IN"
+    },
+    {
+      "id": "625457ec-af76-4706-908a-825e1d76aa7c",
+      "code": "GEN-L5-S595837-17",
+      "global": true,
+      "lesson": 5,
+      "order_index": 116,
+      "problem_type": "CHOICE",
+      "title": "5차시 연습 17",
+      "prompt": "한 방향에서 본 모습만 보고 전체 개수를 정확히 알 수 있을까요?",
+      "grid_width": 3,
+      "grid_depth": 3,
+      "max_height": 3,
+      "given_blocks": [
+        {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 1
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 1
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 2
+        },
+        {
+          "x": 0,
+          "y": 2,
+          "z": 0
+        },
+        {
+          "x": 1,
+          "y": 2,
+          "z": 0
+        },
+        {
+          "x": 2,
+          "y": 2,
+          "z": 0
+        },
+        {
+          "x": 0,
+          "y": 2,
+          "z": 1
+        }
+      ],
+      "given": {
+        "note": "먼저 한 방향에서만 판단해 보세요.",
+        "_generator": {
+          "seed": 16,
+          "sourceType": "GENERATED_PRACTICE",
+          "templateId": "lesson5-same-view",
+          "conceptTags": [
+            "HIDDEN_BLOCK",
+            "BLOCK_COUNT",
+            "SPATIAL_REASONING"
+          ],
+          "difficultyTier": "CHALLENGE",
+          "generatorVersion": 1
+        },
+        "allowRotate": false
+      },
+      "choices": [
+        "이 정보만으로 정확히 알 수 있어요.",
+        "가려진 곳의 정보가 더 필요해요."
+      ],
+      "source_type": "BUILT_IN"
+    },
+    {
+      "id": "892189ab-7d3f-43fc-bd2d-2b7ce85bcfef",
+      "code": "GEN-L5-S595837-17",
+      "global": true,
+      "lesson": 5,
+      "order_index": 116,
+      "problem_type": "CHOICE",
+      "title": "5차시 연습 17",
+      "prompt": "한 방향에서 본 모습만 보고 전체 개수를 정확히 알 수 있을까요?",
+      "grid_width": 3,
+      "grid_depth": 3,
+      "max_height": 3,
+      "given_blocks": [
+        {
+          "x": 0,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 0
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 1
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "z": 2
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 0
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 1
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "z": 1
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "z": 1
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "z": 2
+        },
+        {
+          "x": 0,
+          "y": 2,
+          "z": 0
+        },
+        {
+          "x": 1,
+          "y": 2,
+          "z": 0
+        },
+        {
+          "x": 2,
+          "y": 2,
+          "z": 0
+        },
+        {
+          "x": 0,
+          "y": 2,
+          "z": 1
+        }
+      ],
+      "given": {
+        "note": "먼저 한 방향에서만 판단해 보세요.",
+        "_generator": {
+          "seed": 16,
+          "sourceType": "GENERATED_PRACTICE",
+          "templateId": "lesson5-same-view",
+          "conceptTags": [
+            "HIDDEN_BLOCK",
+            "BLOCK_COUNT",
+            "SPATIAL_REASONING"
+          ],
+          "difficultyTier": "CHALLENGE",
+          "generatorVersion": 1
+        },
+        "allowRotate": false
+      },
+      "choices": [
+        "이 정보만으로 정확히 알 수 있어요.",
+        "가려진 곳의 정보가 더 필요해요."
+      ],
+      "source_type": "BUILT_IN"
+    }
+  ]
+}

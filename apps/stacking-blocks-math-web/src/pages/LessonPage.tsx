@@ -25,13 +25,15 @@ import {
   saveProblemPosition,
   type GradeFeedback,
   type StudentSubmissionPayload,
+  type LessonProblemListData,
 } from "../lib/studentApi";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { ProjectionGrid } from "../components/world/ProjectionGrid";
 import BlockWorld from "../components/world/BlockWorld";
 import { answerRendererFor } from "@shared/answerUi.ts";
-import { problemIndexForId } from "@shared/problemSession.ts";
+import { problemIndexForId, stageProblemIndex } from "@shared/problemSession.ts";
+import { getResolvedSupabaseConfig } from "../lib/config";
 
 import { draftKey, readDraft, writeDraft, acknowledgeDraft } from "../lib/snapshotDraft";
 import { duplicateTaskCount } from "../../shared/practiceTask";
@@ -110,11 +112,13 @@ type AnswerDraft = {
 };
 
 function stageCursorKey(lesson: number, stage: "concept" | "check" | "more") {
-  return `sb.lesson.${lesson}.${stage}.problem`;
+  const config=getResolvedSupabaseConfig();
+  const owner=draftKey(getStudentToken(),'lesson');
+  return `sb.lesson.v2.${encodeURIComponent(config?.supabaseUrl??'')}.${config?.installationId??''}.${owner??'signed-out'}.${lesson}.${stage}.problem`;
 }
 
 function stageAnswerKey(lesson: number, stage: "concept" | "check" | "more", problemId: string) {
-  return `sb.lesson.${lesson}.${stage}.${problemId}.answer`;
+  return `${stageCursorKey(lesson,stage)}.${problemId}.answer`;
 }
 
 function readStageCursor(lesson: number, stage: "concept" | "check" | "more") {
@@ -164,6 +168,7 @@ export default function LessonPage() {
   const [problemImage,setProblemImage]=useState("");
   const [problem, setProblem] = useState<StudentProblem | null>(null);
   const [seedMode, setSeedMode] = useState(false);
+  const [practiceSet, setPracticeSet] = useState<LessonProblemListData['practiceSet']>();
 
   const [blocks, setBlocks] = useState<StudentProblem["givenBlocks"]>([]);
   const [selection, setSelection] = useState<StudentProblem["givenBlocks"][number] | null>(null);
@@ -419,6 +424,7 @@ export default function LessonPage() {
 
         const parsed = list.problems ?? [];
         setSeedMode(list.seedFallback);
+        setPracticeSet(list.practiceSet);
         setProblems(parsed);
         setRequiredComplete(Boolean(list.requiredComplete));
         if (routeStage === "more" && !list.requiredComplete) {
@@ -432,7 +438,7 @@ export default function LessonPage() {
           const restoredStage = routeStage ?? restoredProblem?.stage ?? "concept";
           const stageProblems = parsed.filter(item => item.stage === restoredStage);
           const savedId = routeStage ? readStageCursor(lessonNum, restoredStage) : null;
-          const stageFirst = stageProblems.find(item => item.id === savedId) ?? stageProblems[0];
+          const stageFirst = stageProblems[stageProblemIndex(parsed,restoredStage,savedId,list.currentProblemId)];
           const selectedProblem = routeStage ? stageFirst ?? restoredProblem : restoredProblem;
           const restoredStageIndex = parsed
             .filter(item => item.stage === restoredStage)
@@ -444,15 +450,17 @@ export default function LessonPage() {
           setProblem(null);
         }
       } catch (err) {
+        if(cancelled) return;
         setMessage(err instanceof Error ? err.message : "문제를 불러오지 못했습니다.");
       } finally {
-        setLoading(false);
+        if(!cancelled) setLoading(false);
       }
     };
 
     boot();
     return () => {
       cancelled = true;
+      restoreToken.current++;
     };
   }, [lessonNum, navigate, routeStage]);
 
@@ -813,15 +821,21 @@ export default function LessonPage() {
                   if (!first.id.startsWith('seed:')) void saveProblemPosition(first.id, lessonNum);
                 }
               }}>유사 문제 풀기</button>
-              {duplicateTaskCount(problems.filter(item=>item.stage==='more'))>0 && <p role="status">이 문제 묶음에 같은 과제가 반복돼요. 기존 답안·XP는 보존됩니다. 원하면 ‘새 문제 더 풀기’로 다른 묶음을 시작할 수 있어요.</p>}
-              <button className="btn btn-sm" disabled={busy} onClick={async () => {
+              {practiceSet && <p>기본 추가활동 {practiceSet.supplementalCount}개 · 배정 연습 {practiceSet.targetCount}개 · 현재 연습 {practiceSet.generatedCount}개</p>}
+              {practiceSet?.awaitingReplacement && <p>이전에 요청한 새 묶음이 아직 준비되지 않아 이전 묶음을 유지하고 있어요. ‘새 문제 더 풀기’를 선택하면 기록을 보존하고 새 묶음으로 옮겨요.</p>}
+              {!practiceSet && <p>새 문제 묶음을 복원할 수 있는 서버인지 확인되지 않아 전환을 멈췄어요. 선생님께 문제 서버 업데이트를 요청해 주세요. 현재 답안과 기록은 보존돼요.</p>}
+              {(practiceSet?.requiresRepair || duplicateTaskCount(problems.filter(item=>item.stage==='more'))>0) && <p role="status">이 문제 묶음에 반복 과제가 있거나 새 묶음 전환이 끝나지 않았어요. 기존 답안·XP는 보존됩니다. {practiceSet?.contractVersion===2 ? '‘새 문제 더 풀기’로 수정된 묶음을 시작할 수 있어요.' : '수정된 문제 서버가 아직 연결되지 않았어요. 선생님께 서버 업데이트를 요청해 주세요.'}</p>}
+              <button className="btn btn-sm" disabled={busy || practiceSet?.contractVersion!==2} onClick={async () => {
                 if (!window.confirm('현재 묶음과 학습 기록을 보존하고 새 문제 묶음을 시작할까요?')) return;
-                await flushSnapshot();
                 setBusy(true);
                 try {
-                  await startNewPracticeSet(lessonNum);
+                  if(!practiceSet) return;
+                  await flushSnapshot();
+                  await startNewPracticeSet(lessonNum, practiceSet.seed);
                   const refreshed = await getLessonProblems(lessonNum);
+                  if(refreshed.practiceSet?.contractVersion!==2 || refreshed.practiceSet.seed===practiceSet?.seed) throw new Error('새 묶음으로 전환됐는지 확인하지 못했어요. 기존 기록은 보존돼요. 다시 접속해 확인해 주세요.');
                   setProblems(refreshed.problems);
+                  setPracticeSet(refreshed.practiceSet);
                   setRequiredComplete(Boolean(refreshed.requiredComplete));
                   setStageFilter('more');
                   setProblemIndex(0);

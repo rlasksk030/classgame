@@ -11,7 +11,7 @@ import {
 } from "../../../shared/types.ts";
 import { SEED_PROBLEMS } from "../../../shared/seedProblems.ts";
 import { generatePracticeProblems, recommendedPracticeCount } from "../../../shared/practiceGenerator.ts";
-import { generateValidatedPracticeSet, generatedProblemId, selectPracticeRows } from "../../../shared/practiceSet.ts";
+import { generateValidatedPracticeSet, generatedProblemId, selectPracticeRows, practiceSetStatus, isAssignedPracticeCode, practiceDisplaySeed } from "../../../shared/practiceSet.ts";
 import { conceptTagsForProblemType } from "../../../shared/problemMetadata.ts";
 import { deriveProblemPresentation } from "../../../shared/problemPresentation.ts";
 import { REWARD_CATALOG, rewardUnlocked, sanitizeMaterial, sanitizeTheme, type RewardMaterial, type RewardTheme } from "../../../shared/rewards.ts";
@@ -496,12 +496,32 @@ Deno.serve(async (req: Request) => {
 
     if (action !== "home" && action !== "rewards" && action !== "rewards:equip") {
       let targetLesson = toInt(body.lesson);
-      if (action !== "lessonProblems" && action !== "practice:new-set" && action !== "position") {
+      if (action !== "lessonProblems" && action !== "practice:new-set") {
         const targetId = text(body.problemId, 80);
-        const { data: target } = await db.from("sb_problems").select("lesson,active,class_id,grid_width,grid_depth,max_height")
+        const { data: target } = await db.from("sb_problems").select("code,lesson,active,class_id,grid_width,grid_depth,max_height")
           .eq("id", targetId).or(`class_id.eq.${studentSession.classId},class_id.is.null`).maybeSingle();
         if (!target || !target.active) return fail(404, "PROBLEM_NOT_FOUND", "문제를 찾을 수 없어요.");
         targetLesson = target.lesson;
+        if(String(target.code??'').startsWith('GEN-L')) {
+          const saved=await db.from("sb_student_progress").select("practice_seed").eq("student_id",studentSession.studentId).eq("lesson",target.lesson).maybeSingle();
+          if(saved.error) return fail(500,"PRACTICE_LOAD_FAILED","배정된 문제 묶음을 확인하지 못했어요.");
+          let assignedSeed=saved.data?.practice_seed??practiceSeedForStudent(studentSession.studentId,target.lesson);
+          const originalSeed=practiceSeedForStudent(studentSession.studentId,target.lesson);
+          if(assignedSeed!==originalSeed && isAssignedPracticeCode(target.code,target.lesson,originalSeed)) {
+            const prepared=await db.from("sb_problems").select("id").like("code",`GEN-L${target.lesson}-S${assignedSeed}-%`).eq("active",true).or(`class_id.eq.${studentSession.classId},class_id.is.null`).limit(1);
+            if(prepared.error) return fail(500,"PRACTICE_LOAD_FAILED","새 문제 묶음을 확인하지 못했어요.");
+            if(!prepared.data?.length) assignedSeed=originalSeed;
+          }
+          if(!isAssignedPracticeCode(target.code,target.lesson,assignedSeed)) {
+            // 이전 세트도 본인의 기존 풀이/작품 기록이 있을 때만 다시 접근한다.
+            const [attempt,snapshot]=await Promise.all([
+              db.from("sb_problem_attempts").select("problem_id").eq("student_id",studentSession.studentId).eq("problem_id",targetId).limit(1),
+              db.from("sb_block_snapshots").select("problem_id").eq("student_id",studentSession.studentId).eq("problem_id",targetId).limit(1),
+            ]);
+            if(attempt.error||snapshot.error) return fail(500,"PRACTICE_LOAD_FAILED","기존 학습 기록을 확인하지 못했어요.");
+            if(!attempt.data?.length&&!snapshot.data?.length) return fail(404,"PROBLEM_NOT_FOUND","현재 배정된 문제나 본인의 이전 학습 기록이 아닙니다.");
+          }
+        }
         if (action === "snapshot") {
           if (!validStructure(body.blocks as { x: number; y: number; z: number }[], { gridWidth: target.grid_width, gridDepth: target.grid_depth, maxHeight: target.max_height })) {
             return fail(400, "INVALID_BLOCKS", "올바른 블록 좌표가 아닙니다.");
@@ -649,21 +669,24 @@ Deno.serve(async (req: Request) => {
 
       if(problemLoadError) return fail(500,"PRACTICE_LOAD_FAILED","기존 문제 묶음을 확인하지 못했어요. 잠시 후 다시 시도해 주세요.");
 
-      const { data: lessonSetting } = await db.from("sb_lesson_settings").select("practice_count").eq("class_id", studentSession.classId).eq("lesson", lesson).maybeSingle();
+      const { data: lessonSetting, error: settingError } = await db.from("sb_lesson_settings").select("practice_count").eq("class_id", studentSession.classId).eq("lesson", lesson).maybeSingle();
+      if(settingError) return fail(500,"PRACTICE_LOAD_FAILED","선생님의 문제 배정량을 확인하지 못했어요.");
       const targetCount = [5,10,15,20].includes(Number(lessonSetting?.practice_count)) ? Number(lessonSetting?.practice_count) : recommendedPracticeCount(lesson);
       const {data: savedPractice, error: seedError}=await db.from("sb_student_progress").select("practice_seed").eq("student_id",studentSession.studentId).eq("lesson",lesson).maybeSingle();
       if(seedError) return fail(500,"PRACTICE_LOAD_FAILED","문제 묶음을 불러오지 못했어요. 기존 기록은 보존돼요.");
       const seed=savedPractice?.practice_seed ?? practiceSeedForStudent(studentSession.studentId,lesson);
-      await db.from("sb_student_progress").upsert({student_id:studentSession.studentId,lesson,practice_seed:seed},{onConflict:"student_id,lesson",ignoreDuplicates:true});
+      const seeded=await db.from("sb_student_progress").upsert({student_id:studentSession.studentId,lesson,practice_seed:seed},{onConflict:"student_id,lesson",ignoreDuplicates:true});
+      if(seeded.error) return fail(500,"PRACTICE_SAVE_FAILED","문제 묶음의 복원 정보를 저장하지 못했어요.");
       const allRows=(problemRows as DbProblemRow[]|null)??[];
+      const displayedSeed=practiceDisplaySeed(allRows,lesson,seed,practiceSeedForStudent(studentSession.studentId,lesson));
       const generatedPrefix=`GEN-L${lesson}-S${seed}-`;
-      const existingRows=selectPracticeRows(allRows,lesson,seed);
+      const existingRows=selectPracticeRows(allRows,lesson,displayedSeed);
       // 삽입이 없는 재조회에서도 원래 allRows를 반환하지 않는다.
       problemRows=existingRows as typeof problemRows;
       // 기존 세트는 개수·ID·시도 기록 그대로 보존. 신규 세트만 추가 배정량을 적용.
       const hasSavedSet=existingRows.some(row=>String(row.code??'').startsWith(generatedPrefix));
       let generated: ReturnType<typeof generatePracticeProblems>=[];
-      if(!hasSavedSet && [1,2,3,4,5,6,7,8,12].includes(lesson)) {
+      if(!hasSavedSet && displayedSeed===seed && [1,2,3,4,5,6,7,8,12].includes(lesson)) {
         try { generated=generateValidatedPracticeSet(lesson,targetCount,seed); }
         catch { return fail(409,"PRACTICE_SET_INSUFFICIENT","서로 다른 문제를 충분히 준비하지 못했어요. 기존 학습 기록은 보존돼요."); }
       }
@@ -673,6 +696,7 @@ Deno.serve(async (req: Request) => {
         const inserted=await db.from("sb_problems").upsert(inserts,{onConflict:"id",ignoreDuplicates:true});
         if(inserted.error) return fail(500,"PRACTICE_SAVE_FAILED","문제 묶음을 저장하지 못했어요. 잠시 후 다시 시도해 주세요.");
         const refreshed=await db.from("sb_problems").select("id,image_path, lesson, order_index, problem_type, title, prompt, grid_width, grid_depth, max_height, given_blocks, start_blocks, given, choices, answer, grading_mode, hint, explanation, difficulty, xp, active, code, class_id").or(`class_id.eq.${studentSession.classId},class_id.is.null`).eq("lesson",lesson).eq("active",true).order("order_index",{ascending:true});
+        if(refreshed.error) return fail(500,"PRACTICE_LOAD_FAILED","저장한 문제 묶음을 불러오지 못했어요. 다시 접속하면 이어서 확인할 수 있어요.");
         problemRows=(refreshed.data?.filter(row=>!String((row as DbProblemRow).code??'').startsWith('GEN-L')||String((row as DbProblemRow).code??'').startsWith(generatedPrefix))??null) as typeof problemRows;
       }
       const parsed=(problemRows as DbProblemRow[]|null)?.map(row=>parseProblemRow(row)).filter(Boolean)??[];
@@ -700,6 +724,7 @@ Deno.serve(async (req: Request) => {
         seedFallback: false,
         requiredComplete,
         currentProblemId: progressPosition?.last_problem_id ?? null,
+        practiceSet: practiceSetStatus((problemRows as DbProblemRow[]|null)??[],lesson,seed,targetCount,displayedSeed),
         stages,
       });
     }
@@ -735,9 +760,15 @@ Deno.serve(async (req: Request) => {
     if (action === "practice:new-set") {
       const lesson = toInt(body.lesson);
       if (!lesson || lesson < 1 || lesson > 12) return fail(400, "BAD_LESSON", "lesson 는 1~12 사이의 값이어야 합니다.");
-      const { data: setting } = await db.from("sb_lesson_settings").select("locked,practice_count").eq("class_id", studentSession.classId).eq("lesson", lesson).maybeSingle();
+      const { data: setting, error: settingError } = await db.from("sb_lesson_settings").select("locked,practice_count").eq("class_id", studentSession.classId).eq("lesson", lesson).maybeSingle();
+      if(settingError) return fail(500,"PRACTICE_LOAD_FAILED","선생님의 문제 배정량을 확인하지 못했어요.");
       if (setting?.locked ?? lesson !== 1) return fail(403, "LESSON_LOCKED", "선생님이 아직 열지 않은 차시예요.");
-      const { data: current } = await db.from("sb_student_progress").select("practice_seed").eq("student_id", studentSession.studentId).eq("lesson", lesson).maybeSingle();
+      const { data: current, error: currentError } = await db.from("sb_student_progress").select("practice_seed").eq("student_id", studentSession.studentId).eq("lesson", lesson).maybeSingle();
+      if(currentError) return fail(500,"PRACTICE_LOAD_FAILED","현재 묶음을 확인하지 못해 새 묶음 전환을 멈췄어요. 기존 기록은 유지됩니다.");
+      const expectedSeed=Number(body.expectedSeed);
+      if(typeof body.expectedSeed!=="number" || !Number.isInteger(expectedSeed) || expectedSeed<0 || expectedSeed>=1000000 || current?.practice_seed==null) return fail(409,"PRACTICE_SET_REFRESH_REQUIRED","현재 문제 묶음을 다시 불러온 뒤 시작해 주세요.");
+      // 같은 화면에서 발생한 이중 클릭/응답 유실 재전송은 이미 시작한 세트로 연결한다.
+      if(Number(current.practice_seed)!==expectedSeed) return ok({seed:Number(current.practice_seed),alreadyStarted:true});
       const nextSeed = (Number(current?.practice_seed ?? practiceSeedForStudent(studentSession.studentId, lesson)) + 7919) % 1000000;
       const count=[5,10,15,20].includes(Number(setting?.practice_count))?Number(setting?.practice_count):recommendedPracticeCount(lesson);
       let nextSet:ReturnType<typeof generatePracticeProblems>;
@@ -746,8 +777,13 @@ Deno.serve(async (req: Request) => {
       const preparedRows=await Promise.all(nextSet.map(async item=>({...generatedInsertRow(item),id:await generatedProblemId(item.code)})));
       const prepared=await db.from("sb_problems").upsert(preparedRows,{onConflict:"id",ignoreDuplicates:true});
       if(prepared.error) return fail(500,"PRACTICE_SAVE_FAILED","새 문제 저장에 실패했어요. 현재 세트는 그대로예요.");
-      const { error } = await db.from("sb_student_progress").upsert({ student_id: studentSession.studentId, lesson, practice_seed: nextSeed }, { onConflict: "student_id,lesson" });
+      const { data: switched, error } = await db.from("sb_student_progress").update({practice_seed:nextSeed}).eq("student_id",studentSession.studentId).eq("lesson",lesson).eq("practice_seed",expectedSeed).select("practice_seed").maybeSingle();
       if (error) return fail(500, "PRACTICE_SAVE_FAILED", "새 문제 세트를 준비하지 못했습니다. 먼저 연습 설정 migration을 적용해 주세요.");
+      if(!switched) {
+        const latest=await db.from("sb_student_progress").select("practice_seed").eq("student_id",studentSession.studentId).eq("lesson",lesson).maybeSingle();
+        if(latest.error||latest.data?.practice_seed==null) return fail(409,"PRACTICE_SET_REFRESH_REQUIRED","현재 문제 묶음을 다시 불러와 주세요. 기록은 보존돼요.");
+        return ok({seed:Number(latest.data.practice_seed),alreadyStarted:true});
+      }
       return ok({ seed: nextSeed });
     }
 

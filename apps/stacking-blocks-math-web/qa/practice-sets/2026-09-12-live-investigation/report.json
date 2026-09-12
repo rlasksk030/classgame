@@ -1,0 +1,1744 @@
+{
+  "at": "2026-09-12T12:28:50.323Z",
+  "localHead": "875229ab7bf45ce40b8dd1ce882d88422e368ebe",
+  "workingTree": true,
+  "remoteFunctionVersion": 4,
+  "remoteFunctionSha256": "d746eef83edbaedf647e5a83ed89da92ac0df36f5921f38f2385d520825329a2",
+  "observedUrl": "http://localhost:5173/lesson/5/practice",
+  "frontendCommit": "UNVERIFIED: Vite HMR /src/main.tsx?t=1789213194505; no build commit marker",
+  "before": {
+    "rows": [
+      {
+        "order": 1,
+        "dbProblemId": "7e43aa25-5359-449c-8de5-fb73cabe8768",
+        "code": "L5-03",
+        "title": "정보를 더 받고 다시 구하기",
+        "prompt": "이번에는 위에서 본 모양의 숫자 지도를 함께 줍니다.\n쌓기나무는 모두 몇 개인가요?",
+        "given": {
+          "heightMap": [
+            [
+              2,
+              1,
+              3,
+              0
+            ],
+            [
+              1,
+              2,
+              2,
+              0
+            ],
+            [
+              0,
+              1,
+              1,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0
+            ]
+          ],
+          "allowRotate": true,
+          "projections": {
+            "front": [
+              [
+                true,
+                true,
+                true,
+                false
+              ],
+              [
+                true,
+                true,
+                true,
+                false
+              ],
+              [
+                false,
+                false,
+                true,
+                false
+              ],
+              [
+                false,
+                false,
+                false,
+                false
+              ]
+            ]
+          },
+          "allowLayerView": true
+        },
+        "input": "NUMBER",
+        "duplicateOf": null,
+        "screenTitleObserved": "정보를 더 받고 다시 구하기",
+        "screenPositionObserved": "1 / 35",
+        "screenOrderWithinEqualCode": "UNRESOLVED: two DB IDs share identical order/code; DOM has no ID",
+        "renderStatus": "OBSERVED_LIVE",
+        "gradeStatus": "NOT_RUN"
+      },
+      {
+        "order": 2,
+        "dbProblemId": "2826f722-db44-4b6b-b382-1e846774f238",
+        "code": "GEN-L5-S595837-01",
+        "title": "5차시 연습 1",
+        "prompt": "한 방향에서 본 모습만 보고 전체 개수를 정확히 알 수 있을까요?",
+        "given": {
+          "note": "먼저 한 방향에서만 판단해 보세요.",
+          "_generator": {
+            "seed": 0,
+            "sourceType": "GENERATED_PRACTICE",
+            "templateId": "lesson5-unknown-choice",
+            "conceptTags": [
+              "HIDDEN_BLOCK",
+              "BLOCK_COUNT",
+              "SPATIAL_REASONING"
+            ],
+            "difficultyTier": "BASIC",
+            "generatorVersion": 1
+          },
+          "allowRotate": false
+        },
+        "input": "CHOICE",
+        "duplicateOf": null,
+        "screenTitleObserved": "5차시 연습 1",
+        "screenPositionObserved": "2 / 35",
+        "screenOrderWithinEqualCode": "UNRESOLVED: two DB IDs share identical order/code; DOM has no ID",
+        "renderStatus": "OBSERVED_LIVE",
+        "gradeStatus": "NOT_RUN"
+      },
+      {
+        "order": 3,
+        "dbProblemId": "a7be777f-b3ac-4a90-9a6a-9bd525b2af24",
+        "code": "GEN-L5-S595837-01",
+        "title": "5차시 연습 1",
+        "prompt": "한 방향에서 본 모습만 보고 전체 개수를 정확히 알 수 있을까요?",
+        "given": {
+          "note": "먼저 한 방향에서만 판단해 보세요.",
+          "_generator": {
+            "seed": 0,
+            "sourceType": "GENERATED_PRACTICE",
+            "templateId": "lesson5-unknown-choice",
+            "conceptTags": [
+              "HIDDEN_BLOCK",
+              "BLOCK_COUNT",
+              "SPATIAL_REASONING"
+            ],
+            "difficultyTier": "BASIC",
+            "generatorVersion": 1
+          },
+          "allowRotate": false
+        },
+        "input": "CHOICE",
+        "duplicateOf": 2,
+        "screenTitleObserved": "5차시 연습 1",
+        "screenPositionObserved": "3 / 35",
+        "screenOrderWithinEqualCode": "UNRESOLVED: two DB IDs share identical order/code; DOM has no ID",
+        "renderStatus": "OBSERVED_LIVE",
+        "gradeStatus": "NOT_RUN"
+      },
+      {
+        "order": 4,
+        "dbProblemId": "b4725e54-fea1-4f99-88a5-a626203e985e",
+        "code": "GEN-L5-S595837-02",
+        "title": "5차시 연습 2",
+        "prompt": "숨겨진 블록이 없다고 할 때 가능한 개수는 얼마일까요?",
+        "given": {
+          "note": "먼저 한 방향에서만 판단해 보세요.",
+          "_generator": {
+            "seed": 1,
+            "sourceType": "GENERATED_PRACTICE",
+            "templateId": "lesson5-hidden-min",
+            "conceptTags": [
+              "HIDDEN_BLOCK",
+              "BLOCK_COUNT",
+              "SPATIAL_REASONING"
+            ],
+            "difficultyTier": "BASIC",
+            "generatorVersion": 1
+          },
+          "allowRotate": false
+        },
+        "input": "NUMBER",
+        "duplicateOf": null,
+        "screenTitleObserved": "5차시 연습 2",
+        "screenPositionObserved": "4 / 35",
+        "screenOrderWithinEqualCode": "UNRESOLVED: two DB IDs share identical order/code; DOM has no ID",
+        "renderStatus": "OBSERVED_LIVE",
+        "gradeStatus": "NOT_RUN"
+      },
+      {
+        "order": 5,
+        "dbProblemId": "b93c6d90-509b-4177-a512-c23742d3381e",
+        "code": "GEN-L5-S595837-02",
+        "title": "5차시 연습 2",
+        "prompt": "숨겨진 블록이 없다고 할 때 가능한 개수는 얼마일까요?",
+        "given": {
+          "note": "먼저 한 방향에서만 판단해 보세요.",
+          "_generator": {
+            "seed": 1,
+            "sourceType": "GENERATED_PRACTICE",
+            "templateId": "lesson5-hidden-min",
+            "conceptTags": [
+              "HIDDEN_BLOCK",
+              "BLOCK_COUNT",
+              "SPATIAL_REASONING"
+            ],
+            "difficultyTier": "BASIC",
+            "generatorVersion": 1
+          },
+          "allowRotate": false
+        },
+        "input": "NUMBER",
+        "duplicateOf": 4,
+        "screenTitleObserved": "5차시 연습 2",
+        "screenPositionObserved": "5 / 35",
+        "screenOrderWithinEqualCode": "UNRESOLVED: two DB IDs share identical order/code; DOM has no ID",
+        "renderStatus": "OBSERVED_LIVE",
+        "gradeStatus": "NOT_RUN"
+      },
+      {
+        "order": 6,
+        "dbProblemId": "ebc40b8e-0b56-46bf-add5-609fa57375f4",
+        "code": "GEN-L5-S595837-03",
+        "title": "5차시 연습 3",
+        "prompt": "숨겨진 블록이 더 있을 때 가장 많아질 수 있는 개수는 얼마일까요?",
+        "given": {
+          "note": "먼저 한 방향에서만 판단해 보세요.",
+          "_generator": {
+            "seed": 2,
+            "sourceType": "GENERATED_PRACTICE",
+            "templateId": "lesson5-hidden-max",
+            "conceptTags": [
+              "HIDDEN_BLOCK",
+              "BLOCK_COUNT",
+              "SPATIAL_REASONING"
+            ],
+            "difficultyTier": "BASIC",
+            "generatorVersion": 1
+          },
+          "allowRotate": false
+        },
+        "input": "NUMBER",
+        "duplicateOf": null,
+        "screenTitleObserved": "5차시 연습 3",
+        "screenPositionObserved": "6 / 35",
+        "screenOrderWithinEqualCode": "UNRESOLVED: two DB IDs share identical order/code; DOM has no ID",
+        "renderStatus": "OBSERVED_LIVE",
+        "gradeStatus": "NOT_RUN"
+      },
+      {
+        "order": 7,
+        "dbProblemId": "82229f39-b01c-434f-86a8-49935f38604f",
+        "code": "GEN-L5-S595837-03",
+        "title": "5차시 연습 3",
+        "prompt": "숨겨진 블록이 더 있을 때 가장 많아질 수 있는 개수는 얼마일까요?",
+        "given": {
+          "note": "먼저 한 방향에서만 판단해 보세요.",
+          "_generator": {
+            "seed": 2,
+            "sourceType": "GENERATED_PRACTICE",
+            "templateId": "lesson5-hidden-max",
+            "conceptTags": [
+              "HIDDEN_BLOCK",
+              "BLOCK_COUNT",
+              "SPATIAL_REASONING"
+            ],
+            "difficultyTier": "BASIC",
+            "generatorVersion": 1
+          },
+          "allowRotate": false
+        },
+        "input": "NUMBER",
+        "duplicateOf": 6,
+        "screenTitleObserved": "5차시 연습 3",
+        "screenPositionObserved": "7 / 35",
+        "screenOrderWithinEqualCode": "UNRESOLVED: two DB IDs share identical order/code; DOM has no ID",
+        "renderStatus": "OBSERVED_LIVE",
+        "gradeStatus": "NOT_RUN"
+      },
+      {
+        "order": 8,
+        "dbProblemId": "2ee4d146-44fd-4100-b0c9-43ecf21d040c",
+        "code": "GEN-L5-S595837-04",
+        "title": "5차시 연습 4",
+        "prompt": "정확히 알려면 어떤 정보가 더 필요할까요?",
+        "given": {
+          "note": "먼저 한 방향에서만 판단해 보세요.",
+          "_generator": {
+            "seed": 3,
+            "sourceType": "GENERATED_PRACTICE",
+            "templateId": "lesson5-extra-info",
+            "conceptTags": [
+              "HIDDEN_BLOCK",
+              "BLOCK_COUNT",
+              "SPATIAL_REASONING"
+            ],
+            "difficultyTier": "BASIC",
+            "generatorVersion": 1
+          },
+          "allowRotate": false
+        },
+        "input": "CHOICE",
+        "duplicateOf": null,
+        "screenTitleObserved": "5차시 연습 4",
+        "screenPositionObserved": "8 / 35",
+        "screenOrderWithinEqualCode": "UNRESOLVED: two DB IDs share identical order/code; DOM has no ID",
+        "renderStatus": "OBSERVED_LIVE",
+        "gradeStatus": "NOT_RUN"
+      },
+      {
+        "order": 9,
+        "dbProblemId": "e4f2c78a-54f3-4c22-bc33-97be9223466c",
+        "code": "GEN-L5-S595837-04",
+        "title": "5차시 연습 4",
+        "prompt": "정확히 알려면 어떤 정보가 더 필요할까요?",
+        "given": {
+          "note": "먼저 한 방향에서만 판단해 보세요.",
+          "_generator": {
+            "seed": 3,
+            "sourceType": "GENERATED_PRACTICE",
+            "templateId": "lesson5-extra-info",
+            "conceptTags": [
+              "HIDDEN_BLOCK",
+              "BLOCK_COUNT",
+              "SPATIAL_REASONING"
+            ],
+            "difficultyTier": "BASIC",
+            "generatorVersion": 1
+          },
+          "allowRotate": false
+        },
+        "input": "CHOICE",
+        "duplicateOf": 8,
+        "screenTitleObserved": "5차시 연습 4",
+        "screenPositionObserved": "9 / 35",
+        "screenOrderWithinEqualCode": "UNRESOLVED: two DB IDs share identical order/code; DOM has no ID",
+        "renderStatus": "OBSERVED_LIVE",
+        "gradeStatus": "NOT_RUN"
+      },
+      {
+        "order": 10,
+        "dbProblemId": "1ce399ed-9ad7-40d4-9aee-e9cc60619972",
+        "code": "GEN-L5-S595837-05",
+        "title": "5차시 연습 5",
+        "prompt": "한 방향에서 본 모습만 보고 전체 개수를 정확히 알 수 있을까요?",
+        "given": {
+          "note": "먼저 한 방향에서만 판단해 보세요.",
+          "_generator": {
+            "seed": 4,
+            "sourceType": "GENERATED_PRACTICE",
+            "templateId": "lesson5-same-view",
+            "conceptTags": [
+              "HIDDEN_BLOCK",
+              "BLOCK_COUNT",
+              "SPATIAL_REASONING"
+            ],
+            "difficultyTier": "BASIC",
+            "generatorVersion": 1
+          },
+          "allowRotate": false
+        },
+        "input": "CHOICE",
+        "duplicateOf": 2,
+        "screenTitleObserved": "5차시 연습 5",
+        "screenPositionObserved": "10 / 35",
+        "screenOrderWithinEqualCode": "UNRESOLVED: two DB IDs share identical order/code; DOM has no ID",
+        "renderStatus": "OBSERVED_LIVE",
+        "gradeStatus": "NOT_RUN"
+      },
+      {
+        "order": 11,
+        "dbProblemId": "67350577-408c-42dc-adb1-51f2ddb6c119",
+        "code": "GEN-L5-S595837-05",
+        "title": "5차시 연습 5",
+        "prompt": "한 방향에서 본 모습만 보고 전체 개수를 정확히 알 수 있을까요?",
+        "given": {
+          "note": "먼저 한 방향에서만 판단해 보세요.",
+          "_generator": {
+            "seed": 4,
+            "sourceType": "GENERATED_PRACTICE",
+            "templateId": "lesson5-same-view",
+            "conceptTags": [
+              "HIDDEN_BLOCK",
+              "BLOCK_COUNT",
+              "SPATIAL_REASONING"
+            ],
+            "difficultyTier": "BASIC",
+            "generatorVersion": 1
+          },
+          "allowRotate": false
+        },
+        "input": "CHOICE",
+        "duplicateOf": 2,
+        "screenTitleObserved": "5차시 연습 5",
+        "screenPositionObserved": "11 / 35",
+        "screenOrderWithinEqualCode": "UNRESOLVED: two DB IDs share identical order/code; DOM has no ID",
+        "renderStatus": "OBSERVED_LIVE",
+        "gradeStatus": "NOT_RUN"
+      },
+      {
+        "order": 12,
+        "dbProblemId": "a1680c1e-8a6d-4043-a080-bf1200ca5a59",
+        "code": "GEN-L5-S595837-06",
+        "title": "5차시 연습 6",
+        "prompt": "추가 정보를 받은 뒤 실제 개수를 구해 보세요.",
+        "given": {
+          "_generator": {
+            "seed": 5,
+            "sourceType": "GENERATED_PRACTICE",
+            "templateId": "lesson5-reveal-count",
+            "conceptTags": [
+              "HIDDEN_BLOCK",
+              "BLOCK_COUNT",
+              "SPATIAL_REASONING"
+            ],
+            "difficultyTier": "PRACTICE",
+            "generatorVersion": 1
+          },
+          "allowRotate": true
+        },
+        "input": "NUMBER",
+        "duplicateOf": null,
+        "screenTitleObserved": "5차시 연습 6",
+        "screenPositionObserved": "12 / 35",
+        "screenOrderWithinEqualCode": "UNRESOLVED: two DB IDs share identical order/code; DOM has no ID",
+        "renderStatus": "OBSERVED_LIVE",
+        "gradeStatus": "NOT_RUN"
+      },
+      {
+        "order": 13,
+        "dbProblemId": "0d426b06-9cad-4d2b-953b-e42e6c8e3bfc",
+        "code": "GEN-L5-S595837-06",
+        "title": "5차시 연습 6",
+        "prompt": "추가 정보를 받은 뒤 실제 개수를 구해 보세요.",
+        "given": {
+          "_generator": {
+            "seed": 5,
+            "sourceType": "GENERATED_PRACTICE",
+            "templateId": "lesson5-reveal-count",
+            "conceptTags": [
+              "HIDDEN_BLOCK",
+              "BLOCK_COUNT",
+              "SPATIAL_REASONING"
+            ],
+            "difficultyTier": "PRACTICE",
+            "generatorVersion": 1
+          },
+          "allowRotate": true
+        },
+        "input": "NUMBER",
+        "duplicateOf": 12,
+        "screenTitleObserved": "5차시 연습 6",
+        "screenPositionObserved": "13 / 35",
+        "screenOrderWithinEqualCode": "UNRESOLVED: two DB IDs share identical order/code; DOM has no ID",
+        "renderStatus": "OBSERVED_LIVE",
+        "gradeStatus": "NOT_RUN"
+      },
+      {
+        "order": 14,
+        "dbProblemId": "e19b3522-9449-48aa-be29-8dd4d575084b",
+        "code": "GEN-L5-S595837-07",
+        "title": "5차시 연습 7",
+        "prompt": "한 방향에서 본 모습만 보고 전체 개수를 정확히 알 수 있을까요?",
+        "given": {
+          "note": "먼저 한 방향에서만 판단해 보세요.",
+          "_generator": {
+            "seed": 6,
+            "sourceType": "GENERATED_PRACTICE",
+            "templateId": "lesson5-unknown-choice",
+            "conceptTags": [
+              "HIDDEN_BLOCK",
+              "BLOCK_COUNT",
+              "SPATIAL_REASONING"
+            ],
+            "difficultyTier": "PRACTICE",
+            "generatorVersion": 1
+          },
+          "allowRotate": false
+        },
+        "input": "CHOICE",
+        "duplicateOf": 2,
+        "screenTitleObserved": "5차시 연습 7",
+        "screenPositionObserved": "14 / 35",
+        "screenOrderWithinEqualCode": "UNRESOLVED: two DB IDs share identical order/code; DOM has no ID",
+        "renderStatus": "OBSERVED_LIVE",
+        "gradeStatus": "NOT_RUN"
+      },
+      {
+        "order": 15,
+        "dbProblemId": "2a6a1834-efa1-48f8-8115-81b8adbe0393",
+        "code": "GEN-L5-S595837-07",
+        "title": "5차시 연습 7",
+        "prompt": "한 방향에서 본 모습만 보고 전체 개수를 정확히 알 수 있을까요?",
+        "given": {
+          "note": "먼저 한 방향에서만 판단해 보세요.",
+          "_generator": {
+            "seed": 6,
+            "sourceType": "GENERATED_PRACTICE",
+            "templateId": "lesson5-unknown-choice",
+            "conceptTags": [
+              "HIDDEN_BLOCK",
+              "BLOCK_COUNT",
+              "SPATIAL_REASONING"
+            ],
+            "difficultyTier": "PRACTICE",
+            "generatorVersion": 1
+          },
+          "allowRotate": false
+        },
+        "input": "CHOICE",
+        "duplicateOf": 2,
+        "screenTitleObserved": "5차시 연습 7",
+        "screenPositionObserved": "15 / 35",
+        "screenOrderWithinEqualCode": "UNRESOLVED: two DB IDs share identical order/code; DOM has no ID",
+        "renderStatus": "OBSERVED_LIVE",
+        "gradeStatus": "NOT_RUN"
+      },
+      {
+        "order": 16,
+        "dbProblemId": "ad58b970-bbb1-4702-8931-66423d400571",
+        "code": "GEN-L5-S595837-08",
+        "title": "5차시 연습 8",
+        "prompt": "숨겨진 블록이 없다고 할 때 가능한 개수는 얼마일까요?",
+        "given": {
+          "note": "먼저 한 방향에서만 판단해 보세요.",
+          "_generator": {
+            "seed": 7,
+            "sourceType": "GENERATED_PRACTICE",
+            "templateId": "lesson5-hidden-min",
+            "conceptTags": [
+              "HIDDEN_BLOCK",
+              "BLOCK_COUNT",
+              "SPATIAL_REASONING"
+            ],
+            "difficultyTier": "PRACTICE",
+            "generatorVersion": 1
+          },
+          "allowRotate": false
+        },
+        "input": "NUMBER",
+        "duplicateOf": 4,
+        "screenTitleObserved": "5차시 연습 8",
+        "screenPositionObserved": "16 / 35",
+        "screenOrderWithinEqualCode": "UNRESOLVED: two DB IDs share identical order/code; DOM has no ID",
+        "renderStatus": "OBSERVED_LIVE",
+        "gradeStatus": "NOT_RUN"
+      },
+      {
+        "order": 17,
+        "dbProblemId": "6d2cd25f-0b9a-4581-9274-dc1534bba986",
+        "code": "GEN-L5-S595837-08",
+        "title": "5차시 연습 8",
+        "prompt": "숨겨진 블록이 없다고 할 때 가능한 개수는 얼마일까요?",
+        "given": {
+          "note": "먼저 한 방향에서만 판단해 보세요.",
+          "_generator": {
+            "seed": 7,
+            "sourceType": "GENERATED_PRACTICE",
+            "templateId": "lesson5-hidden-min",
+            "conceptTags": [
+              "HIDDEN_BLOCK",
+              "BLOCK_COUNT",
+              "SPATIAL_REASONING"
+            ],
+            "difficultyTier": "PRACTICE",
+            "generatorVersion": 1
+          },
+          "allowRotate": false
+        },
+        "input": "NUMBER",
+        "duplicateOf": 4,
+        "screenTitleObserved": "5차시 연습 8",
+        "screenPositionObserved": "17 / 35",
+        "screenOrderWithinEqualCode": "UNRESOLVED: two DB IDs share identical order/code; DOM has no ID",
+        "renderStatus": "OBSERVED_LIVE",
+        "gradeStatus": "NOT_RUN"
+      },
+      {
+        "order": 18,
+        "dbProblemId": "5c0fed3d-f792-4835-b0ef-1c76aca5303b",
+        "code": "GEN-L5-S595837-09",
+        "title": "5차시 연습 9",
+        "prompt": "숨겨진 블록이 더 있을 때 가장 많아질 수 있는 개수는 얼마일까요?",
+        "given": {
+          "note": "먼저 한 방향에서만 판단해 보세요.",
+          "_generator": {
+            "seed": 8,
+            "sourceType": "GENERATED_PRACTICE",
+            "templateId": "lesson5-hidden-max",
+            "conceptTags": [
+              "HIDDEN_BLOCK",
+              "BLOCK_COUNT",
+              "SPATIAL_REASONING"
+            ],
+            "difficultyTier": "PRACTICE",
+            "generatorVersion": 1
+          },
+          "allowRotate": false
+        },
+        "input": "NUMBER",
+        "duplicateOf": 6,
+        "screenTitleObserved": "5차시 연습 9",
+        "screenPositionObserved": "18 / 35",
+        "screenOrderWithinEqualCode": "UNRESOLVED: two DB IDs share identical order/code; DOM has no ID",
+        "renderStatus": "OBSERVED_LIVE",
+        "gradeStatus": "NOT_RUN"
+      },
+      {
+        "order": 19,
+        "dbProblemId": "4ca8275b-1e5c-42d1-883b-752e6bebbad6",
+        "code": "GEN-L5-S595837-09",
+        "title": "5차시 연습 9",
+        "prompt": "숨겨진 블록이 더 있을 때 가장 많아질 수 있는 개수는 얼마일까요?",
+        "given": {
+          "note": "먼저 한 방향에서만 판단해 보세요.",
+          "_generator": {
+            "seed": 8,
+            "sourceType": "GENERATED_PRACTICE",
+            "templateId": "lesson5-hidden-max",
+            "conceptTags": [
+              "HIDDEN_BLOCK",
+              "BLOCK_COUNT",
+              "SPATIAL_REASONING"
+            ],
+            "difficultyTier": "PRACTICE",
+            "generatorVersion": 1
+          },
+          "allowRotate": false
+        },
+        "input": "NUMBER",
+        "duplicateOf": 6,
+        "screenTitleObserved": "5차시 연습 9",
+        "screenPositionObserved": "19 / 35",
+        "screenOrderWithinEqualCode": "UNRESOLVED: two DB IDs share identical order/code; DOM has no ID",
+        "renderStatus": "OBSERVED_LIVE",
+        "gradeStatus": "NOT_RUN"
+      },
+      {
+        "order": 20,
+        "dbProblemId": "ca227f45-939b-4a56-8d03-b5f74e3320aa",
+        "code": "GEN-L5-S595837-10",
+        "title": "5차시 연습 10",
+        "prompt": "정확히 알려면 어떤 정보가 더 필요할까요?",
+        "given": {
+          "note": "먼저 한 방향에서만 판단해 보세요.",
+          "_generator": {
+            "seed": 9,
+            "sourceType": "GENERATED_PRACTICE",
+            "templateId": "lesson5-extra-info",
+            "conceptTags": [
+              "HIDDEN_BLOCK",
+              "BLOCK_COUNT",
+              "SPATIAL_REASONING"
+            ],
+            "difficultyTier": "PRACTICE",
+            "generatorVersion": 1
+          },
+          "allowRotate": false
+        },
+        "input": "CHOICE",
+        "duplicateOf": 8,
+        "screenTitleObserved": "5차시 연습 10",
+        "screenPositionObserved": "20 / 35",
+        "screenOrderWithinEqualCode": "UNRESOLVED: two DB IDs share identical order/code; DOM has no ID",
+        "renderStatus": "OBSERVED_LIVE",
+        "gradeStatus": "NOT_RUN"
+      },
+      {
+        "order": 21,
+        "dbProblemId": "5b17a549-2455-448a-9582-a917d4bdb156",
+        "code": "GEN-L5-S595837-10",
+        "title": "5차시 연습 10",
+        "prompt": "정확히 알려면 어떤 정보가 더 필요할까요?",
+        "given": {
+          "note": "먼저 한 방향에서만 판단해 보세요.",
+          "_generator": {
+            "seed": 9,
+            "sourceType": "GENERATED_PRACTICE",
+            "templateId": "lesson5-extra-info",
+            "conceptTags": [
+              "HIDDEN_BLOCK",
+              "BLOCK_COUNT",
+              "SPATIAL_REASONING"
+            ],
+            "difficultyTier": "PRACTICE",
+            "generatorVersion": 1
+          },
+          "allowRotate": false
+        },
+        "input": "CHOICE",
+        "duplicateOf": 8,
+        "screenTitleObserved": "5차시 연습 10",
+        "screenPositionObserved": "21 / 35",
+        "screenOrderWithinEqualCode": "UNRESOLVED: two DB IDs share identical order/code; DOM has no ID",
+        "renderStatus": "OBSERVED_LIVE",
+        "gradeStatus": "NOT_RUN"
+      },
+      {
+        "order": 22,
+        "dbProblemId": "675a604b-9ba8-4441-81a4-a3fba565e75b",
+        "code": "GEN-L5-S595837-11",
+        "title": "5차시 연습 11",
+        "prompt": "한 방향에서 본 모습만 보고 전체 개수를 정확히 알 수 있을까요?",
+        "given": {
+          "note": "먼저 한 방향에서만 판단해 보세요.",
+          "_generator": {
+            "seed": 10,
+            "sourceType": "GENERATED_PRACTICE",
+            "templateId": "lesson5-same-view",
+            "conceptTags": [
+              "HIDDEN_BLOCK",
+              "BLOCK_COUNT",
+              "SPATIAL_REASONING"
+            ],
+            "difficultyTier": "APPLICATION",
+            "generatorVersion": 1
+          },
+          "allowRotate": false
+        },
+        "input": "CHOICE",
+        "duplicateOf": 2,
+        "screenTitleObserved": "5차시 연습 11",
+        "screenPositionObserved": "22 / 35",
+        "screenOrderWithinEqualCode": "UNRESOLVED: two DB IDs share identical order/code; DOM has no ID",
+        "renderStatus": "OBSERVED_LIVE",
+        "gradeStatus": "NOT_RUN"
+      },
+      {
+        "order": 23,
+        "dbProblemId": "386d4efa-dd8c-41d6-8961-a41391fbd04a",
+        "code": "GEN-L5-S595837-11",
+        "title": "5차시 연습 11",
+        "prompt": "한 방향에서 본 모습만 보고 전체 개수를 정확히 알 수 있을까요?",
+        "given": {
+          "note": "먼저 한 방향에서만 판단해 보세요.",
+          "_generator": {
+            "seed": 10,
+            "sourceType": "GENERATED_PRACTICE",
+            "templateId": "lesson5-same-view",
+            "conceptTags": [
+              "HIDDEN_BLOCK",
+              "BLOCK_COUNT",
+              "SPATIAL_REASONING"
+            ],
+            "difficultyTier": "APPLICATION",
+            "generatorVersion": 1
+          },
+          "allowRotate": false
+        },
+        "input": "CHOICE",
+        "duplicateOf": 2,
+        "screenTitleObserved": "5차시 연습 11",
+        "screenPositionObserved": "23 / 35",
+        "screenOrderWithinEqualCode": "UNRESOLVED: two DB IDs share identical order/code; DOM has no ID",
+        "renderStatus": "OBSERVED_LIVE",
+        "gradeStatus": "NOT_RUN"
+      },
+      {
+        "order": 24,
+        "dbProblemId": "51202f09-f9ac-4eea-b637-63ba95955508",
+        "code": "GEN-L5-S595837-12",
+        "title": "5차시 연습 12",
+        "prompt": "추가 정보를 받은 뒤 실제 개수를 구해 보세요.",
+        "given": {
+          "_generator": {
+            "seed": 11,
+            "sourceType": "GENERATED_PRACTICE",
+            "templateId": "lesson5-reveal-count",
+            "conceptTags": [
+              "HIDDEN_BLOCK",
+              "BLOCK_COUNT",
+              "SPATIAL_REASONING"
+            ],
+            "difficultyTier": "APPLICATION",
+            "generatorVersion": 1
+          },
+          "allowRotate": true
+        },
+        "input": "NUMBER",
+        "duplicateOf": 12,
+        "screenTitleObserved": "5차시 연습 12",
+        "screenPositionObserved": "24 / 35",
+        "screenOrderWithinEqualCode": "UNRESOLVED: two DB IDs share identical order/code; DOM has no ID",
+        "renderStatus": "OBSERVED_LIVE",
+        "gradeStatus": "NOT_RUN"
+      },
+      {
+        "order": 25,
+        "dbProblemId": "718f6892-3cf9-4181-90ee-8f1a8beee652",
+        "code": "GEN-L5-S595837-12",
+        "title": "5차시 연습 12",
+        "prompt": "추가 정보를 받은 뒤 실제 개수를 구해 보세요.",
+        "given": {
+          "_generator": {
+            "seed": 11,
+            "sourceType": "GENERATED_PRACTICE",
+            "templateId": "lesson5-reveal-count",
+            "conceptTags": [
+              "HIDDEN_BLOCK",
+              "BLOCK_COUNT",
+              "SPATIAL_REASONING"
+            ],
+            "difficultyTier": "APPLICATION",
+            "generatorVersion": 1
+          },
+          "allowRotate": true
+        },
+        "input": "NUMBER",
+        "duplicateOf": 12,
+        "screenTitleObserved": "5차시 연습 12",
+        "screenPositionObserved": "25 / 35",
+        "screenOrderWithinEqualCode": "UNRESOLVED: two DB IDs share identical order/code; DOM has no ID",
+        "renderStatus": "OBSERVED_LIVE",
+        "gradeStatus": "NOT_RUN"
+      },
+      {
+        "order": 26,
+        "dbProblemId": "b1247352-aab8-412a-8277-3008a510f0a3",
+        "code": "GEN-L5-S595837-13",
+        "title": "5차시 연습 13",
+        "prompt": "한 방향에서 본 모습만 보고 전체 개수를 정확히 알 수 있을까요?",
+        "given": {
+          "note": "먼저 한 방향에서만 판단해 보세요.",
+          "_generator": {
+            "seed": 12,
+            "sourceType": "GENERATED_PRACTICE",
+            "templateId": "lesson5-unknown-choice",
+            "conceptTags": [
+              "HIDDEN_BLOCK",
+              "BLOCK_COUNT",
+              "SPATIAL_REASONING"
+            ],
+            "difficultyTier": "APPLICATION",
+            "generatorVersion": 1
+          },
+          "allowRotate": false
+        },
+        "input": "CHOICE",
+        "duplicateOf": 2,
+        "screenTitleObserved": "5차시 연습 13",
+        "screenPositionObserved": "26 / 35",
+        "screenOrderWithinEqualCode": "UNRESOLVED: two DB IDs share identical order/code; DOM has no ID",
+        "renderStatus": "OBSERVED_LIVE",
+        "gradeStatus": "NOT_RUN"
+      },
+      {
+        "order": 27,
+        "dbProblemId": "b145a1e6-064b-4f17-a56a-e038dc4432fe",
+        "code": "GEN-L5-S595837-13",
+        "title": "5차시 연습 13",
+        "prompt": "한 방향에서 본 모습만 보고 전체 개수를 정확히 알 수 있을까요?",
+        "given": {
+          "note": "먼저 한 방향에서만 판단해 보세요.",
+          "_generator": {
+            "seed": 12,
+            "sourceType": "GENERATED_PRACTICE",
+            "templateId": "lesson5-unknown-choice",
+            "conceptTags": [
+              "HIDDEN_BLOCK",
+              "BLOCK_COUNT",
+              "SPATIAL_REASONING"
+            ],
+            "difficultyTier": "APPLICATION",
+            "generatorVersion": 1
+          },
+          "allowRotate": false
+        },
+        "input": "CHOICE",
+        "duplicateOf": 2,
+        "screenTitleObserved": "5차시 연습 13",
+        "screenPositionObserved": "27 / 35",
+        "screenOrderWithinEqualCode": "UNRESOLVED: two DB IDs share identical order/code; DOM has no ID",
+        "renderStatus": "OBSERVED_LIVE",
+        "gradeStatus": "NOT_RUN"
+      },
+      {
+        "order": 28,
+        "dbProblemId": "f159fb9a-af57-496f-a678-a7f23d712a7c",
+        "code": "GEN-L5-S595837-14",
+        "title": "5차시 연습 14",
+        "prompt": "숨겨진 블록이 없다고 할 때 가능한 개수는 얼마일까요?",
+        "given": {
+          "note": "먼저 한 방향에서만 판단해 보세요.",
+          "_generator": {
+            "seed": 13,
+            "sourceType": "GENERATED_PRACTICE",
+            "templateId": "lesson5-hidden-min",
+            "conceptTags": [
+              "HIDDEN_BLOCK",
+              "BLOCK_COUNT",
+              "SPATIAL_REASONING"
+            ],
+            "difficultyTier": "APPLICATION",
+            "generatorVersion": 1
+          },
+          "allowRotate": false
+        },
+        "input": "NUMBER",
+        "duplicateOf": 4,
+        "screenTitleObserved": "5차시 연습 14",
+        "screenPositionObserved": "28 / 35",
+        "screenOrderWithinEqualCode": "UNRESOLVED: two DB IDs share identical order/code; DOM has no ID",
+        "renderStatus": "OBSERVED_LIVE",
+        "gradeStatus": "NOT_RUN"
+      },
+      {
+        "order": 29,
+        "dbProblemId": "71bad35a-3a15-4681-b68e-e170a77fa475",
+        "code": "GEN-L5-S595837-14",
+        "title": "5차시 연습 14",
+        "prompt": "숨겨진 블록이 없다고 할 때 가능한 개수는 얼마일까요?",
+        "given": {
+          "note": "먼저 한 방향에서만 판단해 보세요.",
+          "_generator": {
+            "seed": 13,
+            "sourceType": "GENERATED_PRACTICE",
+            "templateId": "lesson5-hidden-min",
+            "conceptTags": [
+              "HIDDEN_BLOCK",
+              "BLOCK_COUNT",
+              "SPATIAL_REASONING"
+            ],
+            "difficultyTier": "APPLICATION",
+            "generatorVersion": 1
+          },
+          "allowRotate": false
+        },
+        "input": "NUMBER",
+        "duplicateOf": 4,
+        "screenTitleObserved": "5차시 연습 14",
+        "screenPositionObserved": "29 / 35",
+        "screenOrderWithinEqualCode": "UNRESOLVED: two DB IDs share identical order/code; DOM has no ID",
+        "renderStatus": "OBSERVED_LIVE",
+        "gradeStatus": "NOT_RUN"
+      },
+      {
+        "order": 30,
+        "dbProblemId": "88c61101-975e-468f-bef0-3f51f6f838fd",
+        "code": "GEN-L5-S595837-15",
+        "title": "5차시 연습 15",
+        "prompt": "숨겨진 블록이 더 있을 때 가장 많아질 수 있는 개수는 얼마일까요?",
+        "given": {
+          "note": "먼저 한 방향에서만 판단해 보세요.",
+          "_generator": {
+            "seed": 14,
+            "sourceType": "GENERATED_PRACTICE",
+            "templateId": "lesson5-hidden-max",
+            "conceptTags": [
+              "HIDDEN_BLOCK",
+              "BLOCK_COUNT",
+              "SPATIAL_REASONING"
+            ],
+            "difficultyTier": "APPLICATION",
+            "generatorVersion": 1
+          },
+          "allowRotate": false
+        },
+        "input": "NUMBER",
+        "duplicateOf": 6,
+        "screenTitleObserved": "5차시 연습 15",
+        "screenPositionObserved": "30 / 35",
+        "screenOrderWithinEqualCode": "UNRESOLVED: two DB IDs share identical order/code; DOM has no ID",
+        "renderStatus": "OBSERVED_LIVE",
+        "gradeStatus": "NOT_RUN"
+      },
+      {
+        "order": 31,
+        "dbProblemId": "64f2c566-655b-43f1-aa97-308e3323903c",
+        "code": "GEN-L5-S595837-15",
+        "title": "5차시 연습 15",
+        "prompt": "숨겨진 블록이 더 있을 때 가장 많아질 수 있는 개수는 얼마일까요?",
+        "given": {
+          "note": "먼저 한 방향에서만 판단해 보세요.",
+          "_generator": {
+            "seed": 14,
+            "sourceType": "GENERATED_PRACTICE",
+            "templateId": "lesson5-hidden-max",
+            "conceptTags": [
+              "HIDDEN_BLOCK",
+              "BLOCK_COUNT",
+              "SPATIAL_REASONING"
+            ],
+            "difficultyTier": "APPLICATION",
+            "generatorVersion": 1
+          },
+          "allowRotate": false
+        },
+        "input": "NUMBER",
+        "duplicateOf": 6,
+        "screenTitleObserved": "5차시 연습 15",
+        "screenPositionObserved": "31 / 35",
+        "screenOrderWithinEqualCode": "UNRESOLVED: two DB IDs share identical order/code; DOM has no ID",
+        "renderStatus": "OBSERVED_LIVE",
+        "gradeStatus": "NOT_RUN"
+      },
+      {
+        "order": 32,
+        "dbProblemId": "42ec996f-464a-4691-94b1-fa1288754f8d",
+        "code": "GEN-L5-S595837-16",
+        "title": "5차시 연습 16",
+        "prompt": "정확히 알려면 어떤 정보가 더 필요할까요?",
+        "given": {
+          "note": "먼저 한 방향에서만 판단해 보세요.",
+          "_generator": {
+            "seed": 15,
+            "sourceType": "GENERATED_PRACTICE",
+            "templateId": "lesson5-extra-info",
+            "conceptTags": [
+              "HIDDEN_BLOCK",
+              "BLOCK_COUNT",
+              "SPATIAL_REASONING"
+            ],
+            "difficultyTier": "CHALLENGE",
+            "generatorVersion": 1
+          },
+          "allowRotate": false
+        },
+        "input": "CHOICE",
+        "duplicateOf": 8,
+        "screenTitleObserved": "5차시 연습 16",
+        "screenPositionObserved": "32 / 35",
+        "screenOrderWithinEqualCode": "UNRESOLVED: two DB IDs share identical order/code; DOM has no ID",
+        "renderStatus": "OBSERVED_LIVE",
+        "gradeStatus": "NOT_RUN"
+      },
+      {
+        "order": 33,
+        "dbProblemId": "535f798d-e72a-4729-a1c9-b7952a9ced9c",
+        "code": "GEN-L5-S595837-16",
+        "title": "5차시 연습 16",
+        "prompt": "정확히 알려면 어떤 정보가 더 필요할까요?",
+        "given": {
+          "note": "먼저 한 방향에서만 판단해 보세요.",
+          "_generator": {
+            "seed": 15,
+            "sourceType": "GENERATED_PRACTICE",
+            "templateId": "lesson5-extra-info",
+            "conceptTags": [
+              "HIDDEN_BLOCK",
+              "BLOCK_COUNT",
+              "SPATIAL_REASONING"
+            ],
+            "difficultyTier": "CHALLENGE",
+            "generatorVersion": 1
+          },
+          "allowRotate": false
+        },
+        "input": "CHOICE",
+        "duplicateOf": 8,
+        "screenTitleObserved": "5차시 연습 16",
+        "screenPositionObserved": "33 / 35",
+        "screenOrderWithinEqualCode": "UNRESOLVED: two DB IDs share identical order/code; DOM has no ID",
+        "renderStatus": "OBSERVED_LIVE",
+        "gradeStatus": "NOT_RUN"
+      },
+      {
+        "order": 34,
+        "dbProblemId": "625457ec-af76-4706-908a-825e1d76aa7c",
+        "code": "GEN-L5-S595837-17",
+        "title": "5차시 연습 17",
+        "prompt": "한 방향에서 본 모습만 보고 전체 개수를 정확히 알 수 있을까요?",
+        "given": {
+          "note": "먼저 한 방향에서만 판단해 보세요.",
+          "_generator": {
+            "seed": 16,
+            "sourceType": "GENERATED_PRACTICE",
+            "templateId": "lesson5-same-view",
+            "conceptTags": [
+              "HIDDEN_BLOCK",
+              "BLOCK_COUNT",
+              "SPATIAL_REASONING"
+            ],
+            "difficultyTier": "CHALLENGE",
+            "generatorVersion": 1
+          },
+          "allowRotate": false
+        },
+        "input": "CHOICE",
+        "duplicateOf": 2,
+        "screenTitleObserved": "5차시 연습 17",
+        "screenPositionObserved": "34 / 35",
+        "screenOrderWithinEqualCode": "UNRESOLVED: two DB IDs share identical order/code; DOM has no ID",
+        "renderStatus": "OBSERVED_LIVE",
+        "gradeStatus": "NOT_RUN"
+      },
+      {
+        "order": 35,
+        "dbProblemId": "892189ab-7d3f-43fc-bd2d-2b7ce85bcfef",
+        "code": "GEN-L5-S595837-17",
+        "title": "5차시 연습 17",
+        "prompt": "한 방향에서 본 모습만 보고 전체 개수를 정확히 알 수 있을까요?",
+        "given": {
+          "note": "먼저 한 방향에서만 판단해 보세요.",
+          "_generator": {
+            "seed": 16,
+            "sourceType": "GENERATED_PRACTICE",
+            "templateId": "lesson5-same-view",
+            "conceptTags": [
+              "HIDDEN_BLOCK",
+              "BLOCK_COUNT",
+              "SPATIAL_REASONING"
+            ],
+            "difficultyTier": "CHALLENGE",
+            "generatorVersion": 1
+          },
+          "allowRotate": false
+        },
+        "input": "CHOICE",
+        "duplicateOf": 2,
+        "screenTitleObserved": "5차시 연습 17",
+        "screenPositionObserved": "35 / 35",
+        "screenOrderWithinEqualCode": "UNRESOLVED: two DB IDs share identical order/code; DOM has no ID",
+        "renderStatus": "OBSERVED_LIVE",
+        "gradeStatus": "NOT_RUN"
+      }
+    ],
+    "publicTaskUnique": 6,
+    "displayCount": 35,
+    "generatedRows": 34,
+    "uniqueGeneratedCodes": 17,
+    "extraBuiltin": 1,
+    "teacherPracticeCount": 20,
+    "savedSeed": 603756,
+    "returnedGeneratedSeed": 595837,
+    "dbConstraints": [
+      "PRIMARY KEY (id)",
+      "UNIQUE (class_id, code)"
+    ],
+    "inputDistribution": {
+      "CHOICE": 18,
+      "NUMBER": 17
+    }
+  },
+  "after": {
+    "category": "LOCAL_LOGIC",
+    "seed": 603756,
+    "targetCount": 20,
+    "audit": {
+      "count": 20,
+      "uniqueTasks": 20,
+      "families": {
+        "lesson5-unknown-choice": 4,
+        "lesson5-hidden-min": 4,
+        "lesson5-hidden-max": 3,
+        "lesson5-extra-info": 3,
+        "lesson5-same-view": 3,
+        "lesson5-reveal-count": 3
+      },
+      "duplicates": [],
+      "longestRun": 1
+    },
+    "rows": [
+      {
+        "order": 1,
+        "code": "GEN-L5-S603756-01-V2",
+        "templateId": "lesson5-unknown-choice",
+        "generatorVersion": 2,
+        "prompt": "지금 앞에서 본 모양만으로 쌓기나무의 전체 개수를 정확히 알 수 있을까요?",
+        "given": {
+          "projections": {
+            "front": [
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                false,
+                false,
+                true
+              ]
+            ]
+          },
+          "allowRotate": false,
+          "note": "먼저 한 방향에서만 판단해 보세요."
+        },
+        "input": "choice",
+        "screenStatus": "NOT_RUN"
+      },
+      {
+        "order": 2,
+        "code": "GEN-L5-S603756-02-V2",
+        "templateId": "lesson5-hidden-min",
+        "generatorVersion": 2,
+        "prompt": "보이지 않는 쌓기나무는 없다고 가정할 때, 앞에서 본 모양의 칸마다 한 개씩 있다면 몇 개인가요?",
+        "given": {
+          "projections": {
+            "front": [
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                true,
+                false
+              ],
+              [
+                false,
+                false,
+                false
+              ]
+            ]
+          },
+          "allowRotate": false,
+          "note": "보이지 않는 쌓기나무는 없다고 가정해요."
+        },
+        "input": "count",
+        "screenStatus": "NOT_RUN"
+      },
+      {
+        "order": 3,
+        "code": "GEN-L5-S603756-03-V2",
+        "templateId": "lesson5-hidden-max",
+        "generatorVersion": 2,
+        "prompt": "작업판의 앞뒤 깊이는 3칸이에요. 앞에서 본 모양을 유지하며 쌓을 수 있는 최대 개수는 얼마일까요?",
+        "given": {
+          "projections": {
+            "front": [
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                true,
+                false
+              ],
+              [
+                true,
+                true,
+                false
+              ]
+            ]
+          },
+          "allowRotate": false,
+          "note": "앞에서 본 모양만으로는 뒤쪽 블록을 모두 알 수 없어요."
+        },
+        "input": "count",
+        "screenStatus": "NOT_RUN"
+      },
+      {
+        "order": 4,
+        "code": "GEN-L5-S603756-04-V2",
+        "templateId": "lesson5-extra-info",
+        "generatorVersion": 2,
+        "prompt": "앞에서 본 모양이 주어졌어요. 전체 개수를 정확히 결정하려면 어떤 정보가 충분할까요?",
+        "given": {
+          "projections": {
+            "front": [
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                false,
+                true
+              ],
+              [
+                true,
+                false,
+                true
+              ]
+            ]
+          },
+          "allowRotate": false,
+          "note": "먼저 한 방향에서만 판단해 보세요."
+        },
+        "input": "choice",
+        "screenStatus": "NOT_RUN"
+      },
+      {
+        "order": 5,
+        "code": "GEN-L5-S603756-05-V2",
+        "templateId": "lesson5-same-view",
+        "generatorVersion": 2,
+        "prompt": "한 학생이 “앞에서 6칸이 보이니 전체도 반드시 6개”라고 했어요. 이 설명의 문제점은 무엇일까요?",
+        "given": {
+          "projections": {
+            "front": [
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                false,
+                true,
+                true
+              ],
+              [
+                false,
+                true,
+                false
+              ]
+            ]
+          },
+          "allowRotate": false
+        },
+        "input": "choice",
+        "screenStatus": "NOT_RUN"
+      },
+      {
+        "order": 6,
+        "code": "GEN-L5-S603756-06-V2",
+        "templateId": "lesson5-reveal-count",
+        "generatorVersion": 2,
+        "prompt": "이제 자유롭게 돌려 모든 자리를 살펴볼 수 있어요. 실제 쌓기나무는 모두 몇 개인가요?",
+        "given": {
+          "allowRotate": true
+        },
+        "input": "count",
+        "screenStatus": "NOT_RUN"
+      },
+      {
+        "order": 7,
+        "code": "GEN-L5-S603756-07-V2",
+        "templateId": "lesson5-unknown-choice",
+        "generatorVersion": 2,
+        "prompt": "지금 앞에서 본 모양만으로 쌓기나무의 전체 개수를 정확히 알 수 있을까요?",
+        "given": {
+          "projections": {
+            "front": [
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                false,
+                true,
+                true
+              ]
+            ]
+          },
+          "allowRotate": false,
+          "note": "먼저 한 방향에서만 판단해 보세요."
+        },
+        "input": "choice",
+        "screenStatus": "NOT_RUN"
+      },
+      {
+        "order": 8,
+        "code": "GEN-L5-S603756-08-V2",
+        "templateId": "lesson5-hidden-min",
+        "generatorVersion": 2,
+        "prompt": "보이지 않는 쌓기나무는 없다고 가정할 때, 앞에서 본 모양의 칸마다 한 개씩 있다면 몇 개인가요?",
+        "given": {
+          "projections": {
+            "front": [
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                false,
+                true
+              ]
+            ]
+          },
+          "allowRotate": false,
+          "note": "보이지 않는 쌓기나무는 없다고 가정해요."
+        },
+        "input": "count",
+        "screenStatus": "NOT_RUN"
+      },
+      {
+        "order": 9,
+        "code": "GEN-L5-S603756-09-V2",
+        "templateId": "lesson5-hidden-max",
+        "generatorVersion": 2,
+        "prompt": "작업판의 앞뒤 깊이는 3칸이에요. 앞에서 본 모양을 유지하며 쌓을 수 있는 최대 개수는 얼마일까요?",
+        "given": {
+          "projections": {
+            "front": [
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                false,
+                false,
+                true
+              ],
+              [
+                false,
+                false,
+                true
+              ]
+            ]
+          },
+          "allowRotate": false,
+          "note": "앞에서 본 모양만으로는 뒤쪽 블록을 모두 알 수 없어요."
+        },
+        "input": "count",
+        "screenStatus": "NOT_RUN"
+      },
+      {
+        "order": 10,
+        "code": "GEN-L5-S603756-10-V2",
+        "templateId": "lesson5-extra-info",
+        "generatorVersion": 2,
+        "prompt": "앞에서 본 모양이 주어졌어요. 전체 개수를 정확히 결정하려면 어떤 정보가 충분할까요?",
+        "given": {
+          "projections": {
+            "front": [
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                true,
+                true
+              ]
+            ]
+          },
+          "allowRotate": false,
+          "note": "먼저 한 방향에서만 판단해 보세요."
+        },
+        "input": "choice",
+        "screenStatus": "NOT_RUN"
+      },
+      {
+        "order": 11,
+        "code": "GEN-L5-S603756-11-V2",
+        "templateId": "lesson5-same-view",
+        "generatorVersion": 2,
+        "prompt": "한 학생이 “앞에서 7칸이 보이니 전체도 반드시 7개”라고 했어요. 이 설명의 문제점은 무엇일까요?",
+        "given": {
+          "projections": {
+            "front": [
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                false,
+                true,
+                false
+              ]
+            ]
+          },
+          "allowRotate": false
+        },
+        "input": "choice",
+        "screenStatus": "NOT_RUN"
+      },
+      {
+        "order": 12,
+        "code": "GEN-L5-S603756-12-V2",
+        "templateId": "lesson5-reveal-count",
+        "generatorVersion": 2,
+        "prompt": "이제 자유롭게 돌려 모든 자리를 살펴볼 수 있어요. 실제 쌓기나무는 모두 몇 개인가요?",
+        "given": {
+          "allowRotate": true
+        },
+        "input": "count",
+        "screenStatus": "NOT_RUN"
+      },
+      {
+        "order": 13,
+        "code": "GEN-L5-S603756-13-V2",
+        "templateId": "lesson5-unknown-choice",
+        "generatorVersion": 2,
+        "prompt": "지금 앞에서 본 모양만으로 쌓기나무의 전체 개수를 정확히 알 수 있을까요?",
+        "given": {
+          "projections": {
+            "front": [
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                false,
+                true
+              ],
+              [
+                false,
+                false,
+                true
+              ]
+            ]
+          },
+          "allowRotate": false,
+          "note": "먼저 한 방향에서만 판단해 보세요."
+        },
+        "input": "choice",
+        "screenStatus": "NOT_RUN"
+      },
+      {
+        "order": 14,
+        "code": "GEN-L5-S603756-14-V2",
+        "templateId": "lesson5-hidden-min",
+        "generatorVersion": 2,
+        "prompt": "보이지 않는 쌓기나무는 없다고 가정할 때, 앞에서 본 모양의 칸마다 한 개씩 있다면 몇 개인가요?",
+        "given": {
+          "projections": {
+            "front": [
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                true,
+                true
+              ]
+            ]
+          },
+          "allowRotate": false,
+          "note": "보이지 않는 쌓기나무는 없다고 가정해요."
+        },
+        "input": "count",
+        "screenStatus": "NOT_RUN"
+      },
+      {
+        "order": 15,
+        "code": "GEN-L5-S603756-15-V2",
+        "templateId": "lesson5-hidden-max",
+        "generatorVersion": 2,
+        "prompt": "작업판의 앞뒤 깊이는 3칸이에요. 앞에서 본 모양을 유지하며 쌓을 수 있는 최대 개수는 얼마일까요?",
+        "given": {
+          "projections": {
+            "front": [
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                false,
+                true,
+                true
+              ]
+            ]
+          },
+          "allowRotate": false,
+          "note": "앞에서 본 모양만으로는 뒤쪽 블록을 모두 알 수 없어요."
+        },
+        "input": "count",
+        "screenStatus": "NOT_RUN"
+      },
+      {
+        "order": 16,
+        "code": "GEN-L5-S603756-16-V2",
+        "templateId": "lesson5-extra-info",
+        "generatorVersion": 2,
+        "prompt": "앞에서 본 모양이 주어졌어요. 전체 개수를 정확히 결정하려면 어떤 정보가 충분할까요?",
+        "given": {
+          "projections": {
+            "front": [
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                false,
+                true
+              ],
+              [
+                false,
+                false,
+                true
+              ]
+            ]
+          },
+          "allowRotate": false,
+          "note": "먼저 한 방향에서만 판단해 보세요."
+        },
+        "input": "choice",
+        "screenStatus": "NOT_RUN"
+      },
+      {
+        "order": 17,
+        "code": "GEN-L5-S603756-17-V2",
+        "templateId": "lesson5-same-view",
+        "generatorVersion": 2,
+        "prompt": "한 학생이 “앞에서 8칸이 보이니 전체도 반드시 8개”라고 했어요. 이 설명의 문제점은 무엇일까요?",
+        "given": {
+          "projections": {
+            "front": [
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                false,
+                true,
+                true
+              ]
+            ]
+          },
+          "allowRotate": false
+        },
+        "input": "choice",
+        "screenStatus": "NOT_RUN"
+      },
+      {
+        "order": 18,
+        "code": "GEN-L5-S603756-18-V2",
+        "templateId": "lesson5-reveal-count",
+        "generatorVersion": 2,
+        "prompt": "이제 자유롭게 돌려 모든 자리를 살펴볼 수 있어요. 실제 쌓기나무는 모두 몇 개인가요?",
+        "given": {
+          "allowRotate": true
+        },
+        "input": "count",
+        "screenStatus": "NOT_RUN"
+      },
+      {
+        "order": 19,
+        "code": "GEN-L5-S603756-19-V2",
+        "templateId": "lesson5-unknown-choice",
+        "generatorVersion": 2,
+        "prompt": "지금 앞에서 본 모양만으로 쌓기나무의 전체 개수를 정확히 알 수 있을까요?",
+        "given": {
+          "projections": {
+            "front": [
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                true,
+                false
+              ],
+              [
+                false,
+                true,
+                false
+              ]
+            ]
+          },
+          "allowRotate": false,
+          "note": "먼저 한 방향에서만 판단해 보세요."
+        },
+        "input": "choice",
+        "screenStatus": "NOT_RUN"
+      },
+      {
+        "order": 20,
+        "code": "GEN-L5-S603756-20-V2",
+        "templateId": "lesson5-hidden-min",
+        "generatorVersion": 2,
+        "prompt": "보이지 않는 쌓기나무는 없다고 가정할 때, 앞에서 본 모양의 칸마다 한 개씩 있다면 몇 개인가요?",
+        "given": {
+          "projections": {
+            "front": [
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                true,
+                true,
+                true
+              ],
+              [
+                false,
+                false,
+                true
+              ]
+            ]
+          },
+          "allowRotate": false,
+          "note": "보이지 않는 쌓기나무는 없다고 가정해요."
+        },
+        "input": "count",
+        "screenStatus": "NOT_RUN"
+      }
+    ],
+    "sameSize35": {
+      "count": 35,
+      "uniqueTasks": 35,
+      "families": {
+        "lesson5-unknown-choice": 6,
+        "lesson5-hidden-min": 6,
+        "lesson5-hidden-max": 6,
+        "lesson5-extra-info": 6,
+        "lesson5-same-view": 6,
+        "lesson5-reveal-count": 5
+      },
+      "duplicates": [],
+      "longestRun": 1
+    }
+  },
+  "browser": {
+    "category": "LIVE_EXISTING_UI_READ_ONLY",
+    "traversed": 35,
+    "submissions": 0,
+    "initialPosition": 11,
+    "finalPosition": 11,
+    "screenshots": "11번 실제 캡처는 대화 도구 결과에 있음. 파일 export는 Chrome 미지원; 저장된 screenshot 파일 없음.",
+    "postFix": "BLOCKED: changed Edge Function not deployed; live frontend commit unverified"
+  },
+  "recovery": {
+    "remoteApplied": false,
+    "recordsDeleted": 0,
+    "regraded": 0,
+    "policy": "기존595837 표시를 유지한다. 저장603756에 준비된 세트가 없으면 awaitingReplacement. 명시적 새 세트 요청(expectedSeed603756) 후611675 v2를 준비하고 CAS 전환. 실제 원격 실행 없음."
+  }
+}

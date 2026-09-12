@@ -1,0 +1,7903 @@
+{
+  "at": "2026-09-12T12:46:07.627Z",
+  "baseHead": "875229ab7bf45ce40b8dd1ce882d88422e368ebe",
+  "target": "working tree; final code commit recorded in WORKLOG",
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    42,
+    123,
+    7919,
+    595837,
+    603756,
+    611675,
+    999999
+  ],
+  "counts": [
+    5,
+    10,
+    15,
+    20,
+    35
+  ],
+  "rows": [
+    {
+      "lesson": 1,
+      "seed": 0,
+      "count": 5,
+      "uniqueTasks": 5,
+      "families": {
+        "BLOCK_POSITION": 2,
+        "COUNT": 2,
+        "CHOICE": 1
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 1,
+      "seed": 0,
+      "count": 10,
+      "uniqueTasks": 10,
+      "families": {
+        "BLOCK_POSITION": 4,
+        "COUNT": 5,
+        "CHOICE": 1
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 1,
+      "seed": 0,
+      "count": 15,
+      "uniqueTasks": 15,
+      "families": {
+        "BLOCK_POSITION": 6,
+        "COUNT": 7,
+        "CHOICE": 2
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 1,
+      "seed": 0,
+      "count": 20,
+      "uniqueTasks": 20,
+      "families": {
+        "BLOCK_POSITION": 8,
+        "COUNT": 9,
+        "CHOICE": 3
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 1,
+      "seed": 0,
+      "count": 35,
+      "uniqueTasks": 35,
+      "families": {
+        "BLOCK_POSITION": 12,
+        "COUNT": 17,
+        "CHOICE": 6
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 1,
+      "seed": 1,
+      "count": 5,
+      "uniqueTasks": 5,
+      "families": {
+        "BLOCK_POSITION": 2,
+        "COUNT": 2,
+        "CHOICE": 1
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 1,
+      "seed": 1,
+      "count": 10,
+      "uniqueTasks": 10,
+      "families": {
+        "BLOCK_POSITION": 4,
+        "COUNT": 5,
+        "CHOICE": 1
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 1,
+      "seed": 1,
+      "count": 15,
+      "uniqueTasks": 15,
+      "families": {
+        "BLOCK_POSITION": 6,
+        "COUNT": 7,
+        "CHOICE": 2
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 1,
+      "seed": 1,
+      "count": 20,
+      "uniqueTasks": 20,
+      "families": {
+        "BLOCK_POSITION": 8,
+        "COUNT": 9,
+        "CHOICE": 3
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 1,
+      "seed": 1,
+      "count": 35,
+      "uniqueTasks": 35,
+      "families": {
+        "BLOCK_POSITION": 12,
+        "COUNT": 17,
+        "CHOICE": 6
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 1,
+      "seed": 2,
+      "count": 5,
+      "uniqueTasks": 5,
+      "families": {
+        "BLOCK_POSITION": 2,
+        "COUNT": 2,
+        "CHOICE": 1
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 1,
+      "seed": 2,
+      "count": 10,
+      "uniqueTasks": 10,
+      "families": {
+        "BLOCK_POSITION": 4,
+        "COUNT": 5,
+        "CHOICE": 1
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 1,
+      "seed": 2,
+      "count": 15,
+      "uniqueTasks": 15,
+      "families": {
+        "BLOCK_POSITION": 6,
+        "COUNT": 7,
+        "CHOICE": 2
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 1,
+      "seed": 2,
+      "count": 20,
+      "uniqueTasks": 20,
+      "families": {
+        "BLOCK_POSITION": 8,
+        "COUNT": 9,
+        "CHOICE": 3
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 1,
+      "seed": 2,
+      "count": 35,
+      "uniqueTasks": 35,
+      "families": {
+        "BLOCK_POSITION": 12,
+        "COUNT": 17,
+        "CHOICE": 6
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 1,
+      "seed": 3,
+      "count": 5,
+      "uniqueTasks": 5,
+      "families": {
+        "BLOCK_POSITION": 2,
+        "COUNT": 2,
+        "CHOICE": 1
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 1,
+      "seed": 3,
+      "count": 10,
+      "uniqueTasks": 10,
+      "families": {
+        "BLOCK_POSITION": 4,
+        "COUNT": 5,
+        "CHOICE": 1
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 1,
+      "seed": 3,
+      "count": 15,
+      "uniqueTasks": 15,
+      "families": {
+        "BLOCK_POSITION": 6,
+        "COUNT": 7,
+        "CHOICE": 2
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 1,
+      "seed": 3,
+      "count": 20,
+      "uniqueTasks": 20,
+      "families": {
+        "BLOCK_POSITION": 8,
+        "COUNT": 9,
+        "CHOICE": 3
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 1,
+      "seed": 3,
+      "count": 35,
+      "uniqueTasks": 35,
+      "families": {
+        "BLOCK_POSITION": 12,
+        "COUNT": 17,
+        "CHOICE": 6
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 1,
+      "seed": 42,
+      "count": 5,
+      "uniqueTasks": 5,
+      "families": {
+        "BLOCK_POSITION": 2,
+        "COUNT": 2,
+        "CHOICE": 1
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 1,
+      "seed": 42,
+      "count": 10,
+      "uniqueTasks": 10,
+      "families": {
+        "BLOCK_POSITION": 4,
+        "COUNT": 5,
+        "CHOICE": 1
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 1,
+      "seed": 42,
+      "count": 15,
+      "uniqueTasks": 15,
+      "families": {
+        "BLOCK_POSITION": 6,
+        "COUNT": 7,
+        "CHOICE": 2
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 1,
+      "seed": 42,
+      "count": 20,
+      "uniqueTasks": 20,
+      "families": {
+        "BLOCK_POSITION": 8,
+        "COUNT": 9,
+        "CHOICE": 3
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 1,
+      "seed": 42,
+      "count": 35,
+      "uniqueTasks": 35,
+      "families": {
+        "BLOCK_POSITION": 12,
+        "COUNT": 17,
+        "CHOICE": 6
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 1,
+      "seed": 123,
+      "count": 5,
+      "uniqueTasks": 5,
+      "families": {
+        "BLOCK_POSITION": 2,
+        "COUNT": 2,
+        "CHOICE": 1
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 1,
+      "seed": 123,
+      "count": 10,
+      "uniqueTasks": 10,
+      "families": {
+        "BLOCK_POSITION": 4,
+        "COUNT": 5,
+        "CHOICE": 1
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 1,
+      "seed": 123,
+      "count": 15,
+      "uniqueTasks": 15,
+      "families": {
+        "BLOCK_POSITION": 6,
+        "COUNT": 7,
+        "CHOICE": 2
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 1,
+      "seed": 123,
+      "count": 20,
+      "uniqueTasks": 20,
+      "families": {
+        "BLOCK_POSITION": 8,
+        "COUNT": 9,
+        "CHOICE": 3
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 1,
+      "seed": 123,
+      "count": 35,
+      "uniqueTasks": 35,
+      "families": {
+        "BLOCK_POSITION": 12,
+        "COUNT": 17,
+        "CHOICE": 6
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 1,
+      "seed": 7919,
+      "count": 5,
+      "uniqueTasks": 5,
+      "families": {
+        "BLOCK_POSITION": 2,
+        "COUNT": 2,
+        "CHOICE": 1
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 1,
+      "seed": 7919,
+      "count": 10,
+      "uniqueTasks": 10,
+      "families": {
+        "BLOCK_POSITION": 4,
+        "COUNT": 5,
+        "CHOICE": 1
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 1,
+      "seed": 7919,
+      "count": 15,
+      "uniqueTasks": 15,
+      "families": {
+        "BLOCK_POSITION": 6,
+        "COUNT": 7,
+        "CHOICE": 2
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 1,
+      "seed": 7919,
+      "count": 20,
+      "uniqueTasks": 20,
+      "families": {
+        "BLOCK_POSITION": 8,
+        "COUNT": 9,
+        "CHOICE": 3
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 1,
+      "seed": 7919,
+      "count": 35,
+      "uniqueTasks": 35,
+      "families": {
+        "BLOCK_POSITION": 12,
+        "COUNT": 17,
+        "CHOICE": 6
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 1,
+      "seed": 595837,
+      "count": 5,
+      "uniqueTasks": 5,
+      "families": {
+        "BLOCK_POSITION": 2,
+        "COUNT": 2,
+        "CHOICE": 1
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 1,
+      "seed": 595837,
+      "count": 10,
+      "uniqueTasks": 10,
+      "families": {
+        "BLOCK_POSITION": 4,
+        "COUNT": 5,
+        "CHOICE": 1
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 1,
+      "seed": 595837,
+      "count": 15,
+      "uniqueTasks": 15,
+      "families": {
+        "BLOCK_POSITION": 6,
+        "COUNT": 7,
+        "CHOICE": 2
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 1,
+      "seed": 595837,
+      "count": 20,
+      "uniqueTasks": 20,
+      "families": {
+        "BLOCK_POSITION": 8,
+        "COUNT": 9,
+        "CHOICE": 3
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 1,
+      "seed": 595837,
+      "count": 35,
+      "uniqueTasks": 35,
+      "families": {
+        "BLOCK_POSITION": 12,
+        "COUNT": 17,
+        "CHOICE": 6
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 1,
+      "seed": 603756,
+      "count": 5,
+      "uniqueTasks": 5,
+      "families": {
+        "BLOCK_POSITION": 2,
+        "COUNT": 2,
+        "CHOICE": 1
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 1,
+      "seed": 603756,
+      "count": 10,
+      "uniqueTasks": 10,
+      "families": {
+        "BLOCK_POSITION": 4,
+        "COUNT": 5,
+        "CHOICE": 1
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 1,
+      "seed": 603756,
+      "count": 15,
+      "uniqueTasks": 15,
+      "families": {
+        "BLOCK_POSITION": 6,
+        "COUNT": 7,
+        "CHOICE": 2
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 1,
+      "seed": 603756,
+      "count": 20,
+      "uniqueTasks": 20,
+      "families": {
+        "BLOCK_POSITION": 8,
+        "COUNT": 9,
+        "CHOICE": 3
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 1,
+      "seed": 603756,
+      "count": 35,
+      "uniqueTasks": 35,
+      "families": {
+        "BLOCK_POSITION": 12,
+        "COUNT": 17,
+        "CHOICE": 6
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 1,
+      "seed": 611675,
+      "count": 5,
+      "uniqueTasks": 5,
+      "families": {
+        "BLOCK_POSITION": 2,
+        "COUNT": 2,
+        "CHOICE": 1
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 1,
+      "seed": 611675,
+      "count": 10,
+      "uniqueTasks": 10,
+      "families": {
+        "BLOCK_POSITION": 4,
+        "COUNT": 5,
+        "CHOICE": 1
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 1,
+      "seed": 611675,
+      "count": 15,
+      "uniqueTasks": 15,
+      "families": {
+        "BLOCK_POSITION": 6,
+        "COUNT": 7,
+        "CHOICE": 2
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 1,
+      "seed": 611675,
+      "count": 20,
+      "uniqueTasks": 20,
+      "families": {
+        "BLOCK_POSITION": 8,
+        "COUNT": 9,
+        "CHOICE": 3
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 1,
+      "seed": 611675,
+      "count": 35,
+      "uniqueTasks": 35,
+      "families": {
+        "BLOCK_POSITION": 12,
+        "COUNT": 17,
+        "CHOICE": 6
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 1,
+      "seed": 999999,
+      "count": 5,
+      "uniqueTasks": 5,
+      "families": {
+        "BLOCK_POSITION": 2,
+        "COUNT": 2,
+        "CHOICE": 1
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 1,
+      "seed": 999999,
+      "count": 10,
+      "uniqueTasks": 10,
+      "families": {
+        "BLOCK_POSITION": 4,
+        "COUNT": 5,
+        "CHOICE": 1
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 1,
+      "seed": 999999,
+      "count": 15,
+      "uniqueTasks": 15,
+      "families": {
+        "BLOCK_POSITION": 6,
+        "COUNT": 7,
+        "CHOICE": 2
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 1,
+      "seed": 999999,
+      "count": 20,
+      "uniqueTasks": 20,
+      "families": {
+        "BLOCK_POSITION": 8,
+        "COUNT": 9,
+        "CHOICE": 3
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 1,
+      "seed": 999999,
+      "count": 35,
+      "uniqueTasks": 35,
+      "families": {
+        "BLOCK_POSITION": 12,
+        "COUNT": 17,
+        "CHOICE": 6
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 2,
+      "seed": 0,
+      "count": 5,
+      "uniqueTasks": 5,
+      "families": {
+        "CAMERA_DIRECTION": 5
+      },
+      "duplicates": [],
+      "longestRun": 5,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 2,
+      "seed": 0,
+      "count": 10,
+      "uniqueTasks": 10,
+      "families": {
+        "CAMERA_DIRECTION": 10
+      },
+      "duplicates": [],
+      "longestRun": 10,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 2,
+      "seed": 0,
+      "count": 15,
+      "uniqueTasks": 15,
+      "families": {
+        "CAMERA_DIRECTION": 15
+      },
+      "duplicates": [],
+      "longestRun": 15,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 2,
+      "seed": 0,
+      "count": 20,
+      "uniqueTasks": 20,
+      "families": {
+        "CAMERA_DIRECTION": 20
+      },
+      "duplicates": [],
+      "longestRun": 20,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 2,
+      "seed": 0,
+      "count": 35,
+      "uniqueTasks": 35,
+      "families": {
+        "CAMERA_DIRECTION": 35
+      },
+      "duplicates": [],
+      "longestRun": 35,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 2,
+      "seed": 1,
+      "count": 5,
+      "uniqueTasks": 5,
+      "families": {
+        "CAMERA_DIRECTION": 5
+      },
+      "duplicates": [],
+      "longestRun": 5,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 2,
+      "seed": 1,
+      "count": 10,
+      "uniqueTasks": 10,
+      "families": {
+        "CAMERA_DIRECTION": 10
+      },
+      "duplicates": [],
+      "longestRun": 10,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 2,
+      "seed": 1,
+      "count": 15,
+      "uniqueTasks": 15,
+      "families": {
+        "CAMERA_DIRECTION": 15
+      },
+      "duplicates": [],
+      "longestRun": 15,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 2,
+      "seed": 1,
+      "count": 20,
+      "uniqueTasks": 20,
+      "families": {
+        "CAMERA_DIRECTION": 20
+      },
+      "duplicates": [],
+      "longestRun": 20,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 2,
+      "seed": 1,
+      "count": 35,
+      "uniqueTasks": 35,
+      "families": {
+        "CAMERA_DIRECTION": 35
+      },
+      "duplicates": [],
+      "longestRun": 35,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 2,
+      "seed": 2,
+      "count": 5,
+      "uniqueTasks": 5,
+      "families": {
+        "CAMERA_DIRECTION": 5
+      },
+      "duplicates": [],
+      "longestRun": 5,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 2,
+      "seed": 2,
+      "count": 10,
+      "uniqueTasks": 10,
+      "families": {
+        "CAMERA_DIRECTION": 10
+      },
+      "duplicates": [],
+      "longestRun": 10,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 2,
+      "seed": 2,
+      "count": 15,
+      "uniqueTasks": 15,
+      "families": {
+        "CAMERA_DIRECTION": 15
+      },
+      "duplicates": [],
+      "longestRun": 15,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 2,
+      "seed": 2,
+      "count": 20,
+      "uniqueTasks": 20,
+      "families": {
+        "CAMERA_DIRECTION": 20
+      },
+      "duplicates": [],
+      "longestRun": 20,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 2,
+      "seed": 2,
+      "count": 35,
+      "uniqueTasks": 35,
+      "families": {
+        "CAMERA_DIRECTION": 35
+      },
+      "duplicates": [],
+      "longestRun": 35,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 2,
+      "seed": 3,
+      "count": 5,
+      "uniqueTasks": 5,
+      "families": {
+        "CAMERA_DIRECTION": 5
+      },
+      "duplicates": [],
+      "longestRun": 5,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 2,
+      "seed": 3,
+      "count": 10,
+      "uniqueTasks": 10,
+      "families": {
+        "CAMERA_DIRECTION": 10
+      },
+      "duplicates": [],
+      "longestRun": 10,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 2,
+      "seed": 3,
+      "count": 15,
+      "uniqueTasks": 15,
+      "families": {
+        "CAMERA_DIRECTION": 15
+      },
+      "duplicates": [],
+      "longestRun": 15,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 2,
+      "seed": 3,
+      "count": 20,
+      "uniqueTasks": 20,
+      "families": {
+        "CAMERA_DIRECTION": 20
+      },
+      "duplicates": [],
+      "longestRun": 20,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 2,
+      "seed": 3,
+      "count": 35,
+      "uniqueTasks": 35,
+      "families": {
+        "CAMERA_DIRECTION": 35
+      },
+      "duplicates": [],
+      "longestRun": 35,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 2,
+      "seed": 42,
+      "count": 5,
+      "uniqueTasks": 5,
+      "families": {
+        "CAMERA_DIRECTION": 5
+      },
+      "duplicates": [],
+      "longestRun": 5,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 2,
+      "seed": 42,
+      "count": 10,
+      "uniqueTasks": 10,
+      "families": {
+        "CAMERA_DIRECTION": 10
+      },
+      "duplicates": [],
+      "longestRun": 10,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 2,
+      "seed": 42,
+      "count": 15,
+      "uniqueTasks": 15,
+      "families": {
+        "CAMERA_DIRECTION": 15
+      },
+      "duplicates": [],
+      "longestRun": 15,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 2,
+      "seed": 42,
+      "count": 20,
+      "uniqueTasks": 20,
+      "families": {
+        "CAMERA_DIRECTION": 20
+      },
+      "duplicates": [],
+      "longestRun": 20,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 2,
+      "seed": 42,
+      "count": 35,
+      "uniqueTasks": 35,
+      "families": {
+        "CAMERA_DIRECTION": 35
+      },
+      "duplicates": [],
+      "longestRun": 35,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 2,
+      "seed": 123,
+      "count": 5,
+      "uniqueTasks": 5,
+      "families": {
+        "CAMERA_DIRECTION": 5
+      },
+      "duplicates": [],
+      "longestRun": 5,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 2,
+      "seed": 123,
+      "count": 10,
+      "uniqueTasks": 10,
+      "families": {
+        "CAMERA_DIRECTION": 10
+      },
+      "duplicates": [],
+      "longestRun": 10,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 2,
+      "seed": 123,
+      "count": 15,
+      "uniqueTasks": 15,
+      "families": {
+        "CAMERA_DIRECTION": 15
+      },
+      "duplicates": [],
+      "longestRun": 15,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 2,
+      "seed": 123,
+      "count": 20,
+      "uniqueTasks": 20,
+      "families": {
+        "CAMERA_DIRECTION": 20
+      },
+      "duplicates": [],
+      "longestRun": 20,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 2,
+      "seed": 123,
+      "count": 35,
+      "uniqueTasks": 35,
+      "families": {
+        "CAMERA_DIRECTION": 35
+      },
+      "duplicates": [],
+      "longestRun": 35,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 2,
+      "seed": 7919,
+      "count": 5,
+      "uniqueTasks": 5,
+      "families": {
+        "CAMERA_DIRECTION": 5
+      },
+      "duplicates": [],
+      "longestRun": 5,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 2,
+      "seed": 7919,
+      "count": 10,
+      "uniqueTasks": 10,
+      "families": {
+        "CAMERA_DIRECTION": 10
+      },
+      "duplicates": [],
+      "longestRun": 10,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 2,
+      "seed": 7919,
+      "count": 15,
+      "uniqueTasks": 15,
+      "families": {
+        "CAMERA_DIRECTION": 15
+      },
+      "duplicates": [],
+      "longestRun": 15,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 2,
+      "seed": 7919,
+      "count": 20,
+      "uniqueTasks": 20,
+      "families": {
+        "CAMERA_DIRECTION": 20
+      },
+      "duplicates": [],
+      "longestRun": 20,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 2,
+      "seed": 7919,
+      "count": 35,
+      "uniqueTasks": 35,
+      "families": {
+        "CAMERA_DIRECTION": 35
+      },
+      "duplicates": [],
+      "longestRun": 35,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 2,
+      "seed": 595837,
+      "count": 5,
+      "uniqueTasks": 5,
+      "families": {
+        "CAMERA_DIRECTION": 5
+      },
+      "duplicates": [],
+      "longestRun": 5,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 2,
+      "seed": 595837,
+      "count": 10,
+      "uniqueTasks": 10,
+      "families": {
+        "CAMERA_DIRECTION": 10
+      },
+      "duplicates": [],
+      "longestRun": 10,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 2,
+      "seed": 595837,
+      "count": 15,
+      "uniqueTasks": 15,
+      "families": {
+        "CAMERA_DIRECTION": 15
+      },
+      "duplicates": [],
+      "longestRun": 15,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 2,
+      "seed": 595837,
+      "count": 20,
+      "uniqueTasks": 20,
+      "families": {
+        "CAMERA_DIRECTION": 20
+      },
+      "duplicates": [],
+      "longestRun": 20,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 2,
+      "seed": 595837,
+      "count": 35,
+      "uniqueTasks": 35,
+      "families": {
+        "CAMERA_DIRECTION": 35
+      },
+      "duplicates": [],
+      "longestRun": 35,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 2,
+      "seed": 603756,
+      "count": 5,
+      "uniqueTasks": 5,
+      "families": {
+        "CAMERA_DIRECTION": 5
+      },
+      "duplicates": [],
+      "longestRun": 5,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 2,
+      "seed": 603756,
+      "count": 10,
+      "uniqueTasks": 10,
+      "families": {
+        "CAMERA_DIRECTION": 10
+      },
+      "duplicates": [],
+      "longestRun": 10,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 2,
+      "seed": 603756,
+      "count": 15,
+      "uniqueTasks": 15,
+      "families": {
+        "CAMERA_DIRECTION": 15
+      },
+      "duplicates": [],
+      "longestRun": 15,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 2,
+      "seed": 603756,
+      "count": 20,
+      "uniqueTasks": 20,
+      "families": {
+        "CAMERA_DIRECTION": 20
+      },
+      "duplicates": [],
+      "longestRun": 20,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 2,
+      "seed": 603756,
+      "count": 35,
+      "uniqueTasks": 35,
+      "families": {
+        "CAMERA_DIRECTION": 35
+      },
+      "duplicates": [],
+      "longestRun": 35,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 2,
+      "seed": 611675,
+      "count": 5,
+      "uniqueTasks": 5,
+      "families": {
+        "CAMERA_DIRECTION": 5
+      },
+      "duplicates": [],
+      "longestRun": 5,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 2,
+      "seed": 611675,
+      "count": 10,
+      "uniqueTasks": 10,
+      "families": {
+        "CAMERA_DIRECTION": 10
+      },
+      "duplicates": [],
+      "longestRun": 10,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 2,
+      "seed": 611675,
+      "count": 15,
+      "uniqueTasks": 15,
+      "families": {
+        "CAMERA_DIRECTION": 15
+      },
+      "duplicates": [],
+      "longestRun": 15,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 2,
+      "seed": 611675,
+      "count": 20,
+      "uniqueTasks": 20,
+      "families": {
+        "CAMERA_DIRECTION": 20
+      },
+      "duplicates": [],
+      "longestRun": 20,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 2,
+      "seed": 611675,
+      "count": 35,
+      "uniqueTasks": 35,
+      "families": {
+        "CAMERA_DIRECTION": 35
+      },
+      "duplicates": [],
+      "longestRun": 35,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 2,
+      "seed": 999999,
+      "count": 5,
+      "uniqueTasks": 5,
+      "families": {
+        "CAMERA_DIRECTION": 5
+      },
+      "duplicates": [],
+      "longestRun": 5,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 2,
+      "seed": 999999,
+      "count": 10,
+      "uniqueTasks": 10,
+      "families": {
+        "CAMERA_DIRECTION": 10
+      },
+      "duplicates": [],
+      "longestRun": 10,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 2,
+      "seed": 999999,
+      "count": 15,
+      "uniqueTasks": 15,
+      "families": {
+        "CAMERA_DIRECTION": 15
+      },
+      "duplicates": [],
+      "longestRun": 15,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 2,
+      "seed": 999999,
+      "count": 20,
+      "uniqueTasks": 20,
+      "families": {
+        "CAMERA_DIRECTION": 20
+      },
+      "duplicates": [],
+      "longestRun": 20,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 2,
+      "seed": 999999,
+      "count": 35,
+      "uniqueTasks": 35,
+      "families": {
+        "CAMERA_DIRECTION": 35
+      },
+      "duplicates": [],
+      "longestRun": 35,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 3,
+      "seed": 0,
+      "count": 5,
+      "uniqueTasks": 5,
+      "families": {
+        "PROJECTION_DRAW": 5
+      },
+      "duplicates": [],
+      "longestRun": 5,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 3,
+      "seed": 0,
+      "count": 10,
+      "uniqueTasks": 10,
+      "families": {
+        "PROJECTION_DRAW": 10
+      },
+      "duplicates": [],
+      "longestRun": 10,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 3,
+      "seed": 0,
+      "count": 15,
+      "uniqueTasks": 15,
+      "families": {
+        "PROJECTION_DRAW": 15
+      },
+      "duplicates": [],
+      "longestRun": 15,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 3,
+      "seed": 0,
+      "count": 20,
+      "uniqueTasks": 20,
+      "families": {
+        "PROJECTION_DRAW": 20
+      },
+      "duplicates": [],
+      "longestRun": 20,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 3,
+      "seed": 0,
+      "count": 35,
+      "uniqueTasks": 35,
+      "families": {
+        "PROJECTION_DRAW": 35
+      },
+      "duplicates": [],
+      "longestRun": 35,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 3,
+      "seed": 1,
+      "count": 5,
+      "uniqueTasks": 5,
+      "families": {
+        "PROJECTION_DRAW": 5
+      },
+      "duplicates": [],
+      "longestRun": 5,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 3,
+      "seed": 1,
+      "count": 10,
+      "uniqueTasks": 10,
+      "families": {
+        "PROJECTION_DRAW": 10
+      },
+      "duplicates": [],
+      "longestRun": 10,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 3,
+      "seed": 1,
+      "count": 15,
+      "uniqueTasks": 15,
+      "families": {
+        "PROJECTION_DRAW": 15
+      },
+      "duplicates": [],
+      "longestRun": 15,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 3,
+      "seed": 1,
+      "count": 20,
+      "uniqueTasks": 20,
+      "families": {
+        "PROJECTION_DRAW": 20
+      },
+      "duplicates": [],
+      "longestRun": 20,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 3,
+      "seed": 1,
+      "count": 35,
+      "uniqueTasks": 35,
+      "families": {
+        "PROJECTION_DRAW": 35
+      },
+      "duplicates": [],
+      "longestRun": 35,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 3,
+      "seed": 2,
+      "count": 5,
+      "uniqueTasks": 5,
+      "families": {
+        "PROJECTION_DRAW": 5
+      },
+      "duplicates": [],
+      "longestRun": 5,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 3,
+      "seed": 2,
+      "count": 10,
+      "uniqueTasks": 10,
+      "families": {
+        "PROJECTION_DRAW": 10
+      },
+      "duplicates": [],
+      "longestRun": 10,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 3,
+      "seed": 2,
+      "count": 15,
+      "uniqueTasks": 15,
+      "families": {
+        "PROJECTION_DRAW": 15
+      },
+      "duplicates": [],
+      "longestRun": 15,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 3,
+      "seed": 2,
+      "count": 20,
+      "uniqueTasks": 20,
+      "families": {
+        "PROJECTION_DRAW": 20
+      },
+      "duplicates": [],
+      "longestRun": 20,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 3,
+      "seed": 2,
+      "count": 35,
+      "uniqueTasks": 35,
+      "families": {
+        "PROJECTION_DRAW": 35
+      },
+      "duplicates": [],
+      "longestRun": 35,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 3,
+      "seed": 3,
+      "count": 5,
+      "uniqueTasks": 5,
+      "families": {
+        "PROJECTION_DRAW": 5
+      },
+      "duplicates": [],
+      "longestRun": 5,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 3,
+      "seed": 3,
+      "count": 10,
+      "uniqueTasks": 10,
+      "families": {
+        "PROJECTION_DRAW": 10
+      },
+      "duplicates": [],
+      "longestRun": 10,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 3,
+      "seed": 3,
+      "count": 15,
+      "uniqueTasks": 15,
+      "families": {
+        "PROJECTION_DRAW": 15
+      },
+      "duplicates": [],
+      "longestRun": 15,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 3,
+      "seed": 3,
+      "count": 20,
+      "uniqueTasks": 20,
+      "families": {
+        "PROJECTION_DRAW": 20
+      },
+      "duplicates": [],
+      "longestRun": 20,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 3,
+      "seed": 3,
+      "count": 35,
+      "uniqueTasks": 35,
+      "families": {
+        "PROJECTION_DRAW": 35
+      },
+      "duplicates": [],
+      "longestRun": 35,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 3,
+      "seed": 42,
+      "count": 5,
+      "uniqueTasks": 5,
+      "families": {
+        "PROJECTION_DRAW": 5
+      },
+      "duplicates": [],
+      "longestRun": 5,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 3,
+      "seed": 42,
+      "count": 10,
+      "uniqueTasks": 10,
+      "families": {
+        "PROJECTION_DRAW": 10
+      },
+      "duplicates": [],
+      "longestRun": 10,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 3,
+      "seed": 42,
+      "count": 15,
+      "uniqueTasks": 15,
+      "families": {
+        "PROJECTION_DRAW": 15
+      },
+      "duplicates": [],
+      "longestRun": 15,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 3,
+      "seed": 42,
+      "count": 20,
+      "uniqueTasks": 20,
+      "families": {
+        "PROJECTION_DRAW": 20
+      },
+      "duplicates": [],
+      "longestRun": 20,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 3,
+      "seed": 42,
+      "count": 35,
+      "uniqueTasks": 35,
+      "families": {
+        "PROJECTION_DRAW": 35
+      },
+      "duplicates": [],
+      "longestRun": 35,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 3,
+      "seed": 123,
+      "count": 5,
+      "uniqueTasks": 5,
+      "families": {
+        "PROJECTION_DRAW": 5
+      },
+      "duplicates": [],
+      "longestRun": 5,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 3,
+      "seed": 123,
+      "count": 10,
+      "uniqueTasks": 10,
+      "families": {
+        "PROJECTION_DRAW": 10
+      },
+      "duplicates": [],
+      "longestRun": 10,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 3,
+      "seed": 123,
+      "count": 15,
+      "uniqueTasks": 15,
+      "families": {
+        "PROJECTION_DRAW": 15
+      },
+      "duplicates": [],
+      "longestRun": 15,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 3,
+      "seed": 123,
+      "count": 20,
+      "uniqueTasks": 20,
+      "families": {
+        "PROJECTION_DRAW": 20
+      },
+      "duplicates": [],
+      "longestRun": 20,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 3,
+      "seed": 123,
+      "count": 35,
+      "uniqueTasks": 35,
+      "families": {
+        "PROJECTION_DRAW": 35
+      },
+      "duplicates": [],
+      "longestRun": 35,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 3,
+      "seed": 7919,
+      "count": 5,
+      "uniqueTasks": 5,
+      "families": {
+        "PROJECTION_DRAW": 5
+      },
+      "duplicates": [],
+      "longestRun": 5,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 3,
+      "seed": 7919,
+      "count": 10,
+      "uniqueTasks": 10,
+      "families": {
+        "PROJECTION_DRAW": 10
+      },
+      "duplicates": [],
+      "longestRun": 10,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 3,
+      "seed": 7919,
+      "count": 15,
+      "uniqueTasks": 15,
+      "families": {
+        "PROJECTION_DRAW": 15
+      },
+      "duplicates": [],
+      "longestRun": 15,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 3,
+      "seed": 7919,
+      "count": 20,
+      "uniqueTasks": 20,
+      "families": {
+        "PROJECTION_DRAW": 20
+      },
+      "duplicates": [],
+      "longestRun": 20,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 3,
+      "seed": 7919,
+      "count": 35,
+      "uniqueTasks": 35,
+      "families": {
+        "PROJECTION_DRAW": 35
+      },
+      "duplicates": [],
+      "longestRun": 35,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 3,
+      "seed": 595837,
+      "count": 5,
+      "uniqueTasks": 5,
+      "families": {
+        "PROJECTION_DRAW": 5
+      },
+      "duplicates": [],
+      "longestRun": 5,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 3,
+      "seed": 595837,
+      "count": 10,
+      "uniqueTasks": 10,
+      "families": {
+        "PROJECTION_DRAW": 10
+      },
+      "duplicates": [],
+      "longestRun": 10,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 3,
+      "seed": 595837,
+      "count": 15,
+      "uniqueTasks": 15,
+      "families": {
+        "PROJECTION_DRAW": 15
+      },
+      "duplicates": [],
+      "longestRun": 15,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 3,
+      "seed": 595837,
+      "count": 20,
+      "uniqueTasks": 20,
+      "families": {
+        "PROJECTION_DRAW": 20
+      },
+      "duplicates": [],
+      "longestRun": 20,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 3,
+      "seed": 595837,
+      "count": 35,
+      "uniqueTasks": 35,
+      "families": {
+        "PROJECTION_DRAW": 35
+      },
+      "duplicates": [],
+      "longestRun": 35,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 3,
+      "seed": 603756,
+      "count": 5,
+      "uniqueTasks": 5,
+      "families": {
+        "PROJECTION_DRAW": 5
+      },
+      "duplicates": [],
+      "longestRun": 5,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 3,
+      "seed": 603756,
+      "count": 10,
+      "uniqueTasks": 10,
+      "families": {
+        "PROJECTION_DRAW": 10
+      },
+      "duplicates": [],
+      "longestRun": 10,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 3,
+      "seed": 603756,
+      "count": 15,
+      "uniqueTasks": 15,
+      "families": {
+        "PROJECTION_DRAW": 15
+      },
+      "duplicates": [],
+      "longestRun": 15,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 3,
+      "seed": 603756,
+      "count": 20,
+      "uniqueTasks": 20,
+      "families": {
+        "PROJECTION_DRAW": 20
+      },
+      "duplicates": [],
+      "longestRun": 20,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 3,
+      "seed": 603756,
+      "count": 35,
+      "uniqueTasks": 35,
+      "families": {
+        "PROJECTION_DRAW": 35
+      },
+      "duplicates": [],
+      "longestRun": 35,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 3,
+      "seed": 611675,
+      "count": 5,
+      "uniqueTasks": 5,
+      "families": {
+        "PROJECTION_DRAW": 5
+      },
+      "duplicates": [],
+      "longestRun": 5,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 3,
+      "seed": 611675,
+      "count": 10,
+      "uniqueTasks": 10,
+      "families": {
+        "PROJECTION_DRAW": 10
+      },
+      "duplicates": [],
+      "longestRun": 10,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 3,
+      "seed": 611675,
+      "count": 15,
+      "uniqueTasks": 15,
+      "families": {
+        "PROJECTION_DRAW": 15
+      },
+      "duplicates": [],
+      "longestRun": 15,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 3,
+      "seed": 611675,
+      "count": 20,
+      "uniqueTasks": 20,
+      "families": {
+        "PROJECTION_DRAW": 20
+      },
+      "duplicates": [],
+      "longestRun": 20,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 3,
+      "seed": 611675,
+      "count": 35,
+      "uniqueTasks": 35,
+      "families": {
+        "PROJECTION_DRAW": 35
+      },
+      "duplicates": [],
+      "longestRun": 35,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 3,
+      "seed": 999999,
+      "count": 5,
+      "uniqueTasks": 5,
+      "families": {
+        "PROJECTION_DRAW": 5
+      },
+      "duplicates": [],
+      "longestRun": 5,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 3,
+      "seed": 999999,
+      "count": 10,
+      "uniqueTasks": 10,
+      "families": {
+        "PROJECTION_DRAW": 10
+      },
+      "duplicates": [],
+      "longestRun": 10,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 3,
+      "seed": 999999,
+      "count": 15,
+      "uniqueTasks": 15,
+      "families": {
+        "PROJECTION_DRAW": 15
+      },
+      "duplicates": [],
+      "longestRun": 15,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 3,
+      "seed": 999999,
+      "count": 20,
+      "uniqueTasks": 20,
+      "families": {
+        "PROJECTION_DRAW": 20
+      },
+      "duplicates": [],
+      "longestRun": 20,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 3,
+      "seed": 999999,
+      "count": 35,
+      "uniqueTasks": 35,
+      "families": {
+        "PROJECTION_DRAW": 35
+      },
+      "duplicates": [],
+      "longestRun": 35,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 4,
+      "seed": 0,
+      "count": 5,
+      "uniqueTasks": 5,
+      "families": {
+        "COUNT": 2,
+        "HEIGHTMAP_FROM_BUILD": 1,
+        "LAYER_DRAW": 1,
+        "CHOICE": 1
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 4,
+      "seed": 0,
+      "count": 10,
+      "uniqueTasks": 10,
+      "families": {
+        "COUNT": 4,
+        "HEIGHTMAP_FROM_BUILD": 3,
+        "LAYER_DRAW": 2,
+        "CHOICE": 1
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 4,
+      "seed": 0,
+      "count": 15,
+      "uniqueTasks": 15,
+      "families": {
+        "COUNT": 6,
+        "HEIGHTMAP_FROM_BUILD": 5,
+        "LAYER_DRAW": 2,
+        "CHOICE": 2
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 4,
+      "seed": 0,
+      "count": 20,
+      "uniqueTasks": 20,
+      "families": {
+        "COUNT": 7,
+        "HEIGHTMAP_FROM_BUILD": 7,
+        "LAYER_DRAW": 3,
+        "CHOICE": 3
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 4,
+      "seed": 0,
+      "count": 35,
+      "uniqueTasks": 35,
+      "families": {
+        "COUNT": 12,
+        "HEIGHTMAP_FROM_BUILD": 11,
+        "LAYER_DRAW": 6,
+        "CHOICE": 6
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 4,
+      "seed": 1,
+      "count": 5,
+      "uniqueTasks": 5,
+      "families": {
+        "COUNT": 2,
+        "HEIGHTMAP_FROM_BUILD": 1,
+        "LAYER_DRAW": 1,
+        "CHOICE": 1
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 4,
+      "seed": 1,
+      "count": 10,
+      "uniqueTasks": 10,
+      "families": {
+        "COUNT": 4,
+        "HEIGHTMAP_FROM_BUILD": 3,
+        "LAYER_DRAW": 2,
+        "CHOICE": 1
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 4,
+      "seed": 1,
+      "count": 15,
+      "uniqueTasks": 15,
+      "families": {
+        "COUNT": 6,
+        "HEIGHTMAP_FROM_BUILD": 5,
+        "LAYER_DRAW": 2,
+        "CHOICE": 2
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 4,
+      "seed": 1,
+      "count": 20,
+      "uniqueTasks": 20,
+      "families": {
+        "COUNT": 7,
+        "HEIGHTMAP_FROM_BUILD": 7,
+        "LAYER_DRAW": 3,
+        "CHOICE": 3
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 4,
+      "seed": 1,
+      "count": 35,
+      "uniqueTasks": 35,
+      "families": {
+        "COUNT": 12,
+        "HEIGHTMAP_FROM_BUILD": 11,
+        "LAYER_DRAW": 6,
+        "CHOICE": 6
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 4,
+      "seed": 2,
+      "count": 5,
+      "uniqueTasks": 5,
+      "families": {
+        "COUNT": 2,
+        "HEIGHTMAP_FROM_BUILD": 1,
+        "LAYER_DRAW": 1,
+        "CHOICE": 1
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 4,
+      "seed": 2,
+      "count": 10,
+      "uniqueTasks": 10,
+      "families": {
+        "COUNT": 4,
+        "HEIGHTMAP_FROM_BUILD": 3,
+        "LAYER_DRAW": 2,
+        "CHOICE": 1
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 4,
+      "seed": 2,
+      "count": 15,
+      "uniqueTasks": 15,
+      "families": {
+        "COUNT": 6,
+        "HEIGHTMAP_FROM_BUILD": 5,
+        "LAYER_DRAW": 2,
+        "CHOICE": 2
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 4,
+      "seed": 2,
+      "count": 20,
+      "uniqueTasks": 20,
+      "families": {
+        "COUNT": 7,
+        "HEIGHTMAP_FROM_BUILD": 7,
+        "LAYER_DRAW": 3,
+        "CHOICE": 3
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 4,
+      "seed": 2,
+      "count": 35,
+      "uniqueTasks": 35,
+      "families": {
+        "COUNT": 12,
+        "HEIGHTMAP_FROM_BUILD": 11,
+        "LAYER_DRAW": 6,
+        "CHOICE": 6
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 4,
+      "seed": 3,
+      "count": 5,
+      "uniqueTasks": 5,
+      "families": {
+        "COUNT": 2,
+        "HEIGHTMAP_FROM_BUILD": 1,
+        "LAYER_DRAW": 1,
+        "CHOICE": 1
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 4,
+      "seed": 3,
+      "count": 10,
+      "uniqueTasks": 10,
+      "families": {
+        "COUNT": 4,
+        "HEIGHTMAP_FROM_BUILD": 3,
+        "LAYER_DRAW": 2,
+        "CHOICE": 1
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 4,
+      "seed": 3,
+      "count": 15,
+      "uniqueTasks": 15,
+      "families": {
+        "COUNT": 6,
+        "HEIGHTMAP_FROM_BUILD": 5,
+        "LAYER_DRAW": 2,
+        "CHOICE": 2
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 4,
+      "seed": 3,
+      "count": 20,
+      "uniqueTasks": 20,
+      "families": {
+        "COUNT": 7,
+        "HEIGHTMAP_FROM_BUILD": 7,
+        "LAYER_DRAW": 3,
+        "CHOICE": 3
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 4,
+      "seed": 3,
+      "count": 35,
+      "uniqueTasks": 35,
+      "families": {
+        "COUNT": 12,
+        "HEIGHTMAP_FROM_BUILD": 11,
+        "LAYER_DRAW": 6,
+        "CHOICE": 6
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 4,
+      "seed": 42,
+      "count": 5,
+      "uniqueTasks": 5,
+      "families": {
+        "COUNT": 2,
+        "HEIGHTMAP_FROM_BUILD": 1,
+        "LAYER_DRAW": 1,
+        "CHOICE": 1
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 4,
+      "seed": 42,
+      "count": 10,
+      "uniqueTasks": 10,
+      "families": {
+        "COUNT": 4,
+        "HEIGHTMAP_FROM_BUILD": 3,
+        "LAYER_DRAW": 2,
+        "CHOICE": 1
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 4,
+      "seed": 42,
+      "count": 15,
+      "uniqueTasks": 15,
+      "families": {
+        "COUNT": 6,
+        "HEIGHTMAP_FROM_BUILD": 5,
+        "LAYER_DRAW": 2,
+        "CHOICE": 2
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 4,
+      "seed": 42,
+      "count": 20,
+      "uniqueTasks": 20,
+      "families": {
+        "COUNT": 7,
+        "HEIGHTMAP_FROM_BUILD": 7,
+        "LAYER_DRAW": 3,
+        "CHOICE": 3
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 4,
+      "seed": 42,
+      "count": 35,
+      "uniqueTasks": 35,
+      "families": {
+        "COUNT": 12,
+        "HEIGHTMAP_FROM_BUILD": 11,
+        "LAYER_DRAW": 6,
+        "CHOICE": 6
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 4,
+      "seed": 123,
+      "count": 5,
+      "uniqueTasks": 5,
+      "families": {
+        "COUNT": 2,
+        "HEIGHTMAP_FROM_BUILD": 1,
+        "LAYER_DRAW": 1,
+        "CHOICE": 1
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 4,
+      "seed": 123,
+      "count": 10,
+      "uniqueTasks": 10,
+      "families": {
+        "COUNT": 4,
+        "HEIGHTMAP_FROM_BUILD": 3,
+        "LAYER_DRAW": 2,
+        "CHOICE": 1
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 4,
+      "seed": 123,
+      "count": 15,
+      "uniqueTasks": 15,
+      "families": {
+        "COUNT": 6,
+        "HEIGHTMAP_FROM_BUILD": 5,
+        "LAYER_DRAW": 2,
+        "CHOICE": 2
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 4,
+      "seed": 123,
+      "count": 20,
+      "uniqueTasks": 20,
+      "families": {
+        "COUNT": 7,
+        "HEIGHTMAP_FROM_BUILD": 7,
+        "LAYER_DRAW": 3,
+        "CHOICE": 3
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 4,
+      "seed": 123,
+      "count": 35,
+      "uniqueTasks": 35,
+      "families": {
+        "COUNT": 12,
+        "HEIGHTMAP_FROM_BUILD": 11,
+        "LAYER_DRAW": 6,
+        "CHOICE": 6
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 4,
+      "seed": 7919,
+      "count": 5,
+      "uniqueTasks": 5,
+      "families": {
+        "COUNT": 2,
+        "HEIGHTMAP_FROM_BUILD": 1,
+        "LAYER_DRAW": 1,
+        "CHOICE": 1
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 4,
+      "seed": 7919,
+      "count": 10,
+      "uniqueTasks": 10,
+      "families": {
+        "COUNT": 4,
+        "HEIGHTMAP_FROM_BUILD": 3,
+        "LAYER_DRAW": 2,
+        "CHOICE": 1
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 4,
+      "seed": 7919,
+      "count": 15,
+      "uniqueTasks": 15,
+      "families": {
+        "COUNT": 6,
+        "HEIGHTMAP_FROM_BUILD": 5,
+        "LAYER_DRAW": 2,
+        "CHOICE": 2
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 4,
+      "seed": 7919,
+      "count": 20,
+      "uniqueTasks": 20,
+      "families": {
+        "COUNT": 7,
+        "HEIGHTMAP_FROM_BUILD": 7,
+        "LAYER_DRAW": 3,
+        "CHOICE": 3
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 4,
+      "seed": 7919,
+      "count": 35,
+      "uniqueTasks": 35,
+      "families": {
+        "COUNT": 12,
+        "HEIGHTMAP_FROM_BUILD": 11,
+        "LAYER_DRAW": 6,
+        "CHOICE": 6
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 4,
+      "seed": 595837,
+      "count": 5,
+      "uniqueTasks": 5,
+      "families": {
+        "COUNT": 2,
+        "HEIGHTMAP_FROM_BUILD": 1,
+        "LAYER_DRAW": 1,
+        "CHOICE": 1
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 4,
+      "seed": 595837,
+      "count": 10,
+      "uniqueTasks": 10,
+      "families": {
+        "COUNT": 4,
+        "HEIGHTMAP_FROM_BUILD": 3,
+        "LAYER_DRAW": 2,
+        "CHOICE": 1
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 4,
+      "seed": 595837,
+      "count": 15,
+      "uniqueTasks": 15,
+      "families": {
+        "COUNT": 6,
+        "HEIGHTMAP_FROM_BUILD": 5,
+        "LAYER_DRAW": 2,
+        "CHOICE": 2
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 4,
+      "seed": 595837,
+      "count": 20,
+      "uniqueTasks": 20,
+      "families": {
+        "COUNT": 7,
+        "HEIGHTMAP_FROM_BUILD": 7,
+        "LAYER_DRAW": 3,
+        "CHOICE": 3
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 4,
+      "seed": 595837,
+      "count": 35,
+      "uniqueTasks": 35,
+      "families": {
+        "COUNT": 12,
+        "HEIGHTMAP_FROM_BUILD": 11,
+        "LAYER_DRAW": 6,
+        "CHOICE": 6
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 4,
+      "seed": 603756,
+      "count": 5,
+      "uniqueTasks": 5,
+      "families": {
+        "COUNT": 2,
+        "HEIGHTMAP_FROM_BUILD": 1,
+        "LAYER_DRAW": 1,
+        "CHOICE": 1
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 4,
+      "seed": 603756,
+      "count": 10,
+      "uniqueTasks": 10,
+      "families": {
+        "COUNT": 4,
+        "HEIGHTMAP_FROM_BUILD": 3,
+        "LAYER_DRAW": 2,
+        "CHOICE": 1
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 4,
+      "seed": 603756,
+      "count": 15,
+      "uniqueTasks": 15,
+      "families": {
+        "COUNT": 6,
+        "HEIGHTMAP_FROM_BUILD": 5,
+        "LAYER_DRAW": 2,
+        "CHOICE": 2
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 4,
+      "seed": 603756,
+      "count": 20,
+      "uniqueTasks": 20,
+      "families": {
+        "COUNT": 7,
+        "HEIGHTMAP_FROM_BUILD": 7,
+        "LAYER_DRAW": 3,
+        "CHOICE": 3
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 4,
+      "seed": 603756,
+      "count": 35,
+      "uniqueTasks": 35,
+      "families": {
+        "COUNT": 12,
+        "HEIGHTMAP_FROM_BUILD": 11,
+        "LAYER_DRAW": 6,
+        "CHOICE": 6
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 4,
+      "seed": 611675,
+      "count": 5,
+      "uniqueTasks": 5,
+      "families": {
+        "COUNT": 2,
+        "HEIGHTMAP_FROM_BUILD": 1,
+        "LAYER_DRAW": 1,
+        "CHOICE": 1
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 4,
+      "seed": 611675,
+      "count": 10,
+      "uniqueTasks": 10,
+      "families": {
+        "COUNT": 4,
+        "HEIGHTMAP_FROM_BUILD": 3,
+        "LAYER_DRAW": 2,
+        "CHOICE": 1
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 4,
+      "seed": 611675,
+      "count": 15,
+      "uniqueTasks": 15,
+      "families": {
+        "COUNT": 6,
+        "HEIGHTMAP_FROM_BUILD": 5,
+        "LAYER_DRAW": 2,
+        "CHOICE": 2
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 4,
+      "seed": 611675,
+      "count": 20,
+      "uniqueTasks": 20,
+      "families": {
+        "COUNT": 7,
+        "HEIGHTMAP_FROM_BUILD": 7,
+        "LAYER_DRAW": 3,
+        "CHOICE": 3
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 4,
+      "seed": 611675,
+      "count": 35,
+      "uniqueTasks": 35,
+      "families": {
+        "COUNT": 12,
+        "HEIGHTMAP_FROM_BUILD": 11,
+        "LAYER_DRAW": 6,
+        "CHOICE": 6
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 4,
+      "seed": 999999,
+      "count": 5,
+      "uniqueTasks": 5,
+      "families": {
+        "COUNT": 2,
+        "HEIGHTMAP_FROM_BUILD": 1,
+        "LAYER_DRAW": 1,
+        "CHOICE": 1
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 4,
+      "seed": 999999,
+      "count": 10,
+      "uniqueTasks": 10,
+      "families": {
+        "COUNT": 4,
+        "HEIGHTMAP_FROM_BUILD": 3,
+        "LAYER_DRAW": 2,
+        "CHOICE": 1
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 4,
+      "seed": 999999,
+      "count": 15,
+      "uniqueTasks": 15,
+      "families": {
+        "COUNT": 6,
+        "HEIGHTMAP_FROM_BUILD": 5,
+        "LAYER_DRAW": 2,
+        "CHOICE": 2
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 4,
+      "seed": 999999,
+      "count": 20,
+      "uniqueTasks": 20,
+      "families": {
+        "COUNT": 7,
+        "HEIGHTMAP_FROM_BUILD": 7,
+        "LAYER_DRAW": 3,
+        "CHOICE": 3
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 4,
+      "seed": 999999,
+      "count": 35,
+      "uniqueTasks": 35,
+      "families": {
+        "COUNT": 12,
+        "HEIGHTMAP_FROM_BUILD": 11,
+        "LAYER_DRAW": 6,
+        "CHOICE": 6
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 5,
+      "seed": 0,
+      "count": 5,
+      "uniqueTasks": 5,
+      "families": {
+        "lesson5-unknown-choice": 1,
+        "lesson5-hidden-min": 1,
+        "lesson5-hidden-max": 1,
+        "lesson5-extra-info": 1,
+        "lesson5-same-view": 1
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "L5_PUBLIC_TASK_CRITERIA",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 5,
+      "seed": 0,
+      "count": 10,
+      "uniqueTasks": 10,
+      "families": {
+        "lesson5-unknown-choice": 2,
+        "lesson5-hidden-min": 2,
+        "lesson5-hidden-max": 2,
+        "lesson5-extra-info": 2,
+        "lesson5-same-view": 1,
+        "lesson5-reveal-count": 1
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "L5_PUBLIC_TASK_CRITERIA",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 5,
+      "seed": 0,
+      "count": 15,
+      "uniqueTasks": 15,
+      "families": {
+        "lesson5-unknown-choice": 3,
+        "lesson5-hidden-min": 3,
+        "lesson5-hidden-max": 3,
+        "lesson5-extra-info": 2,
+        "lesson5-same-view": 2,
+        "lesson5-reveal-count": 2
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "L5_PUBLIC_TASK_CRITERIA",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 5,
+      "seed": 0,
+      "count": 20,
+      "uniqueTasks": 20,
+      "families": {
+        "lesson5-unknown-choice": 4,
+        "lesson5-hidden-min": 4,
+        "lesson5-hidden-max": 3,
+        "lesson5-extra-info": 3,
+        "lesson5-same-view": 3,
+        "lesson5-reveal-count": 3
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "L5_PUBLIC_TASK_CRITERIA",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 5,
+      "seed": 0,
+      "count": 35,
+      "uniqueTasks": 35,
+      "families": {
+        "lesson5-unknown-choice": 6,
+        "lesson5-hidden-min": 6,
+        "lesson5-hidden-max": 6,
+        "lesson5-extra-info": 6,
+        "lesson5-same-view": 6,
+        "lesson5-reveal-count": 5
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "L5_PUBLIC_TASK_CRITERIA",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 5,
+      "seed": 1,
+      "count": 5,
+      "uniqueTasks": 5,
+      "families": {
+        "lesson5-unknown-choice": 1,
+        "lesson5-hidden-min": 1,
+        "lesson5-hidden-max": 1,
+        "lesson5-extra-info": 1,
+        "lesson5-same-view": 1
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "L5_PUBLIC_TASK_CRITERIA",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 5,
+      "seed": 1,
+      "count": 10,
+      "uniqueTasks": 10,
+      "families": {
+        "lesson5-unknown-choice": 2,
+        "lesson5-hidden-min": 2,
+        "lesson5-hidden-max": 2,
+        "lesson5-extra-info": 2,
+        "lesson5-same-view": 1,
+        "lesson5-reveal-count": 1
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "L5_PUBLIC_TASK_CRITERIA",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 5,
+      "seed": 1,
+      "count": 15,
+      "uniqueTasks": 15,
+      "families": {
+        "lesson5-unknown-choice": 3,
+        "lesson5-hidden-min": 3,
+        "lesson5-hidden-max": 3,
+        "lesson5-extra-info": 2,
+        "lesson5-same-view": 2,
+        "lesson5-reveal-count": 2
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "L5_PUBLIC_TASK_CRITERIA",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 5,
+      "seed": 1,
+      "count": 20,
+      "uniqueTasks": 20,
+      "families": {
+        "lesson5-unknown-choice": 4,
+        "lesson5-hidden-min": 4,
+        "lesson5-hidden-max": 3,
+        "lesson5-extra-info": 3,
+        "lesson5-same-view": 3,
+        "lesson5-reveal-count": 3
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "L5_PUBLIC_TASK_CRITERIA",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 5,
+      "seed": 1,
+      "count": 35,
+      "uniqueTasks": 35,
+      "families": {
+        "lesson5-unknown-choice": 6,
+        "lesson5-hidden-min": 6,
+        "lesson5-hidden-max": 6,
+        "lesson5-extra-info": 6,
+        "lesson5-same-view": 6,
+        "lesson5-reveal-count": 5
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "L5_PUBLIC_TASK_CRITERIA",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 5,
+      "seed": 2,
+      "count": 5,
+      "uniqueTasks": 5,
+      "families": {
+        "lesson5-unknown-choice": 1,
+        "lesson5-hidden-min": 1,
+        "lesson5-hidden-max": 1,
+        "lesson5-extra-info": 1,
+        "lesson5-same-view": 1
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "L5_PUBLIC_TASK_CRITERIA",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 5,
+      "seed": 2,
+      "count": 10,
+      "uniqueTasks": 10,
+      "families": {
+        "lesson5-unknown-choice": 2,
+        "lesson5-hidden-min": 2,
+        "lesson5-hidden-max": 2,
+        "lesson5-extra-info": 2,
+        "lesson5-same-view": 1,
+        "lesson5-reveal-count": 1
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "L5_PUBLIC_TASK_CRITERIA",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 5,
+      "seed": 2,
+      "count": 15,
+      "uniqueTasks": 15,
+      "families": {
+        "lesson5-unknown-choice": 3,
+        "lesson5-hidden-min": 3,
+        "lesson5-hidden-max": 3,
+        "lesson5-extra-info": 2,
+        "lesson5-same-view": 2,
+        "lesson5-reveal-count": 2
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "L5_PUBLIC_TASK_CRITERIA",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 5,
+      "seed": 2,
+      "count": 20,
+      "uniqueTasks": 20,
+      "families": {
+        "lesson5-unknown-choice": 4,
+        "lesson5-hidden-min": 4,
+        "lesson5-hidden-max": 3,
+        "lesson5-extra-info": 3,
+        "lesson5-same-view": 3,
+        "lesson5-reveal-count": 3
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "L5_PUBLIC_TASK_CRITERIA",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 5,
+      "seed": 2,
+      "count": 35,
+      "uniqueTasks": 35,
+      "families": {
+        "lesson5-unknown-choice": 6,
+        "lesson5-hidden-min": 6,
+        "lesson5-hidden-max": 6,
+        "lesson5-extra-info": 6,
+        "lesson5-same-view": 6,
+        "lesson5-reveal-count": 5
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "L5_PUBLIC_TASK_CRITERIA",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 5,
+      "seed": 3,
+      "count": 5,
+      "uniqueTasks": 5,
+      "families": {
+        "lesson5-unknown-choice": 1,
+        "lesson5-hidden-min": 1,
+        "lesson5-hidden-max": 1,
+        "lesson5-extra-info": 1,
+        "lesson5-same-view": 1
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "L5_PUBLIC_TASK_CRITERIA",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 5,
+      "seed": 3,
+      "count": 10,
+      "uniqueTasks": 10,
+      "families": {
+        "lesson5-unknown-choice": 2,
+        "lesson5-hidden-min": 2,
+        "lesson5-hidden-max": 2,
+        "lesson5-extra-info": 2,
+        "lesson5-same-view": 1,
+        "lesson5-reveal-count": 1
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "L5_PUBLIC_TASK_CRITERIA",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 5,
+      "seed": 3,
+      "count": 15,
+      "uniqueTasks": 15,
+      "families": {
+        "lesson5-unknown-choice": 3,
+        "lesson5-hidden-min": 3,
+        "lesson5-hidden-max": 3,
+        "lesson5-extra-info": 2,
+        "lesson5-same-view": 2,
+        "lesson5-reveal-count": 2
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "L5_PUBLIC_TASK_CRITERIA",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 5,
+      "seed": 3,
+      "count": 20,
+      "uniqueTasks": 20,
+      "families": {
+        "lesson5-unknown-choice": 4,
+        "lesson5-hidden-min": 4,
+        "lesson5-hidden-max": 3,
+        "lesson5-extra-info": 3,
+        "lesson5-same-view": 3,
+        "lesson5-reveal-count": 3
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "L5_PUBLIC_TASK_CRITERIA",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 5,
+      "seed": 3,
+      "count": 35,
+      "uniqueTasks": 35,
+      "families": {
+        "lesson5-unknown-choice": 6,
+        "lesson5-hidden-min": 6,
+        "lesson5-hidden-max": 6,
+        "lesson5-extra-info": 6,
+        "lesson5-same-view": 6,
+        "lesson5-reveal-count": 5
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "L5_PUBLIC_TASK_CRITERIA",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 5,
+      "seed": 42,
+      "count": 5,
+      "uniqueTasks": 5,
+      "families": {
+        "lesson5-unknown-choice": 1,
+        "lesson5-hidden-min": 1,
+        "lesson5-hidden-max": 1,
+        "lesson5-extra-info": 1,
+        "lesson5-same-view": 1
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "L5_PUBLIC_TASK_CRITERIA",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 5,
+      "seed": 42,
+      "count": 10,
+      "uniqueTasks": 10,
+      "families": {
+        "lesson5-unknown-choice": 2,
+        "lesson5-hidden-min": 2,
+        "lesson5-hidden-max": 2,
+        "lesson5-extra-info": 2,
+        "lesson5-same-view": 1,
+        "lesson5-reveal-count": 1
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "L5_PUBLIC_TASK_CRITERIA",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 5,
+      "seed": 42,
+      "count": 15,
+      "uniqueTasks": 15,
+      "families": {
+        "lesson5-unknown-choice": 3,
+        "lesson5-hidden-min": 3,
+        "lesson5-hidden-max": 3,
+        "lesson5-extra-info": 2,
+        "lesson5-same-view": 2,
+        "lesson5-reveal-count": 2
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "L5_PUBLIC_TASK_CRITERIA",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 5,
+      "seed": 42,
+      "count": 20,
+      "uniqueTasks": 20,
+      "families": {
+        "lesson5-unknown-choice": 4,
+        "lesson5-hidden-min": 4,
+        "lesson5-hidden-max": 3,
+        "lesson5-extra-info": 3,
+        "lesson5-same-view": 3,
+        "lesson5-reveal-count": 3
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "L5_PUBLIC_TASK_CRITERIA",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 5,
+      "seed": 42,
+      "count": 35,
+      "uniqueTasks": 35,
+      "families": {
+        "lesson5-unknown-choice": 6,
+        "lesson5-hidden-min": 6,
+        "lesson5-hidden-max": 6,
+        "lesson5-extra-info": 6,
+        "lesson5-same-view": 6,
+        "lesson5-reveal-count": 5
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "L5_PUBLIC_TASK_CRITERIA",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 5,
+      "seed": 123,
+      "count": 5,
+      "uniqueTasks": 5,
+      "families": {
+        "lesson5-unknown-choice": 1,
+        "lesson5-hidden-min": 1,
+        "lesson5-hidden-max": 1,
+        "lesson5-extra-info": 1,
+        "lesson5-same-view": 1
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "L5_PUBLIC_TASK_CRITERIA",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 5,
+      "seed": 123,
+      "count": 10,
+      "uniqueTasks": 10,
+      "families": {
+        "lesson5-unknown-choice": 2,
+        "lesson5-hidden-min": 2,
+        "lesson5-hidden-max": 2,
+        "lesson5-extra-info": 2,
+        "lesson5-same-view": 1,
+        "lesson5-reveal-count": 1
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "L5_PUBLIC_TASK_CRITERIA",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 5,
+      "seed": 123,
+      "count": 15,
+      "uniqueTasks": 15,
+      "families": {
+        "lesson5-unknown-choice": 3,
+        "lesson5-hidden-min": 3,
+        "lesson5-hidden-max": 3,
+        "lesson5-extra-info": 2,
+        "lesson5-same-view": 2,
+        "lesson5-reveal-count": 2
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "L5_PUBLIC_TASK_CRITERIA",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 5,
+      "seed": 123,
+      "count": 20,
+      "uniqueTasks": 20,
+      "families": {
+        "lesson5-unknown-choice": 4,
+        "lesson5-hidden-min": 4,
+        "lesson5-hidden-max": 3,
+        "lesson5-extra-info": 3,
+        "lesson5-same-view": 3,
+        "lesson5-reveal-count": 3
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "L5_PUBLIC_TASK_CRITERIA",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 5,
+      "seed": 123,
+      "count": 35,
+      "uniqueTasks": 35,
+      "families": {
+        "lesson5-unknown-choice": 6,
+        "lesson5-hidden-min": 6,
+        "lesson5-hidden-max": 6,
+        "lesson5-extra-info": 6,
+        "lesson5-same-view": 6,
+        "lesson5-reveal-count": 5
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "L5_PUBLIC_TASK_CRITERIA",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 5,
+      "seed": 7919,
+      "count": 5,
+      "uniqueTasks": 5,
+      "families": {
+        "lesson5-unknown-choice": 1,
+        "lesson5-hidden-min": 1,
+        "lesson5-hidden-max": 1,
+        "lesson5-extra-info": 1,
+        "lesson5-same-view": 1
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "L5_PUBLIC_TASK_CRITERIA",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 5,
+      "seed": 7919,
+      "count": 10,
+      "uniqueTasks": 10,
+      "families": {
+        "lesson5-unknown-choice": 2,
+        "lesson5-hidden-min": 2,
+        "lesson5-hidden-max": 2,
+        "lesson5-extra-info": 2,
+        "lesson5-same-view": 1,
+        "lesson5-reveal-count": 1
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "L5_PUBLIC_TASK_CRITERIA",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 5,
+      "seed": 7919,
+      "count": 15,
+      "uniqueTasks": 15,
+      "families": {
+        "lesson5-unknown-choice": 3,
+        "lesson5-hidden-min": 3,
+        "lesson5-hidden-max": 3,
+        "lesson5-extra-info": 2,
+        "lesson5-same-view": 2,
+        "lesson5-reveal-count": 2
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "L5_PUBLIC_TASK_CRITERIA",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 5,
+      "seed": 7919,
+      "count": 20,
+      "uniqueTasks": 20,
+      "families": {
+        "lesson5-unknown-choice": 4,
+        "lesson5-hidden-min": 4,
+        "lesson5-hidden-max": 3,
+        "lesson5-extra-info": 3,
+        "lesson5-same-view": 3,
+        "lesson5-reveal-count": 3
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "L5_PUBLIC_TASK_CRITERIA",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 5,
+      "seed": 7919,
+      "count": 35,
+      "uniqueTasks": 35,
+      "families": {
+        "lesson5-unknown-choice": 6,
+        "lesson5-hidden-min": 6,
+        "lesson5-hidden-max": 6,
+        "lesson5-extra-info": 6,
+        "lesson5-same-view": 6,
+        "lesson5-reveal-count": 5
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "L5_PUBLIC_TASK_CRITERIA",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 5,
+      "seed": 595837,
+      "count": 5,
+      "uniqueTasks": 5,
+      "families": {
+        "lesson5-unknown-choice": 1,
+        "lesson5-hidden-min": 1,
+        "lesson5-hidden-max": 1,
+        "lesson5-extra-info": 1,
+        "lesson5-same-view": 1
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "L5_PUBLIC_TASK_CRITERIA",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 5,
+      "seed": 595837,
+      "count": 10,
+      "uniqueTasks": 10,
+      "families": {
+        "lesson5-unknown-choice": 2,
+        "lesson5-hidden-min": 2,
+        "lesson5-hidden-max": 2,
+        "lesson5-extra-info": 2,
+        "lesson5-same-view": 1,
+        "lesson5-reveal-count": 1
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "L5_PUBLIC_TASK_CRITERIA",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 5,
+      "seed": 595837,
+      "count": 15,
+      "uniqueTasks": 15,
+      "families": {
+        "lesson5-unknown-choice": 3,
+        "lesson5-hidden-min": 3,
+        "lesson5-hidden-max": 3,
+        "lesson5-extra-info": 2,
+        "lesson5-same-view": 2,
+        "lesson5-reveal-count": 2
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "L5_PUBLIC_TASK_CRITERIA",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 5,
+      "seed": 595837,
+      "count": 20,
+      "uniqueTasks": 20,
+      "families": {
+        "lesson5-unknown-choice": 4,
+        "lesson5-hidden-min": 4,
+        "lesson5-hidden-max": 3,
+        "lesson5-extra-info": 3,
+        "lesson5-same-view": 3,
+        "lesson5-reveal-count": 3
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "L5_PUBLIC_TASK_CRITERIA",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 5,
+      "seed": 595837,
+      "count": 35,
+      "uniqueTasks": 35,
+      "families": {
+        "lesson5-unknown-choice": 6,
+        "lesson5-hidden-min": 6,
+        "lesson5-hidden-max": 6,
+        "lesson5-extra-info": 6,
+        "lesson5-same-view": 6,
+        "lesson5-reveal-count": 5
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "L5_PUBLIC_TASK_CRITERIA",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 5,
+      "seed": 603756,
+      "count": 5,
+      "uniqueTasks": 5,
+      "families": {
+        "lesson5-unknown-choice": 1,
+        "lesson5-hidden-min": 1,
+        "lesson5-hidden-max": 1,
+        "lesson5-extra-info": 1,
+        "lesson5-same-view": 1
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "L5_PUBLIC_TASK_CRITERIA",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 5,
+      "seed": 603756,
+      "count": 10,
+      "uniqueTasks": 10,
+      "families": {
+        "lesson5-unknown-choice": 2,
+        "lesson5-hidden-min": 2,
+        "lesson5-hidden-max": 2,
+        "lesson5-extra-info": 2,
+        "lesson5-same-view": 1,
+        "lesson5-reveal-count": 1
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "L5_PUBLIC_TASK_CRITERIA",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 5,
+      "seed": 603756,
+      "count": 15,
+      "uniqueTasks": 15,
+      "families": {
+        "lesson5-unknown-choice": 3,
+        "lesson5-hidden-min": 3,
+        "lesson5-hidden-max": 3,
+        "lesson5-extra-info": 2,
+        "lesson5-same-view": 2,
+        "lesson5-reveal-count": 2
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "L5_PUBLIC_TASK_CRITERIA",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 5,
+      "seed": 603756,
+      "count": 20,
+      "uniqueTasks": 20,
+      "families": {
+        "lesson5-unknown-choice": 4,
+        "lesson5-hidden-min": 4,
+        "lesson5-hidden-max": 3,
+        "lesson5-extra-info": 3,
+        "lesson5-same-view": 3,
+        "lesson5-reveal-count": 3
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "L5_PUBLIC_TASK_CRITERIA",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 5,
+      "seed": 603756,
+      "count": 35,
+      "uniqueTasks": 35,
+      "families": {
+        "lesson5-unknown-choice": 6,
+        "lesson5-hidden-min": 6,
+        "lesson5-hidden-max": 6,
+        "lesson5-extra-info": 6,
+        "lesson5-same-view": 6,
+        "lesson5-reveal-count": 5
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "L5_PUBLIC_TASK_CRITERIA",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 5,
+      "seed": 611675,
+      "count": 5,
+      "uniqueTasks": 5,
+      "families": {
+        "lesson5-unknown-choice": 1,
+        "lesson5-hidden-min": 1,
+        "lesson5-hidden-max": 1,
+        "lesson5-extra-info": 1,
+        "lesson5-same-view": 1
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "L5_PUBLIC_TASK_CRITERIA",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 5,
+      "seed": 611675,
+      "count": 10,
+      "uniqueTasks": 10,
+      "families": {
+        "lesson5-unknown-choice": 2,
+        "lesson5-hidden-min": 2,
+        "lesson5-hidden-max": 2,
+        "lesson5-extra-info": 2,
+        "lesson5-same-view": 1,
+        "lesson5-reveal-count": 1
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "L5_PUBLIC_TASK_CRITERIA",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 5,
+      "seed": 611675,
+      "count": 15,
+      "uniqueTasks": 15,
+      "families": {
+        "lesson5-unknown-choice": 3,
+        "lesson5-hidden-min": 3,
+        "lesson5-hidden-max": 3,
+        "lesson5-extra-info": 2,
+        "lesson5-same-view": 2,
+        "lesson5-reveal-count": 2
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "L5_PUBLIC_TASK_CRITERIA",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 5,
+      "seed": 611675,
+      "count": 20,
+      "uniqueTasks": 20,
+      "families": {
+        "lesson5-unknown-choice": 4,
+        "lesson5-hidden-min": 4,
+        "lesson5-hidden-max": 3,
+        "lesson5-extra-info": 3,
+        "lesson5-same-view": 3,
+        "lesson5-reveal-count": 3
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "L5_PUBLIC_TASK_CRITERIA",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 5,
+      "seed": 611675,
+      "count": 35,
+      "uniqueTasks": 35,
+      "families": {
+        "lesson5-unknown-choice": 6,
+        "lesson5-hidden-min": 6,
+        "lesson5-hidden-max": 6,
+        "lesson5-extra-info": 6,
+        "lesson5-same-view": 6,
+        "lesson5-reveal-count": 5
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "L5_PUBLIC_TASK_CRITERIA",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 5,
+      "seed": 999999,
+      "count": 5,
+      "uniqueTasks": 5,
+      "families": {
+        "lesson5-unknown-choice": 1,
+        "lesson5-hidden-min": 1,
+        "lesson5-hidden-max": 1,
+        "lesson5-extra-info": 1,
+        "lesson5-same-view": 1
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "L5_PUBLIC_TASK_CRITERIA",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 5,
+      "seed": 999999,
+      "count": 10,
+      "uniqueTasks": 10,
+      "families": {
+        "lesson5-unknown-choice": 2,
+        "lesson5-hidden-min": 2,
+        "lesson5-hidden-max": 2,
+        "lesson5-extra-info": 2,
+        "lesson5-same-view": 1,
+        "lesson5-reveal-count": 1
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "L5_PUBLIC_TASK_CRITERIA",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 5,
+      "seed": 999999,
+      "count": 15,
+      "uniqueTasks": 15,
+      "families": {
+        "lesson5-unknown-choice": 3,
+        "lesson5-hidden-min": 3,
+        "lesson5-hidden-max": 3,
+        "lesson5-extra-info": 2,
+        "lesson5-same-view": 2,
+        "lesson5-reveal-count": 2
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "L5_PUBLIC_TASK_CRITERIA",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 5,
+      "seed": 999999,
+      "count": 20,
+      "uniqueTasks": 20,
+      "families": {
+        "lesson5-unknown-choice": 4,
+        "lesson5-hidden-min": 4,
+        "lesson5-hidden-max": 3,
+        "lesson5-extra-info": 3,
+        "lesson5-same-view": 3,
+        "lesson5-reveal-count": 3
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "L5_PUBLIC_TASK_CRITERIA",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 5,
+      "seed": 999999,
+      "count": 35,
+      "uniqueTasks": 35,
+      "families": {
+        "lesson5-unknown-choice": 6,
+        "lesson5-hidden-min": 6,
+        "lesson5-hidden-max": 6,
+        "lesson5-extra-info": 6,
+        "lesson5-same-view": 6,
+        "lesson5-reveal-count": 5
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "L5_PUBLIC_TASK_CRITERIA",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 6,
+      "seed": 0,
+      "count": 5,
+      "uniqueTasks": 5,
+      "families": {
+        "BUILD_FROM_VIEWS": 5
+      },
+      "duplicates": [],
+      "longestRun": 5,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 6,
+      "seed": 0,
+      "count": 10,
+      "uniqueTasks": 10,
+      "families": {
+        "BUILD_FROM_VIEWS": 10
+      },
+      "duplicates": [],
+      "longestRun": 10,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 6,
+      "seed": 0,
+      "count": 15,
+      "uniqueTasks": 15,
+      "families": {
+        "BUILD_FROM_VIEWS": 15
+      },
+      "duplicates": [],
+      "longestRun": 15,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 6,
+      "seed": 0,
+      "count": 20,
+      "uniqueTasks": 20,
+      "families": {
+        "BUILD_FROM_VIEWS": 20
+      },
+      "duplicates": [],
+      "longestRun": 20,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 6,
+      "seed": 0,
+      "count": 35,
+      "uniqueTasks": 35,
+      "families": {
+        "BUILD_FROM_VIEWS": 35
+      },
+      "duplicates": [],
+      "longestRun": 35,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 6,
+      "seed": 1,
+      "count": 5,
+      "uniqueTasks": 5,
+      "families": {
+        "BUILD_FROM_VIEWS": 5
+      },
+      "duplicates": [],
+      "longestRun": 5,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 6,
+      "seed": 1,
+      "count": 10,
+      "uniqueTasks": 10,
+      "families": {
+        "BUILD_FROM_VIEWS": 10
+      },
+      "duplicates": [],
+      "longestRun": 10,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 6,
+      "seed": 1,
+      "count": 15,
+      "uniqueTasks": 15,
+      "families": {
+        "BUILD_FROM_VIEWS": 15
+      },
+      "duplicates": [],
+      "longestRun": 15,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 6,
+      "seed": 1,
+      "count": 20,
+      "uniqueTasks": 20,
+      "families": {
+        "BUILD_FROM_VIEWS": 20
+      },
+      "duplicates": [],
+      "longestRun": 20,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 6,
+      "seed": 1,
+      "count": 35,
+      "uniqueTasks": 35,
+      "families": {
+        "BUILD_FROM_VIEWS": 35
+      },
+      "duplicates": [],
+      "longestRun": 35,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 6,
+      "seed": 2,
+      "count": 5,
+      "uniqueTasks": 5,
+      "families": {
+        "BUILD_FROM_VIEWS": 5
+      },
+      "duplicates": [],
+      "longestRun": 5,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 6,
+      "seed": 2,
+      "count": 10,
+      "uniqueTasks": 10,
+      "families": {
+        "BUILD_FROM_VIEWS": 10
+      },
+      "duplicates": [],
+      "longestRun": 10,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 6,
+      "seed": 2,
+      "count": 15,
+      "uniqueTasks": 15,
+      "families": {
+        "BUILD_FROM_VIEWS": 15
+      },
+      "duplicates": [],
+      "longestRun": 15,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 6,
+      "seed": 2,
+      "count": 20,
+      "uniqueTasks": 20,
+      "families": {
+        "BUILD_FROM_VIEWS": 20
+      },
+      "duplicates": [],
+      "longestRun": 20,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 6,
+      "seed": 2,
+      "count": 35,
+      "uniqueTasks": 35,
+      "families": {
+        "BUILD_FROM_VIEWS": 35
+      },
+      "duplicates": [],
+      "longestRun": 35,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 6,
+      "seed": 3,
+      "count": 5,
+      "uniqueTasks": 5,
+      "families": {
+        "BUILD_FROM_VIEWS": 5
+      },
+      "duplicates": [],
+      "longestRun": 5,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 6,
+      "seed": 3,
+      "count": 10,
+      "uniqueTasks": 10,
+      "families": {
+        "BUILD_FROM_VIEWS": 10
+      },
+      "duplicates": [],
+      "longestRun": 10,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 6,
+      "seed": 3,
+      "count": 15,
+      "uniqueTasks": 15,
+      "families": {
+        "BUILD_FROM_VIEWS": 15
+      },
+      "duplicates": [],
+      "longestRun": 15,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 6,
+      "seed": 3,
+      "count": 20,
+      "uniqueTasks": 20,
+      "families": {
+        "BUILD_FROM_VIEWS": 20
+      },
+      "duplicates": [],
+      "longestRun": 20,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 6,
+      "seed": 3,
+      "count": 35,
+      "uniqueTasks": 35,
+      "families": {
+        "BUILD_FROM_VIEWS": 35
+      },
+      "duplicates": [],
+      "longestRun": 35,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 6,
+      "seed": 42,
+      "count": 5,
+      "uniqueTasks": 5,
+      "families": {
+        "BUILD_FROM_VIEWS": 5
+      },
+      "duplicates": [],
+      "longestRun": 5,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 6,
+      "seed": 42,
+      "count": 10,
+      "uniqueTasks": 10,
+      "families": {
+        "BUILD_FROM_VIEWS": 10
+      },
+      "duplicates": [],
+      "longestRun": 10,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 6,
+      "seed": 42,
+      "count": 15,
+      "uniqueTasks": 15,
+      "families": {
+        "BUILD_FROM_VIEWS": 15
+      },
+      "duplicates": [],
+      "longestRun": 15,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 6,
+      "seed": 42,
+      "count": 20,
+      "uniqueTasks": 20,
+      "families": {
+        "BUILD_FROM_VIEWS": 20
+      },
+      "duplicates": [],
+      "longestRun": 20,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 6,
+      "seed": 42,
+      "count": 35,
+      "uniqueTasks": 35,
+      "families": {
+        "BUILD_FROM_VIEWS": 35
+      },
+      "duplicates": [],
+      "longestRun": 35,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 6,
+      "seed": 123,
+      "count": 5,
+      "uniqueTasks": 5,
+      "families": {
+        "BUILD_FROM_VIEWS": 5
+      },
+      "duplicates": [],
+      "longestRun": 5,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 6,
+      "seed": 123,
+      "count": 10,
+      "uniqueTasks": 10,
+      "families": {
+        "BUILD_FROM_VIEWS": 10
+      },
+      "duplicates": [],
+      "longestRun": 10,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 6,
+      "seed": 123,
+      "count": 15,
+      "uniqueTasks": 15,
+      "families": {
+        "BUILD_FROM_VIEWS": 15
+      },
+      "duplicates": [],
+      "longestRun": 15,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 6,
+      "seed": 123,
+      "count": 20,
+      "uniqueTasks": 20,
+      "families": {
+        "BUILD_FROM_VIEWS": 20
+      },
+      "duplicates": [],
+      "longestRun": 20,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 6,
+      "seed": 123,
+      "count": 35,
+      "uniqueTasks": 35,
+      "families": {
+        "BUILD_FROM_VIEWS": 35
+      },
+      "duplicates": [],
+      "longestRun": 35,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 6,
+      "seed": 7919,
+      "count": 5,
+      "uniqueTasks": 5,
+      "families": {
+        "BUILD_FROM_VIEWS": 5
+      },
+      "duplicates": [],
+      "longestRun": 5,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 6,
+      "seed": 7919,
+      "count": 10,
+      "uniqueTasks": 10,
+      "families": {
+        "BUILD_FROM_VIEWS": 10
+      },
+      "duplicates": [],
+      "longestRun": 10,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 6,
+      "seed": 7919,
+      "count": 15,
+      "uniqueTasks": 15,
+      "families": {
+        "BUILD_FROM_VIEWS": 15
+      },
+      "duplicates": [],
+      "longestRun": 15,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 6,
+      "seed": 7919,
+      "count": 20,
+      "uniqueTasks": 20,
+      "families": {
+        "BUILD_FROM_VIEWS": 20
+      },
+      "duplicates": [],
+      "longestRun": 20,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 6,
+      "seed": 7919,
+      "count": 35,
+      "uniqueTasks": 35,
+      "families": {
+        "BUILD_FROM_VIEWS": 35
+      },
+      "duplicates": [],
+      "longestRun": 35,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 6,
+      "seed": 595837,
+      "count": 5,
+      "uniqueTasks": 5,
+      "families": {
+        "BUILD_FROM_VIEWS": 5
+      },
+      "duplicates": [],
+      "longestRun": 5,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 6,
+      "seed": 595837,
+      "count": 10,
+      "uniqueTasks": 10,
+      "families": {
+        "BUILD_FROM_VIEWS": 10
+      },
+      "duplicates": [],
+      "longestRun": 10,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 6,
+      "seed": 595837,
+      "count": 15,
+      "uniqueTasks": 15,
+      "families": {
+        "BUILD_FROM_VIEWS": 15
+      },
+      "duplicates": [],
+      "longestRun": 15,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 6,
+      "seed": 595837,
+      "count": 20,
+      "uniqueTasks": 20,
+      "families": {
+        "BUILD_FROM_VIEWS": 20
+      },
+      "duplicates": [],
+      "longestRun": 20,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 6,
+      "seed": 595837,
+      "count": 35,
+      "uniqueTasks": 35,
+      "families": {
+        "BUILD_FROM_VIEWS": 35
+      },
+      "duplicates": [],
+      "longestRun": 35,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 6,
+      "seed": 603756,
+      "count": 5,
+      "uniqueTasks": 5,
+      "families": {
+        "BUILD_FROM_VIEWS": 5
+      },
+      "duplicates": [],
+      "longestRun": 5,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 6,
+      "seed": 603756,
+      "count": 10,
+      "uniqueTasks": 10,
+      "families": {
+        "BUILD_FROM_VIEWS": 10
+      },
+      "duplicates": [],
+      "longestRun": 10,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 6,
+      "seed": 603756,
+      "count": 15,
+      "uniqueTasks": 15,
+      "families": {
+        "BUILD_FROM_VIEWS": 15
+      },
+      "duplicates": [],
+      "longestRun": 15,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 6,
+      "seed": 603756,
+      "count": 20,
+      "uniqueTasks": 20,
+      "families": {
+        "BUILD_FROM_VIEWS": 20
+      },
+      "duplicates": [],
+      "longestRun": 20,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 6,
+      "seed": 603756,
+      "count": 35,
+      "uniqueTasks": 35,
+      "families": {
+        "BUILD_FROM_VIEWS": 35
+      },
+      "duplicates": [],
+      "longestRun": 35,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 6,
+      "seed": 611675,
+      "count": 5,
+      "uniqueTasks": 5,
+      "families": {
+        "BUILD_FROM_VIEWS": 5
+      },
+      "duplicates": [],
+      "longestRun": 5,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 6,
+      "seed": 611675,
+      "count": 10,
+      "uniqueTasks": 10,
+      "families": {
+        "BUILD_FROM_VIEWS": 10
+      },
+      "duplicates": [],
+      "longestRun": 10,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 6,
+      "seed": 611675,
+      "count": 15,
+      "uniqueTasks": 15,
+      "families": {
+        "BUILD_FROM_VIEWS": 15
+      },
+      "duplicates": [],
+      "longestRun": 15,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 6,
+      "seed": 611675,
+      "count": 20,
+      "uniqueTasks": 20,
+      "families": {
+        "BUILD_FROM_VIEWS": 20
+      },
+      "duplicates": [],
+      "longestRun": 20,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 6,
+      "seed": 611675,
+      "count": 35,
+      "uniqueTasks": 35,
+      "families": {
+        "BUILD_FROM_VIEWS": 35
+      },
+      "duplicates": [],
+      "longestRun": 35,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 6,
+      "seed": 999999,
+      "count": 5,
+      "uniqueTasks": 5,
+      "families": {
+        "BUILD_FROM_VIEWS": 5
+      },
+      "duplicates": [],
+      "longestRun": 5,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 6,
+      "seed": 999999,
+      "count": 10,
+      "uniqueTasks": 10,
+      "families": {
+        "BUILD_FROM_VIEWS": 10
+      },
+      "duplicates": [],
+      "longestRun": 10,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 6,
+      "seed": 999999,
+      "count": 15,
+      "uniqueTasks": 15,
+      "families": {
+        "BUILD_FROM_VIEWS": 15
+      },
+      "duplicates": [],
+      "longestRun": 15,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 6,
+      "seed": 999999,
+      "count": 20,
+      "uniqueTasks": 20,
+      "families": {
+        "BUILD_FROM_VIEWS": 20
+      },
+      "duplicates": [],
+      "longestRun": 20,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 6,
+      "seed": 999999,
+      "count": 35,
+      "uniqueTasks": 35,
+      "families": {
+        "BUILD_FROM_VIEWS": 35
+      },
+      "duplicates": [],
+      "longestRun": 35,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 7,
+      "seed": 0,
+      "count": 5,
+      "uniqueTasks": 5,
+      "families": {
+        "BUILD_FROM_HEIGHTMAP": 2,
+        "HEIGHTMAP_FROM_BUILD": 3
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 7,
+      "seed": 0,
+      "count": 10,
+      "uniqueTasks": 10,
+      "families": {
+        "BUILD_FROM_HEIGHTMAP": 4,
+        "HEIGHTMAP_FROM_BUILD": 6
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 7,
+      "seed": 0,
+      "count": 15,
+      "uniqueTasks": 15,
+      "families": {
+        "BUILD_FROM_HEIGHTMAP": 5,
+        "HEIGHTMAP_FROM_BUILD": 10
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 7,
+      "seed": 0,
+      "count": 20,
+      "uniqueTasks": 20,
+      "families": {
+        "BUILD_FROM_HEIGHTMAP": 7,
+        "HEIGHTMAP_FROM_BUILD": 13
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 7,
+      "seed": 0,
+      "count": 35,
+      "uniqueTasks": 35,
+      "families": {
+        "BUILD_FROM_HEIGHTMAP": 12,
+        "HEIGHTMAP_FROM_BUILD": 23
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 7,
+      "seed": 1,
+      "count": 5,
+      "uniqueTasks": 5,
+      "families": {
+        "BUILD_FROM_HEIGHTMAP": 2,
+        "HEIGHTMAP_FROM_BUILD": 3
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 7,
+      "seed": 1,
+      "count": 10,
+      "uniqueTasks": 10,
+      "families": {
+        "BUILD_FROM_HEIGHTMAP": 4,
+        "HEIGHTMAP_FROM_BUILD": 6
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 7,
+      "seed": 1,
+      "count": 15,
+      "uniqueTasks": 15,
+      "families": {
+        "BUILD_FROM_HEIGHTMAP": 5,
+        "HEIGHTMAP_FROM_BUILD": 10
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 7,
+      "seed": 1,
+      "count": 20,
+      "uniqueTasks": 20,
+      "families": {
+        "BUILD_FROM_HEIGHTMAP": 7,
+        "HEIGHTMAP_FROM_BUILD": 13
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 7,
+      "seed": 1,
+      "count": 35,
+      "uniqueTasks": 35,
+      "families": {
+        "BUILD_FROM_HEIGHTMAP": 12,
+        "HEIGHTMAP_FROM_BUILD": 23
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 7,
+      "seed": 2,
+      "count": 5,
+      "uniqueTasks": 5,
+      "families": {
+        "BUILD_FROM_HEIGHTMAP": 2,
+        "HEIGHTMAP_FROM_BUILD": 3
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 7,
+      "seed": 2,
+      "count": 10,
+      "uniqueTasks": 10,
+      "families": {
+        "BUILD_FROM_HEIGHTMAP": 4,
+        "HEIGHTMAP_FROM_BUILD": 6
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 7,
+      "seed": 2,
+      "count": 15,
+      "uniqueTasks": 15,
+      "families": {
+        "BUILD_FROM_HEIGHTMAP": 5,
+        "HEIGHTMAP_FROM_BUILD": 10
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 7,
+      "seed": 2,
+      "count": 20,
+      "uniqueTasks": 20,
+      "families": {
+        "BUILD_FROM_HEIGHTMAP": 7,
+        "HEIGHTMAP_FROM_BUILD": 13
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 7,
+      "seed": 2,
+      "count": 35,
+      "uniqueTasks": 35,
+      "families": {
+        "BUILD_FROM_HEIGHTMAP": 12,
+        "HEIGHTMAP_FROM_BUILD": 23
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 7,
+      "seed": 3,
+      "count": 5,
+      "uniqueTasks": 5,
+      "families": {
+        "BUILD_FROM_HEIGHTMAP": 2,
+        "HEIGHTMAP_FROM_BUILD": 3
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 7,
+      "seed": 3,
+      "count": 10,
+      "uniqueTasks": 10,
+      "families": {
+        "BUILD_FROM_HEIGHTMAP": 4,
+        "HEIGHTMAP_FROM_BUILD": 6
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 7,
+      "seed": 3,
+      "count": 15,
+      "uniqueTasks": 15,
+      "families": {
+        "BUILD_FROM_HEIGHTMAP": 5,
+        "HEIGHTMAP_FROM_BUILD": 10
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 7,
+      "seed": 3,
+      "count": 20,
+      "uniqueTasks": 20,
+      "families": {
+        "BUILD_FROM_HEIGHTMAP": 7,
+        "HEIGHTMAP_FROM_BUILD": 13
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 7,
+      "seed": 3,
+      "count": 35,
+      "uniqueTasks": 35,
+      "families": {
+        "BUILD_FROM_HEIGHTMAP": 12,
+        "HEIGHTMAP_FROM_BUILD": 23
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 7,
+      "seed": 42,
+      "count": 5,
+      "uniqueTasks": 5,
+      "families": {
+        "BUILD_FROM_HEIGHTMAP": 2,
+        "HEIGHTMAP_FROM_BUILD": 3
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 7,
+      "seed": 42,
+      "count": 10,
+      "uniqueTasks": 10,
+      "families": {
+        "BUILD_FROM_HEIGHTMAP": 4,
+        "HEIGHTMAP_FROM_BUILD": 6
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 7,
+      "seed": 42,
+      "count": 15,
+      "uniqueTasks": 15,
+      "families": {
+        "BUILD_FROM_HEIGHTMAP": 5,
+        "HEIGHTMAP_FROM_BUILD": 10
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 7,
+      "seed": 42,
+      "count": 20,
+      "uniqueTasks": 20,
+      "families": {
+        "BUILD_FROM_HEIGHTMAP": 7,
+        "HEIGHTMAP_FROM_BUILD": 13
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 7,
+      "seed": 42,
+      "count": 35,
+      "uniqueTasks": 35,
+      "families": {
+        "BUILD_FROM_HEIGHTMAP": 12,
+        "HEIGHTMAP_FROM_BUILD": 23
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 7,
+      "seed": 123,
+      "count": 5,
+      "uniqueTasks": 5,
+      "families": {
+        "BUILD_FROM_HEIGHTMAP": 2,
+        "HEIGHTMAP_FROM_BUILD": 3
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 7,
+      "seed": 123,
+      "count": 10,
+      "uniqueTasks": 10,
+      "families": {
+        "BUILD_FROM_HEIGHTMAP": 4,
+        "HEIGHTMAP_FROM_BUILD": 6
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 7,
+      "seed": 123,
+      "count": 15,
+      "uniqueTasks": 15,
+      "families": {
+        "BUILD_FROM_HEIGHTMAP": 5,
+        "HEIGHTMAP_FROM_BUILD": 10
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 7,
+      "seed": 123,
+      "count": 20,
+      "uniqueTasks": 20,
+      "families": {
+        "BUILD_FROM_HEIGHTMAP": 7,
+        "HEIGHTMAP_FROM_BUILD": 13
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 7,
+      "seed": 123,
+      "count": 35,
+      "uniqueTasks": 35,
+      "families": {
+        "BUILD_FROM_HEIGHTMAP": 12,
+        "HEIGHTMAP_FROM_BUILD": 23
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 7,
+      "seed": 7919,
+      "count": 5,
+      "uniqueTasks": 5,
+      "families": {
+        "BUILD_FROM_HEIGHTMAP": 2,
+        "HEIGHTMAP_FROM_BUILD": 3
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 7,
+      "seed": 7919,
+      "count": 10,
+      "uniqueTasks": 10,
+      "families": {
+        "BUILD_FROM_HEIGHTMAP": 4,
+        "HEIGHTMAP_FROM_BUILD": 6
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 7,
+      "seed": 7919,
+      "count": 15,
+      "uniqueTasks": 15,
+      "families": {
+        "BUILD_FROM_HEIGHTMAP": 5,
+        "HEIGHTMAP_FROM_BUILD": 10
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 7,
+      "seed": 7919,
+      "count": 20,
+      "uniqueTasks": 20,
+      "families": {
+        "BUILD_FROM_HEIGHTMAP": 7,
+        "HEIGHTMAP_FROM_BUILD": 13
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 7,
+      "seed": 7919,
+      "count": 35,
+      "uniqueTasks": 35,
+      "families": {
+        "BUILD_FROM_HEIGHTMAP": 12,
+        "HEIGHTMAP_FROM_BUILD": 23
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 7,
+      "seed": 595837,
+      "count": 5,
+      "uniqueTasks": 5,
+      "families": {
+        "BUILD_FROM_HEIGHTMAP": 2,
+        "HEIGHTMAP_FROM_BUILD": 3
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 7,
+      "seed": 595837,
+      "count": 10,
+      "uniqueTasks": 10,
+      "families": {
+        "BUILD_FROM_HEIGHTMAP": 4,
+        "HEIGHTMAP_FROM_BUILD": 6
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 7,
+      "seed": 595837,
+      "count": 15,
+      "uniqueTasks": 15,
+      "families": {
+        "BUILD_FROM_HEIGHTMAP": 5,
+        "HEIGHTMAP_FROM_BUILD": 10
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 7,
+      "seed": 595837,
+      "count": 20,
+      "uniqueTasks": 20,
+      "families": {
+        "BUILD_FROM_HEIGHTMAP": 7,
+        "HEIGHTMAP_FROM_BUILD": 13
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 7,
+      "seed": 595837,
+      "count": 35,
+      "uniqueTasks": 35,
+      "families": {
+        "BUILD_FROM_HEIGHTMAP": 12,
+        "HEIGHTMAP_FROM_BUILD": 23
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 7,
+      "seed": 603756,
+      "count": 5,
+      "uniqueTasks": 5,
+      "families": {
+        "BUILD_FROM_HEIGHTMAP": 2,
+        "HEIGHTMAP_FROM_BUILD": 3
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 7,
+      "seed": 603756,
+      "count": 10,
+      "uniqueTasks": 10,
+      "families": {
+        "BUILD_FROM_HEIGHTMAP": 4,
+        "HEIGHTMAP_FROM_BUILD": 6
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 7,
+      "seed": 603756,
+      "count": 15,
+      "uniqueTasks": 15,
+      "families": {
+        "BUILD_FROM_HEIGHTMAP": 5,
+        "HEIGHTMAP_FROM_BUILD": 10
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 7,
+      "seed": 603756,
+      "count": 20,
+      "uniqueTasks": 20,
+      "families": {
+        "BUILD_FROM_HEIGHTMAP": 7,
+        "HEIGHTMAP_FROM_BUILD": 13
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 7,
+      "seed": 603756,
+      "count": 35,
+      "uniqueTasks": 35,
+      "families": {
+        "BUILD_FROM_HEIGHTMAP": 12,
+        "HEIGHTMAP_FROM_BUILD": 23
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 7,
+      "seed": 611675,
+      "count": 5,
+      "uniqueTasks": 5,
+      "families": {
+        "BUILD_FROM_HEIGHTMAP": 2,
+        "HEIGHTMAP_FROM_BUILD": 3
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 7,
+      "seed": 611675,
+      "count": 10,
+      "uniqueTasks": 10,
+      "families": {
+        "BUILD_FROM_HEIGHTMAP": 4,
+        "HEIGHTMAP_FROM_BUILD": 6
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 7,
+      "seed": 611675,
+      "count": 15,
+      "uniqueTasks": 15,
+      "families": {
+        "BUILD_FROM_HEIGHTMAP": 5,
+        "HEIGHTMAP_FROM_BUILD": 10
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 7,
+      "seed": 611675,
+      "count": 20,
+      "uniqueTasks": 20,
+      "families": {
+        "BUILD_FROM_HEIGHTMAP": 7,
+        "HEIGHTMAP_FROM_BUILD": 13
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 7,
+      "seed": 611675,
+      "count": 35,
+      "uniqueTasks": 35,
+      "families": {
+        "BUILD_FROM_HEIGHTMAP": 12,
+        "HEIGHTMAP_FROM_BUILD": 23
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 7,
+      "seed": 999999,
+      "count": 5,
+      "uniqueTasks": 5,
+      "families": {
+        "BUILD_FROM_HEIGHTMAP": 2,
+        "HEIGHTMAP_FROM_BUILD": 3
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 7,
+      "seed": 999999,
+      "count": 10,
+      "uniqueTasks": 10,
+      "families": {
+        "BUILD_FROM_HEIGHTMAP": 4,
+        "HEIGHTMAP_FROM_BUILD": 6
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 7,
+      "seed": 999999,
+      "count": 15,
+      "uniqueTasks": 15,
+      "families": {
+        "BUILD_FROM_HEIGHTMAP": 5,
+        "HEIGHTMAP_FROM_BUILD": 10
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 7,
+      "seed": 999999,
+      "count": 20,
+      "uniqueTasks": 20,
+      "families": {
+        "BUILD_FROM_HEIGHTMAP": 7,
+        "HEIGHTMAP_FROM_BUILD": 13
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 7,
+      "seed": 999999,
+      "count": 35,
+      "uniqueTasks": 35,
+      "families": {
+        "BUILD_FROM_HEIGHTMAP": 12,
+        "HEIGHTMAP_FROM_BUILD": 23
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 8,
+      "seed": 0,
+      "count": 5,
+      "uniqueTasks": 5,
+      "families": {
+        "BUILD_FROM_LAYERS": 3,
+        "LAYER_DRAW": 2
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 8,
+      "seed": 0,
+      "count": 10,
+      "uniqueTasks": 10,
+      "families": {
+        "BUILD_FROM_LAYERS": 7,
+        "LAYER_DRAW": 3
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 8,
+      "seed": 0,
+      "count": 15,
+      "uniqueTasks": 15,
+      "families": {
+        "BUILD_FROM_LAYERS": 10,
+        "LAYER_DRAW": 5
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 8,
+      "seed": 0,
+      "count": 20,
+      "uniqueTasks": 20,
+      "families": {
+        "BUILD_FROM_LAYERS": 13,
+        "LAYER_DRAW": 7
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 8,
+      "seed": 0,
+      "count": 35,
+      "uniqueTasks": 35,
+      "families": {
+        "BUILD_FROM_LAYERS": 23,
+        "LAYER_DRAW": 12
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 8,
+      "seed": 1,
+      "count": 5,
+      "uniqueTasks": 5,
+      "families": {
+        "BUILD_FROM_LAYERS": 3,
+        "LAYER_DRAW": 2
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 8,
+      "seed": 1,
+      "count": 10,
+      "uniqueTasks": 10,
+      "families": {
+        "BUILD_FROM_LAYERS": 7,
+        "LAYER_DRAW": 3
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 8,
+      "seed": 1,
+      "count": 15,
+      "uniqueTasks": 15,
+      "families": {
+        "BUILD_FROM_LAYERS": 10,
+        "LAYER_DRAW": 5
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 8,
+      "seed": 1,
+      "count": 20,
+      "uniqueTasks": 20,
+      "families": {
+        "BUILD_FROM_LAYERS": 13,
+        "LAYER_DRAW": 7
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 8,
+      "seed": 1,
+      "count": 35,
+      "uniqueTasks": 35,
+      "families": {
+        "BUILD_FROM_LAYERS": 23,
+        "LAYER_DRAW": 12
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 8,
+      "seed": 2,
+      "count": 5,
+      "uniqueTasks": 5,
+      "families": {
+        "BUILD_FROM_LAYERS": 3,
+        "LAYER_DRAW": 2
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 8,
+      "seed": 2,
+      "count": 10,
+      "uniqueTasks": 10,
+      "families": {
+        "BUILD_FROM_LAYERS": 7,
+        "LAYER_DRAW": 3
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 8,
+      "seed": 2,
+      "count": 15,
+      "uniqueTasks": 15,
+      "families": {
+        "BUILD_FROM_LAYERS": 10,
+        "LAYER_DRAW": 5
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 8,
+      "seed": 2,
+      "count": 20,
+      "uniqueTasks": 20,
+      "families": {
+        "BUILD_FROM_LAYERS": 13,
+        "LAYER_DRAW": 7
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 8,
+      "seed": 2,
+      "count": 35,
+      "uniqueTasks": 35,
+      "families": {
+        "BUILD_FROM_LAYERS": 23,
+        "LAYER_DRAW": 12
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 8,
+      "seed": 3,
+      "count": 5,
+      "uniqueTasks": 5,
+      "families": {
+        "BUILD_FROM_LAYERS": 3,
+        "LAYER_DRAW": 2
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 8,
+      "seed": 3,
+      "count": 10,
+      "uniqueTasks": 10,
+      "families": {
+        "BUILD_FROM_LAYERS": 7,
+        "LAYER_DRAW": 3
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 8,
+      "seed": 3,
+      "count": 15,
+      "uniqueTasks": 15,
+      "families": {
+        "BUILD_FROM_LAYERS": 10,
+        "LAYER_DRAW": 5
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 8,
+      "seed": 3,
+      "count": 20,
+      "uniqueTasks": 20,
+      "families": {
+        "BUILD_FROM_LAYERS": 13,
+        "LAYER_DRAW": 7
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 8,
+      "seed": 3,
+      "count": 35,
+      "uniqueTasks": 35,
+      "families": {
+        "BUILD_FROM_LAYERS": 23,
+        "LAYER_DRAW": 12
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 8,
+      "seed": 42,
+      "count": 5,
+      "uniqueTasks": 5,
+      "families": {
+        "BUILD_FROM_LAYERS": 3,
+        "LAYER_DRAW": 2
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 8,
+      "seed": 42,
+      "count": 10,
+      "uniqueTasks": 10,
+      "families": {
+        "BUILD_FROM_LAYERS": 7,
+        "LAYER_DRAW": 3
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 8,
+      "seed": 42,
+      "count": 15,
+      "uniqueTasks": 15,
+      "families": {
+        "BUILD_FROM_LAYERS": 10,
+        "LAYER_DRAW": 5
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 8,
+      "seed": 42,
+      "count": 20,
+      "uniqueTasks": 20,
+      "families": {
+        "BUILD_FROM_LAYERS": 13,
+        "LAYER_DRAW": 7
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 8,
+      "seed": 42,
+      "count": 35,
+      "uniqueTasks": 35,
+      "families": {
+        "BUILD_FROM_LAYERS": 23,
+        "LAYER_DRAW": 12
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 8,
+      "seed": 123,
+      "count": 5,
+      "uniqueTasks": 5,
+      "families": {
+        "BUILD_FROM_LAYERS": 3,
+        "LAYER_DRAW": 2
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 8,
+      "seed": 123,
+      "count": 10,
+      "uniqueTasks": 10,
+      "families": {
+        "BUILD_FROM_LAYERS": 7,
+        "LAYER_DRAW": 3
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 8,
+      "seed": 123,
+      "count": 15,
+      "uniqueTasks": 15,
+      "families": {
+        "BUILD_FROM_LAYERS": 10,
+        "LAYER_DRAW": 5
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 8,
+      "seed": 123,
+      "count": 20,
+      "uniqueTasks": 20,
+      "families": {
+        "BUILD_FROM_LAYERS": 13,
+        "LAYER_DRAW": 7
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 8,
+      "seed": 123,
+      "count": 35,
+      "uniqueTasks": 35,
+      "families": {
+        "BUILD_FROM_LAYERS": 23,
+        "LAYER_DRAW": 12
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 8,
+      "seed": 7919,
+      "count": 5,
+      "uniqueTasks": 5,
+      "families": {
+        "BUILD_FROM_LAYERS": 3,
+        "LAYER_DRAW": 2
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 8,
+      "seed": 7919,
+      "count": 10,
+      "uniqueTasks": 10,
+      "families": {
+        "BUILD_FROM_LAYERS": 7,
+        "LAYER_DRAW": 3
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 8,
+      "seed": 7919,
+      "count": 15,
+      "uniqueTasks": 15,
+      "families": {
+        "BUILD_FROM_LAYERS": 10,
+        "LAYER_DRAW": 5
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 8,
+      "seed": 7919,
+      "count": 20,
+      "uniqueTasks": 20,
+      "families": {
+        "BUILD_FROM_LAYERS": 13,
+        "LAYER_DRAW": 7
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 8,
+      "seed": 7919,
+      "count": 35,
+      "uniqueTasks": 35,
+      "families": {
+        "BUILD_FROM_LAYERS": 23,
+        "LAYER_DRAW": 12
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 8,
+      "seed": 595837,
+      "count": 5,
+      "uniqueTasks": 5,
+      "families": {
+        "BUILD_FROM_LAYERS": 3,
+        "LAYER_DRAW": 2
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 8,
+      "seed": 595837,
+      "count": 10,
+      "uniqueTasks": 10,
+      "families": {
+        "BUILD_FROM_LAYERS": 7,
+        "LAYER_DRAW": 3
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 8,
+      "seed": 595837,
+      "count": 15,
+      "uniqueTasks": 15,
+      "families": {
+        "BUILD_FROM_LAYERS": 10,
+        "LAYER_DRAW": 5
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 8,
+      "seed": 595837,
+      "count": 20,
+      "uniqueTasks": 20,
+      "families": {
+        "BUILD_FROM_LAYERS": 13,
+        "LAYER_DRAW": 7
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 8,
+      "seed": 595837,
+      "count": 35,
+      "uniqueTasks": 35,
+      "families": {
+        "BUILD_FROM_LAYERS": 23,
+        "LAYER_DRAW": 12
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 8,
+      "seed": 603756,
+      "count": 5,
+      "uniqueTasks": 5,
+      "families": {
+        "BUILD_FROM_LAYERS": 3,
+        "LAYER_DRAW": 2
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 8,
+      "seed": 603756,
+      "count": 10,
+      "uniqueTasks": 10,
+      "families": {
+        "BUILD_FROM_LAYERS": 7,
+        "LAYER_DRAW": 3
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 8,
+      "seed": 603756,
+      "count": 15,
+      "uniqueTasks": 15,
+      "families": {
+        "BUILD_FROM_LAYERS": 10,
+        "LAYER_DRAW": 5
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 8,
+      "seed": 603756,
+      "count": 20,
+      "uniqueTasks": 20,
+      "families": {
+        "BUILD_FROM_LAYERS": 13,
+        "LAYER_DRAW": 7
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 8,
+      "seed": 603756,
+      "count": 35,
+      "uniqueTasks": 35,
+      "families": {
+        "BUILD_FROM_LAYERS": 23,
+        "LAYER_DRAW": 12
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 8,
+      "seed": 611675,
+      "count": 5,
+      "uniqueTasks": 5,
+      "families": {
+        "BUILD_FROM_LAYERS": 3,
+        "LAYER_DRAW": 2
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 8,
+      "seed": 611675,
+      "count": 10,
+      "uniqueTasks": 10,
+      "families": {
+        "BUILD_FROM_LAYERS": 7,
+        "LAYER_DRAW": 3
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 8,
+      "seed": 611675,
+      "count": 15,
+      "uniqueTasks": 15,
+      "families": {
+        "BUILD_FROM_LAYERS": 10,
+        "LAYER_DRAW": 5
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 8,
+      "seed": 611675,
+      "count": 20,
+      "uniqueTasks": 20,
+      "families": {
+        "BUILD_FROM_LAYERS": 13,
+        "LAYER_DRAW": 7
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 8,
+      "seed": 611675,
+      "count": 35,
+      "uniqueTasks": 35,
+      "families": {
+        "BUILD_FROM_LAYERS": 23,
+        "LAYER_DRAW": 12
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 8,
+      "seed": 999999,
+      "count": 5,
+      "uniqueTasks": 5,
+      "families": {
+        "BUILD_FROM_LAYERS": 3,
+        "LAYER_DRAW": 2
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 8,
+      "seed": 999999,
+      "count": 10,
+      "uniqueTasks": 10,
+      "families": {
+        "BUILD_FROM_LAYERS": 7,
+        "LAYER_DRAW": 3
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 8,
+      "seed": 999999,
+      "count": 15,
+      "uniqueTasks": 15,
+      "families": {
+        "BUILD_FROM_LAYERS": 10,
+        "LAYER_DRAW": 5
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 8,
+      "seed": 999999,
+      "count": 20,
+      "uniqueTasks": 20,
+      "families": {
+        "BUILD_FROM_LAYERS": 13,
+        "LAYER_DRAW": 7
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 8,
+      "seed": 999999,
+      "count": 35,
+      "uniqueTasks": 35,
+      "families": {
+        "BUILD_FROM_LAYERS": 23,
+        "LAYER_DRAW": 12
+      },
+      "duplicates": [],
+      "longestRun": 2,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 12,
+      "seed": 0,
+      "count": 5,
+      "uniqueTasks": 5,
+      "families": {
+        "CAMERA_DIRECTION": 1,
+        "PROJECTION_DRAW": 1,
+        "COUNT": 2,
+        "HEIGHTMAP_FROM_BUILD": 1
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 12,
+      "seed": 0,
+      "count": 10,
+      "uniqueTasks": 10,
+      "families": {
+        "CAMERA_DIRECTION": 2,
+        "PROJECTION_DRAW": 2,
+        "COUNT": 2,
+        "HEIGHTMAP_FROM_BUILD": 1,
+        "LAYER_DRAW": 1,
+        "COUNT_AMBIGUOUS": 1,
+        "CHOICE": 1
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 12,
+      "seed": 0,
+      "count": 15,
+      "uniqueTasks": 15,
+      "families": {
+        "CAMERA_DIRECTION": 2,
+        "PROJECTION_DRAW": 2,
+        "COUNT": 4,
+        "HEIGHTMAP_FROM_BUILD": 2,
+        "LAYER_DRAW": 2,
+        "COUNT_AMBIGUOUS": 2,
+        "CHOICE": 1
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 12,
+      "seed": 0,
+      "count": 20,
+      "uniqueTasks": 20,
+      "families": {
+        "CAMERA_DIRECTION": 3,
+        "PROJECTION_DRAW": 3,
+        "COUNT": 5,
+        "HEIGHTMAP_FROM_BUILD": 3,
+        "LAYER_DRAW": 2,
+        "COUNT_AMBIGUOUS": 2,
+        "CHOICE": 2
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 12,
+      "seed": 0,
+      "count": 35,
+      "uniqueTasks": 35,
+      "families": {
+        "CAMERA_DIRECTION": 5,
+        "PROJECTION_DRAW": 5,
+        "COUNT": 9,
+        "HEIGHTMAP_FROM_BUILD": 4,
+        "LAYER_DRAW": 4,
+        "COUNT_AMBIGUOUS": 4,
+        "CHOICE": 4
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 12,
+      "seed": 1,
+      "count": 5,
+      "uniqueTasks": 5,
+      "families": {
+        "CAMERA_DIRECTION": 1,
+        "PROJECTION_DRAW": 1,
+        "COUNT": 2,
+        "HEIGHTMAP_FROM_BUILD": 1
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 12,
+      "seed": 1,
+      "count": 10,
+      "uniqueTasks": 10,
+      "families": {
+        "CAMERA_DIRECTION": 2,
+        "PROJECTION_DRAW": 2,
+        "COUNT": 2,
+        "HEIGHTMAP_FROM_BUILD": 1,
+        "LAYER_DRAW": 1,
+        "COUNT_AMBIGUOUS": 1,
+        "CHOICE": 1
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 12,
+      "seed": 1,
+      "count": 15,
+      "uniqueTasks": 15,
+      "families": {
+        "CAMERA_DIRECTION": 2,
+        "PROJECTION_DRAW": 2,
+        "COUNT": 4,
+        "HEIGHTMAP_FROM_BUILD": 2,
+        "LAYER_DRAW": 2,
+        "COUNT_AMBIGUOUS": 2,
+        "CHOICE": 1
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 12,
+      "seed": 1,
+      "count": 20,
+      "uniqueTasks": 20,
+      "families": {
+        "CAMERA_DIRECTION": 3,
+        "PROJECTION_DRAW": 3,
+        "COUNT": 5,
+        "HEIGHTMAP_FROM_BUILD": 3,
+        "LAYER_DRAW": 2,
+        "COUNT_AMBIGUOUS": 2,
+        "CHOICE": 2
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 12,
+      "seed": 1,
+      "count": 35,
+      "uniqueTasks": 35,
+      "families": {
+        "CAMERA_DIRECTION": 5,
+        "PROJECTION_DRAW": 5,
+        "COUNT": 9,
+        "HEIGHTMAP_FROM_BUILD": 4,
+        "LAYER_DRAW": 4,
+        "COUNT_AMBIGUOUS": 4,
+        "CHOICE": 4
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 12,
+      "seed": 2,
+      "count": 5,
+      "uniqueTasks": 5,
+      "families": {
+        "CAMERA_DIRECTION": 1,
+        "PROJECTION_DRAW": 1,
+        "COUNT": 2,
+        "HEIGHTMAP_FROM_BUILD": 1
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 12,
+      "seed": 2,
+      "count": 10,
+      "uniqueTasks": 10,
+      "families": {
+        "CAMERA_DIRECTION": 2,
+        "PROJECTION_DRAW": 2,
+        "COUNT": 2,
+        "HEIGHTMAP_FROM_BUILD": 1,
+        "LAYER_DRAW": 1,
+        "COUNT_AMBIGUOUS": 1,
+        "CHOICE": 1
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 12,
+      "seed": 2,
+      "count": 15,
+      "uniqueTasks": 15,
+      "families": {
+        "CAMERA_DIRECTION": 2,
+        "PROJECTION_DRAW": 2,
+        "COUNT": 4,
+        "HEIGHTMAP_FROM_BUILD": 2,
+        "LAYER_DRAW": 2,
+        "COUNT_AMBIGUOUS": 2,
+        "CHOICE": 1
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 12,
+      "seed": 2,
+      "count": 20,
+      "uniqueTasks": 20,
+      "families": {
+        "CAMERA_DIRECTION": 3,
+        "PROJECTION_DRAW": 3,
+        "COUNT": 5,
+        "HEIGHTMAP_FROM_BUILD": 3,
+        "LAYER_DRAW": 2,
+        "COUNT_AMBIGUOUS": 2,
+        "CHOICE": 2
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 12,
+      "seed": 2,
+      "count": 35,
+      "uniqueTasks": 35,
+      "families": {
+        "CAMERA_DIRECTION": 5,
+        "PROJECTION_DRAW": 5,
+        "COUNT": 9,
+        "HEIGHTMAP_FROM_BUILD": 4,
+        "LAYER_DRAW": 4,
+        "COUNT_AMBIGUOUS": 4,
+        "CHOICE": 4
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 12,
+      "seed": 3,
+      "count": 5,
+      "uniqueTasks": 5,
+      "families": {
+        "CAMERA_DIRECTION": 1,
+        "PROJECTION_DRAW": 1,
+        "COUNT": 2,
+        "HEIGHTMAP_FROM_BUILD": 1
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 12,
+      "seed": 3,
+      "count": 10,
+      "uniqueTasks": 10,
+      "families": {
+        "CAMERA_DIRECTION": 2,
+        "PROJECTION_DRAW": 2,
+        "COUNT": 2,
+        "HEIGHTMAP_FROM_BUILD": 1,
+        "LAYER_DRAW": 1,
+        "COUNT_AMBIGUOUS": 1,
+        "CHOICE": 1
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 12,
+      "seed": 3,
+      "count": 15,
+      "uniqueTasks": 15,
+      "families": {
+        "CAMERA_DIRECTION": 2,
+        "PROJECTION_DRAW": 2,
+        "COUNT": 4,
+        "HEIGHTMAP_FROM_BUILD": 2,
+        "LAYER_DRAW": 2,
+        "COUNT_AMBIGUOUS": 2,
+        "CHOICE": 1
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 12,
+      "seed": 3,
+      "count": 20,
+      "uniqueTasks": 20,
+      "families": {
+        "CAMERA_DIRECTION": 3,
+        "PROJECTION_DRAW": 3,
+        "COUNT": 5,
+        "HEIGHTMAP_FROM_BUILD": 3,
+        "LAYER_DRAW": 2,
+        "COUNT_AMBIGUOUS": 2,
+        "CHOICE": 2
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 12,
+      "seed": 3,
+      "count": 35,
+      "uniqueTasks": 35,
+      "families": {
+        "CAMERA_DIRECTION": 5,
+        "PROJECTION_DRAW": 5,
+        "COUNT": 9,
+        "HEIGHTMAP_FROM_BUILD": 4,
+        "LAYER_DRAW": 4,
+        "COUNT_AMBIGUOUS": 4,
+        "CHOICE": 4
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 12,
+      "seed": 42,
+      "count": 5,
+      "uniqueTasks": 5,
+      "families": {
+        "CAMERA_DIRECTION": 1,
+        "PROJECTION_DRAW": 1,
+        "COUNT": 2,
+        "HEIGHTMAP_FROM_BUILD": 1
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 12,
+      "seed": 42,
+      "count": 10,
+      "uniqueTasks": 10,
+      "families": {
+        "CAMERA_DIRECTION": 2,
+        "PROJECTION_DRAW": 2,
+        "COUNT": 2,
+        "HEIGHTMAP_FROM_BUILD": 1,
+        "LAYER_DRAW": 1,
+        "COUNT_AMBIGUOUS": 1,
+        "CHOICE": 1
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 12,
+      "seed": 42,
+      "count": 15,
+      "uniqueTasks": 15,
+      "families": {
+        "CAMERA_DIRECTION": 2,
+        "PROJECTION_DRAW": 2,
+        "COUNT": 4,
+        "HEIGHTMAP_FROM_BUILD": 2,
+        "LAYER_DRAW": 2,
+        "COUNT_AMBIGUOUS": 2,
+        "CHOICE": 1
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 12,
+      "seed": 42,
+      "count": 20,
+      "uniqueTasks": 20,
+      "families": {
+        "CAMERA_DIRECTION": 3,
+        "PROJECTION_DRAW": 3,
+        "COUNT": 5,
+        "HEIGHTMAP_FROM_BUILD": 3,
+        "LAYER_DRAW": 2,
+        "COUNT_AMBIGUOUS": 2,
+        "CHOICE": 2
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 12,
+      "seed": 42,
+      "count": 35,
+      "uniqueTasks": 35,
+      "families": {
+        "CAMERA_DIRECTION": 5,
+        "PROJECTION_DRAW": 5,
+        "COUNT": 9,
+        "HEIGHTMAP_FROM_BUILD": 4,
+        "LAYER_DRAW": 4,
+        "COUNT_AMBIGUOUS": 4,
+        "CHOICE": 4
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 12,
+      "seed": 123,
+      "count": 5,
+      "uniqueTasks": 5,
+      "families": {
+        "CAMERA_DIRECTION": 1,
+        "PROJECTION_DRAW": 1,
+        "COUNT": 2,
+        "HEIGHTMAP_FROM_BUILD": 1
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 12,
+      "seed": 123,
+      "count": 10,
+      "uniqueTasks": 10,
+      "families": {
+        "CAMERA_DIRECTION": 2,
+        "PROJECTION_DRAW": 2,
+        "COUNT": 2,
+        "HEIGHTMAP_FROM_BUILD": 1,
+        "LAYER_DRAW": 1,
+        "COUNT_AMBIGUOUS": 1,
+        "CHOICE": 1
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 12,
+      "seed": 123,
+      "count": 15,
+      "uniqueTasks": 15,
+      "families": {
+        "CAMERA_DIRECTION": 2,
+        "PROJECTION_DRAW": 2,
+        "COUNT": 4,
+        "HEIGHTMAP_FROM_BUILD": 2,
+        "LAYER_DRAW": 2,
+        "COUNT_AMBIGUOUS": 2,
+        "CHOICE": 1
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 12,
+      "seed": 123,
+      "count": 20,
+      "uniqueTasks": 20,
+      "families": {
+        "CAMERA_DIRECTION": 3,
+        "PROJECTION_DRAW": 3,
+        "COUNT": 5,
+        "HEIGHTMAP_FROM_BUILD": 3,
+        "LAYER_DRAW": 2,
+        "COUNT_AMBIGUOUS": 2,
+        "CHOICE": 2
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 12,
+      "seed": 123,
+      "count": 35,
+      "uniqueTasks": 35,
+      "families": {
+        "CAMERA_DIRECTION": 5,
+        "PROJECTION_DRAW": 5,
+        "COUNT": 9,
+        "HEIGHTMAP_FROM_BUILD": 4,
+        "LAYER_DRAW": 4,
+        "COUNT_AMBIGUOUS": 4,
+        "CHOICE": 4
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 12,
+      "seed": 7919,
+      "count": 5,
+      "uniqueTasks": 5,
+      "families": {
+        "CAMERA_DIRECTION": 1,
+        "PROJECTION_DRAW": 1,
+        "COUNT": 2,
+        "HEIGHTMAP_FROM_BUILD": 1
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 12,
+      "seed": 7919,
+      "count": 10,
+      "uniqueTasks": 10,
+      "families": {
+        "CAMERA_DIRECTION": 2,
+        "PROJECTION_DRAW": 2,
+        "COUNT": 2,
+        "HEIGHTMAP_FROM_BUILD": 1,
+        "LAYER_DRAW": 1,
+        "COUNT_AMBIGUOUS": 1,
+        "CHOICE": 1
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 12,
+      "seed": 7919,
+      "count": 15,
+      "uniqueTasks": 15,
+      "families": {
+        "CAMERA_DIRECTION": 2,
+        "PROJECTION_DRAW": 2,
+        "COUNT": 4,
+        "HEIGHTMAP_FROM_BUILD": 2,
+        "LAYER_DRAW": 2,
+        "COUNT_AMBIGUOUS": 2,
+        "CHOICE": 1
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 12,
+      "seed": 7919,
+      "count": 20,
+      "uniqueTasks": 20,
+      "families": {
+        "CAMERA_DIRECTION": 3,
+        "PROJECTION_DRAW": 3,
+        "COUNT": 5,
+        "HEIGHTMAP_FROM_BUILD": 3,
+        "LAYER_DRAW": 2,
+        "COUNT_AMBIGUOUS": 2,
+        "CHOICE": 2
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 12,
+      "seed": 7919,
+      "count": 35,
+      "uniqueTasks": 35,
+      "families": {
+        "CAMERA_DIRECTION": 5,
+        "PROJECTION_DRAW": 5,
+        "COUNT": 9,
+        "HEIGHTMAP_FROM_BUILD": 4,
+        "LAYER_DRAW": 4,
+        "COUNT_AMBIGUOUS": 4,
+        "CHOICE": 4
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 12,
+      "seed": 595837,
+      "count": 5,
+      "uniqueTasks": 5,
+      "families": {
+        "CAMERA_DIRECTION": 1,
+        "PROJECTION_DRAW": 1,
+        "COUNT": 2,
+        "HEIGHTMAP_FROM_BUILD": 1
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 12,
+      "seed": 595837,
+      "count": 10,
+      "uniqueTasks": 10,
+      "families": {
+        "CAMERA_DIRECTION": 2,
+        "PROJECTION_DRAW": 2,
+        "COUNT": 2,
+        "HEIGHTMAP_FROM_BUILD": 1,
+        "LAYER_DRAW": 1,
+        "COUNT_AMBIGUOUS": 1,
+        "CHOICE": 1
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 12,
+      "seed": 595837,
+      "count": 15,
+      "uniqueTasks": 15,
+      "families": {
+        "CAMERA_DIRECTION": 2,
+        "PROJECTION_DRAW": 2,
+        "COUNT": 4,
+        "HEIGHTMAP_FROM_BUILD": 2,
+        "LAYER_DRAW": 2,
+        "COUNT_AMBIGUOUS": 2,
+        "CHOICE": 1
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 12,
+      "seed": 595837,
+      "count": 20,
+      "uniqueTasks": 20,
+      "families": {
+        "CAMERA_DIRECTION": 3,
+        "PROJECTION_DRAW": 3,
+        "COUNT": 5,
+        "HEIGHTMAP_FROM_BUILD": 3,
+        "LAYER_DRAW": 2,
+        "COUNT_AMBIGUOUS": 2,
+        "CHOICE": 2
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 12,
+      "seed": 595837,
+      "count": 35,
+      "uniqueTasks": 35,
+      "families": {
+        "CAMERA_DIRECTION": 5,
+        "PROJECTION_DRAW": 5,
+        "COUNT": 9,
+        "HEIGHTMAP_FROM_BUILD": 4,
+        "LAYER_DRAW": 4,
+        "COUNT_AMBIGUOUS": 4,
+        "CHOICE": 4
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 12,
+      "seed": 603756,
+      "count": 5,
+      "uniqueTasks": 5,
+      "families": {
+        "CAMERA_DIRECTION": 1,
+        "PROJECTION_DRAW": 1,
+        "COUNT": 2,
+        "HEIGHTMAP_FROM_BUILD": 1
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 12,
+      "seed": 603756,
+      "count": 10,
+      "uniqueTasks": 10,
+      "families": {
+        "CAMERA_DIRECTION": 2,
+        "PROJECTION_DRAW": 2,
+        "COUNT": 2,
+        "HEIGHTMAP_FROM_BUILD": 1,
+        "LAYER_DRAW": 1,
+        "COUNT_AMBIGUOUS": 1,
+        "CHOICE": 1
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 12,
+      "seed": 603756,
+      "count": 15,
+      "uniqueTasks": 15,
+      "families": {
+        "CAMERA_DIRECTION": 2,
+        "PROJECTION_DRAW": 2,
+        "COUNT": 4,
+        "HEIGHTMAP_FROM_BUILD": 2,
+        "LAYER_DRAW": 2,
+        "COUNT_AMBIGUOUS": 2,
+        "CHOICE": 1
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 12,
+      "seed": 603756,
+      "count": 20,
+      "uniqueTasks": 20,
+      "families": {
+        "CAMERA_DIRECTION": 3,
+        "PROJECTION_DRAW": 3,
+        "COUNT": 5,
+        "HEIGHTMAP_FROM_BUILD": 3,
+        "LAYER_DRAW": 2,
+        "COUNT_AMBIGUOUS": 2,
+        "CHOICE": 2
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 12,
+      "seed": 603756,
+      "count": 35,
+      "uniqueTasks": 35,
+      "families": {
+        "CAMERA_DIRECTION": 5,
+        "PROJECTION_DRAW": 5,
+        "COUNT": 9,
+        "HEIGHTMAP_FROM_BUILD": 4,
+        "LAYER_DRAW": 4,
+        "COUNT_AMBIGUOUS": 4,
+        "CHOICE": 4
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 12,
+      "seed": 611675,
+      "count": 5,
+      "uniqueTasks": 5,
+      "families": {
+        "CAMERA_DIRECTION": 1,
+        "PROJECTION_DRAW": 1,
+        "COUNT": 2,
+        "HEIGHTMAP_FROM_BUILD": 1
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 12,
+      "seed": 611675,
+      "count": 10,
+      "uniqueTasks": 10,
+      "families": {
+        "CAMERA_DIRECTION": 2,
+        "PROJECTION_DRAW": 2,
+        "COUNT": 2,
+        "HEIGHTMAP_FROM_BUILD": 1,
+        "LAYER_DRAW": 1,
+        "COUNT_AMBIGUOUS": 1,
+        "CHOICE": 1
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 12,
+      "seed": 611675,
+      "count": 15,
+      "uniqueTasks": 15,
+      "families": {
+        "CAMERA_DIRECTION": 2,
+        "PROJECTION_DRAW": 2,
+        "COUNT": 4,
+        "HEIGHTMAP_FROM_BUILD": 2,
+        "LAYER_DRAW": 2,
+        "COUNT_AMBIGUOUS": 2,
+        "CHOICE": 1
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 12,
+      "seed": 611675,
+      "count": 20,
+      "uniqueTasks": 20,
+      "families": {
+        "CAMERA_DIRECTION": 3,
+        "PROJECTION_DRAW": 3,
+        "COUNT": 5,
+        "HEIGHTMAP_FROM_BUILD": 3,
+        "LAYER_DRAW": 2,
+        "COUNT_AMBIGUOUS": 2,
+        "CHOICE": 2
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 12,
+      "seed": 611675,
+      "count": 35,
+      "uniqueTasks": 35,
+      "families": {
+        "CAMERA_DIRECTION": 5,
+        "PROJECTION_DRAW": 5,
+        "COUNT": 9,
+        "HEIGHTMAP_FROM_BUILD": 4,
+        "LAYER_DRAW": 4,
+        "COUNT_AMBIGUOUS": 4,
+        "CHOICE": 4
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 12,
+      "seed": 999999,
+      "count": 5,
+      "uniqueTasks": 5,
+      "families": {
+        "CAMERA_DIRECTION": 1,
+        "PROJECTION_DRAW": 1,
+        "COUNT": 2,
+        "HEIGHTMAP_FROM_BUILD": 1
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 12,
+      "seed": 999999,
+      "count": 10,
+      "uniqueTasks": 10,
+      "families": {
+        "CAMERA_DIRECTION": 2,
+        "PROJECTION_DRAW": 2,
+        "COUNT": 2,
+        "HEIGHTMAP_FROM_BUILD": 1,
+        "LAYER_DRAW": 1,
+        "COUNT_AMBIGUOUS": 1,
+        "CHOICE": 1
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 12,
+      "seed": 999999,
+      "count": 15,
+      "uniqueTasks": 15,
+      "families": {
+        "CAMERA_DIRECTION": 2,
+        "PROJECTION_DRAW": 2,
+        "COUNT": 4,
+        "HEIGHTMAP_FROM_BUILD": 2,
+        "LAYER_DRAW": 2,
+        "COUNT_AMBIGUOUS": 2,
+        "CHOICE": 1
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 12,
+      "seed": 999999,
+      "count": 20,
+      "uniqueTasks": 20,
+      "families": {
+        "CAMERA_DIRECTION": 3,
+        "PROJECTION_DRAW": 3,
+        "COUNT": 5,
+        "HEIGHTMAP_FROM_BUILD": 3,
+        "LAYER_DRAW": 2,
+        "COUNT_AMBIGUOUS": 2,
+        "CHOICE": 2
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    },
+    {
+      "lesson": 12,
+      "seed": 999999,
+      "count": 35,
+      "uniqueTasks": 35,
+      "families": {
+        "CAMERA_DIRECTION": 5,
+        "PROJECTION_DRAW": 5,
+        "COUNT": 9,
+        "HEIGHTMAP_FROM_BUILD": 4,
+        "LAYER_DRAW": 4,
+        "COUNT_AMBIGUOUS": 4,
+        "CHOICE": 4
+      },
+      "duplicates": [],
+      "longestRun": 1,
+      "status": "LOCAL_LOGIC",
+      "semanticReview": "NOT_COMPLETE",
+      "browser": "NOT_RUN"
+    }
+  ]
+}

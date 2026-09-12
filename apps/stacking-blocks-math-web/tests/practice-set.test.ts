@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { generatePracticeProblems } from '../shared/practiceGenerator.ts';
-import { auditPracticeSet, generatedProblemId, generateValidatedPracticeSet, selectPracticeRows, taskFingerprint } from '../shared/practiceSet.ts';
+import { auditPracticeSet, generatedProblemId, generateValidatedPracticeSet, selectPracticeRows, taskFingerprint, isAssignedPracticeCode } from '../shared/practiceSet.ts';
 import { grade } from '../shared/grading.ts';
 
 test('새 35문항은 번호·숨은 모형을 제외한 공개 과제가 반복되지 않는다', () => {
@@ -29,6 +29,26 @@ test('5차시 35개는 6계열이며 결정적으로 복원되고 기존 v1을 �
   assert.equal(generatePracticeProblems(5,1,123)[0].generatorVersion,1);
 });
 
+test('5차시 여러 seed·실제 배정량에서 고유성과 짧은 세트 배분을 보존한다', () => {
+  for(const seed of [0,1,2,3,42,123,7919,595837,603756,999999]) {
+    for(const count of [5,10,15,20,35]) {
+      const set=generateValidatedPracticeSet(5,count,seed), audit=auditPracticeSet(set);
+      assert.equal(audit.count,count); assert.equal(audit.uniqueTasks,count);
+      assert.equal(audit.longestRun,1);
+      assert.equal(Object.keys(audit.families).length,Math.min(count,6));
+      assert.deepEqual(set,generateValidatedPracticeSet(5,count,seed));
+      for(const p of set) {
+        assert.equal(grade({...p,submission:p.answer}).correct,true);
+        if(p.templateId==='lesson5-hidden-min'||p.templateId==='lesson5-hidden-max') {
+          const cells=p.given.projections!.front!.flat().filter(Boolean).length;
+          assert.deepEqual(p.answer,{kind:'count',value:cells*(p.templateId==='lesson5-hidden-max'?p.grid.gridDepth:1)});
+        }
+      }
+    }
+  }
+  for(const count of [0,-1,101,1.5]) assert.throws(()=>generateValidatedPracticeSet(5,count,123),/PRACTICE_SET_UNSUPPORTED/);
+});
+
 test('이미 생성된 세트 재조회에서도 다른 seed/학생 문항을 섞지 않는다', () => {
   const rows=[{code:'L5-01'},{code:'GEN-L5-S123-01'},{code:'GEN-L5-S999-01'},{code:'GEN-L5-S123-02-V2'}];
   assert.deepEqual(selectPracticeRows(rows,5,123),[rows[0],rows[1],rows[3]]);
@@ -38,6 +58,13 @@ test('이미 생성된 세트 재조회에서도 다른 seed/학생 문항을 �
 test('같은 정답은 서로 다른 공개 자료를 중복으로 만들지 않는다', () => {
   const set=generateValidatedPracticeSet(5,35,123).filter(p=>p.problemType==='CHOICE');
   assert.equal(new Set(set.map(taskFingerprint)).size,set.length);
+});
+
+test('개별 생성 문항 접근도 현재 배정 seed/차시와 비교한다',()=>{
+  assert.equal(isAssignedPracticeCode('GEN-L5-S123-01-V2',5,123),true);
+  assert.equal(isAssignedPracticeCode('GEN-L5-S1234-01-V2',5,123),false);
+  assert.equal(isAssignedPracticeCode('GEN-L6-S123-01-V2',5,123),false);
+  assert.equal(isAssignedPracticeCode('GEN-L5-S999-01-V2',5,123),false);
 });
 
 test('동시 생성·재시도에서도 같은 문항은 같은 DB PK를 사용한다',async()=>{
