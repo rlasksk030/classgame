@@ -334,6 +334,7 @@
 - qa/practice-sets/2026-09-12T12-06-36-885Z/report.json 및 comparison.md: 합성 전후 1~35 대조표와 1~8/12차시 5/10/15/20 표본. 2·3·6차시 동일 입력 행동 편중은 NEEDS_FAMILY_REVIEW, 모든 차시 품질 완료 아님. 9~11 반복 작품/공유 문제와 기존 조작/복원 오류는 미완료 유지.
 - qa:local T14 추가: 실제 학생 /lesson/5/practice에 합성 v2 35개, 실제 클릭/숫자 입력/제출 ID·grade 확인, 문항별 캡처/대조표. 기존 13건 보존. 외부 네트워크 기본 차단. 브라우저 실행 0, BLOCKED. Babylon Scene 내용 비교·지연 응답 변형·기존 운영 세트 순회·로그아웃 복원은 아직 미검증이며 이 테스트 추가만으로 완료 처리하지 않는다.
 - workspace/attachments에서 5차시 PDF를 찾지 못해 수학66~67/익힘48~49/지도서 원자료 적합성 확인 BLOCKED. 6계열은 앱 구성이지 교과서 공인 분류가 아니다.
-- 실행(2026-09-12T12:06~12:15Z, 기준 HEAD+이번 작업 트리): typecheck/lint/unit54/security1/typecheck:edge/build PASS. qa 실행기 구문 검사 및 diff --check PASS. 마지막 DB 읽기 오류 분기 추가 뒤 lint/edge 재확인. 최종 커밋 후 동일 검사 재실행 예정.
+- 실행(2026-09-12T12:06Z 이후, 기준 HEAD+이번 작업 트리): typecheck/lint/unit54/security1/typecheck:edge/build PASS. qa 실행기 구문 검사 및 diff --check PASS. 마지막 DB 읽기 오류 분기 추가 뒤 lint/edge 재확인.
+- 코드 커밋 b7ae120b6c58b7d31c12832ab3d78bd817e0c449에서 2026-09-12T12:11:55Z 이후 typecheck/lint/unit54/security1/typecheck:edge/build 모두 다시 PASS. 이후 변경은 이 검증 기록뿐이다. 브라우저 실행 0/BLOCKED, LIVE 검증 없음.
 - 설치 상태는 '완료 판정 오류 수정 완료 / 간편 설치 미구현'. getInstallationStatus는 학생/교사 route의 진입 gate로 사용되지 않아 첫 저장을 READY로 막는 순환 조건 없음.
 - 원격 함수/DB/RLS/Secret/학생 데이터 변경·push 없음. student-api 재배포 전 실제 운영 증거/승인 범위를 확인해야 한다. 전체 요구 완료 아님.
