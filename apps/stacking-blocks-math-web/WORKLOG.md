@@ -272,3 +272,10 @@
 - 학생 화면의 앞 표시는 `앞`으로 단순화하고, 보관함 아이콘은 세 면이 같은 꼭짓점을 공유하는 닫힌 SVG 정육면체로 교체했다. 기존 Pointer Events 드래그·탭 배치와 원목 색상 토큰은 유지한다.
 - 현재 작업 트리 기준 회귀: `npm run audit:problems`(5,600 생성), `audit:presentation`(14,030), `audit:semantics`(2,830), `audit:solvability`(2,830), `npm test`(41개), `test:security`, `typecheck`, `lint`, `typecheck:edge`, `build` 모두 통과했다. 테스트 실행 대상은 이 변경을 포함한 작업 트리이며 커밋 전 HEAD는 `4ebd1995`다.
 - Playwright 시각 캡처/Renderer DOM mount는 이 환경의 Vite 포트 바인딩 오류 `listen EPERM: 127.0.0.1:4173`로 실행하지 못했다. 따라서 실제 브라우저 화면 증거는 BLOCKED이며 자동 감사 PASS를 화면 VERIFIED로 승격하지 않는다.
+
+## 최종 품질 게이트·문항 inventory 추가 (2026-09-12)
+- 앱 전용 `AGENTS.md`에 `CURRENT_REQUIREMENTS.md`와 `QUALITY_GATE.md` 선독, 실제 학생 route 우선 확인, 브라우저 미검증 항목의 BLOCKED 기록 규칙을 추가했다.
+- `QUALITY_GATE.md`에 문항·활동 목록, 상태 정의, 수학·자료·Renderer·grader 계약, 오답/복원/실제 서버와 모의 UI 검증 분리 기준을 고정했다.
+- `scripts/generate-problem-inventory.ts`와 `npm run inventory:problems`를 추가해 현재 코드에서 고정 30개, practice template 대표 56개, 9~12차시 활동 4개를 `PROBLEM_INVENTORY.json`으로 생성한다. 원격 데이터가 수집되지 않은 범위는 LIVE로 표시하지 않는다.
+- 의도적으로 격자 자료를 제거한 문항, 3×3 앞면의 9/20 변조, 오른쪽 투영 좌우 반전을 품질 게이트 테스트에서 거부하도록 `tests/qualityGate.test.ts`를 추가했다.
+- 현재 HEAD `418890b` 이후 품질 게이트 변경을 포함한 작업 트리에서 `npm test` 45개, 감사·typecheck·lint·edge typecheck·build를 통과했다. 실제 학생 화면 DOM/터치/서버 관통은 기존 포트 권한 제약으로 BLOCKED다.

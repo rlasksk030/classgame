@@ -12,7 +12,7 @@
 | Solvability QA | PASS — 2,830개 유효 구조·정답 존재 |
 | Curriculum QA | PASS — 1~12차시 route·단계·Renderer 계약 |
 | Renderer DOM mount | TEST READY — 3방향/층별 입력 검증 스위트는 로컬 포트 제한으로 미실행 |
-| Unit | PASS — 41개 |
+| Unit | PASS — 45개 |
 | Security | PASS — PIN hash 범위 및 session 위변조 검사 |
 | TypeScript / ESLint | PASS |
 | Edge Function typecheck | PASS |
@@ -114,3 +114,9 @@ npm run test:e2e
 - 현재 변경 작업 트리에서 `npm run audit:problems` 5,600개, `audit:presentation` 14,030개, `audit:semantics` 2,830개, `audit:solvability` 2,830개가 통과했다.
 - `npm test` 41개, `npm run test:security`, `npm run typecheck`, `npm run lint`, `npm run typecheck:edge`, `npm run build`가 모두 통과했다.
 - 실제 DOM mount와 화면 조작은 `npm run qa:renderer`, `npm run qa:visual`, `npm run test:e2e`가 이 환경의 포트 권한 오류로 실행되지 않아 BLOCKED다. 스크린샷은 생성되지 않았다.
+
+## 전체 문항 inventory (2026-09-12)
+
+`npm run inventory:problems`가 현재 코드 경로에서 고정 문항 30개, practice template 대표 56개, 9~12차시 활동 4개를 수집해 `PROBLEM_INVENTORY.json`으로 기록한다. template 반복 생성 수와 실제 문항 유형 수를 분리 집계하며, 원격 Supabase 문항을 읽지 못한 범위는 LIVE 검증으로 올리지 않는다.
+
+현재 inventory의 화면 상태는 코드 경로 기준 `IMPLEMENTED`이고, 실제 학생 입력·채점·렌더링은 Playwright 포트 제한으로 `BLOCKED`다.

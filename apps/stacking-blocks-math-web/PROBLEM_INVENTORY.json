@@ -1,0 +1,1802 @@
+{
+  "generatedAt": "generated-from-current-source",
+  "source": {
+    "commit": "runtime",
+    "fixedProblems": 30,
+    "lessons": 12
+  },
+  "counts": {
+    "fixed": 30,
+    "templates": 56,
+    "activities": 4,
+    "byLesson": {
+      "1": {
+        "fixed": 3,
+        "templates": 6,
+        "activities": 0
+      },
+      "2": {
+        "fixed": 3,
+        "templates": 6,
+        "activities": 0
+      },
+      "3": {
+        "fixed": 3,
+        "templates": 6,
+        "activities": 0
+      },
+      "4": {
+        "fixed": 3,
+        "templates": 6,
+        "activities": 0
+      },
+      "5": {
+        "fixed": 3,
+        "templates": 6,
+        "activities": 0
+      },
+      "6": {
+        "fixed": 3,
+        "templates": 6,
+        "activities": 0
+      },
+      "7": {
+        "fixed": 3,
+        "templates": 6,
+        "activities": 0
+      },
+      "8": {
+        "fixed": 3,
+        "templates": 6,
+        "activities": 0
+      },
+      "9": {
+        "fixed": 0,
+        "templates": 0,
+        "activities": 1
+      },
+      "10": {
+        "fixed": 0,
+        "templates": 0,
+        "activities": 1
+      },
+      "11": {
+        "fixed": 0,
+        "templates": 0,
+        "activities": 1
+      },
+      "12": {
+        "fixed": 6,
+        "templates": 8,
+        "activities": 1
+      }
+    }
+  },
+  "entries": [
+    {
+      "lessonId": 1,
+      "stage": "concept",
+      "problemId": "seed:L1-01",
+      "sourceType": "BUILT_IN_CONCEPT",
+      "problemVersion": "seed-v1",
+      "questionIntent": "쌓기나무 개수 또는 수를 구하기",
+      "evidence": [
+        "3D model"
+      ],
+      "answerInput": "NUMBER",
+      "gradingMode": "exact",
+      "revealMode": "answer-specific material",
+      "completion": "답안을 맞혀 완료",
+      "route": "/lesson/1",
+      "status": "IMPLEMENTED"
+    },
+    {
+      "lessonId": 1,
+      "stage": "check",
+      "problemId": "seed:L1-02",
+      "sourceType": "BUILT_IN_CONCEPT",
+      "problemVersion": "seed-v1",
+      "questionIntent": "쌓기나무 개수 또는 수를 구하기",
+      "evidence": [
+        "3D model"
+      ],
+      "answerInput": "NUMBER",
+      "gradingMode": "exact",
+      "revealMode": "answer-specific material",
+      "completion": "답안을 맞혀 완료",
+      "route": "/lesson/1",
+      "status": "IMPLEMENTED"
+    },
+    {
+      "lessonId": 1,
+      "stage": "more",
+      "problemId": "seed:L1-03",
+      "sourceType": "BUILT_IN_WORKBOOK_STYLE",
+      "problemVersion": "seed-v1",
+      "questionIntent": "쌓기나무 개수 또는 수를 구하기",
+      "evidence": [],
+      "answerInput": "BLOCK_BUILD",
+      "gradingMode": "constraint",
+      "revealMode": "3D Ghost + rebuild",
+      "completion": "조건에 맞는 구조를 직접 완성",
+      "route": "/lesson/1",
+      "status": "IMPLEMENTED"
+    },
+    {
+      "lessonId": 2,
+      "stage": "concept",
+      "problemId": "seed:L2-01",
+      "sourceType": "BUILT_IN_CONCEPT",
+      "problemVersion": "seed-v1",
+      "questionIntent": "관찰 방향을 선택",
+      "evidence": [
+        "frontProjection",
+        "3D model"
+      ],
+      "answerInput": "MULTIPLE_CHOICE",
+      "gradingMode": "exact",
+      "revealMode": "answer-specific material",
+      "completion": "답안을 맞혀 완료",
+      "route": "/lesson/2",
+      "status": "IMPLEMENTED"
+    },
+    {
+      "lessonId": 2,
+      "stage": "check",
+      "problemId": "seed:L2-02",
+      "sourceType": "BUILT_IN_CONCEPT",
+      "problemVersion": "seed-v1",
+      "questionIntent": "관찰 방향을 선택",
+      "evidence": [
+        "topProjection",
+        "3D model"
+      ],
+      "answerInput": "MULTIPLE_CHOICE",
+      "gradingMode": "exact",
+      "revealMode": "answer-specific material",
+      "completion": "답안을 맞혀 완료",
+      "route": "/lesson/2",
+      "status": "IMPLEMENTED"
+    },
+    {
+      "lessonId": 2,
+      "stage": "more",
+      "problemId": "seed:L2-03",
+      "sourceType": "BUILT_IN_WORKBOOK_STYLE",
+      "problemVersion": "seed-v1",
+      "questionIntent": "관찰 방향을 선택",
+      "evidence": [
+        "sideProjection(right-view)",
+        "3D model"
+      ],
+      "answerInput": "MULTIPLE_CHOICE",
+      "gradingMode": "exact",
+      "revealMode": "answer-specific material",
+      "completion": "답안을 맞혀 완료",
+      "route": "/lesson/2",
+      "status": "IMPLEMENTED"
+    },
+    {
+      "lessonId": 3,
+      "stage": "concept",
+      "problemId": "seed:L3-01",
+      "sourceType": "BUILT_IN_CONCEPT",
+      "problemVersion": "seed-v1",
+      "questionIntent": "3D 모양을 방향별 격자로 표현",
+      "evidence": [
+        "3D model"
+      ],
+      "answerInput": "GRID",
+      "gradingMode": "exact",
+      "revealMode": "answer-specific material",
+      "completion": "답안을 맞혀 완료",
+      "route": "/lesson/3",
+      "status": "IMPLEMENTED"
+    },
+    {
+      "lessonId": 3,
+      "stage": "check",
+      "problemId": "seed:L3-02",
+      "sourceType": "BUILT_IN_CONCEPT",
+      "problemVersion": "seed-v1",
+      "questionIntent": "3D 모양을 방향별 격자로 표현",
+      "evidence": [
+        "3D model"
+      ],
+      "answerInput": "GRID",
+      "gradingMode": "exact",
+      "revealMode": "answer-specific material",
+      "completion": "답안을 맞혀 완료",
+      "route": "/lesson/3",
+      "status": "IMPLEMENTED"
+    },
+    {
+      "lessonId": 3,
+      "stage": "more",
+      "problemId": "seed:L3-03",
+      "sourceType": "BUILT_IN_WORKBOOK_STYLE",
+      "problemVersion": "seed-v1",
+      "questionIntent": "3D 모양을 방향별 격자로 표현",
+      "evidence": [
+        "3D model"
+      ],
+      "answerInput": "THREE_GRIDS",
+      "gradingMode": "exact",
+      "revealMode": "answer-specific material",
+      "completion": "답안을 맞혀 완료",
+      "route": "/lesson/3",
+      "status": "IMPLEMENTED"
+    },
+    {
+      "lessonId": 4,
+      "stage": "concept",
+      "problemId": "seed:L4-01",
+      "sourceType": "BUILT_IN_CONCEPT",
+      "problemVersion": "seed-v1",
+      "questionIntent": "쌓기나무 개수 또는 수를 구하기",
+      "evidence": [
+        "heightMap",
+        "3D model"
+      ],
+      "answerInput": "NUMBER",
+      "gradingMode": "exact",
+      "revealMode": "answer-specific material",
+      "completion": "답안을 맞혀 완료",
+      "route": "/lesson/4",
+      "status": "IMPLEMENTED"
+    },
+    {
+      "lessonId": 4,
+      "stage": "check",
+      "problemId": "seed:L4-02",
+      "sourceType": "BUILT_IN_CONCEPT",
+      "problemVersion": "seed-v1",
+      "questionIntent": "쌓기나무 개수 또는 수를 구하기",
+      "evidence": [
+        "3D model"
+      ],
+      "answerInput": "NUMBER",
+      "gradingMode": "exact",
+      "revealMode": "answer-specific material",
+      "completion": "답안을 맞혀 완료",
+      "route": "/lesson/4",
+      "status": "IMPLEMENTED"
+    },
+    {
+      "lessonId": 4,
+      "stage": "more",
+      "problemId": "seed:L4-03",
+      "sourceType": "BUILT_IN_WORKBOOK_STYLE",
+      "problemVersion": "seed-v1",
+      "questionIntent": "3D 모양을 높이 지도로 표현",
+      "evidence": [
+        "3D model"
+      ],
+      "answerInput": "HEIGHT_MAP",
+      "gradingMode": "exact",
+      "revealMode": "answer-specific material",
+      "completion": "답안을 맞혀 완료",
+      "route": "/lesson/4",
+      "status": "IMPLEMENTED"
+    },
+    {
+      "lessonId": 5,
+      "stage": "concept",
+      "problemId": "seed:L5-01",
+      "sourceType": "BUILT_IN_CONCEPT",
+      "problemVersion": "seed-v1",
+      "questionIntent": "선택지로 공간 정보의 충분성·관계를 판단",
+      "evidence": [
+        "frontProjection",
+        "3D model"
+      ],
+      "answerInput": "MULTIPLE_CHOICE",
+      "gradingMode": "exact",
+      "revealMode": "answer-specific material",
+      "completion": "답안을 맞혀 완료",
+      "route": "/lesson/5",
+      "status": "IMPLEMENTED"
+    },
+    {
+      "lessonId": 5,
+      "stage": "check",
+      "problemId": "seed:L5-02",
+      "sourceType": "BUILT_IN_CONCEPT",
+      "problemVersion": "seed-v1",
+      "questionIntent": "선택지로 공간 정보의 충분성·관계를 판단",
+      "evidence": [
+        "frontProjection",
+        "3D model"
+      ],
+      "answerInput": "MULTIPLE_CHOICE",
+      "gradingMode": "exact",
+      "revealMode": "answer-specific material",
+      "completion": "답안을 맞혀 완료",
+      "route": "/lesson/5",
+      "status": "IMPLEMENTED"
+    },
+    {
+      "lessonId": 5,
+      "stage": "more",
+      "problemId": "seed:L5-03",
+      "sourceType": "BUILT_IN_WORKBOOK_STYLE",
+      "problemVersion": "seed-v1",
+      "questionIntent": "쌓기나무 개수 또는 수를 구하기",
+      "evidence": [
+        "frontProjection",
+        "heightMap",
+        "3D model"
+      ],
+      "answerInput": "NUMBER",
+      "gradingMode": "exact",
+      "revealMode": "answer-specific material",
+      "completion": "답안을 맞혀 완료",
+      "route": "/lesson/5",
+      "status": "IMPLEMENTED"
+    },
+    {
+      "lessonId": 6,
+      "stage": "concept",
+      "problemId": "seed:L6-01",
+      "sourceType": "BUILT_IN_CONCEPT",
+      "problemVersion": "seed-v1",
+      "questionIntent": "조건을 만족하는 입체를 쌓기",
+      "evidence": [
+        "topProjection",
+        "frontProjection",
+        "sideProjection(right-view)"
+      ],
+      "answerInput": "BLOCK_BUILD",
+      "gradingMode": "constraint",
+      "revealMode": "answer-specific material",
+      "completion": "답안을 맞혀 완료",
+      "route": "/lesson/6",
+      "status": "IMPLEMENTED"
+    },
+    {
+      "lessonId": 6,
+      "stage": "check",
+      "problemId": "seed:L6-02",
+      "sourceType": "BUILT_IN_CONCEPT",
+      "problemVersion": "seed-v1",
+      "questionIntent": "조건을 만족하는 입체를 쌓기",
+      "evidence": [
+        "topProjection",
+        "frontProjection",
+        "sideProjection(right-view)"
+      ],
+      "answerInput": "BLOCK_BUILD",
+      "gradingMode": "constraint",
+      "revealMode": "answer-specific material",
+      "completion": "답안을 맞혀 완료",
+      "route": "/lesson/6",
+      "status": "IMPLEMENTED"
+    },
+    {
+      "lessonId": 7,
+      "stage": "concept",
+      "problemId": "seed:L7-01",
+      "sourceType": "BUILT_IN_CONCEPT",
+      "problemVersion": "seed-v1",
+      "questionIntent": "높이 지도로 입체를 쌓기",
+      "evidence": [
+        "heightMap"
+      ],
+      "answerInput": "BLOCK_BUILD",
+      "gradingMode": "exact",
+      "revealMode": "3D Ghost + rebuild",
+      "completion": "조건에 맞는 구조를 직접 완성",
+      "route": "/lesson/7",
+      "status": "IMPLEMENTED"
+    },
+    {
+      "lessonId": 7,
+      "stage": "check",
+      "problemId": "seed:L7-02",
+      "sourceType": "BUILT_IN_CONCEPT",
+      "problemVersion": "seed-v1",
+      "questionIntent": "3D 모양을 높이 지도로 표현",
+      "evidence": [
+        "3D model"
+      ],
+      "answerInput": "HEIGHT_MAP",
+      "gradingMode": "exact",
+      "revealMode": "answer-specific material",
+      "completion": "답안을 맞혀 완료",
+      "route": "/lesson/7",
+      "status": "IMPLEMENTED"
+    },
+    {
+      "lessonId": 7,
+      "stage": "more",
+      "problemId": "seed:L7-03",
+      "sourceType": "BUILT_IN_WORKBOOK_STYLE",
+      "problemVersion": "seed-v1",
+      "questionIntent": "쌓기나무 개수 또는 수를 구하기",
+      "evidence": [
+        "heightMap",
+        "3D model"
+      ],
+      "answerInput": "NUMBER",
+      "gradingMode": "exact",
+      "revealMode": "answer-specific material",
+      "completion": "답안을 맞혀 완료",
+      "route": "/lesson/7",
+      "status": "IMPLEMENTED"
+    },
+    {
+      "lessonId": 8,
+      "stage": "concept",
+      "problemId": "seed:L8-01",
+      "sourceType": "BUILT_IN_CONCEPT",
+      "problemVersion": "seed-v1",
+      "questionIntent": "층별 지도로 입체를 쌓기",
+      "evidence": [
+        "layerMaps"
+      ],
+      "answerInput": "BLOCK_BUILD",
+      "gradingMode": "exact",
+      "revealMode": "3D Ghost + rebuild",
+      "completion": "조건에 맞는 구조를 직접 완성",
+      "route": "/lesson/8",
+      "status": "IMPLEMENTED"
+    },
+    {
+      "lessonId": 8,
+      "stage": "check",
+      "problemId": "seed:L8-02",
+      "sourceType": "BUILT_IN_CONCEPT",
+      "problemVersion": "seed-v1",
+      "questionIntent": "층별 모양을 격자로 표현",
+      "evidence": [
+        "3D model"
+      ],
+      "answerInput": "LAYER_MAP",
+      "gradingMode": "exact",
+      "revealMode": "answer-specific material",
+      "completion": "답안을 맞혀 완료",
+      "route": "/lesson/8",
+      "status": "IMPLEMENTED"
+    },
+    {
+      "lessonId": 8,
+      "stage": "more",
+      "problemId": "seed:L8-03",
+      "sourceType": "BUILT_IN_WORKBOOK_STYLE",
+      "problemVersion": "seed-v1",
+      "questionIntent": "쌓기나무 개수 또는 수를 구하기",
+      "evidence": [
+        "3D model"
+      ],
+      "answerInput": "NUMBER",
+      "gradingMode": "exact",
+      "revealMode": "answer-specific material",
+      "completion": "답안을 맞혀 완료",
+      "route": "/lesson/8",
+      "status": "IMPLEMENTED"
+    },
+    {
+      "lessonId": 12,
+      "stage": "concept",
+      "problemId": "seed:L12-01",
+      "sourceType": "BUILT_IN_CONCEPT",
+      "problemVersion": "seed-v1",
+      "questionIntent": "쌓기나무 개수 또는 수를 구하기",
+      "evidence": [
+        "3D model"
+      ],
+      "answerInput": "NUMBER",
+      "gradingMode": "exact",
+      "revealMode": "answer-specific material",
+      "completion": "답안을 맞혀 완료",
+      "route": "/lesson/12",
+      "status": "IMPLEMENTED"
+    },
+    {
+      "lessonId": 12,
+      "stage": "check",
+      "problemId": "seed:L12-02",
+      "sourceType": "BUILT_IN_CONCEPT",
+      "problemVersion": "seed-v1",
+      "questionIntent": "3D 모양을 방향별 격자로 표현",
+      "evidence": [
+        "3D model"
+      ],
+      "answerInput": "THREE_GRIDS",
+      "gradingMode": "exact",
+      "revealMode": "answer-specific material",
+      "completion": "답안을 맞혀 완료",
+      "route": "/lesson/12",
+      "status": "IMPLEMENTED"
+    },
+    {
+      "lessonId": 12,
+      "stage": "more",
+      "problemId": "seed:L12-03",
+      "sourceType": "BUILT_IN_WORKBOOK_STYLE",
+      "problemVersion": "seed-v1",
+      "questionIntent": "조건을 만족하는 입체를 쌓기",
+      "evidence": [
+        "topProjection",
+        "frontProjection",
+        "sideProjection(right-view)"
+      ],
+      "answerInput": "BLOCK_BUILD",
+      "gradingMode": "constraint",
+      "revealMode": "answer-specific material",
+      "completion": "답안을 맞혀 완료",
+      "route": "/lesson/12",
+      "status": "IMPLEMENTED"
+    },
+    {
+      "lessonId": 6,
+      "stage": "more",
+      "problemId": "seed:L6-03",
+      "sourceType": "BUILT_IN_WORKBOOK_STYLE",
+      "problemVersion": "seed-v1",
+      "questionIntent": "조건을 만족하는 입체를 쌓기",
+      "evidence": [
+        "topProjection",
+        "frontProjection",
+        "sideProjection(right-view)"
+      ],
+      "answerInput": "BLOCK_BUILD",
+      "gradingMode": "constraint",
+      "revealMode": "answer-specific material",
+      "completion": "답안을 맞혀 완료",
+      "route": "/lesson/6",
+      "status": "IMPLEMENTED"
+    },
+    {
+      "lessonId": 12,
+      "stage": "more",
+      "problemId": "seed:L12-04",
+      "sourceType": "BUILT_IN_WORKBOOK_STYLE",
+      "problemVersion": "seed-v1",
+      "questionIntent": "관찰 방향을 선택",
+      "evidence": [
+        "frontProjection",
+        "3D model"
+      ],
+      "answerInput": "MULTIPLE_CHOICE",
+      "gradingMode": "exact",
+      "revealMode": "answer-specific material",
+      "completion": "답안을 맞혀 완료",
+      "route": "/lesson/12",
+      "status": "IMPLEMENTED"
+    },
+    {
+      "lessonId": 12,
+      "stage": "more",
+      "problemId": "seed:L12-05",
+      "sourceType": "BUILT_IN_WORKBOOK_STYLE",
+      "problemVersion": "seed-v1",
+      "questionIntent": "3D 모양을 높이 지도로 표현",
+      "evidence": [
+        "3D model"
+      ],
+      "answerInput": "HEIGHT_MAP",
+      "gradingMode": "exact",
+      "revealMode": "answer-specific material",
+      "completion": "답안을 맞혀 완료",
+      "route": "/lesson/12",
+      "status": "IMPLEMENTED"
+    },
+    {
+      "lessonId": 12,
+      "stage": "more",
+      "problemId": "seed:L12-06",
+      "sourceType": "BUILT_IN_WORKBOOK_STYLE",
+      "problemVersion": "seed-v1",
+      "questionIntent": "층별 모양을 격자로 표현",
+      "evidence": [
+        "3D model"
+      ],
+      "answerInput": "LAYER_MAP",
+      "gradingMode": "exact",
+      "revealMode": "answer-specific material",
+      "completion": "답안을 맞혀 완료",
+      "route": "/lesson/12",
+      "status": "IMPLEMENTED"
+    },
+    {
+      "lessonId": 1,
+      "stage": "more",
+      "problemId": "template:lesson1-position-right:seed:0",
+      "sourceType": "GENERATED_PRACTICE",
+      "templateId": "lesson1-position-right",
+      "generatorVersion": 1,
+      "problemVersion": "generator-v1",
+      "questionIntent": "쌓기나무 개수 또는 수를 구하기",
+      "evidence": [
+        "3D model"
+      ],
+      "answerInput": "MULTIPLE_CHOICE",
+      "gradingMode": "exact",
+      "revealMode": "answer-specific material",
+      "completion": "답안을 맞혀 완료",
+      "route": "/lesson/1",
+      "status": "IMPLEMENTED"
+    },
+    {
+      "lessonId": 1,
+      "stage": "more",
+      "problemId": "template:lesson1-position-above:seed:1",
+      "sourceType": "GENERATED_PRACTICE",
+      "templateId": "lesson1-position-above",
+      "generatorVersion": 1,
+      "problemVersion": "generator-v1",
+      "questionIntent": "쌓기나무 개수 또는 수를 구하기",
+      "evidence": [
+        "3D model"
+      ],
+      "answerInput": "MULTIPLE_CHOICE",
+      "gradingMode": "exact",
+      "revealMode": "answer-specific material",
+      "completion": "답안을 맞혀 완료",
+      "route": "/lesson/1",
+      "status": "IMPLEMENTED"
+    },
+    {
+      "lessonId": 1,
+      "stage": "more",
+      "problemId": "template:lesson1-layer-count:seed:2",
+      "sourceType": "GENERATED_PRACTICE",
+      "templateId": "lesson1-layer-count",
+      "generatorVersion": 1,
+      "problemVersion": "generator-v1",
+      "questionIntent": "쌓기나무 개수 또는 수를 구하기",
+      "evidence": [
+        "3D model"
+      ],
+      "answerInput": "NUMBER",
+      "gradingMode": "exact",
+      "revealMode": "answer-specific material",
+      "completion": "답안을 맞혀 완료",
+      "route": "/lesson/1",
+      "status": "IMPLEMENTED"
+    },
+    {
+      "lessonId": 1,
+      "stage": "more",
+      "problemId": "template:lesson1-total-count:seed:3",
+      "sourceType": "GENERATED_PRACTICE",
+      "templateId": "lesson1-total-count",
+      "generatorVersion": 1,
+      "problemVersion": "generator-v1",
+      "questionIntent": "쌓기나무 개수 또는 수를 구하기",
+      "evidence": [
+        "3D model"
+      ],
+      "answerInput": "NUMBER",
+      "gradingMode": "exact",
+      "revealMode": "answer-specific material",
+      "completion": "답안을 맞혀 완료",
+      "route": "/lesson/1",
+      "status": "IMPLEMENTED"
+    },
+    {
+      "lessonId": 1,
+      "stage": "more",
+      "problemId": "template:lesson1-description-choice:seed:4",
+      "sourceType": "GENERATED_PRACTICE",
+      "templateId": "lesson1-description-choice",
+      "generatorVersion": 1,
+      "problemVersion": "generator-v1",
+      "questionIntent": "선택지로 공간 정보의 충분성·관계를 판단",
+      "evidence": [
+        "3D model"
+      ],
+      "answerInput": "MULTIPLE_CHOICE",
+      "gradingMode": "exact",
+      "revealMode": "answer-specific material",
+      "completion": "답안을 맞혀 완료",
+      "route": "/lesson/1",
+      "status": "IMPLEMENTED"
+    },
+    {
+      "lessonId": 1,
+      "stage": "more",
+      "problemId": "template:lesson1-layer-compare:seed:5",
+      "sourceType": "GENERATED_PRACTICE",
+      "templateId": "lesson1-layer-compare",
+      "generatorVersion": 1,
+      "problemVersion": "generator-v1",
+      "questionIntent": "쌓기나무 개수 또는 수를 구하기",
+      "evidence": [
+        "3D model"
+      ],
+      "answerInput": "NUMBER",
+      "gradingMode": "exact",
+      "revealMode": "answer-specific material",
+      "completion": "답안을 맞혀 완료",
+      "route": "/lesson/1",
+      "status": "IMPLEMENTED"
+    },
+    {
+      "lessonId": 2,
+      "stage": "more",
+      "problemId": "template:lesson2-front-view:seed:0",
+      "sourceType": "GENERATED_PRACTICE",
+      "templateId": "lesson2-front-view",
+      "generatorVersion": 1,
+      "problemVersion": "generator-v1",
+      "questionIntent": "관찰 방향을 선택",
+      "evidence": [
+        "frontProjection",
+        "3D model"
+      ],
+      "answerInput": "MULTIPLE_CHOICE",
+      "gradingMode": "exact",
+      "revealMode": "answer-specific material",
+      "completion": "답안을 맞혀 완료",
+      "route": "/lesson/2",
+      "status": "IMPLEMENTED"
+    },
+    {
+      "lessonId": 2,
+      "stage": "more",
+      "problemId": "template:lesson2-back-view:seed:1",
+      "sourceType": "GENERATED_PRACTICE",
+      "templateId": "lesson2-back-view",
+      "generatorVersion": 1,
+      "problemVersion": "generator-v1",
+      "questionIntent": "관찰 방향을 선택",
+      "evidence": [
+        "frontProjection",
+        "3D model"
+      ],
+      "answerInput": "MULTIPLE_CHOICE",
+      "gradingMode": "exact",
+      "revealMode": "answer-specific material",
+      "completion": "답안을 맞혀 완료",
+      "route": "/lesson/2",
+      "status": "IMPLEMENTED"
+    },
+    {
+      "lessonId": 2,
+      "stage": "more",
+      "problemId": "template:lesson2-left-view:seed:2",
+      "sourceType": "GENERATED_PRACTICE",
+      "templateId": "lesson2-left-view",
+      "generatorVersion": 1,
+      "problemVersion": "generator-v1",
+      "questionIntent": "관찰 방향을 선택",
+      "evidence": [
+        "sideProjection(right-view)",
+        "3D model"
+      ],
+      "answerInput": "MULTIPLE_CHOICE",
+      "gradingMode": "exact",
+      "revealMode": "answer-specific material",
+      "completion": "답안을 맞혀 완료",
+      "route": "/lesson/2",
+      "status": "IMPLEMENTED"
+    },
+    {
+      "lessonId": 2,
+      "stage": "more",
+      "problemId": "template:lesson2-right-view:seed:3",
+      "sourceType": "GENERATED_PRACTICE",
+      "templateId": "lesson2-right-view",
+      "generatorVersion": 1,
+      "problemVersion": "generator-v1",
+      "questionIntent": "관찰 방향을 선택",
+      "evidence": [
+        "sideProjection(right-view)",
+        "3D model"
+      ],
+      "answerInput": "MULTIPLE_CHOICE",
+      "gradingMode": "exact",
+      "revealMode": "answer-specific material",
+      "completion": "답안을 맞혀 완료",
+      "route": "/lesson/2",
+      "status": "IMPLEMENTED"
+    },
+    {
+      "lessonId": 2,
+      "stage": "more",
+      "problemId": "template:lesson2-top-view:seed:4",
+      "sourceType": "GENERATED_PRACTICE",
+      "templateId": "lesson2-top-view",
+      "generatorVersion": 1,
+      "problemVersion": "generator-v1",
+      "questionIntent": "관찰 방향을 선택",
+      "evidence": [
+        "topProjection",
+        "3D model"
+      ],
+      "answerInput": "MULTIPLE_CHOICE",
+      "gradingMode": "exact",
+      "revealMode": "answer-specific material",
+      "completion": "답안을 맞혀 완료",
+      "route": "/lesson/2",
+      "status": "IMPLEMENTED"
+    },
+    {
+      "lessonId": 2,
+      "stage": "more",
+      "problemId": "template:lesson2-feature-check:seed:5",
+      "sourceType": "GENERATED_PRACTICE",
+      "templateId": "lesson2-feature-check",
+      "generatorVersion": 1,
+      "problemVersion": "generator-v1",
+      "questionIntent": "관찰 방향을 선택",
+      "evidence": [
+        "frontProjection",
+        "3D model"
+      ],
+      "answerInput": "MULTIPLE_CHOICE",
+      "gradingMode": "exact",
+      "revealMode": "answer-specific material",
+      "completion": "답안을 맞혀 완료",
+      "route": "/lesson/2",
+      "status": "IMPLEMENTED"
+    },
+    {
+      "lessonId": 3,
+      "stage": "more",
+      "problemId": "template:lesson3-top-draw:seed:0",
+      "sourceType": "GENERATED_PRACTICE",
+      "templateId": "lesson3-top-draw",
+      "generatorVersion": 1,
+      "problemVersion": "generator-v1",
+      "questionIntent": "3D 모양을 방향별 격자로 표현",
+      "evidence": [
+        "topProjection",
+        "3D model"
+      ],
+      "answerInput": "GRID",
+      "gradingMode": "exact",
+      "revealMode": "answer-specific material",
+      "completion": "답안을 맞혀 완료",
+      "route": "/lesson/3",
+      "status": "IMPLEMENTED"
+    },
+    {
+      "lessonId": 3,
+      "stage": "more",
+      "problemId": "template:lesson3-front-draw:seed:1",
+      "sourceType": "GENERATED_PRACTICE",
+      "templateId": "lesson3-front-draw",
+      "generatorVersion": 1,
+      "problemVersion": "generator-v1",
+      "questionIntent": "3D 모양을 방향별 격자로 표현",
+      "evidence": [
+        "frontProjection",
+        "3D model"
+      ],
+      "answerInput": "GRID",
+      "gradingMode": "exact",
+      "revealMode": "answer-specific material",
+      "completion": "답안을 맞혀 완료",
+      "route": "/lesson/3",
+      "status": "IMPLEMENTED"
+    },
+    {
+      "lessonId": 3,
+      "stage": "more",
+      "problemId": "template:lesson3-side-draw:seed:2",
+      "sourceType": "GENERATED_PRACTICE",
+      "templateId": "lesson3-side-draw",
+      "generatorVersion": 1,
+      "problemVersion": "generator-v1",
+      "questionIntent": "3D 모양을 방향별 격자로 표현",
+      "evidence": [
+        "sideProjection(right-view)",
+        "3D model"
+      ],
+      "answerInput": "GRID",
+      "gradingMode": "exact",
+      "revealMode": "answer-specific material",
+      "completion": "답안을 맞혀 완료",
+      "route": "/lesson/3",
+      "status": "IMPLEMENTED"
+    },
+    {
+      "lessonId": 3,
+      "stage": "more",
+      "problemId": "template:lesson3-all-views:seed:3",
+      "sourceType": "GENERATED_PRACTICE",
+      "templateId": "lesson3-all-views",
+      "generatorVersion": 1,
+      "problemVersion": "generator-v1",
+      "questionIntent": "3D 모양을 방향별 격자로 표현",
+      "evidence": [
+        "topProjection",
+        "frontProjection",
+        "sideProjection(right-view)",
+        "3D model"
+      ],
+      "answerInput": "THREE_GRIDS",
+      "gradingMode": "exact",
+      "revealMode": "answer-specific material",
+      "completion": "답안을 맞혀 완료",
+      "route": "/lesson/3",
+      "status": "IMPLEMENTED"
+    },
+    {
+      "lessonId": 3,
+      "stage": "more",
+      "problemId": "template:lesson3-hidden-side:seed:4",
+      "sourceType": "GENERATED_PRACTICE",
+      "templateId": "lesson3-hidden-side",
+      "generatorVersion": 1,
+      "problemVersion": "generator-v1",
+      "questionIntent": "3D 모양을 방향별 격자로 표현",
+      "evidence": [
+        "sideProjection(right-view)",
+        "3D model"
+      ],
+      "answerInput": "GRID",
+      "gradingMode": "exact",
+      "revealMode": "answer-specific material",
+      "completion": "답안을 맞혀 완료",
+      "route": "/lesson/3",
+      "status": "IMPLEMENTED"
+    },
+    {
+      "lessonId": 3,
+      "stage": "more",
+      "problemId": "template:lesson3-direction-judge:seed:5",
+      "sourceType": "GENERATED_PRACTICE",
+      "templateId": "lesson3-direction-judge",
+      "generatorVersion": 1,
+      "problemVersion": "generator-v1",
+      "questionIntent": "3D 모양을 방향별 격자로 표현",
+      "evidence": [
+        "topProjection",
+        "3D model"
+      ],
+      "answerInput": "GRID",
+      "gradingMode": "exact",
+      "revealMode": "answer-specific material",
+      "completion": "답안을 맞혀 완료",
+      "route": "/lesson/3",
+      "status": "IMPLEMENTED"
+    },
+    {
+      "lessonId": 4,
+      "stage": "more",
+      "problemId": "template:lesson4-total-count:seed:0",
+      "sourceType": "GENERATED_PRACTICE",
+      "templateId": "lesson4-total-count",
+      "generatorVersion": 1,
+      "problemVersion": "generator-v1",
+      "questionIntent": "쌓기나무 개수 또는 수를 구하기",
+      "evidence": [
+        "heightMap",
+        "layerMaps",
+        "3D model"
+      ],
+      "answerInput": "NUMBER",
+      "gradingMode": "exact",
+      "revealMode": "answer-specific material",
+      "completion": "답안을 맞혀 완료",
+      "route": "/lesson/4",
+      "status": "IMPLEMENTED"
+    },
+    {
+      "lessonId": 4,
+      "stage": "more",
+      "problemId": "template:lesson4-height-map:seed:1",
+      "sourceType": "GENERATED_PRACTICE",
+      "templateId": "lesson4-height-map",
+      "generatorVersion": 1,
+      "problemVersion": "generator-v1",
+      "questionIntent": "3D 모양을 높이 지도로 표현",
+      "evidence": [
+        "heightMap",
+        "layerMaps",
+        "3D model"
+      ],
+      "answerInput": "HEIGHT_MAP",
+      "gradingMode": "exact",
+      "revealMode": "answer-specific material",
+      "completion": "답안을 맞혀 완료",
+      "route": "/lesson/4",
+      "status": "IMPLEMENTED"
+    },
+    {
+      "lessonId": 4,
+      "stage": "more",
+      "problemId": "template:lesson4-layer-count:seed:2",
+      "sourceType": "GENERATED_PRACTICE",
+      "templateId": "lesson4-layer-count",
+      "generatorVersion": 1,
+      "problemVersion": "generator-v1",
+      "questionIntent": "쌓기나무 개수 또는 수를 구하기",
+      "evidence": [
+        "heightMap",
+        "layerMaps",
+        "3D model"
+      ],
+      "answerInput": "NUMBER",
+      "gradingMode": "exact",
+      "revealMode": "answer-specific material",
+      "completion": "답안을 맞혀 완료",
+      "route": "/lesson/4",
+      "status": "IMPLEMENTED"
+    },
+    {
+      "lessonId": 4,
+      "stage": "more",
+      "problemId": "template:lesson4-layer-map:seed:3",
+      "sourceType": "GENERATED_PRACTICE",
+      "templateId": "lesson4-layer-map",
+      "generatorVersion": 1,
+      "problemVersion": "generator-v1",
+      "questionIntent": "층별 모양을 격자로 표현",
+      "evidence": [
+        "heightMap",
+        "layerMaps",
+        "3D model"
+      ],
+      "answerInput": "LAYER_MAP",
+      "gradingMode": "exact",
+      "revealMode": "answer-specific material",
+      "completion": "답안을 맞혀 완료",
+      "route": "/lesson/4",
+      "status": "IMPLEMENTED"
+    },
+    {
+      "lessonId": 4,
+      "stage": "more",
+      "problemId": "template:lesson4-method-choice:seed:4",
+      "sourceType": "GENERATED_PRACTICE",
+      "templateId": "lesson4-method-choice",
+      "generatorVersion": 1,
+      "problemVersion": "generator-v1",
+      "questionIntent": "선택지로 공간 정보의 충분성·관계를 판단",
+      "evidence": [
+        "heightMap",
+        "layerMaps",
+        "3D model"
+      ],
+      "answerInput": "MULTIPLE_CHOICE",
+      "gradingMode": "exact",
+      "revealMode": "answer-specific material",
+      "completion": "답안을 맞혀 완료",
+      "route": "/lesson/4",
+      "status": "IMPLEMENTED"
+    },
+    {
+      "lessonId": 4,
+      "stage": "more",
+      "problemId": "template:lesson4-missing-info:seed:5",
+      "sourceType": "GENERATED_PRACTICE",
+      "templateId": "lesson4-missing-info",
+      "generatorVersion": 1,
+      "problemVersion": "generator-v1",
+      "questionIntent": "3D 모양을 높이 지도로 표현",
+      "evidence": [
+        "heightMap",
+        "layerMaps",
+        "3D model"
+      ],
+      "answerInput": "HEIGHT_MAP",
+      "gradingMode": "exact",
+      "revealMode": "answer-specific material",
+      "completion": "답안을 맞혀 완료",
+      "route": "/lesson/4",
+      "status": "IMPLEMENTED"
+    },
+    {
+      "lessonId": 5,
+      "stage": "more",
+      "problemId": "template:lesson5-unknown-choice:seed:0",
+      "sourceType": "GENERATED_PRACTICE",
+      "templateId": "lesson5-unknown-choice",
+      "generatorVersion": 1,
+      "problemVersion": "generator-v1",
+      "questionIntent": "선택지로 공간 정보의 충분성·관계를 판단",
+      "evidence": [
+        "frontProjection",
+        "3D model"
+      ],
+      "answerInput": "MULTIPLE_CHOICE",
+      "gradingMode": "exact",
+      "revealMode": "answer-specific material",
+      "completion": "답안을 맞혀 완료",
+      "route": "/lesson/5",
+      "status": "IMPLEMENTED"
+    },
+    {
+      "lessonId": 5,
+      "stage": "more",
+      "problemId": "template:lesson5-hidden-min:seed:1",
+      "sourceType": "GENERATED_PRACTICE",
+      "templateId": "lesson5-hidden-min",
+      "generatorVersion": 1,
+      "problemVersion": "generator-v1",
+      "questionIntent": "쌓기나무 개수 또는 수를 구하기",
+      "evidence": [
+        "frontProjection",
+        "3D model"
+      ],
+      "answerInput": "NUMBER",
+      "gradingMode": "exact",
+      "revealMode": "answer-specific material",
+      "completion": "답안을 맞혀 완료",
+      "route": "/lesson/5",
+      "status": "IMPLEMENTED"
+    },
+    {
+      "lessonId": 5,
+      "stage": "more",
+      "problemId": "template:lesson5-hidden-max:seed:2",
+      "sourceType": "GENERATED_PRACTICE",
+      "templateId": "lesson5-hidden-max",
+      "generatorVersion": 1,
+      "problemVersion": "generator-v1",
+      "questionIntent": "쌓기나무 개수 또는 수를 구하기",
+      "evidence": [
+        "frontProjection",
+        "3D model"
+      ],
+      "answerInput": "NUMBER",
+      "gradingMode": "exact",
+      "revealMode": "answer-specific material",
+      "completion": "답안을 맞혀 완료",
+      "route": "/lesson/5",
+      "status": "IMPLEMENTED"
+    },
+    {
+      "lessonId": 5,
+      "stage": "more",
+      "problemId": "template:lesson5-extra-info:seed:3",
+      "sourceType": "GENERATED_PRACTICE",
+      "templateId": "lesson5-extra-info",
+      "generatorVersion": 1,
+      "problemVersion": "generator-v1",
+      "questionIntent": "선택지로 공간 정보의 충분성·관계를 판단",
+      "evidence": [
+        "frontProjection",
+        "3D model"
+      ],
+      "answerInput": "MULTIPLE_CHOICE",
+      "gradingMode": "exact",
+      "revealMode": "answer-specific material",
+      "completion": "답안을 맞혀 완료",
+      "route": "/lesson/5",
+      "status": "IMPLEMENTED"
+    },
+    {
+      "lessonId": 5,
+      "stage": "more",
+      "problemId": "template:lesson5-same-view:seed:4",
+      "sourceType": "GENERATED_PRACTICE",
+      "templateId": "lesson5-same-view",
+      "generatorVersion": 1,
+      "problemVersion": "generator-v1",
+      "questionIntent": "선택지로 공간 정보의 충분성·관계를 판단",
+      "evidence": [
+        "3D model"
+      ],
+      "answerInput": "MULTIPLE_CHOICE",
+      "gradingMode": "exact",
+      "revealMode": "answer-specific material",
+      "completion": "답안을 맞혀 완료",
+      "route": "/lesson/5",
+      "status": "IMPLEMENTED"
+    },
+    {
+      "lessonId": 5,
+      "stage": "more",
+      "problemId": "template:lesson5-reveal-count:seed:5",
+      "sourceType": "GENERATED_PRACTICE",
+      "templateId": "lesson5-reveal-count",
+      "generatorVersion": 1,
+      "problemVersion": "generator-v1",
+      "questionIntent": "쌓기나무 개수 또는 수를 구하기",
+      "evidence": [
+        "3D model"
+      ],
+      "answerInput": "NUMBER",
+      "gradingMode": "exact",
+      "revealMode": "answer-specific material",
+      "completion": "답안을 맞혀 완료",
+      "route": "/lesson/5",
+      "status": "IMPLEMENTED"
+    },
+    {
+      "lessonId": 6,
+      "stage": "more",
+      "problemId": "template:lesson6-build-views:seed:0",
+      "sourceType": "GENERATED_PRACTICE",
+      "templateId": "lesson6-build-views",
+      "generatorVersion": 1,
+      "problemVersion": "generator-v1",
+      "questionIntent": "조건을 만족하는 입체를 쌓기",
+      "evidence": [
+        "topProjection",
+        "frontProjection",
+        "sideProjection(right-view)",
+        "3D model"
+      ],
+      "answerInput": "BLOCK_BUILD",
+      "gradingMode": "constraint",
+      "revealMode": "3D Ghost + rebuild",
+      "completion": "조건에 맞는 구조를 직접 완성",
+      "route": "/lesson/6",
+      "status": "IMPLEMENTED"
+    },
+    {
+      "lessonId": 6,
+      "stage": "more",
+      "problemId": "template:lesson6-another-solution:seed:1",
+      "sourceType": "GENERATED_PRACTICE",
+      "templateId": "lesson6-another-solution",
+      "generatorVersion": 1,
+      "problemVersion": "generator-v1",
+      "questionIntent": "조건을 만족하는 입체를 쌓기",
+      "evidence": [
+        "topProjection",
+        "frontProjection",
+        "sideProjection(right-view)",
+        "3D model"
+      ],
+      "answerInput": "BLOCK_BUILD",
+      "gradingMode": "constraint",
+      "revealMode": "3D Ghost + rebuild",
+      "completion": "조건에 맞는 구조를 직접 완성",
+      "route": "/lesson/6",
+      "status": "IMPLEMENTED"
+    },
+    {
+      "lessonId": 6,
+      "stage": "more",
+      "problemId": "template:lesson6-possible-shape:seed:2",
+      "sourceType": "GENERATED_PRACTICE",
+      "templateId": "lesson6-possible-shape",
+      "generatorVersion": 1,
+      "problemVersion": "generator-v1",
+      "questionIntent": "조건을 만족하는 입체를 쌓기",
+      "evidence": [
+        "topProjection",
+        "frontProjection",
+        "sideProjection(right-view)",
+        "3D model"
+      ],
+      "answerInput": "BLOCK_BUILD",
+      "gradingMode": "constraint",
+      "revealMode": "3D Ghost + rebuild",
+      "completion": "조건에 맞는 구조를 직접 완성",
+      "route": "/lesson/6",
+      "status": "IMPLEMENTED"
+    },
+    {
+      "lessonId": 6,
+      "stage": "more",
+      "problemId": "template:lesson6-minimum:seed:3",
+      "sourceType": "GENERATED_PRACTICE",
+      "templateId": "lesson6-minimum",
+      "generatorVersion": 1,
+      "problemVersion": "generator-v1",
+      "questionIntent": "조건을 만족하는 입체를 쌓기",
+      "evidence": [
+        "topProjection",
+        "frontProjection",
+        "sideProjection(right-view)",
+        "3D model"
+      ],
+      "answerInput": "BLOCK_BUILD",
+      "gradingMode": "constraint",
+      "revealMode": "3D Ghost + rebuild",
+      "completion": "조건에 맞는 구조를 직접 완성",
+      "route": "/lesson/6",
+      "status": "IMPLEMENTED"
+    },
+    {
+      "lessonId": 6,
+      "stage": "more",
+      "problemId": "template:lesson6-maximum:seed:4",
+      "sourceType": "GENERATED_PRACTICE",
+      "templateId": "lesson6-maximum",
+      "generatorVersion": 1,
+      "problemVersion": "generator-v1",
+      "questionIntent": "조건을 만족하는 입체를 쌓기",
+      "evidence": [
+        "topProjection",
+        "frontProjection",
+        "sideProjection(right-view)",
+        "3D model"
+      ],
+      "answerInput": "BLOCK_BUILD",
+      "gradingMode": "constraint",
+      "revealMode": "3D Ghost + rebuild",
+      "completion": "조건에 맞는 구조를 직접 완성",
+      "route": "/lesson/6",
+      "status": "IMPLEMENTED"
+    },
+    {
+      "lessonId": 6,
+      "stage": "more",
+      "problemId": "template:lesson6-unique-or-many:seed:5",
+      "sourceType": "GENERATED_PRACTICE",
+      "templateId": "lesson6-unique-or-many",
+      "generatorVersion": 1,
+      "problemVersion": "generator-v1",
+      "questionIntent": "조건을 만족하는 입체를 쌓기",
+      "evidence": [
+        "topProjection",
+        "frontProjection",
+        "sideProjection(right-view)",
+        "3D model"
+      ],
+      "answerInput": "BLOCK_BUILD",
+      "gradingMode": "constraint",
+      "revealMode": "3D Ghost + rebuild",
+      "completion": "조건에 맞는 구조를 직접 완성",
+      "route": "/lesson/6",
+      "status": "IMPLEMENTED"
+    },
+    {
+      "lessonId": 7,
+      "stage": "more",
+      "problemId": "template:lesson7-height-to-build:seed:0",
+      "sourceType": "GENERATED_PRACTICE",
+      "templateId": "lesson7-height-to-build",
+      "generatorVersion": 1,
+      "problemVersion": "generator-v1",
+      "questionIntent": "높이 지도로 입체를 쌓기",
+      "evidence": [
+        "heightMap",
+        "3D model"
+      ],
+      "answerInput": "BLOCK_BUILD",
+      "gradingMode": "exact",
+      "revealMode": "3D Ghost + rebuild",
+      "completion": "조건에 맞는 구조를 직접 완성",
+      "route": "/lesson/7",
+      "status": "IMPLEMENTED"
+    },
+    {
+      "lessonId": 7,
+      "stage": "more",
+      "problemId": "template:lesson7-build-to-height:seed:1",
+      "sourceType": "GENERATED_PRACTICE",
+      "templateId": "lesson7-build-to-height",
+      "generatorVersion": 1,
+      "problemVersion": "generator-v1",
+      "questionIntent": "3D 모양을 높이 지도로 표현",
+      "evidence": [
+        "3D model"
+      ],
+      "answerInput": "HEIGHT_MAP",
+      "gradingMode": "exact",
+      "revealMode": "answer-specific material",
+      "completion": "답안을 맞혀 완료",
+      "route": "/lesson/7",
+      "status": "IMPLEMENTED"
+    },
+    {
+      "lessonId": 7,
+      "stage": "more",
+      "problemId": "template:lesson7-total-from-height:seed:2",
+      "sourceType": "GENERATED_PRACTICE",
+      "templateId": "lesson7-total-from-height",
+      "generatorVersion": 1,
+      "problemVersion": "generator-v1",
+      "questionIntent": "3D 모양을 높이 지도로 표현",
+      "evidence": [
+        "3D model"
+      ],
+      "answerInput": "HEIGHT_MAP",
+      "gradingMode": "exact",
+      "revealMode": "answer-specific material",
+      "completion": "답안을 맞혀 완료",
+      "route": "/lesson/7",
+      "status": "IMPLEMENTED"
+    },
+    {
+      "lessonId": 7,
+      "stage": "more",
+      "problemId": "template:lesson7-fill-height:seed:3",
+      "sourceType": "GENERATED_PRACTICE",
+      "templateId": "lesson7-fill-height",
+      "generatorVersion": 1,
+      "problemVersion": "generator-v1",
+      "questionIntent": "높이 지도로 입체를 쌓기",
+      "evidence": [
+        "heightMap",
+        "3D model"
+      ],
+      "answerInput": "BLOCK_BUILD",
+      "gradingMode": "exact",
+      "revealMode": "3D Ghost + rebuild",
+      "completion": "조건에 맞는 구조를 직접 완성",
+      "route": "/lesson/7",
+      "status": "IMPLEMENTED"
+    },
+    {
+      "lessonId": 7,
+      "stage": "more",
+      "problemId": "template:lesson7-find-wrong-height:seed:4",
+      "sourceType": "GENERATED_PRACTICE",
+      "templateId": "lesson7-find-wrong-height",
+      "generatorVersion": 1,
+      "problemVersion": "generator-v1",
+      "questionIntent": "3D 모양을 높이 지도로 표현",
+      "evidence": [
+        "3D model"
+      ],
+      "answerInput": "HEIGHT_MAP",
+      "gradingMode": "exact",
+      "revealMode": "answer-specific material",
+      "completion": "답안을 맞혀 완료",
+      "route": "/lesson/7",
+      "status": "IMPLEMENTED"
+    },
+    {
+      "lessonId": 7,
+      "stage": "more",
+      "problemId": "template:lesson7-changed-height:seed:5",
+      "sourceType": "GENERATED_PRACTICE",
+      "templateId": "lesson7-changed-height",
+      "generatorVersion": 1,
+      "problemVersion": "generator-v1",
+      "questionIntent": "3D 모양을 높이 지도로 표현",
+      "evidence": [
+        "3D model"
+      ],
+      "answerInput": "HEIGHT_MAP",
+      "gradingMode": "exact",
+      "revealMode": "answer-specific material",
+      "completion": "답안을 맞혀 완료",
+      "route": "/lesson/7",
+      "status": "IMPLEMENTED"
+    },
+    {
+      "lessonId": 8,
+      "stage": "more",
+      "problemId": "template:lesson8-layers-to-build:seed:0",
+      "sourceType": "GENERATED_PRACTICE",
+      "templateId": "lesson8-layers-to-build",
+      "generatorVersion": 1,
+      "problemVersion": "generator-v1",
+      "questionIntent": "층별 지도로 입체를 쌓기",
+      "evidence": [
+        "layerMaps",
+        "3D model"
+      ],
+      "answerInput": "BLOCK_BUILD",
+      "gradingMode": "exact",
+      "revealMode": "3D Ghost + rebuild",
+      "completion": "조건에 맞는 구조를 직접 완성",
+      "route": "/lesson/8",
+      "status": "IMPLEMENTED"
+    },
+    {
+      "lessonId": 8,
+      "stage": "more",
+      "problemId": "template:lesson8-build-to-layers:seed:1",
+      "sourceType": "GENERATED_PRACTICE",
+      "templateId": "lesson8-build-to-layers",
+      "generatorVersion": 1,
+      "problemVersion": "generator-v1",
+      "questionIntent": "층별 모양을 격자로 표현",
+      "evidence": [
+        "layerMaps",
+        "3D model"
+      ],
+      "answerInput": "LAYER_MAP",
+      "gradingMode": "exact",
+      "revealMode": "answer-specific material",
+      "completion": "답안을 맞혀 완료",
+      "route": "/lesson/8",
+      "status": "IMPLEMENTED"
+    },
+    {
+      "lessonId": 8,
+      "stage": "more",
+      "problemId": "template:lesson8-missing-layer:seed:2",
+      "sourceType": "GENERATED_PRACTICE",
+      "templateId": "lesson8-missing-layer",
+      "generatorVersion": 1,
+      "problemVersion": "generator-v1",
+      "questionIntent": "층별 지도로 입체를 쌓기",
+      "evidence": [
+        "layerMaps",
+        "3D model"
+      ],
+      "answerInput": "BLOCK_BUILD",
+      "gradingMode": "exact",
+      "revealMode": "3D Ghost + rebuild",
+      "completion": "조건에 맞는 구조를 직접 완성",
+      "route": "/lesson/8",
+      "status": "IMPLEMENTED"
+    },
+    {
+      "lessonId": 8,
+      "stage": "more",
+      "problemId": "template:lesson8-layer-count:seed:3",
+      "sourceType": "GENERATED_PRACTICE",
+      "templateId": "lesson8-layer-count",
+      "generatorVersion": 1,
+      "problemVersion": "generator-v1",
+      "questionIntent": "층별 지도로 입체를 쌓기",
+      "evidence": [
+        "layerMaps",
+        "3D model"
+      ],
+      "answerInput": "BLOCK_BUILD",
+      "gradingMode": "exact",
+      "revealMode": "3D Ghost + rebuild",
+      "completion": "조건에 맞는 구조를 직접 완성",
+      "route": "/lesson/8",
+      "status": "IMPLEMENTED"
+    },
+    {
+      "lessonId": 8,
+      "stage": "more",
+      "problemId": "template:lesson8-total-count:seed:4",
+      "sourceType": "GENERATED_PRACTICE",
+      "templateId": "lesson8-total-count",
+      "generatorVersion": 1,
+      "problemVersion": "generator-v1",
+      "questionIntent": "층별 모양을 격자로 표현",
+      "evidence": [
+        "layerMaps",
+        "3D model"
+      ],
+      "answerInput": "LAYER_MAP",
+      "gradingMode": "exact",
+      "revealMode": "answer-specific material",
+      "completion": "답안을 맞혀 완료",
+      "route": "/lesson/8",
+      "status": "IMPLEMENTED"
+    },
+    {
+      "lessonId": 8,
+      "stage": "more",
+      "problemId": "template:lesson8-next-layer:seed:5",
+      "sourceType": "GENERATED_PRACTICE",
+      "templateId": "lesson8-next-layer",
+      "generatorVersion": 1,
+      "problemVersion": "generator-v1",
+      "questionIntent": "층별 지도로 입체를 쌓기",
+      "evidence": [
+        "layerMaps",
+        "3D model"
+      ],
+      "answerInput": "BLOCK_BUILD",
+      "gradingMode": "exact",
+      "revealMode": "3D Ghost + rebuild",
+      "completion": "조건에 맞는 구조를 직접 완성",
+      "route": "/lesson/8",
+      "status": "IMPLEMENTED"
+    },
+    {
+      "lessonId": 12,
+      "stage": "more",
+      "problemId": "template:lesson12-direction:seed:0",
+      "sourceType": "GENERATED_PRACTICE",
+      "templateId": "lesson12-direction",
+      "generatorVersion": 1,
+      "problemVersion": "generator-v1",
+      "questionIntent": "관찰 방향을 선택",
+      "evidence": [
+        "frontProjection",
+        "3D model"
+      ],
+      "answerInput": "MULTIPLE_CHOICE",
+      "gradingMode": "exact",
+      "revealMode": "answer-specific material",
+      "completion": "답안을 맞혀 완료",
+      "route": "/lesson/12",
+      "status": "IMPLEMENTED"
+    },
+    {
+      "lessonId": 12,
+      "stage": "more",
+      "problemId": "template:lesson12-projection:seed:1",
+      "sourceType": "GENERATED_PRACTICE",
+      "templateId": "lesson12-projection",
+      "generatorVersion": 1,
+      "problemVersion": "generator-v1",
+      "questionIntent": "3D 모양을 방향별 격자로 표현",
+      "evidence": [
+        "topProjection",
+        "frontProjection",
+        "sideProjection(right-view)",
+        "3D model"
+      ],
+      "answerInput": "THREE_GRIDS",
+      "gradingMode": "exact",
+      "revealMode": "answer-specific material",
+      "completion": "답안을 맞혀 완료",
+      "route": "/lesson/12",
+      "status": "IMPLEMENTED"
+    },
+    {
+      "lessonId": 12,
+      "stage": "more",
+      "problemId": "template:lesson12-count:seed:2",
+      "sourceType": "GENERATED_PRACTICE",
+      "templateId": "lesson12-count",
+      "generatorVersion": 1,
+      "problemVersion": "generator-v1",
+      "questionIntent": "쌓기나무 개수 또는 수를 구하기",
+      "evidence": [
+        "3D model"
+      ],
+      "answerInput": "NUMBER",
+      "gradingMode": "exact",
+      "revealMode": "answer-specific material",
+      "completion": "답안을 맞혀 완료",
+      "route": "/lesson/12",
+      "status": "IMPLEMENTED"
+    },
+    {
+      "lessonId": 12,
+      "stage": "more",
+      "problemId": "template:lesson12-height-map:seed:3",
+      "sourceType": "GENERATED_PRACTICE",
+      "templateId": "lesson12-height-map",
+      "generatorVersion": 1,
+      "problemVersion": "generator-v1",
+      "questionIntent": "3D 모양을 높이 지도로 표현",
+      "evidence": [
+        "3D model"
+      ],
+      "answerInput": "HEIGHT_MAP",
+      "gradingMode": "exact",
+      "revealMode": "answer-specific material",
+      "completion": "답안을 맞혀 완료",
+      "route": "/lesson/12",
+      "status": "IMPLEMENTED"
+    },
+    {
+      "lessonId": 12,
+      "stage": "more",
+      "problemId": "template:lesson12-layer-map:seed:4",
+      "sourceType": "GENERATED_PRACTICE",
+      "templateId": "lesson12-layer-map",
+      "generatorVersion": 1,
+      "problemVersion": "generator-v1",
+      "questionIntent": "쌓기나무 개수 또는 수를 구하기",
+      "evidence": [
+        "3D model"
+      ],
+      "answerInput": "NUMBER",
+      "gradingMode": "exact",
+      "revealMode": "answer-specific material",
+      "completion": "답안을 맞혀 완료",
+      "route": "/lesson/12",
+      "status": "IMPLEMENTED"
+    },
+    {
+      "lessonId": 12,
+      "stage": "more",
+      "problemId": "template:lesson12-constraint:seed:5",
+      "sourceType": "GENERATED_PRACTICE",
+      "templateId": "lesson12-constraint",
+      "generatorVersion": 1,
+      "problemVersion": "generator-v1",
+      "questionIntent": "층별 모양을 격자로 표현",
+      "evidence": [
+        "layerMaps",
+        "3D model"
+      ],
+      "answerInput": "LAYER_MAP",
+      "gradingMode": "exact",
+      "revealMode": "answer-specific material",
+      "completion": "답안을 맞혀 완료",
+      "route": "/lesson/12",
+      "status": "IMPLEMENTED"
+    },
+    {
+      "lessonId": 12,
+      "stage": "more",
+      "problemId": "template:lesson12-hidden-block:seed:6",
+      "sourceType": "GENERATED_PRACTICE",
+      "templateId": "lesson12-hidden-block",
+      "generatorVersion": 1,
+      "problemVersion": "generator-v1",
+      "questionIntent": "쌓기나무 개수 또는 수를 구하기",
+      "evidence": [
+        "3D model"
+      ],
+      "answerInput": "NUMBER",
+      "gradingMode": "exact",
+      "revealMode": "answer-specific material",
+      "completion": "답안을 맞혀 완료",
+      "route": "/lesson/12",
+      "status": "IMPLEMENTED"
+    },
+    {
+      "lessonId": 12,
+      "stage": "more",
+      "problemId": "template:lesson12-spatial-choice:seed:7",
+      "sourceType": "GENERATED_PRACTICE",
+      "templateId": "lesson12-spatial-choice",
+      "generatorVersion": 1,
+      "problemVersion": "generator-v1",
+      "questionIntent": "선택지로 공간 정보의 충분성·관계를 판단",
+      "evidence": [
+        "3D model"
+      ],
+      "answerInput": "MULTIPLE_CHOICE",
+      "gradingMode": "exact",
+      "revealMode": "answer-specific material",
+      "completion": "답안을 맞혀 완료",
+      "route": "/lesson/12",
+      "status": "IMPLEMENTED"
+    },
+    {
+      "lessonId": 9,
+      "stage": "activity",
+      "problemId": "activity:peer-challenge",
+      "sourceType": "PEER_CHALLENGE",
+      "problemVersion": "activity-v1",
+      "questionIntent": "10개로 만든 친구 문제를 선택한 방식으로 풀이",
+      "evidence": [
+        "3D model",
+        "challenge card",
+        "hint card"
+      ],
+      "answerInput": "BLOCK_BUILD",
+      "gradingMode": "constraint",
+      "revealMode": "3D answer",
+      "completion": "친구 문제 조건을 만족하고 점수 저장",
+      "route": "/lesson/9",
+      "status": "IMPLEMENTED"
+    },
+    {
+      "lessonId": 10,
+      "stage": "activity",
+      "problemId": "activity:architecture-design",
+      "sourceType": "PROJECT",
+      "problemVersion": "activity-v1",
+      "questionIntent": "건축물 이름·이유·설명과 3층 구조 설계",
+      "evidence": [
+        "10×10×3 Builder",
+        "floor notes"
+      ],
+      "answerInput": "BLOCK_BUILD",
+      "gradingMode": "structure validation",
+      "revealMode": "3D preview",
+      "completion": "설계 저장",
+      "route": "/lesson/10/project",
+      "status": "IMPLEMENTED"
+    },
+    {
+      "lessonId": 11,
+      "stage": "activity",
+      "problemId": "activity:architecture-introduction",
+      "sourceType": "PROJECT",
+      "problemVersion": "activity-v1",
+      "questionIntent": "10차시 건축물을 소개서로 완성",
+      "evidence": [
+        "3D preview",
+        "top/front/side",
+        "layer maps"
+      ],
+      "answerInput": "TEXT_AND_PREVIEW",
+      "gradingMode": "building validation",
+      "revealMode": "introduction sheet",
+      "completion": "소개서 완성",
+      "route": "/lesson/11/project",
+      "status": "IMPLEMENTED"
+    },
+    {
+      "lessonId": 12,
+      "stage": "activity",
+      "problemId": "activity:unit-review",
+      "sourceType": "REVIEW",
+      "problemVersion": "activity-v1",
+      "questionIntent": "개수·방향·투영·높이 지도·층별 표현 종합",
+      "evidence": [
+        "mixed problem set",
+        "self assessment"
+      ],
+      "answerInput": "MIXED",
+      "gradingMode": "per-problem",
+      "revealMode": "answer-specific material",
+      "completion": "단원 완료·별·XP·배지·자기평가",
+      "route": "/lesson/12",
+      "status": "IMPLEMENTED"
+    }
+  ]
+}
