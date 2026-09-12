@@ -36,7 +36,7 @@ const reportJsonPath = join(artifactDir, "report.json");
 const reportMarkdownPath = join(artifactDir, "report.md");
 const previewLogPath = join(artifactDir, "preview.log");
 const headed = process.argv.includes("--headed") || process.env.QA_HEADED === "1";
-const representativeCount = 9;
+const representativeCount = 10;
 
 mkdirSync(screenshotDir, { recursive: true });
 
@@ -178,6 +178,18 @@ async function dragPaletteToBoard(page: Page): Promise<void> {
   await page.mouse.down();
   await page.mouse.move(canvas.x + canvas.width / 2, canvas.y + canvas.height / 2, { steps: 15 });
   await page.mouse.up();
+}
+
+async function touchDragPaletteToBoard(page: Page): Promise<void> {
+  const palette = await page.getByRole("button", { name: "쌓기나무 보관함. 블록을 작업판에 놓기" }).boundingBox();
+  const canvas = await page.getByLabel("쌓기나무 3D 작업판").boundingBox();
+  assertCondition(palette && canvas, "터치 QA에서 보관함 또는 3D 작업판의 화면 영역을 찾지 못했습니다.");
+  const session = await page.context().newCDPSession(page);
+  const start = { x: palette.x + palette.width / 2, y: palette.y + palette.height / 2 };
+  const end = { x: canvas.x + canvas.width / 2, y: canvas.y + canvas.height / 2 };
+  await session.send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: [start] });
+  await session.send("Input.dispatchTouchEvent", { type: "touchMove", touchPoints: [end] });
+  await session.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
 }
 
 async function runCase(browser: Browser, baseUrl: string, spec: { id: string; title: string; problemId?: string; problems: StudentProblem[]; run: (page: Page, state: MockState) => Promise<void>; project?: Building | null; requiredComplete?: boolean; touch?: boolean }): Promise<CaseResult> {
@@ -355,7 +367,12 @@ async function main() {
         await page.getByRole("button", { name: "저장", exact: true }).click();
         assertCondition(state.snapshots[builderFixture.id]?.length === 1, "3D snapshot 저장 요청이 없거나 블록이 저장되지 않았습니다.");
       }}));
-      initial.push(await run({ id: "T08-architecture-10x10", title: "10차시 10×10 작업판·재료·저장", problems: [], project: null, run: async (page, state) => {
+      initial.push(await run({ id: "T08-builder-touch", title: "터치 보관함 드래그·블록 배치", problemId: builderFixture.id, problems: [builderFixture], touch: true, run: async (page) => {
+        await page.goto(`${baseUrl}/lesson/1`);
+        await touchDragPaletteToBoard(page);
+        assertCondition(await textVisible(page, "블록 수: 1"), "터치 보관함 드래그 후 블록 수가 1로 갱신되지 않았습니다.");
+      }}));
+      initial.push(await run({ id: "T09-architecture-10x10", title: "10차시 10×10 작업판·재료·저장", problems: [], project: null, run: async (page, state) => {
         await page.goto(`${baseUrl}/lesson/10/project`);
         assertCondition(await textVisible(page, "10×10"), "신규 건축판 10×10 표시가 없습니다.");
         assertCondition(await textVisible(page, "최대 3층"), "최대 3층 조건이 보이지 않습니다.");
@@ -369,7 +386,7 @@ async function main() {
         assertCondition(state.savedProjectPayload?.building?.grid_width === ARCHITECTURE_GRID.gridWidth && state.savedProjectPayload?.building?.grid_depth === ARCHITECTURE_GRID.gridDepth, "저장 payload의 신규 작업판 크기가 10×10이 아닙니다.");
         assertCondition(Object.values(state.savedProjectPayload?.building?.block_appearance ?? {}).includes("pastel"), "선택한 재료가 저장 payload에 반영되지 않았습니다.");
       }}));
-      initial.push(await run({ id: "T09-architecture-restore", title: "11차시 건축물 소개서 복원", problems: [], project: initialBuilding, run: async (page) => {
+      initial.push(await run({ id: "T10-architecture-restore", title: "11차시 건축물 소개서 복원", problems: [], project: initialBuilding, run: async (page) => {
         await page.goto(`${baseUrl}/lesson/11/project`);
         assertCondition(await textVisible(page, "QA 건축물"), "저장된 건축물 이름이 복원되지 않았습니다.");
         assertCondition(await textVisible(page, "1층 · 1층 공간"), "층별 설명이 복원되지 않았습니다.");

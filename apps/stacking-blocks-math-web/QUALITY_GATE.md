@@ -54,6 +54,6 @@ npm run qa:local
 
 ## 맥용 production 브라우저 실행기
 
-`npm run qa:local`은 현재 앱 디렉터리와 HEAD를 기록하고, Vite production build를 만든 뒤 임시 loopback 포트에서 `vite preview`를 시작한다. 실행기가 시작한 preview만 종료하며, 기존 서버는 건드리지 않는다. Playwright Chromium으로 실제 학생 route와 Renderer를 열고 합성 student-api 응답을 사용해 셀 입력·숫자/선택 제출·5차시 제한·단계 전환·Builder 드래그 저장·10×10 건축 복원을 검사한다.
+`npm run qa:local`은 현재 앱 디렉터리와 HEAD를 기록하고, Vite production build를 만든 뒤 임시 loopback 포트에서 `vite preview`를 시작한다. 실행기가 시작한 preview만 종료하며, 기존 서버는 건드리지 않는다. Playwright Chromium으로 실제 학생 route와 Renderer를 열고 합성 student-api 응답을 사용해 셀 입력·숫자/선택 제출·5차시 제한·단계 전환·Builder 마우스/터치 드래그 저장·10×10 건축 복원을 검사한다.
 
 결과는 `qa/local-browser-qa/report.json`, `qa/local-browser-qa/report.md`에 저장하고 성공/실패 캡처는 `qa/local-browser-qa/screenshots/`, preview 로그는 `qa/local-browser-qa/preview.log`, 실패 trace는 `qa/local-browser-qa/<case-id>.trace.zip`에 남긴다. `--headed` 또는 `QA_HEADED=1`로 운영자 맥에서 브라우저 창을 표시할 수 있다. 이 실행기는 `UI_WITH_TEST_DATA` 결과만 기록하며 실제 Supabase 성공으로 승격하지 않는다. inventory 전체는 중복 없는 총문항 수로 합산하지 않고 대표 브라우저 범위 밖을 NOT_RUN 후속 대상으로 명시한다.
