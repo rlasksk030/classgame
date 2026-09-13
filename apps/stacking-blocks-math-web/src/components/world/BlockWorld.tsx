@@ -93,7 +93,7 @@ export default function BlockWorld(props: WorldProps) {
   };
   return <div className="world-wrap">
     <div className="world-toolbar toolbar-row">
-      <output aria-label="현재 관찰 시점">{{top: '위', front: '앞', side: props.allowedViews?.includes('right') ? '오른쪽' : '옆(오른쪽)', back: '뒤', left: '왼쪽', free: '자유'}[cameraView]}</output>
+      <output aria-label="현재 관찰 시점">{props.allowRotate === false ? '고정된 시점' : {top: '위', front: '앞', side: props.allowedViews?.includes('right') ? '오른쪽' : '옆(오른쪽)', back: '뒤', left: '왼쪽', free: '자유'}[cameraView]}</output>
       {(Object.keys(VIEW_PRESET_LABELS) as ViewPreset[]).filter(view => props.allowedViews ? props.allowedViews.includes(view) : !['back','left','right'].includes(view)).map(preset => <button type="button" className="btn btn-sm" disabled={props.allowRotate === false} key={preset} onClick={() => { props.onPreset?.(preset); scene.current?.setView(preset, orthographic); }}>{VIEW_PRESET_LABELS[preset]}</button>)}
       <label><input type="checkbox" disabled={props.allowRotate === false} checked={orthographic} onChange={e => setOrthographic(e.target.checked)} /> 방향에 맞춰 보기</label>
       <select disabled={props.allowRotate === false} aria-label="현재 층만 보기" value={layerOnly ?? ''} onChange={e => setLayerOnly(e.target.value === '' ? null : Number(e.target.value))}>
@@ -135,7 +135,7 @@ export default function BlockWorld(props: WorldProps) {
         <button type="button" className="btn" onClick={place}>{props.selected ? '선택 블록 옮기기' : '쌓기'}</button>
       </details>
     </div>}
-    <p className="muted" style={{ padding: '0 12px' }}>빈 곳을 끌면 회전 · 두 손가락이나 휠로 확대 · 블록을 잡으면 이동</p>
-    {!props.disabled && showFirstUseHint && <p className="first-use-hint">처음 사용: 1) 블록을 잡아요 2) 작업판에 놓아요 3) 빈 곳을 끌어 돌려요 4) 두 손가락이나 휠로 확대해요</p>}
+    <p className="muted" style={{ padding: '0 12px' }}>{props.allowRotate === false ? '지금은 지정된 시점으로만 살펴볼 수 있어요.' : '빈 곳을 끌면 회전 · 두 손가락이나 휠로 확대 · 블록을 잡으면 이동'}</p>
+    {!props.disabled && props.allowRotate !== false && showFirstUseHint && <p className="first-use-hint">처음 사용: 1) 블록을 잡아요 2) 작업판에 놓아요 3) 빈 곳을 끌어 돌려요 4) 두 손가락이나 휠로 확대해요</p>}
   </div>;
 }
