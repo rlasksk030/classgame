@@ -22,11 +22,8 @@ export function validatePeerBlocks(blocks: BlockCoord[]): string | null {
 export function gradePeer(blocks: BlockCoord[], challenge: PeerChallenge, _hintShown: boolean): boolean {
   if (validatePeerBlocks(blocks)) return false;
   const got = project(blocks, PEER_GRID); const expected = challenge.card;
-  if (expected.type === 'views') return JSON.stringify(got) === JSON.stringify(expected.projections);
-  if (expected.type === 'top') return JSON.stringify(got.top) === JSON.stringify(expected.projections?.top);
-  if (expected.type === 'heightMap') return JSON.stringify(toHeightMap(blocks, PEER_GRID)) === JSON.stringify(expected.heightMap);
-  if (!expected.layers) return false;
-  const layers = toLayers(blocks, PEER_GRID); return JSON.stringify(layers) === JSON.stringify(expected.layers);
+  const matches = (card: ChallengeCard) => card.type === 'views' ? JSON.stringify(got) === JSON.stringify(card.projections) : card.type === 'top' ? JSON.stringify(got.top) === JSON.stringify(card.projections?.top) : card.type === 'heightMap' ? JSON.stringify(toHeightMap(blocks, PEER_GRID)) === JSON.stringify(card.heightMap) : JSON.stringify(toLayers(blocks, PEER_GRID)) === JSON.stringify(card.layers);
+  return matches(expected) && (!_hintShown || matches(challenge.hint));
 }
 export function peerScore(hintShown: boolean, completed: boolean): 0|1|2 { return completed ? (hintShown ? 1 : 2) : 0; }
 
