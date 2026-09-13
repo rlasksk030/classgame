@@ -1,0 +1,77 @@
+{
+  "head": "89793e43b211901b3aa45600baf4528e7643a65e",
+  "time": "2026-09-13T00:38:27.345Z",
+  "environment": "LOCAL_LOGIC; current Mac CPU, not Chromebook hardware benchmark",
+  "results": [
+    {
+      "grid": [
+        3,
+        3,
+        3
+      ],
+      "status": "COMPLETE",
+      "solverVersion": "projection-search-v1",
+      "solutionCount": 262144,
+      "uniqueCubeCounts": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27
+      ],
+      "minCubeCount": 0,
+      "maxCubeCount": 27,
+      "isShapeUnique": false,
+      "isCountDeterminable": false,
+      "visitedNodes": 349525,
+      "elapsedMs": 20.670417000000015
+    },
+    {
+      "grid": [
+        3,
+        3,
+        4
+      ],
+      "status": "LIMIT_REACHED",
+      "visitedNodes": 1000000,
+      "foundCountLowerBound": 799997,
+      "elapsedMs": 50.559166000000005
+    },
+    {
+      "grid": [
+        4,
+        3,
+        3
+      ],
+      "status": "LIMIT_REACHED",
+      "visitedNodes": 1000000,
+      "foundCountLowerBound": 749996,
+      "elapsedMs": 67.82849999999999
+    }
+  ],
+  "problems": 308,
+  "problemGenerationMs": 10.42720799999995
+}

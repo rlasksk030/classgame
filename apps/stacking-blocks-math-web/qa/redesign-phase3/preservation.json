@@ -1,0 +1,46 @@
+{
+  "head": "89793e43b211901b3aa45600baf4528e7643a65e",
+  "files": [
+    {
+      "file": "apps/stacking-blocks-math-web/CURRENT_REQUIREMENTS.md",
+      "sameChanges": true
+    },
+    {
+      "file": "apps/stacking-blocks-math-web/QUALITY_GATE.md",
+      "sameChanges": true
+    },
+    {
+      "file": "apps/stacking-blocks-math-web/scripts/local-browser-qa.ts",
+      "sameChanges": true
+    },
+    {
+      "file": "apps/stacking-blocks-math-web/shared/practiceSet.ts",
+      "sameChanges": true
+    },
+    {
+      "file": "apps/stacking-blocks-math-web/src/components/world/BlockWorld.tsx",
+      "sameChanges": true
+    },
+    {
+      "file": "apps/stacking-blocks-math-web/src/pages/ArchitecturePage.tsx",
+      "sameChanges": true
+    },
+    {
+      "file": "apps/stacking-blocks-math-web/src/pages/LessonPage.tsx",
+      "sameChanges": true
+    },
+    {
+      "file": "apps/stacking-blocks-math-web/src/styles/index.css",
+      "sameChanges": true
+    },
+    {
+      "file": "apps/stacking-blocks-math-web/supabase/functions/student-api/index.ts",
+      "sameChanges": true
+    },
+    {
+      "file": "apps/stacking-blocks-math-web/tests/practice-recovery.test.ts",
+      "sameChanges": true
+    }
+  ],
+  "preserved": true
+}

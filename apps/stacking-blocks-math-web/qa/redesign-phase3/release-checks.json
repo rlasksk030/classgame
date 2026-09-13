@@ -1,0 +1,95 @@
+{
+  "head": "89793e43b211901b3aa45600baf4528e7643a65e",
+  "results": [
+    {
+      "name": "unit",
+      "command": [
+        "npm",
+        "test"
+      ],
+      "exitCode": 0,
+      "start": "2026-09-13T00:34:16.157713+00:00",
+      "end": "2026-09-13T00:34:21.189072+00:00"
+    },
+    {
+      "name": "solver",
+      "command": [
+        "node",
+        "--experimental-strip-types",
+        "--test",
+        "tests/spatial-solver.test.ts"
+      ],
+      "exitCode": 0,
+      "start": "2026-09-13T00:34:21.262737+00:00",
+      "end": "2026-09-13T00:34:21.485421+00:00"
+    },
+    {
+      "name": "edge",
+      "command": [
+        "npm",
+        "run",
+        "typecheck:edge"
+      ],
+      "exitCode": 0,
+      "start": "2026-09-13T00:34:21.506861+00:00",
+      "end": "2026-09-13T00:34:24.524896+00:00"
+    },
+    {
+      "name": "security",
+      "command": [
+        "npm",
+        "run",
+        "test:security"
+      ],
+      "exitCode": 0,
+      "start": "2026-09-13T00:34:24.550539+00:00",
+      "end": "2026-09-13T00:34:25.807273+00:00"
+    },
+    {
+      "name": "e2e-typecheck",
+      "command": [
+        "npx",
+        "tsc",
+        "--noEmit",
+        "--target",
+        "ES2022",
+        "--module",
+        "ESNext",
+        "--moduleResolution",
+        "Bundler",
+        "--allowImportingTsExtensions",
+        "--skipLibCheck",
+        "--strict",
+        "e2e/redesign.spec.ts",
+        "e2e/redesign-phase2.spec.ts",
+        "e2e/redesign-phase3.spec.ts",
+        "playwright.redesign.config.ts"
+      ],
+      "exitCode": 0,
+      "start": "2026-09-13T00:34:25.824446+00:00",
+      "end": "2026-09-13T00:34:28.296994+00:00"
+    },
+    {
+      "name": "typecheck",
+      "command": [
+        "npm",
+        "run",
+        "typecheck"
+      ],
+      "exitCode": 0,
+      "start": "2026-09-13T00:36:29.856873+00:00",
+      "end": "2026-09-13T00:36:38.748992+00:00"
+    },
+    {
+      "name": "lint",
+      "command": [
+        "npm",
+        "run",
+        "lint"
+      ],
+      "exitCode": 0,
+      "start": "2026-09-13T00:36:38.754662+00:00",
+      "end": "2026-09-13T00:36:42.881212+00:00"
+    }
+  ]
+}

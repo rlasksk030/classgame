@@ -1,0 +1,166 @@
+{
+  "sourceSha256": "6f39ede78b963d72b8ed36f1cfee3495275a191300d40a8743540d2f6d411ae9",
+  "head": "89793e43b211901b3aa45600baf4528e7643a65e",
+  "time": "2026-09-13T00:33:57.093Z",
+  "workingTree": "M CURRENT_REQUIREMENTS.md\n M QUALITY_GATE.md\n M scripts/local-browser-qa.ts\n M shared/practiceSet.ts\n M src/components/world/BlockWorld.tsx\n M src/pages/ArchitecturePage.tsx\n M src/pages/LessonPage.tsx\n M src/styles/index.css\n M supabase/functions/student-api/index.ts\n M tests/practice-recovery.test.ts\n?? qa/deployment-readiness/\n?? qa/overnight-20260913/FINAL_STATUS.json\n?? qa/overnight-20260913/OVERNIGHT_REPORT.md\n?? qa/overnight-20260913/phase1b-launch.log\n?? qa/overnight-20260913/phase1b/html/\n?? qa/overnight-20260913/phase2-e2e-typecheck.log\n?? qa/overnight-20260913/phase2-final-launch.log\n?? qa/overnight-20260913/phase2-final/html/\n?? qa/overnight-20260913/phase2-launch.log\n?? qa/overnight-20260913/phase2-lint.log\n?? qa/overnight-20260913/phase2-typecheck.log\n?? qa/overnight-20260913/phase2-unit.log\n?? qa/overnight-20260913/phase2/\n?? qa/overnight-20260913/preserved.diff\n?? qa/redesign-browser/\n?? qa/redesign-phase1/browser-gate/BlockWorld.before-phase1b.txt\n?? qa/redesign-phase1/browser-gate/BlockWorld.phase1b.patch\n?? qa/redesign-phase1/browser-gate/build-final.log\n?? qa/redesign-phase1/browser-gate/build-fix.log\n?? qa/redesign-phase1/browser-gate/edge.log\n?? qa/redesign-phase1/browser-gate/final-run.stderr.log\n?? qa/redesign-phase1/browser-gate/final-run.stdout.log\n?? qa/redesign-phase1/browser-gate/final-run/evidence/\n?? qa/redesign-phase1/browser-gate/final-run/html/\n?? qa/redesign-phase1/browser-gate/final-run/preview.log\n?? qa/redesign-phase1/browser-gate/final-run/report.md\n?? qa/redesign-phase1/browser-gate/final-run/screenshots/\n?? qa/redesign-phase1/browser-gate/final-run/server-process.json\n?? qa/redesign-phase1/browser-gate/final-run/webserver.stderr.log\n?? qa/redesign-phase1/browser-gate/final-run/webserver.stdout.log\n?? qa/redesign-phase1/browser-gate/first-browser-run/evidence/\n?? qa/redesign-phase1/browser-gate/first-browser-run/html/\n?? qa/redesign-phase1/browser-gate/first-browser-run/preview.log\n?? qa/redesign-phase1/browser-gate/first-browser.stderr.log\n?? qa/redesign-phase1/browser-gate/first-browser.stdout.log\n?? qa/redesign-phase1/browser-gate/focused-confirmation/browser-environment.json\n?? qa/redesign-phase1/browser-gate/focused-confirmation/evidence/\n?? qa/redesign-phase1/browser-gate/focused-confirmation/html/\n?? qa/redesign-phase1/browser-gate/focused-confirmation/preview.log\n?? qa/redesign-phase1/browser-gate/focused-confirmation/screenshots/\n?? qa/redesign-phase1/browser-gate/focused-confirmation/server-process.json\n?? qa/redesign-phase1/browser-gate/focused-confirmation/webserver.stderr.log\n?? qa/redesign-phase1/browser-gate/focused-confirmation/webserver.stdout.log\n?? qa/redesign-phase1/browser-gate/gate-confirmation/html/\n?? qa/redesign-phase1/browser-gate/lint-final.log\n?? qa/redesign-phase1/browser-gate/lint-fixed.log\n?? qa/redesign-phase1/browser-gate/lint.log\n?? qa/redesign-phase1/browser-gate/manual/\n?? qa/redesign-phase1/browser-gate/permitted-manual/\n?? qa/redesign-phase1/browser-gate/right-side-reproduction.log\n?? qa/redesign-phase1/browser-gate/right-side-reproduction/html/\n?? qa/redesign-phase1/browser-gate/security.log\n?? qa/redesign-phase1/browser-gate/test-typecheck-final.log\n?? qa/redesign-phase1/browser-gate/test-typecheck.log\n?? qa/redesign-phase1/browser-gate/typecheck.log\n?? qa/redesign-phase1/browser-gate/unit.log\n?? qa/redesign-phase1/browser-gate/verified-final.stderr.log\n?? qa/redesign-phase1/browser-gate/verified-final.stdout.log\n?? qa/redesign-phase1/browser-gate/verified-final/browser-environment.json\n?? qa/redesign-phase1/browser-gate/verified-final/evidence/\n?? qa/redesign-phase1/browser-gate/verified-final/html/\n?? qa/redesign-phase1/browser-gate/verified-final/preview.log\n?? qa/redesign-phase1/browser-gate/verified-final/report.md\n?? qa/redesign-phase1/browser-gate/verified-final/screenshots/\n?? qa/redesign-phase1/browser-gate/verified-final/server-process.json\n?? qa/redesign-phase1/browser-gate/verified-final/webserver.stderr.log\n?? qa/redesign-phase1/browser-gate/verified-final/webserver.stdout.log\n?? qa/redesign-phase1/browser-gate/verified-run.stderr.log\n?? qa/redesign-phase1/browser-gate/verified-run.stdout.log\n?? qa/redesign-phase1/browser-gate/verified-run/\n?? qa/redesign-phase3/\n?? supabase/.temp/",
+  "diffSha256": "95a872802d1ea34bd39f9040b6fdc6a5ff948fc2c9dd724c43f8c8507cab5c87",
+  "category": "UI_WITH_TEST_DATA",
+  "remoteWrites": false,
+  "persistence": "LOCAL_ONLY",
+  "buildSha256": "9badec09b7cfff783a344e6c312087ab5d50e611ded1a55c579d57f4d2615ed2",
+  "phase": "browser",
+  "planned": 29,
+  "executed": 29,
+  "pass": 29,
+  "fail": 0,
+  "notRun": 0,
+  "status": "PASS",
+  "cases": [
+    {
+      "id": "P21 lesson1 learn four, solve eight, practice five actual flow",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "id": "P22 lesson2 learn four directions, solve nine, practice five",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "id": "P24 lesson4 synchronized heights/layers, solve nine, practice five",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "id": "P35 L5 five Learn ten Solve five Practice with restore",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "id": "P36 L6 five Learn ten Solve five Practice with restore",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "id": "P37 L7 five Learn nine Solve five Practice with restore",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "id": "P38 L8 five Learn nine Solve five Practice with restore",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "id": "P39 four wrong attempts reveal number, not builder; position and draft survive",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "id": "P40 alternative 3D answer, real example reveal and middle-layer restore",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "id": "P41 mouse palette drag and tablet touch placement are real input",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "id": "P42 optional practice middle layer has a unique answer and restores cells",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "id": "P43 unfinished answer kinds restore after reload without completing or moving",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "id": "P44 L5 both sufficient and insufficient information use judgment buttons",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "id": "T01 learn five distinct activities and concept summary",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "id": "T02 canonical camera buttons render three different views",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "id": "T03 right side reference matches actual asymmetric camera image",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "id": "T04 top bottom row is front and click restores canonical z0",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "id": "T05 full cell click changes actual submission answer",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "id": "T06 square cells at desktop and tablet sizes",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "id": "T07 real mouse drag, undo, redo and blocks reload",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "id": "T08 synthetic touch drag on actual canvas",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "id": "T09 common six then adaptive four actual input and grading",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "id": "T10 current problem remains after reload and stage round trip",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "id": "T11 in-progress grid survives reload unchanged",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "id": "T12 wrong one/two/three/reveal then independent correction",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "id": "T13 practice five full inputs complete",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "id": "T14 legacy student login route still renders input form",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "id": "T15 legacy teacher login route still renders Auth form",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "id": "R16 legacy ProjectionGrid floor display and click coordinates",
+      "status": "expected",
+      "attempts": 1
+    }
+  ],
+  "errors": []
+}

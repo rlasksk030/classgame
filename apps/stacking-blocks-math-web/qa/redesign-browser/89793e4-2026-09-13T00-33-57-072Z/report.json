@@ -1,0 +1,1296 @@
+{
+  "config": {
+    "argv": [
+      "/usr/local/bin/node",
+      "/Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/node_modules/@playwright/test/cli.js",
+      "test",
+      "--config",
+      "playwright.redesign.config.ts"
+    ],
+    "configFile": "/Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/playwright.redesign.config.ts",
+    "rootDir": "/Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "head": "89793e4",
+      "category": "UI_WITH_TEST_DATA",
+      "persistence": "LOCAL_ONLY",
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/qa/redesign-browser/89793e4-2026-09-13T00-33-57-072Z/evidence",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "head": "89793e4",
+          "category": "UI_WITH_TEST_DATA",
+          "persistence": "LOCAL_ONLY",
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "redesign.spec.ts",
+          "redesign-phase2.spec.ts",
+          "redesign-phase3.spec.ts"
+        ],
+        "timeout": 90000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "qa/redesign-browser/89793e4-2026-09-13T00-33-57-072Z/report.json"
+        }
+      ],
+      [
+        "html",
+        {
+          "outputFolder": "qa/redesign-browser/89793e4-2026-09-13T00-33-57-072Z/html",
+          "open": "never"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.63.0",
+    "workers": 1,
+    "webServer": {
+      "command": "node scripts/redesign-preview.mjs",
+      "env": {
+        "SPATIAL_QA_OUTPUT": "qa/redesign-browser/89793e4-2026-09-13T00-33-57-072Z"
+      },
+      "url": "http://127.0.0.1:4186",
+      "reuseExistingServer": false,
+      "timeout": 15000
+    }
+  },
+  "suites": [
+    {
+      "title": "redesign-phase2.spec.ts",
+      "file": "redesign-phase2.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "P21 lesson1 learn four, solve eight, practice five actual flow",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 18666,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-13T00:34:11.462Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/qa/redesign-browser/89793e4-2026-09-13T00-33-57-072Z/evidence/redesign-phase2-P21-lesson-6fd5b-t-practice-five-actual-flow/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2ec40c45e1d1754030f0-046c6032e6cbb2e4de65",
+          "file": "redesign-phase2.spec.ts",
+          "line": 34,
+          "column": 1
+        },
+        {
+          "title": "P22 lesson2 learn four directions, solve nine, practice five",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 19687,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-13T00:34:30.575Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/qa/redesign-browser/89793e4-2026-09-13T00-33-57-072Z/evidence/redesign-phase2-P22-lesson-dc405-ns-solve-nine-practice-five/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2ec40c45e1d1754030f0-05a0e30724d17b093b8a",
+          "file": "redesign-phase2.spec.ts",
+          "line": 35,
+          "column": 1
+        },
+        {
+          "title": "P24 lesson4 synchronized heights/layers, solve nine, practice five",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 240000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 10580,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-13T00:34:50.298Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/qa/redesign-browser/89793e4-2026-09-13T00-33-57-072Z/evidence/redesign-phase2-P24-lesson-4e4b2-rs-solve-nine-practice-five/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2ec40c45e1d1754030f0-12d158a0a87941225621",
+          "file": "redesign-phase2.spec.ts",
+          "line": 36,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "redesign-phase3.spec.ts",
+      "file": "redesign-phase3.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "P35 L5 five Learn ten Solve five Practice with restore",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 300000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 9827,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-13T00:35:00.940Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "fixed-camera-before",
+                      "contentType": "image/png",
+                      "body": "iVBORw0KGgoAAAANSUhEUgAAAs8AAAFpCAIAAADsvVKOAAAQAElEQVR4nOzdeWze933Y8R+Ph7cs0qoskbEiS7ZlHY58KNpitVFa23GwrT7qHskSpDbWAkszYMCwYNnQNMCwZNiwAds/Kxy4q9dmcU+3cWIpTpS6la+0rlxXjpxYh3VYh2nJsiiKFElRpPolfzbLULItkc/nufx6gWAePZSF8A+Lb3++x69xzeoVL61/OAMAiNGY/889N83/8t2LVyxuzgAAiuHlIyNf+XbvN184WZ//+kt3Sg0AoJhW9jSnwMimZhvp1xkAQFHlgVGfAQBEUhsAQCy1AQDEUhsAQCy1AQDEUhsAQCy1AQDEUhsAQCy1AQDEUhsAQCy1AQDEUhsAQCy1AQDEUhsAQCy1AQDEUhsAQCy1AQDEUhsAQCy1AQDEUhsAQCy1AQDEUhsAQCy1AQDEUhsAQCy1AQDEUhsAQCy1AQDEUhsAQCy1AQDEUhsAQCy1AQDEUhsAQCy1AQDEUhsAQCy1AQDEUhsAQCy1AQDEUhsAQCy1AQDEUhsAQCy1AQDEUhsAQCy1AQDEUhsAQCy1AQDEUhsAQCy1AQDEUhsAQCy1AQDEUhsAQCy1AQDEUhsAQCy1AQDEUhsAQCy1AQDEUhsAQCy1AQDEUhsAQCy1AQDEUhsAQCy1AQDEUhsAQCy1AQDEUhsAQCy1AQDEUhsAQCy1AQDEUhsAQCy1AQDEUhsAQCy1AQDEUhsAQCy1AQDEUhsAQCy1AQDEUhsAQCy1AQDEUhsAQCy1AQDEUhsAQCy1AQDEUhsAQCy1AQDEUhsAQCy1AQDEUhsAQCy1AQDEUhsAQCy1AQDEUhsAQCy1AQDEUhsAQCy1AQDEUhsAQCy1AQDEUhsAQCy1AQDEUhsAQCy1AQDEUhsAQCy1AQDEUhsAQCy1AQDEUhsAQCy1AQDEUhsAQCy1AQDEUhsAQCy1AQDEUhsAQCy1AQDEUhsAQCy1AQDEUhsAQCy1AQDEUhsAQCy1AQDEUhsAQCy1AQDEUhsAQCy1AQDEUhsAQCy1AQDEUhsAQCy1AQDEUhsAQCy1AQDEUhsAQCy1AQDEUhsAQCy1AQDEUhsAQCy1AQDEUhsAQCy1AQDEUhsAQCy1AQDEUhsAQCy1AQDEUhsAQCy1AQDEUhsAQCy1AQDEUhsAQCy1AQDEUhsAQCy1AQDEUhsAQCy1AQDEUhsAQCy1AQDEUhsAQCy1AQDEUhsAQCy1AQDEUhsAQCy1AQDEUhsAQCy1AQDEUhsAQCy1AQDEUhsAQCy1AQDEUhsAQCy1AQDEUhsAQCy1AQDEUhsAQCy1AQDEUhsAQCy1AQDEUhsAQCy1AQDEUhsAQCy1AQDEUhsAQCy1AQDEUhsAQCy1AQDEUhsAQCy1AQDEUhsAQCy1AQDEUhsAQCy1AQDEUhsAQCy1Ae9f46OnB06dODc2mgFEasyA95+h4ZHUGZ1tDc312dnhvuHR8daW5oZCe11DIQMoNrUB7zvH+/qbsqGUGlPvtBTq04Tj7Fhfep2CI2VH3h8ZQDGoDXh/GRwcuKww8i6rqHl2pL8azg4XRsYa21qaDTyAOVIb8D4yPno6TTUu8jen7GjKRs8OD6XaGB49197WITuA2VEb8H4xcOpEc/3Z7NKl7LC9A5gLtQG1b2pPaDY3tncAs6M2oMadvye0KGzvAC6e2oBa9p57Qudu+vaO9EvrLMD51AbUrEvaEzp3+S1haeBhewcwg9qA2pRSY+zMYFYOtncAM6gNqEGzPn5SdLZ3AJnagBpTrOMnRWd7B7yfqQ2oHUHHT4rL9g54H1IbUCNKcPykuFoK9bte/nFj55L0omdBm+0dUMM8cR5qQYmPnxTF7t17ntu+M6VGd2dhYnvHcF/jWH/6nLIpn38ANcNsA6pe5ewJvXh5atx6+x0pNaa/b3sH1CS1AVVsaHhkbPR01aVG8uKPdp2fGtPZ3gG1RG1Atcr3hKaViKzaPPLo5g0f+/i7pMZ0bu+AGqA2oCpV3Z7QKSk1bt5wW1f7bA7OuL0DqpTagOpTjXtCc3lqpKnGHEcytndAdVEbUGXKeCX5HBUrNaazvQOqgtqAalKNx09yEakxne0dUMnUBlSHir2S/GK8+KNdoakxw/TtHX2DYws6LzPwgPJSG1AFjvf1jw4eX9DZkVWhlBrzFi4tWWpMl7Jjfktqjj7bO6C81AZUusHBgfQxPjp++Fj/6OkTCxcubG9ry6pEnhpd7Y3lPalreweUl9qAipYfP5m8mqKQflKeKLT29p1uGayO7JhKjcpZALK9A8pCbUDlmrEndPKRIvVZ5/w8Ow4fO97edrazfeLf4grMjgpMjRls74CSURtQid79SvI8O7o7F09kx+DYqZMVlx2VnxrT2d4B0dQGVJzjff1pAeVifk6/U3aUtzmqKzWmm9rekb6FRUtWXLl4YQYUg9qAyjI4ODDx9JNL/DmdZ0dX+xXpdcqOw8d6U3CUJTs2bX589fqfq8bUmG549FxaWMmAIlEbUEHy1Mhme3wjP/cxIzvSmws6O0qTHSk1qnSqMV0abNTVF2wdhSKqvkc6Qa0q4tNPUmFMTjsKH+y5otDW1X+msOtA7/4DBwZPn87C5Kmxds2Kqk6N9F30DY49u3VLBhSP2QZUhKAryd86xpJladqRRh1xp2drIzV2796Tvotntm755Cc/nQHFozagzEpzJfmM07PFzY78h3S1p0Y2uYYyPHruxhtvum7lqgwoHispUE7H+/rPDveV8od0vsJydc/8BZ0dzfN7Dh/rTx9phWXWiywpNV7rG7322mtqIDUW9ix7o/fQXXffmwFFpTagbAYHBy4rjJTrSu88O1YsXZyyo/9MYSo7LukPSanx3PadKTUmbzutYvl45g9/72t33v2LGVBsVlKgPIq4J3SOZn16Nk+NW2+/o9pTI0nfyKv7N3/hi1+yhgIR1AaUQdCe0Lm41NOztZQajzy6OX22XQPiWEmBksr3hFZaakx3wdOzrx45On2RpZZSw3YNKAGzDSidi7+SvBLMOD17dHB89FhvUzbS13fypd0HN3zs9q726t4Wmr29XWPT5q858gqh1AaUSEqNWVxJXgmmsmN4dCI7Thw+nlKjYfTk2GhHVqjoR96/p8kjrzutoUA0KylQCuU9flIs6f//wQN7r7p2TVd7Y1pkmfvp2fJ65NHNw6PnrKFACagNCFc5x0/mKP14XthzVXdnIS0Gzf30bHlt2vz4wp5lz/zVli988UsZEMxKCsSq8D2hFy+lxs0bbkuRMX1CM+OR92V89uwlmbqhXGpAaagNiFKaK8lL44KpMd35l3aU8tmzl8oN5VBiVlIgROmvJI+Tp0ZXe+N77ju5mNOzZefIK5Se2oDiq409obn0szlPjUsqp7w5prLj6GBDCR55fzHcUA5lYSUFiqxm9oRmk6mRfjZfampMN+P0bNwj7y9SfkP5nff8ojUUKCW1AcWUUmPszGBWE+aeGtPNeOT94WPH29vOljg78hvK21qaraFAiakNKI6h4ZGx0dO1cfwkK3ZqTPcTx1jezo7O9om/i0KzI9+u8cLfPOkcCpSefRtQBJX/9JNLEpca003tJy3BpR1TR15t14CyMNuAucqvJK+N4ydZqVJjygWfPVv0SzvcUA7lZbYBl+xPH3/qR3tezV/X0vGTbPKGzVKmxnTTT8/WF1qLeHp28gpUR16hnMw24JKtvmbpn3znySyrW7W8+xd+9kNZrShjakx3wWfPzvqusHy7xh/+3tds14AyqluzesVL6x8eeGBtBlyKp7bt2PSXz+071Jua497b1q1a1p1Vszw11q5ZUYFLQvm16KdPnx4bHWrKRi7+GMvu3Xte6xt9ZuuWT37y09ZQoFw6Pvei2QbM0kc/fP2VlzeNjNWn4Hj4O9tamuqqtzny1Lj22msqc/fJtNOz8y7p0g43lEOFUBswe60tzScPH7iyq/X+ezYeeP1kao5qHHVMpUZ3ZyGrbJd0acfUkdf777OGAmWmNmCu0nh/rG9oUXP2mY9/qNC+MQXH17/1VHt7W1U0R340tCpSY7qfeAjchS7tyL+vB377i7ZrQCVQGzB7i3uWdszr7D18YOBUX/Z2dqRRx6/98ify5ZUKH3WkH8nPbd956+13VFdqTJl+ejatmPSfGT91ciI7jh3Z/9Lug24oh8qhNmBOOubNv2blxCbrgVMn8+zIm6O7o9JHHdWeGtNNnp7NOtsa8mMs/WcmviM3lEPlUBtQHHl2TDVHNqtRx4Gjp3YcOPF6X3Hu07y8o2X10q4VPfPP/1KeGhs+dntXe41cSpZL2XHsyJ704pm/2vLgQ9/IgMrgBCyEmJ4duYZC66ETI/sO9u479Pr5o449r/X/lz/Ytrf3VFZsi7paf/NX1t109YKpd6ZSI001auZeslz61ho7lzy15ds/89GftYYCFaLjcy+qDQh0weYotHelIcfWbbumRh3HBrPf/P3n0lfXX9d91eKuBZe1ZsUwODy698ibz7x0KL3+Nz9//ac2Xp3VdGpkk9eGfnD5yuaG8XXrb8mAyuC+DYg1tbySgmOg/+SMXR2HTqxIo46Hvvn08683NTU2PPDv/vm6FcXf2LH3SN9v/O9N/+exHR+57oqrFs2r7dRY2LPs2a1bnEOBSuM5KRAuNcfinqUpO65ZeUPHvM78zZQd3R3jH127dMGV154Zz+67Y+3V3Z0Dp0fOjo1nRbW8p/Pf/8rEf+j/7paX08/jWk2NqRvKPeUVKpDagNLJRx0zmmP3wWPpxU9fv6Stpamhvm5o+EzRm2PDmiXp87adR27ecFtXe2PtpUZaHuobHJt4oLwjr1CRrKRAqc04NHuk75X0uufy9vq6cw2FhqamwtjY+PDIaAqOxob6luZC+pzNTUdroaO16dTQmdbGrDLvJp+j/IZyR16hYpltQNm8lR11Ez/+GyaT4lwyPpZetjYX0qgjvZPmHHMfdQwPj6SpSXrR0lSX1Zx8DeWN3kO2a0DFUhtQZnV1EwXQWGhqbCzU1b3dHOfG06ijtblxXntLU6ExjTr6Tg3NLjtSahSamrMald9QPrGGYrsGVDArKVApUmo0NtZPDDfGxtLnbDI7snNp1FHX2tKU3jszOpqCY/rySvr6gd6T6cWiBWmp5AJLJHlq1NfgRGNCfpr31f2bPeUVKpzagMqSN0c2URJvZUfeHKkY9vX27TlyYn5788olCy5ra25sbEijjru//EfpN//uf7hz3bUzT8+ePTuWp0ZdjdZGWkPJ3FAO1UBtQIWaPuo4PTL6Hx984ukdB6e++vm7P/yZW9cMDJ15p388pUZdfUNtp0Z+5NV2Dah89m1ARZtsjsL/++6LeWr80saVP3P9xHHW33502/a9R+e1t+S/bWj4zPCZs1O7Omo+Naa2a6TUsIYClc9sA6rAEy/sT5//9Z0f/vxd69Ko477//q0f7jv6/K7Xbli+MP8N//Ubz7Y2N/63X7+1e0FHoaGusdBUw6mRPLd9Z5bttF0DvGboiAAAB0JJREFUqoXZBlSBvoHh9Hnx5R35qGPpoonHuh7tG5z6DYePn9pz5ERzc2NToXF07NzQ8MjYeJHvJK0cjzy6ecnS5W/0HrJdA6qF2QZUgY+u/eCjz+x84Ft/mxoilcdjf707vbnuug+k8sh/w3/61IbVVy28Yn5rQ33WVGhI/yFR3PvBKseLP9p184bb/sd//qLtGlBF1AZUgX/7Cx/54d6je1878ZWvP5m/c9tNy+665bqpjRrLP9C1eunEM+XPnTs3PHS6NWluzOrqx8bGh4bP1NXKmkp+Q/mmzV9zQzlUF7UBVWBhZ9sf/NYv7dh79O/39tbX1a1dtmj9yp78Szdes3h8/Ny8ttZCoTk/wNLc3NLY2Jhe5Hd1tLU2p+aYOEabZf/r/3/vU3esW7Ws+E+aLQ03lEOVUhtQHZ7cfuDRZ1/OXz+/68hD330hf93ROnHB+cGj/auXLswPzabllcnLwcayt+8Hm9wxOjHeWLdm+de/9VR7e9u9t1Vfc0wdeX3woW9kQFVRG1AdDh/vf/qHr77TV//Jyg9M/2W+mTQ1x/jEUCNfbZmYbXTPb/61X/7EvkO9D39nW/q8anl3tWTHps2Pr17/c2kNxXYNqEZqA6rD/Z+48Vc/fsPXv//iq6/33fPTq9ZctXDnweN/vHVH94J5v/7Pbq4/73LyFBzpo77+rTtJ8zfHzw4N9x25sqv1s/9ifUOhNQVHVYw6JrZrnB5LUw1HXqFKqQ2oDhPt0FC36Qe7dh06/qHli264etHeIyf+/KmXV1y54HM//+F3+Qffvgr9H3NkbHQofYxmJ1J2VMWoww3lUO3UBlSHP3v6x8/uOHjojf70+ve/uz293nP4zfQ6vfOFB763ce3SuzZc955/yPU33dI4PtJ7+MDAqb4sz46+oXzU8errJ/cdrMRRhxvKoQaoDagOuw4e/962V/LXe187kT7y16eHR9P7i7ras+y9ayPpmDf/mpVrB06d/InmGB3q7siuXLv01lturKhRR35DuSOvUO3UBlSH37hr/X133PhOX21vKWSXIm+O9GJmdkyOOu6/Z+OB10++sndf2Ucd+Q3l1lCg2qkNqA7z25vTR1ZsFx519A0tas56yj3qyG8of+FvnrSGAtVObQAXO+r46oOPlaw53FAOtURtAP+oQkYdbiiHGqM2gJkuZtTxlz/YHjfqcEM51Bi1Abyjdxl1fObjHyq0b5wadUw0x/LuomTHI49uduQVaozaAN7DVHOk4BjoP/lOo44/+4vn5z7q2LT58Zs33JanhjUUqBlqA8qsqVCfPo+9/ez4IGPjE89JaW5oyGYrNUf6yHqydx915IdmVy3rmcWoI79d49mt33dDOdQYtQFltmzx5W+cPHz4jVM/Nb8ti3F6eHRg6MyirvbWS7yW44LOX17Jpo068qvQt27bNYtRR75d443eQ/ffZw0FaoragDJbsWTB3+48/Nc/PnTD1YuyGE/vmHh47KolP5UVz7vsJO3umM2oww3lUMPqM6Cs7t24qqWp8Xc2Pb9t55EswCtHTvzPP3o2vfj07WuzAHl2XLPyho55nVNvpuyYfNjsxAPu/+naa1/YefirDz721d957Mf7XrvgH5KvoTyzdYsjr1CT6tasXvHS+ocHHgj5awi4GN//u71f+r9PpBfrr+tZ1t11+WWtWTGkBZRXjrz5zI6D6fXn717/q3fckMWbscKSNBRa65ta8gfcP/GD7edfhZ5SY/KG8iytoRhsQO3p+NyLagMqQppAfPmhJ9LnrNi6L+/4rc9+7OYVJX3QyfnNkU1mR6G9K9/VMf1+sKkjrw8+9I0MqDlqAyrL/t6+H+47+vqbA1kxpBnJmmVXXHflgqx83mnUUWjremXf/lf27r9l7bK0hpLfUG4NBWpSqg27RKGCXLW4M31kNeSdHnA/Onjiyq7WZRs/kt5JUw3bNaC2qQ0g3LvcD/b837/khnKoeWoDKJEL3g92cP/ef/nZf5UBNU1tAKU2fXnlznvutYYCNU9tAOUxdT8YUPPc7gUAxFIbAEAstQEAxFIbAEAstQEAxFIbAEAstQEAxFIbAEAstQEAxFIbAEAstQEAxFIbAEAstQEAxFIbAEAstQEAxFIbAEAstQEAxFIbAEAstQEAxFIbAEAstQEAxFIbAEAstQEAxFIbAEAstQEAxFIbAEAstQEAxFIbAEAstQEAxFIbAEAstQEAxFIbAEAstQEAxFIbAEAstQEAxFIbAEAstQEAxFIbAEAstQEAxFIbAEAstQEAxFIbAEAstQEAxFIbAEAstQEAxFIbAEAstQEAxFIbAEAstQEAxFIbAEAstQEAxFIbAEAstQEAxFIbAEAstQEAxFIbAEAstQEAxFIbAEAstQEAxFIbAEAstQEAxFIbAEAstQEAxHqrNl4+MpIBABRVHhhv1cZXvt37ytEzGQBAkaTUSIGRXjTmv/7mCyfTRwYAUGx1b/YPZgAAYf4BAAD//66GdP4AAAAGSURBVAMACULFwnuT/d0AAAAASUVORK5CYII="
+                    },
+                    {
+                      "name": "fixed-camera-after",
+                      "contentType": "image/png",
+                      "body": "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"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/qa/redesign-browser/89793e4-2026-09-13T00-33-57-072Z/evidence/redesign-phase3-P35-L5-fiv-b7382--five-Practice-with-restore/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f3726501e3da4f49f82c-72dd4061760adfecf4d5",
+          "file": "redesign-phase3.spec.ts",
+          "line": 66,
+          "column": 1
+        },
+        {
+          "title": "P36 L6 five Learn ten Solve five Practice with restore",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 300000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 13613,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-13T00:35:10.795Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/qa/redesign-browser/89793e4-2026-09-13T00-33-57-072Z/evidence/redesign-phase3-P36-L6-fiv-dd122--five-Practice-with-restore/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f3726501e3da4f49f82c-3d2df09523ad6138fbec",
+          "file": "redesign-phase3.spec.ts",
+          "line": 67,
+          "column": 1
+        },
+        {
+          "title": "P37 L7 five Learn nine Solve five Practice with restore",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 300000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 8801,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-13T00:35:24.451Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/qa/redesign-browser/89793e4-2026-09-13T00-33-57-072Z/evidence/redesign-phase3-P37-L7-fiv-80238--five-Practice-with-restore/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f3726501e3da4f49f82c-b892d4c37943a9698320",
+          "file": "redesign-phase3.spec.ts",
+          "line": 68,
+          "column": 1
+        },
+        {
+          "title": "P38 L8 five Learn nine Solve five Practice with restore",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 300000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 8714,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-13T00:35:33.284Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/qa/redesign-browser/89793e4-2026-09-13T00-33-57-072Z/evidence/redesign-phase3-P38-L8-fiv-ee85c--five-Practice-with-restore/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f3726501e3da4f49f82c-d023393155be6e786f5d",
+          "file": "redesign-phase3.spec.ts",
+          "line": 69,
+          "column": 1
+        },
+        {
+          "title": "P39 four wrong attempts reveal number, not builder; position and draft survive",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1180,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-13T00:35:42.042Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/qa/redesign-browser/89793e4-2026-09-13T00-33-57-072Z/evidence/redesign-phase3-P39-four-w-dc626--position-and-draft-survive/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f3726501e3da4f49f82c-54e0a5cae98881b26822",
+          "file": "redesign-phase3.spec.ts",
+          "line": 70,
+          "column": 1
+        },
+        {
+          "title": "P40 alternative 3D answer, real example reveal and middle-layer restore",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3484,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-13T00:35:43.237Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/qa/redesign-browser/89793e4-2026-09-13T00-33-57-072Z/evidence/redesign-phase3-P40-altern-00a32-al-and-middle-layer-restore/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f3726501e3da4f49f82c-1a03fe19337e9cf6e54d",
+          "file": "redesign-phase3.spec.ts",
+          "line": 71,
+          "column": 1
+        },
+        {
+          "title": "P41 mouse palette drag and tablet touch placement are real input",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2927,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-13T00:35:46.749Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/qa/redesign-browser/89793e4-2026-09-13T00-33-57-072Z/evidence/redesign-phase3-P41-mouse--f851a-ch-placement-are-real-input/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f3726501e3da4f49f82c-b9ac2224a213d85d3022",
+          "file": "redesign-phase3.spec.ts",
+          "line": 72,
+          "column": 1
+        },
+        {
+          "title": "P42 optional practice middle layer has a unique answer and restores cells",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1213,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-13T00:35:49.695Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/qa/redesign-browser/89793e4-2026-09-13T00-33-57-072Z/evidence/redesign-phase3-P42-option-2c068-e-answer-and-restores-cells/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f3726501e3da4f49f82c-ebc71c83d0c1870668e5",
+          "file": "redesign-phase3.spec.ts",
+          "line": 73,
+          "column": 1
+        },
+        {
+          "title": "P43 unfinished answer kinds restore after reload without completing or moving",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 10723,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-13T00:35:50.922Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/qa/redesign-browser/89793e4-2026-09-13T00-33-57-072Z/evidence/redesign-phase3-P43-unfini-65263-ithout-completing-or-moving/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f3726501e3da4f49f82c-70b1364d820bd91b5945",
+          "file": "redesign-phase3.spec.ts",
+          "line": 74,
+          "column": 1
+        },
+        {
+          "title": "P44 L5 both sufficient and insufficient information use judgment buttons",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1203,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-13T00:36:01.670Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/qa/redesign-browser/89793e4-2026-09-13T00-33-57-072Z/evidence/redesign-phase3-P44-L5-bot-1e7cb-mation-use-judgment-buttons/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f3726501e3da4f49f82c-db7cc0b9e3c0dc9430d5",
+          "file": "redesign-phase3.spec.ts",
+          "line": 75,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "redesign.spec.ts",
+      "file": "redesign.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "T01 learn five distinct activities and concept summary",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 6902,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-13T00:36:02.904Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/qa/redesign-browser/89793e4-2026-09-13T00-33-57-072Z/evidence/redesign-T01-learn-five-di-959eb-ivities-and-concept-summary/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8c55c0801a27607fa79e-8144469aa3dfac9a8912",
+          "file": "redesign.spec.ts",
+          "line": 55,
+          "column": 1
+        },
+        {
+          "title": "T02 canonical camera buttons render three different views",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4634,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-13T00:36:09.831Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/qa/redesign-browser/89793e4-2026-09-13T00-33-57-072Z/evidence/redesign-T02-canonical-cam-daa9f-ender-three-different-views/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8c55c0801a27607fa79e-ac8e325499b31cce4fa5",
+          "file": "redesign.spec.ts",
+          "line": 68,
+          "column": 1
+        },
+        {
+          "title": "T03 right side reference matches actual asymmetric camera image",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1626,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-13T00:36:14.478Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/qa/redesign-browser/89793e4-2026-09-13T00-33-57-072Z/evidence/redesign-T03-right-side-re-641f4-ual-asymmetric-camera-image/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8c55c0801a27607fa79e-27e27d52ae84b26a20a5",
+          "file": "redesign.spec.ts",
+          "line": 69,
+          "column": 1
+        },
+        {
+          "title": "T04 top bottom row is front and click restores canonical z0",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2410,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-13T00:36:16.116Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/qa/redesign-browser/89793e4-2026-09-13T00-33-57-072Z/evidence/redesign-T04-top-bottom-ro-2023e-click-restores-canonical-z0/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8c55c0801a27607fa79e-2ad686622a53d3f68b29",
+          "file": "redesign.spec.ts",
+          "line": 78,
+          "column": 1
+        },
+        {
+          "title": "T05 full cell click changes actual submission answer",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1689,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-13T00:36:18.544Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/qa/redesign-browser/89793e4-2026-09-13T00-33-57-072Z/evidence/redesign-T05-full-cell-cli-bd07b-es-actual-submission-answer/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8c55c0801a27607fa79e-4284fbea15ce8d517431",
+          "file": "redesign.spec.ts",
+          "line": 79,
+          "column": 1
+        },
+        {
+          "title": "T06 square cells at desktop and tablet sizes",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 875,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-13T00:36:20.256Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/qa/redesign-browser/89793e4-2026-09-13T00-33-57-072Z/evidence/redesign-T06-square-cells-at-desktop-and-tablet-sizes/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8c55c0801a27607fa79e-bf8801077dc65cffb9ab",
+          "file": "redesign.spec.ts",
+          "line": 80,
+          "column": 1
+        },
+        {
+          "title": "T07 real mouse drag, undo, redo and blocks reload",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4927,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-13T00:36:21.143Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/qa/redesign-browser/89793e4-2026-09-13T00-33-57-072Z/evidence/redesign-T07-real-mouse-drag-undo-redo-and-blocks-reload/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8c55c0801a27607fa79e-e897af455832312ec19f",
+          "file": "redesign.spec.ts",
+          "line": 81,
+          "column": 1
+        },
+        {
+          "title": "T08 synthetic touch drag on actual canvas",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2311,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-13T00:36:26.084Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/qa/redesign-browser/89793e4-2026-09-13T00-33-57-072Z/evidence/redesign-T08-synthetic-touch-drag-on-actual-canvas/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8c55c0801a27607fa79e-723b41242c2535743dad",
+          "file": "redesign.spec.ts",
+          "line": 88,
+          "column": 1
+        },
+        {
+          "title": "T09 common six then adaptive four actual input and grading",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 180000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 12203,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-13T00:36:28.406Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/qa/redesign-browser/89793e4-2026-09-13T00-33-57-072Z/evidence/redesign-T09-common-six-th-3942a-ur-actual-input-and-grading/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8c55c0801a27607fa79e-cd05857a72474ec1cfc5",
+          "file": "redesign.spec.ts",
+          "line": 89,
+          "column": 1
+        },
+        {
+          "title": "T10 current problem remains after reload and stage round trip",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3091,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-13T00:36:40.659Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/qa/redesign-browser/89793e4-2026-09-13T00-33-57-072Z/evidence/redesign-T10-current-probl-2fe1a-reload-and-stage-round-trip/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8c55c0801a27607fa79e-b3f89211cc0f7a19c1d6",
+          "file": "redesign.spec.ts",
+          "line": 91,
+          "column": 1
+        },
+        {
+          "title": "T11 in-progress grid survives reload unchanged",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1547,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-13T00:36:43.765Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/qa/redesign-browser/89793e4-2026-09-13T00-33-57-072Z/evidence/redesign-T11-in-progress-grid-survives-reload-unchanged/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8c55c0801a27607fa79e-d3275b3684e1fc113fa4",
+          "file": "redesign.spec.ts",
+          "line": 92,
+          "column": 1
+        },
+        {
+          "title": "T12 wrong one/two/three/reveal then independent correction",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2052,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-13T00:36:45.324Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/qa/redesign-browser/89793e4-2026-09-13T00-33-57-072Z/evidence/redesign-T12-wrong-one-two-801c6-then-independent-correction/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8c55c0801a27607fa79e-83f4b683ceba644a0746",
+          "file": "redesign.spec.ts",
+          "line": 93,
+          "column": 1
+        },
+        {
+          "title": "T13 practice five full inputs complete",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4664,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-13T00:36:47.392Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/qa/redesign-browser/89793e4-2026-09-13T00-33-57-072Z/evidence/redesign-T13-practice-five-full-inputs-complete/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8c55c0801a27607fa79e-0b6265d881955c772374",
+          "file": "redesign.spec.ts",
+          "line": 98,
+          "column": 1
+        },
+        {
+          "title": "T14 legacy student login route still renders input form",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 914,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-13T00:36:52.086Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/qa/redesign-browser/89793e4-2026-09-13T00-33-57-072Z/evidence/redesign-T14-legacy-studen-73543-te-still-renders-input-form/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8c55c0801a27607fa79e-fc80e35d50ec16519ea8",
+          "file": "redesign.spec.ts",
+          "line": 99,
+          "column": 1
+        },
+        {
+          "title": "T15 legacy teacher login route still renders Auth form",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1114,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-13T00:36:53.012Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/qa/redesign-browser/89793e4-2026-09-13T00-33-57-072Z/evidence/redesign-T15-legacy-teache-6c570-ute-still-renders-Auth-form/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8c55c0801a27607fa79e-0998d5bded9e1d054ca0",
+          "file": "redesign.spec.ts",
+          "line": 100,
+          "column": 1
+        },
+        {
+          "title": "R16 legacy ProjectionGrid floor display and click coordinates",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1745,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-13T00:36:54.137Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/qa/redesign-browser/89793e4-2026-09-13T00-33-57-072Z/evidence/redesign-R16-legacy-Projec-1e44d-splay-and-click-coordinates/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8c55c0801a27607fa79e-3ead20c3f8661a669e86",
+          "file": "redesign.spec.ts",
+          "line": 102,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-09-13T00:34:10.613Z",
+    "duration": 165457.8,
+    "expected": 29,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}
