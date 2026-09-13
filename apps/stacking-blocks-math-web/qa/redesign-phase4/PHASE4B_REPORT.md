@@ -50,5 +50,5 @@ REMOTE: NOT_VERIFIED
 
 ## Git
 
-- Phase 4B 변경 커밋: 작업 종료 시점 HEAD에 기록
+- Phase 4B 변경 커밋: `cdeb585f96021ca65b028f9853ebbe31022deec4`
 - 기존 미커밋 변경은 포함하지 않고 보존했다.
