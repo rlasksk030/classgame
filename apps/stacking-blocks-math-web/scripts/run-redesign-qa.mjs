@@ -17,7 +17,8 @@ function run(command,args,name,env=process.env){
 }
 const files=(dir)=>readdirSync(dir,{withFileTypes:true}).flatMap(e=>e.isDirectory()?files(join(dir,e.name)):[join(dir,e.name)]);
 const hashFiles=paths=>{const h=createHash('sha256');for(const file of paths.sort()){h.update(file);h.update(readFileSync(file));}return h.digest('hex');};
-const caseNames=['e2e/redesign.spec.ts','e2e/redesign-phase2.spec.ts','e2e/redesign-phase3.spec.ts'].flatMap(file=>[...readFileSync(file,'utf8').matchAll(/^test\('([^']+)'/gm)].map(m=>m[1]));
+const qaFiles=['e2e/redesign.spec.ts','e2e/redesign-phase2.spec.ts','e2e/redesign-phase3.spec.ts','e2e/redesign-phase4.spec.ts'];
+const caseNames=qaFiles.flatMap(file=>[...readFileSync(file,'utf8').matchAll(/^test\('([^']+)'/gm)].map(m=>m[1]));
 const identity={sourceSha256:hashFiles(['src','shared','e2e','scripts'].flatMap(files).concat(['package.json','vite.config.ts','playwright.redesign.config.ts'])),head,time:new Date().toISOString(),workingTree:git('status','--short'),diffSha256:createHash('sha256').update(git('diff')).digest('hex'),category:'UI_WITH_TEST_DATA',remoteWrites:false,persistence:'LOCAL_ONLY'};
 writeFileSync(join(dir,'identity.json'),JSON.stringify(identity,null,2));
 let phase='build';let exitCode=1;

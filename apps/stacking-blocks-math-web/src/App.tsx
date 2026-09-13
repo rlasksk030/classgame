@@ -5,7 +5,8 @@ import SetupPage from './pages/SetupPage';
 import { getPendingInstallationConfig, hasInvalidInstallationConfigHash, saveRuntimeSupabaseConfig } from './lib/config';
 import { clearStudentToken } from './lib/studentApi';
 const Phase3Redesign = lazy(() => import('./features/learning/Phase3Redesign'));
-function RedesignRoute(){const id=Number(useParams().lessonId);return id>=5&&id<=8?<Phase3Redesign/>:<Phase2Redesign/>;}
+const Phase4Page = lazy(() => import('./features/learning/Phase4Page'));
+function RedesignRoute(){const id=Number(useParams().lessonId);return id>=5&&id<=8?<Phase3Redesign/>:id>=9&&id<=12?<Phase4Page/>:<Phase2Redesign/>;}
 const Phase2Redesign = lazy(() => import('./features/learning/Phase2Redesign'));
 const Lesson3Redesign = lazy(() => import('./features/learning/Lesson3Redesign'));
 const StudentWorld = lazy(() => import('./pages/StudentWorld'));
