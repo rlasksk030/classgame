@@ -17,6 +17,9 @@ REMOTE: NOT_VERIFIED
 - 10차시 Builder에 기존 reward material picker를 연결하고 appearance를 작품 상태에 포함했다.
 - 블록이 4층 이상이면 층별 메모 입력을 동적으로 늘린다.
 - 12차시 투영·층별 격자를 실제 입력 Renderer로 연결하고, 공통 6 + 맞춤 4 순서를 안정화했다.
+- 10차시 재료 선택을 작품 상태의 `activeMaterial`로 유지해 다음 배치 블록·보관함 표시가 같은 재료를 사용하도록 연결했다.
+- Builder Undo/Redo 스냅샷에 좌표와 외형을 함께 담고, 재료만 바꾼 작업도 이력에 포함했다.
+- 기존 저장 작품을 읽을 때 외형·활성 재료를 안전하게 정규화해 누락된 이전 데이터는 원목으로 복원한다.
 
 ## 차시별 결과
 
@@ -30,8 +33,8 @@ REMOTE: NOT_VERIFIED
 - `npm test`: PASS, 104개
 - `npm run typecheck`: PASS
 - `npm run lint`: PASS
-- `npm run typecheck:edge`: 이전 Phase 4 실행에서 PASS, 이번에는 Edge 소스 변경 없음
-- `npm run test:security`: 이전 Phase 4 실행에서 PASS, 이번에는 권한 코드 변경 없음
+- `npm run typecheck:edge`: PASS (현재 작업 트리)
+- `npm run test:security`: PASS (현재 작업 트리)
 - `npm run build`: PASS
 - Phase 4 Playwright: 실행하지 못함. 자동 승인 검토 사용량 한도 초과가 동일하게 적용되어 BLOCKED. 승인 우회·반복 시도 없음.
 
@@ -50,5 +53,8 @@ REMOTE: NOT_VERIFIED
 
 ## Git
 
-- Phase 4B 변경 커밋: `cdeb585f96021ca65b028f9853ebbe31022deec4`
-- 기존 미커밋 변경은 포함하지 않고 보존했다.
+- 시작 HEAD: `df62b01abc0100db80216459cf94f84ae14b87f3`
+- 현재 HEAD: `aea2f449296427376166825df74a862b074418fa`
+- Phase 4B 문서·계약 커밋: `cdeb585f96021ca65b028f9853ebbe31022deec4`, `aea2f449296427376166825df74a862b074418fa`
+- 이번 Builder 외형 이력 보완은 기존 작업 트리의 미커밋 파일에 적용했으며, 기존 변경과 섞이지 않도록 별도 커밋하지 않았다.
+- 기존 미커밋 변경·QA 자료는 포함하거나 삭제하지 않고 보존했다.
