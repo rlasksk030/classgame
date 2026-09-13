@@ -4,6 +4,8 @@ import StudentLogin from './pages/StudentLogin';
 import SetupPage from './pages/SetupPage';
 import { getPendingInstallationConfig, hasInvalidInstallationConfigHash, saveRuntimeSupabaseConfig } from './lib/config';
 import { clearStudentToken } from './lib/studentApi';
+const Phase3Redesign = lazy(() => import('./features/learning/Phase3Redesign'));
+function RedesignRoute(){const id=Number(useParams().lessonId);return id>=5&&id<=8?<Phase3Redesign/>:<Phase2Redesign/>;}
 const Phase2Redesign = lazy(() => import('./features/learning/Phase2Redesign'));
 const Lesson3Redesign = lazy(() => import('./features/learning/Lesson3Redesign'));
 const StudentWorld = lazy(() => import('./pages/StudentWorld'));
@@ -35,7 +37,7 @@ function InstallationSwitchPrompt(){
 }
 export default function App() {
   return <Suspense fallback={<main className="screen app-max"><p role="status">화면을 준비하고 있어요…</p></main>}><InstallationSwitchPrompt/><Routes>
-    <Route path="/student/lesson/:lessonId/redesign" element={<Phase2Redesign />} />
+    <Route path="/student/lesson/:lessonId/redesign" element={<RedesignRoute />} />
     <Route path="/student/lesson/3/redesign" element={<Lesson3Redesign />} />
     <Route path="/setup" element={<SetupPage />} />
     <Route path="/" element={<StudentLogin />} />

@@ -1,8 +1,9 @@
+import type { ProjectionConstraints } from '../solvers/projection.ts';
 import type { BlockCoord, GridConfig, Grid2D, HeightMap } from '../../types.ts';
 export const CURRICULUM_VERSION = 'spatial-v2' as const;
 export type Stage = 'learn' | 'solve' | 'practice' | 'remediation' | 'challenge';
 export type Face = 'top' | 'front' | 'side';
-export type ConceptTag = 'position-right' | 'position-up' | 'layer-count' | 'total-count' | 'description-to-model' | 'direction-front' | 'direction-back' | 'direction-left' | 'direction-right' | 'observer-position' | 'photo-camera-position' | 'column-height' | 'height-map' | 'layer-map' | 'strategy-comparison' | 'projection-direction' | 'projection-top' | 'projection-front' | 'projection-side' | 'projection-error-analysis' | 'projection-change';
+export type ConceptTag = 'information-sufficiency' | 'hidden-blocks' | 'count-range' | 'additional-information' | 'solution-comparison' | 'constraint-build' | 'height-reconstruction' | 'layer-reconstruction' | 'layer-rule' | 'position-right' | 'position-up' | 'layer-count' | 'total-count' | 'description-to-model' | 'direction-front' | 'direction-back' | 'direction-left' | 'direction-right' | 'observer-position' | 'photo-camera-position' | 'column-height' | 'height-map' | 'layer-map' | 'strategy-comparison' | 'projection-direction' | 'projection-top' | 'projection-front' | 'projection-side' | 'projection-error-analysis' | 'projection-change';
 export type Choice = { id: string; label: string };
 export type AnswerInput =
  | { kind: 'choice'; choices: Choice[] }
@@ -29,12 +30,13 @@ export type GradingPolicy =
  | { kind: 'exact-height-map'; grid: HeightMap }
  | { kind: 'exact-layers'; grids: Grid2D[] }
  | { kind: 'exact-block-coordinates'; blocks: BlockCoord[] }
- | { kind: 'projection-constraints'; grids: Partial<Record<Face, Grid2D>>; example: BlockCoord[] }
+ | { kind: 'projection-constraints'; grids: Partial<Record<Face, Grid2D>>; example: BlockCoord[]; constraints?:ProjectionConstraints }
  | { kind: 'multiple-valid-solutions'; solutions: BlockCoord[][] }
  | { kind: 'exact-mapping'; values: Record<string, string> }
  | { kind: 'determinability'; determinable: boolean; evidence: string }
- | { kind: 'min-count' | 'max-count'; solver: 'projection-search-v1'; constraints: Partial<Record<Face, Grid2D>> };
+ | { kind: 'min-count' | 'max-count'; solver: 'projection-search-v1'; constraints: Partial<Record<Face, Grid2D>>; value?: number };
 export type Material =
+ | { kind: 'partial-height-map'; grid:(number|null)[][]; caption:string }
  | { kind: 'model'; blocks: BlockCoord[]; caption: string; view?: 'front'|'back'|'left'|'right' }
  | { kind: 'projection'; face: Face; grid: Grid2D; caption: string }
  | { kind: 'height-map'; grid: HeightMap; caption: string }
@@ -42,6 +44,8 @@ export type Material =
 export type ObservationView = Face | 'home' | 'back' | 'left' | 'right';
 export type CameraPolicy = { kind: 'free' | 'fixed'; initialView: ObservationView; allowedViews: ObservationView[] };
 export interface Problem {
+ additionalMaterials?: Material[];
+ solutionEvidence?: { solverVersion: string; classification: 'unique'|'multiple-shapes-same-count'|'multiple-shapes-different-count'; solutionCount:number; counts:number[] };
  id: string; curriculumVersion: typeof CURRICULUM_VERSION; version: 1; seed: number;
  lessonId: number; stage: Stage; conceptTags: ConceptTag[]; prompt: string; learningIntent: string;
  grid: GridConfig; presentedMaterials: Material[]; answerInput: AnswerInput; gradingPolicy: GradingPolicy;

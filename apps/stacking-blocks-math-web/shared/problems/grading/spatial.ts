@@ -1,3 +1,4 @@
+import { satisfiesProjectionConstraints } from '../solvers/projection.ts';
 import { problemContractError } from '../contracts/validate.ts';
 import { blocksEqual, grid2DEqual, heightMapEqual, project, validStructure } from '../../blocks.ts';
 import type { AnswerState, Problem, Face } from '../contracts/spatial.ts';
@@ -18,10 +19,10 @@ export function gradeSpatial(problem: Problem, answer: AnswerState): 'correct' |
   case 'projection-constraints': {
    if (answer.kind !== 'block-builder' || !validStructure(answer.blocks,problem.grid)) break;
    const faces = Object.keys(p.grids) as Face[]; const actual = project(answer.blocks,problem.grid);
-   correct = faces.length > 0 && faces.every(f => same(actual[f],p.grids[f]!)); break;
+   correct = faces.length > 0 && faces.every(f => same(actual[f],p.grids[f]!)) && (!p.constraints||satisfiesProjectionConstraints(p.constraints,answer.blocks)); break;
   }
   case 'multiple-valid-solutions': correct = answer.kind === 'block-builder' && validStructure(answer.blocks,problem.grid) && p.solutions.some(b => blocksEqual(b,answer.blocks)); break;
-  case 'min-count': case 'max-count': return 'unsupported';
+  case 'min-count': case 'max-count': correct=answer.kind==='number'&&answer.value===p.value; break;
  }
  return correct ? 'correct' : 'incorrect';
 }
@@ -44,6 +45,7 @@ export function answerForComparison(problem: Problem): AnswerState | null {
  switch(p.kind) {
   case 'exact-choice': return {kind:'choice',value:p.value};
   case 'exact-number': return {kind:'number',value:p.value};
+  case 'min-count': case 'max-count': return p.value===undefined?null:{kind:'number',value:p.value};
   case 'determinability': return {kind:'boolean-judgment',value:p.determinable};
   case 'exact-grid': return {kind:'projection-grid',grids:p.grids};
   case 'exact-height-map': return {kind:'height-map',grid:p.grid};

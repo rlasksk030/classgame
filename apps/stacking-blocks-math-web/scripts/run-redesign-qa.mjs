@@ -17,7 +17,7 @@ function run(command,args,name,env=process.env){
 }
 const files=(dir)=>readdirSync(dir,{withFileTypes:true}).flatMap(e=>e.isDirectory()?files(join(dir,e.name)):[join(dir,e.name)]);
 const hashFiles=paths=>{const h=createHash('sha256');for(const file of paths.sort()){h.update(file);h.update(readFileSync(file));}return h.digest('hex');};
-const caseNames=['e2e/redesign.spec.ts','e2e/redesign-phase2.spec.ts'].flatMap(file=>[...readFileSync(file,'utf8').matchAll(/^test\('([^']+)'/gm)].map(m=>m[1]));
+const caseNames=['e2e/redesign.spec.ts','e2e/redesign-phase2.spec.ts','e2e/redesign-phase3.spec.ts'].flatMap(file=>[...readFileSync(file,'utf8').matchAll(/^test\('([^']+)'/gm)].map(m=>m[1]));
 const identity={sourceSha256:hashFiles(['src','shared','e2e','scripts'].flatMap(files).concat(['package.json','vite.config.ts','playwright.redesign.config.ts'])),head,time:new Date().toISOString(),workingTree:git('status','--short'),diffSha256:createHash('sha256').update(git('diff')).digest('hex'),category:'UI_WITH_TEST_DATA',remoteWrites:false,persistence:'LOCAL_ONLY'};
 writeFileSync(join(dir,'identity.json'),JSON.stringify(identity,null,2));
 let phase='build';let exitCode=1;
@@ -39,6 +39,6 @@ const executed=cases.filter(c=>c.attempts>0).length;
 const pass=cases.filter(c=>c.status==='expected').length;
 const summary={...identity,phase,planned:caseNames.length,executed,pass,fail:cases.filter(c=>c.status==='unexpected').length,notRun:caseNames.length-executed,status:executed===0?'BLOCKED':exitCode===0&&pass===caseNames.length?'PASS':'FAIL',cases,errors:report?.errors??[]};
 writeFileSync(join(dir,'summary.json'),JSON.stringify(summary,null,2));
-writeFileSync(join(dir,'report.md'),`# Phase 1 browser QA\n\nHEAD: ${head}\n\nCategory: UI_WITH_TEST_DATA / LOCAL_ONLY\n\nStatus: ${summary.status}\n\nPlanned: ${caseNames.length} (15 required + regressions) · executed: ${executed} · PASS: ${pass} · FAIL: ${summary.fail} · NOT_RUN: ${summary.notRun}\n\n${cases.map(c=>`- ${c.id}: ${c.status}`).join('\n')}\n\nDetails: report.json, preview.log, evidence/\n`);
+writeFileSync(join(dir,'report.md'),`# Redesign browser QA\n\nHEAD: ${head}\n\nCategory: UI_WITH_TEST_DATA / LOCAL_ONLY\n\nStatus: ${summary.status}\n\nPlanned: ${caseNames.length} · executed: ${executed} · PASS: ${pass} · FAIL: ${summary.fail} · NOT_RUN: ${summary.notRun}\n\n${cases.map(c=>`- ${c.id}: ${c.status}`).join('\n')}\n\nDetails: report.json, preview.log, evidence/\n`);
 console.log(`Report: ${dir}/report.md`);
 process.exitCode=summary.status==='PASS'?0:1;
