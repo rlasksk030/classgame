@@ -20,7 +20,7 @@ test('P46 L10 starts with a real 10×10 builder and saves project metadata', asy
 });
 
 test('P47 L11 reads the same saved project and exposes representations', async ({ page }) => {
-  await page.addInitScript(() => localStorage.setItem('sb.phase4.project.v1', JSON.stringify({ id:'qa', version:1, name:'QA 건축물', reason:'연습', description:'설명', blocks:[{x:0,y:0,z:0}], layerNotes:['1층','2층','3층'], gridWidth:10, gridDepth:10, maxHeight:12 })));
+  await page.addInitScript(() => localStorage.setItem('sb.phase4.project.v1:local:unconfigured:unknown:anonymous', JSON.stringify({ id:'qa', version:1, name:'QA 건축물', reason:'연습', description:'설명', blocks:[{x:0,y:0,z:0}], layerNotes:['1층','2층','3층'], gridWidth:10, gridDepth:10, maxHeight:12 })));
   await page.goto('/student/lesson/11/redesign');
   await expect(page.getByRole('heading', { name: '11차시 · 건축물 소개서 만들기' })).toBeVisible();
   await expect(page.getByText('QA 건축물')).toBeVisible();
