@@ -41,7 +41,11 @@ try {
   checks.revoke = summarize(revoked.payload, revoked.status);
   const afterRevoke = await call("GET", "/api/installer/status");
   checks.afterRevoke = summarize(afterRevoke.payload, afterRevoke.status);
-  const pass = (checks.status as Json).status === 200 && (checks.plan as Json).status === 200 && (checks.repair as Json).action === "NO_CHANGES" && (checks.update as Json).action === "UP_TO_DATE" && (checks.afterRevoke as Json).status === 401;
+  // summarize() lets the response payload's own "status" field (e.g. our
+  // INSTALLED/PARTIAL string) overwrite the initial HTTP status number when
+  // present, so /status and /plan must be checked against that string, not
+  // against the HTTP code 200.
+  const pass = (checks.status as Json).status === "INSTALLED" && (checks.plan as Json).status === 200 && (checks.repair as Json).action === "NO_CHANGES" && (checks.update as Json).action === "UP_TO_DATE" && (checks.afterRevoke as Json).status === 401;
   await writeArtifact({ startedAt, projectRefHash: createHash("sha256").update(projectRef).digest("hex").slice(0, 12), checks, result: pass ? "PASS" : "FAIL" });
   console.log(`INSTALLER REMOTE: ${pass ? "PASS" : "FAIL"}`);
   process.exitCode = pass ? 0 : 1;
