@@ -1,0 +1,65 @@
+# Render Blueprint — classgame
+#
+# 저장소: https://github.com/rlasksk030/classgame
+# 이 파일은 저장소 루트에 있어야 하며, Render 는 Blueprint 에 연결된
+# 브랜치의 루트 render.yaml 을 읽는다.
+#
+# 주의: 아래 service 가 참조하는 apps/stacking-blocks-math-web 디렉터리가
+# 배포 대상 브랜치에 실제로 존재해야 빌드가 성공한다.
+
+services:
+  # 초등 6학년 수학 '공간과 입체' — 3D 쌓기나무 학습 웹앱 (Vite + React SPA)
+  - type: web
+    name: stacking-blocks-math-web
+    runtime: static
+
+    # 배포 대상 브랜치. 다른 브랜치로 바꾸려면 이 줄을 수정한다.
+    branch: feature/spatial-math-redesign-v1
+    autoDeployTrigger: commit
+
+    # 모노레포라서 앱 폴더를 빌드 기준 경로로 잡는다.
+    rootDir: apps/stacking-blocks-math-web
+    buildCommand: npm ci && npm run build
+    staticPublishPath: ./dist
+
+    # 이 앱과 무관한 커밋(포털 HTML 등)으로는 재배포하지 않는다.
+    buildFilter:
+      paths:
+        - render.yaml
+        - apps/stacking-blocks-math-web/**
+
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      # 브라우저에 노출되어도 되는 값만 VITE_ 접두사를 쓴다.
+      # sync: false → 값은 커밋하지 않고 Render 대시보드에서 직접 입력한다.
+      - key: VITE_SUPABASE_URL
+        sync: false
+      - key: VITE_SUPABASE_ANON_KEY
+        sync: false
+
+    # SPA 라우팅: 실제 파일이 없는 경로는 index.html 로 넘긴다.
+    # (public/_redirects 는 Cloudflare 전용이라 Render 에서는 읽지 않는다.)
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+
+    # public/_headers 와 같은 정책. Render 는 _headers 파일을 읽지 않으므로
+    # 여기에 다시 적는다.
+    headers:
+      - path: /*
+        name: X-Frame-Options
+        value: DENY
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
+      - path: /*
+        name: Referrer-Policy
+        value: strict-origin-when-cross-origin
+      - path: /*
+        name: Permissions-Policy
+        value: geolocation=(), microphone=(), camera=()
+      - path: /assets/*
+        name: Cache-Control
+        value: public, max-age=31536000, immutable
