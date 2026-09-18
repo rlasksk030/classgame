@@ -82,22 +82,27 @@ export class SupabaseManagementBackend implements InstallerBackend {
       if (!item || typeof item !== "object") return [];
       const slug = (item as { slug?: unknown }).slug;
       if (slug !== "student-auth" && slug !== "student-api") return [];
-      return [{ slug, version: typeof (item as { version?: unknown }).version === "number" ? (item as { version: number }).version : undefined, hash: typeof (item as { ezbr_sha256?: unknown }).ezbr_sha256 === "string" ? (item as { ezbr_sha256: string }).ezbr_sha256 : undefined, status: typeof (item as { status?: unknown }).status === "string" ? (item as { status: string }).status : undefined }];
+      // Supabase's own ezbr_sha256 is computed by its remote bundler and
+      // can't be reproduced locally, so deployFunction stores our own content
+      // hash in "name" and this reads it back for an exact, self-consistent
+      // up-to-date check instead of comparing against an unreplicable value.
+      return [{ slug, version: typeof (item as { version?: unknown }).version === "number" ? (item as { version: number }).version : undefined, hash: typeof (item as { name?: unknown }).name === "string" ? (item as { name: string }).name : undefined, status: typeof (item as { status?: unknown }).status === "string" ? (item as { status: string }).status : undefined }];
     });
   }
 
   async deployFunction(target: InstallerTarget, bundle: FunctionBundle): Promise<FunctionDeployment> {
     // The real deploy endpoint takes multipart/form-data (FunctionDeployBody),
-    // not a JSON body: one "file" part per source file plus a "metadata" part.
-    const entrypoint = typeof bundle.metadata.entrypoint_path === "string" ? bundle.metadata.entrypoint_path : "index.ts";
+    // not a JSON body: one "file" part per source file (named by its real
+    // relative path, so Deno's resolver can follow the function's relative
+    // imports) plus a "metadata" part.
     const form = new FormData();
-    for (const file of bundle.files) form.append("file", new Blob([file], { type: "text/typescript" }), entrypoint);
+    for (const file of bundle.files) form.append("file", new Blob([file.content], { type: "text/typescript" }), file.path);
     form.append("metadata", JSON.stringify(bundle.metadata));
-    const response = await this.request<{ version?: number; ezbr_sha256?: string; status?: string }>("functions", `/v1/projects/${encodeURIComponent(target.projectRef)}/functions/deploy?slug=${encodeURIComponent(bundle.slug)}`, {
+    const response = await this.request<{ version?: number; status?: string }>("functions", `/v1/projects/${encodeURIComponent(target.projectRef)}/functions/deploy?slug=${encodeURIComponent(bundle.slug)}`, {
       method: "POST",
       body: form,
     });
-    return { slug: bundle.slug, version: response.version, hash: response.ezbr_sha256, status: response.status };
+    return { slug: bundle.slug, version: response.version, hash: bundle.hash, status: response.status };
   }
 
   async probeFunction(target: InstallerTarget, slug: FunctionDeployment["slug"]): Promise<void> {

@@ -34,5 +34,5 @@ export function createFakeInstallerBackend(seed: FakeInstallerSeed = {}): Instal
 
 export function fakeBundle(slug: FunctionDeployment["slug"]): FunctionBundle {
   const hash = createHash("sha256").update(slug).digest("hex");
-  return { slug, files: [`${slug}:bundle`], metadata: { entrypoint_path: "index.ts", verify_jwt: false }, hash };
+  return { slug, files: [{ path: `supabase/functions/${slug}/index.ts`, content: `${slug}:bundle` }], metadata: { entrypoint_path: `supabase/functions/${slug}/index.ts`, verify_jwt: false, name: hash }, hash };
 }

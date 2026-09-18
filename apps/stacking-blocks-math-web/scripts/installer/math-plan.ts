@@ -1,18 +1,22 @@
-import { createHash } from "node:crypto";
-import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 
 import { readMigrationPlan, type InstallerPlan } from "./orchestrator.ts";
 import { MATH_INSTALLER_MANIFEST } from "./math-manifest.ts";
+import { collectFunctionBundleFiles, hashFunctionBundle } from "./function-bundle.ts";
 import type { FunctionBundle } from "./contract.ts";
 
 /** Builds the server-side release plan from the checked-in math sources. */
 export async function readMathInstallerPlan(root: string): Promise<InstallerPlan> {
   const migrations = await readMigrationPlan(join(root, "supabase", "migrations"));
   const functions = await Promise.all(MATH_INSTALLER_MANIFEST.functions.map(async (slug) => {
-    const source = await readFile(join(root, "supabase", "functions", slug, "index.ts"), "utf8");
-    const hash = createHash("sha256").update(source).digest("hex");
-    const bundle: FunctionBundle = { slug, files: [source], metadata: { entrypoint_path: "index.ts", verify_jwt: false, name: slug }, hash };
+    const entrypointPath = `supabase/functions/${slug}/index.ts`;
+    const files = await collectFunctionBundleFiles(root, join(root, "supabase", "functions", slug, "index.ts"));
+    const hash = hashFunctionBundle(files);
+    // The remote hash (ezbr_sha256) is computed by Supabase's own bundler and
+    // can't be replicated locally, so "name" carries our own content hash as
+    // a self-controlled marker: listFunctions() reads it back to detect a
+    // real match instead of comparing against an unreproducible remote hash.
+    const bundle: FunctionBundle = { slug, files, metadata: { entrypoint_path: entrypointPath, verify_jwt: false, name: hash }, hash };
     return bundle;
   }));
   return { migrations, functions, appVersion: MATH_INSTALLER_MANIFEST.release, schemaVersion: MATH_INSTALLER_MANIFEST.schemaVersion, productionRef: process.env.INSTALLER_PRODUCTION_REF ?? "stacking-blocks-math" };

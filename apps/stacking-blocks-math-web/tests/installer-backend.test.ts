@@ -11,6 +11,7 @@ import { readMathManifest } from "../scripts/installer/math-manifest.ts";
 import { readMathInstallerPlan } from "../scripts/installer/math-plan.ts";
 import { readInstallerRuntimeConfig } from "../scripts/installer/runtime.ts";
 import { maintenanceAction, resolveSessionCookieSameSite } from "../scripts/installer/http-server.ts";
+import type { FunctionBundle } from "../scripts/installer/contract.ts";
 import { fileURLToPath } from "node:url";
 
 const target = { environment: "TEST" as const, projectRef: "test-project-ref", projectUrl: "https://test-project-ref.supabase.co", publishableKey: "test-publishable-key", release: "v1" };
@@ -229,7 +230,9 @@ test("B31 math installer plan loads checked-in migration and function sources", 
   const plan = await readMathInstallerPlan(fileURLToPath(new URL("..", import.meta.url)));
   assert.equal(plan.migrations.length, 17);
   assert.deepEqual(plan.functions.map((item) => item.slug), ["student-auth", "student-api"]);
-  assert.ok(plan.functions.every((item) => item.files[0].includes("Deno.serve")));
+  assert.ok(plan.functions.every((item) => item.files[0].path === `supabase/functions/${item.slug}/index.ts` && item.files[0].content.includes("Deno.serve")));
+  assert.ok(plan.functions.every((item) => item.files.length > 1), "expects the shared-module import closure, not just index.ts");
+  assert.ok(plan.functions.every((item) => item.metadata.entrypoint_path === `supabase/functions/${item.slug}/index.ts`));
   assert.equal(plan.schemaVersion, "202609130017");
 });
 
@@ -286,21 +289,33 @@ test("B37 management adapter rebuilds migration filenames from the real API's sp
   assert.deepEqual(await backend.listAppliedMigrations(target), ["202609110001_initial.sql", "202609110002_seed.sql"]);
 });
 
-test("B38 management adapter deploys functions as multipart form data and reads the real hash field", async () => {
+test("B38 management adapter deploys every closure file under its real relative path and never trusts the remote's own hash", async () => {
   const requests: Array<{ url: string; body?: unknown; contentType: string | null }> = [];
   const fetchImpl = async (input: string | URL, init?: RequestInit): Promise<Response> => {
     const headers = new Headers(init?.headers);
     requests.push({ url: String(input), body: init?.body, contentType: headers.get("content-type") });
-    return new Response(JSON.stringify({ version: 3, ezbr_sha256: "deployed-hash", status: "ACTIVE" }), { status: 200, headers: { "content-type": "application/json" } });
+    // Supabase's real response's ezbr_sha256 is deliberately different from
+    // bundle.hash here: the adapter must not use it for the returned hash.
+    return new Response(JSON.stringify({ version: 3, ezbr_sha256: "remote-computed-hash-we-must-not-trust", status: "ACTIVE" }), { status: 200, headers: { "content-type": "application/json" } });
   };
   const backend = new SupabaseManagementBackend({ accessToken: new EphemeralCredential("temporary-token"), fetchImpl, baseUrl: "https://management.invalid" });
-  const bundle = fakeBundle("student-api");
+  const bundle: FunctionBundle = { slug: "student-api", files: [{ path: "supabase/functions/student-api/index.ts", content: "entry" }, { path: "shared/blocks.ts", content: "shared" }], metadata: { entrypoint_path: "supabase/functions/student-api/index.ts", verify_jwt: false, name: "closure-hash" }, hash: "closure-hash" };
   const result = await backend.deployFunction(target, bundle);
-  assert.equal(result.hash, "deployed-hash");
+  assert.equal(result.hash, "closure-hash");
   assert.ok(requests[0].url.includes(`slug=${bundle.slug}`));
   assert.ok(requests[0].body instanceof FormData);
   const form = requests[0].body as FormData;
-  assert.ok(form.get("file") !== null);
+  const fileParts = form.getAll("file") as File[];
+  assert.equal(fileParts.length, 2);
+  assert.deepEqual(fileParts.map((part) => part.name).sort(), ["shared/blocks.ts", "supabase/functions/student-api/index.ts"]);
   assert.equal(typeof form.get("metadata"), "string");
+  assert.equal(JSON.parse(form.get("metadata") as string).name, "closure-hash");
   assert.equal(requests[0].contentType, null);
+});
+
+test("B39 listFunctions treats the remote's stored name as our own bundle-hash marker, not ezbr_sha256", async () => {
+  const fetchImpl = async (): Promise<Response> => new Response(JSON.stringify([{ slug: "student-api", version: 3, name: "closure-hash", ezbr_sha256: "a-remote-value-that-would-never-match", status: "ACTIVE" }]), { status: 200, headers: { "content-type": "application/json" } });
+  const backend = new SupabaseManagementBackend({ accessToken: new EphemeralCredential("temporary-token"), fetchImpl, baseUrl: "https://management.invalid" });
+  const [deployment] = await backend.listFunctions(target);
+  assert.equal(deployment.hash, "closure-hash");
 });

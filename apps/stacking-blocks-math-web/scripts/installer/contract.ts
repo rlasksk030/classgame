@@ -73,9 +73,18 @@ export interface MigrationInput {
   query: string;
 }
 
+/** One local source file in a function's dependency closure. `path` is
+ * relative to the app root with forward slashes (e.g.
+ * "supabase/functions/student-api/index.ts"), matching how Supabase's own
+ * remote deploy extracts an uploaded bundle under "source/<path>". */
+export interface FunctionBundleFile {
+  path: string;
+  content: string;
+}
+
 export interface FunctionBundle {
   slug: FunctionDeployment["slug"];
-  files: string[];
+  files: FunctionBundleFile[];
   metadata: Record<string, unknown>;
   hash: string;
 }
