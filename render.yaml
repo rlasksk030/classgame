@@ -2,6 +2,7 @@ services:
   - type: web
     name: stacking-blocks-math-installer-test
     runtime: node
+    branch: feature/spatial-math-redesign-v1
     rootDir: apps/stacking-blocks-math-web
     buildCommand: npm ci
     startCommand: npm run installer:server
