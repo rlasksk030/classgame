@@ -395,3 +395,128 @@ Start 3454fd7, branch feature/spatial-math-redesign-v1. Pre-existing work backed
 - Intermediate focus-border screenshot failure retained and fixed by matching focus, without relaxing pixel equality. Old-build run explicitly interrupted after code corrections; never counted as final PASS. Final source frozen during all29 cases.
 - Current code tests: unit101, solver12 included, typecheck, lint, build, Edge, security and E2E typecheck PASS; UTC logs in qa/redesign-phase3/release-checks.json. Final report qa/redesign-phase3/PHASE3_REPORT.md.
 - LOCAL_ONLY / UI_WITH_TEST_DATA / ANSWER_PROTECTION_NOT_REMOTE_VERIFIED. No LIVE Supabase, cross-device, physical iPad/Safari or installation/update verification. INSTALL_EASY still required/unimplemented; external teacher setup steps reduced0. No push/deploy/remote migration/secret or student-data changes.
+
+## 2026-09-13 — Phase 5E TEST fixture·E2E runner 준비
+
+- Start HEAD `622eb7afde878e41bdbe1ba780de56ce1a4ee6a9`, branch `feature/spatial-math-redesign-v1`; existing dirty worktree and student data preserved. No reset/clean/push/deploy/remote migration or production access.
+- Added `scripts/phase5b-runner.ts`: TEST target/ref guard, TEST marker fixture reuse path, safe redaction, explicit cleanup guard, fail-fast pipeline, remote teacher/student API flow, and local `Phase5ApiStore` mock scenarios for 9~12차시.
+- Added F01–F08 in `tests/phase5-runner.test.ts`; `npm run qa:phase5e:mock` produced a redacted gitignored runtime artifact. Updated `run-phase5b-test.mjs` so fixture/E2E modes require `--apply` plus `APPLY_TO_TEST`, and dry-run checks `runner=PASS`.
+- `npm test` 139 PASS, `npm run typecheck`, `npm run lint`, `npm run typecheck:edge`, `npm run test:security`, `npm run build`, `npm run qa:phase5c:dry-run`, `npm run qa:phase5e:mock` PASS on this working tree.
+- Actual TEST migration/function deploy/fixture creation/remote E2E were not run. `qa/redesign-phase5/PHASE5E_RUNNER_REPORT.md` is `READY_FOR_MAC_REMOTE_RUN`; this indicates runner readiness only, not live Supabase success. Mac command and credential handling are documented in `PHASE5B_MAC_RUNBOOK.md`.
+
+## 2026-09-13 — Phase 5B CLI resolution
+
+- `run-phase5b-test.mjs` now resolves Supabase CLI in order: project `node_modules/.bin/supabase`, `npx --no-install supabase`, then global `supabase`; otherwise it emits `SUPABASE_CLI_MISSING`. No package download is permitted.
+- Added a source contract test for this priority. `npm run qa:phase5c:dry-run` and `npm run qa:phase5e:mock` remain PASS.
+- In this sandbox, `npx supabase --version` reached the installed CLI but exited because it could not write `/Users/kimnana/.supabase/telemetry.json`; no migration, deploy, or remote write occurred.
+
+## 2026-09-13 — Phase 5B TEST IPv4 link preparation
+
+- TEST schema execution now links only the temporary CLI workspace with the guarded TEST ref before `db push`; the main repository's `supabase/.temp/linked-project.json` is snapshotted and checked unchanged.
+- Link failure emits `TEST_LINK_FAILED` and prevents `db push`; dry-run prints `TEST LINK PLAN: READY` without linking.
+- Added source contract coverage for link ordering, production-link immutability, and failure gating. Latest local suite: 141 PASS; typecheck and lint PASS; `qa:phase5c:dry-run` and `qa:phase5e:mock` PASS.
+- Remote link, migration, deploy, and data writes were not run in this environment.
+
+## 2026-09-13 — Phase 5B TEST API failure diagnostics
+
+- `scripts/phase5b-runner.ts` now reports the first remote failure as `REMOTE_API_FAILED` with stage, function, method, status, content type, safe error code/message; tokens, PINs, passwords, and secrets are redacted.
+- Added harmless `OPTIONS` probe for `student-auth`/`student-api` (`npm run qa:phase5b:probe`) and F09-style coverage for 401/403/404/500/network/malformed responses. No fixture or E2E rerun was performed.
+- Latest targeted tests, typecheck, lint, dry-run, and mock runner PASS. Live function deployment/secret status remains unverified from this environment.
+
+## 2026-09-13 — Phase 5B TEST teacher-api 500 diagnosis
+
+- Current source confirms the fixture's first teacher request is `teacher:classes` (`POST /functions/v1/student-api`, bearer Auth access token); if the marker class is absent, `teacher:class-upsert` is the next request. The route calls `requireTeacher` then a service-role `sb_classes` select filtered by `teacher_id`; it does not require an app teacher profile or `APP_SESSION_SECRET`.
+- Current source's normal configuration/auth/database failures return structured JSON (`CONFIG`, `TEACHER_AUTH`, or route-specific errors). The reported blank `text/plain` HTTP 500 therefore does not match this source's handled paths and is not sufficient to claim a DB/RLS or credential root cause; deployed function version or an uncaught runtime exception remains unconfirmed pending TEST invocation logs.
+- Runner diagnostics now include the non-sensitive request action in `REMOTE_API_FAILED` output. Fixture/E2E were not rerun; no remote writes, migration, deployment, or production access occurred. Local unit suite 142 PASS, typecheck and lint PASS.
+- Supabase documentation confirms production Edge Function invocation/custom logs are inspected in Dashboard → Functions → select function → Invocations/Logs; the CLI does not query ClickHouse function logs. Secret names can be listed with `supabase secrets list --project-ref <TEST_REF>` on the operator Mac without printing values. See official [Supabase function logging](https://supabase.com/docs/guides/functions/logging) and [CLI secrets reference](https://supabase.com/docs/reference/cli/v0/supabase-gen-types-typescript).
+
+## 2026-09-13 — Phase 5B partial fixture PIN recovery (local only)
+
+- Existing marker students now reuse a known four-digit `pinPlain`; when the teacher list cannot return it, the runner calls the existing `teacher:students:pin-reset` action with the existing student ID. Non-marker rows are rejected, reset output is held only in process memory, and no PIN is printed or written to artifacts.
+- New marker rows still use `teacher:students:create`. Repeated runs do not rotate a PIN once one was acquired in the same fixture flow. Student IDs remain unchanged on recovery. The current APP_SESSION_SECRET is used by the deployed reset/hash path; no secret value was read or changed here.
+- Remote fixture output now reports only `class/studentN=EXISTS|MISSING` and `studentN PIN=READY`; no PIN digits, rows, IDs, or credentials are emitted.
+- Added R01–R10 local contract tests. `npm test` 152 PASS; typecheck and lint PASS. Remote fixture/E2E, migration, deployment, and production access remain NOT_RUN.
+
+## 2026-09-13 — Phase 5B new-student PIN response recovery
+
+- Confirmed source-level root cause: `teacher:students:create` returns `{ student: {...}, pinPlain }`, while the runner previously read `student.pinPlain`; the new student path therefore discarded a valid top-level PIN.
+- Fixed only the runner parser. New students now parse top-level `pinPlain`, immediately call `student-auth`, verify the returned student ID, and only then report `studentN PIN=READY`. Existing marker students use the existing ID and the normal `teacher:students:pin-reset` action when their PIN is unavailable.
+- `RemoteContext` keeps the verified session token in process memory for the same run; no plaintext PIN is written to console, report, artifact, or Git. No `student-api` source change, migration, deploy, or remote fixture rerun was performed.
+- Added N01–N10 contract coverage. `npm test` 162 PASS; `npm run typecheck`, `npm run lint`, and `npm run typecheck:edge` PASS. Live TEST state and student2 creation status remain unverified until the operator reruns the fixture.
+
+## 2026-09-13 — Phase 5B remote result: project assertion contract diagnosis
+
+- Preserved artifact `qa/redesign-phase5/runtime/PHASE5B_REMOTE_RESULT.json` (generated 2026-09-13T06:34:50.339Z): peer publish/list, peer grade, and teacher hide PASS; the first failure was the 12×12 project persistence check. The artifact records no HTTP failure details, so later progress, reflection, and security checks are NOT_RUN.
+- Traced the failing path: `runRemotePhase5` sends two `project:save` requests through `student-api`; the second response is returned by `student-api` as the request-normalized `projectData`, whose fields are `grid_width/grid_depth/max_height`. The runner incorrectly asserted `expanded.project.gridWidth`, so the response reached the assertion and was reported as `REMOTE_PROJECT` failure. This response echo does not by itself prove the database row; the applied `sb_save_building` migration also clamps requested width/depth to 10, which is a separate remote persistence contract still requiring verification and was not changed here.
+- Fixed only the local runner contract with `readRemoteProjectGridWidth`, and added N11 to lock the snake_case response contract. No server function, migration, remote data, fixture, deployment, or production target was changed. Remote E2E was not rerun.
+- Current local checks after the fix: `npm test` 163 PASS, `npm run typecheck` PASS, `npm run lint` PASS, `npm run typecheck:edge` PASS. The saved artifact remains the evidence for the prior run; live TEST revalidation is pending.
+
+## 2026-09-13 — Phase 5B latest remote result: idempotent project recovery
+
+- Latest preserved artifact (`generatedAt` 2026-09-13T06:45:01.157Z) keeps `peer_publish_list`, `peer_grade`, and `teacher_hide` PASS, then fails on the first project save with `REMOTE_API_FAILED`, status 409, `PROJECT_VERSION_CONFLICT`, action `project:save`. No 10×10/12×12 assertion or reload ran; progress, reflection, and security checks remain NOT_RUN.
+- The first save used the default `expectedVersion=0`. The previous remote run had already created the TEST marker student's project, so `sb_save_building` correctly rejected the stale version. This is a runner idempotency/state-recovery defect, not an authorization or database outage.
+- The runner now reads `project:load`, reuses the existing marker project's version, and refuses to overwrite a non-marker project. Added N12–N13 regression coverage. No remote E2E, fixture, migration, deployment, or production change was performed.
+- The artifact does not contain persisted grid dimensions. The later 12×12 assertion is therefore NOT_REACHED; the applied RPC source still clamps width/depth to 10, so actual 12×12 DB persistence remains a separate unverified implementation issue.
+- Local verification after this change: `npm test` 165 PASS, `npm run typecheck` PASS, `npm run lint` PASS, and `npm run typecheck:edge` PASS.
+
+## 2026-09-13 — Phase 6 browser integration gate
+
+- Start/finish HEAD `622eb7afde878e41bdbe1ba780de56ce1a4ee6a9`, branch `feature/spatial-math-redesign-v1`; existing dirty worktree and all student/TEST data were preserved.
+- Phase 5 TEST artifact `qa/redesign-phase5/runtime/PHASE5B_REMOTE_RESULT.json` was read as prior remote API evidence: all 9 recorded checks PASS. It was not counted as Phase 6 browser evidence.
+- Ran `npm run qa:local` once. The production build completed, then the preview preflight stopped at `listen EPERM: operation not permitted 127.0.0.1`; browser execution 0, PASS 0, FAIL 0, BLOCKED 1. The run is `UI_WITH_TEST_DATA`, not LIVE_SUPABASE.
+- A single escalated browser retry was rejected by the automatic approval review usage limit. No approval bypass or repeated retry was attempted.
+- On this working tree, `npm test` (165), `npm run typecheck`, `npm run lint`, `npm run build`, `npm run typecheck:edge`, `npm run test:security`, `npm run audit:problems`, and `npm run audit:presentation` PASS. These do not replace browser verification.
+- No fixture, remote E2E, migration, deploy, push, production access, or production data change was performed. Full Phase 6 report: `qa/redesign-phase6/PHASE6_BROWSER_REPORT.md` (`PHASE 6 RESULT: BLOCKED`).
+
+## 2026-09-13 — Phase 7 teacher setup wizard
+
+- Start HEAD `622eb7afde878e41bdbe1ba780de56ce1a4ee6a9`, branch `feature/spatial-math-redesign-v1`; existing dirty worktree and student/TEST data preserved.
+- Extended the existing `/setup` route into an eight-step teacher wizard: start/resume, Supabase preparation, URL + Publishable key connection check, honest management-install status, teacher Auth login, class selection/creation, bulk student creation, student login smoke and class link copy.
+- Added `src/lib/installer.ts` for installation-scoped resumable progress. Only installation ID, step and class metadata are stored; teacher passwords, PINs and access tokens are not persisted. Added two unit tests in `tests/installer.test.ts`.
+- The static app does not receive management tokens or service_role. Migration, Edge Function deployment and APP_SESSION_SECRET setup remain explicitly unavailable until a separately approved secure management runner exists; the wizard does not claim them complete.
+- `KOREAN_CHATBOT_REFERENCE: NOT_FOUND` in the local repositories; no external project was copied.
+- Verification on this working tree: `npm test` 167 PASS, `npm run typecheck` PASS, `npm run lint` PASS, `npm run build` PASS, `npm run typecheck:edge` PASS, `npm run test:security` PASS, `npm run audit:problems` PASS, `npm run audit:presentation` PASS. Actual installer Chromium and new/upgrade TEST Supabase E2E remain BLOCKED/NOT_RUN.
+- No push, production deploy, remote migration, production data change, or external resource creation.
+
+## 2026-09-13 — Phase 7B 설치 실행부 로컬 구현
+
+- Start HEAD `622eb7afde878e41bdbe1ba780de56ce1a4ee6a9`, branch `feature/spatial-math-redesign-v1`; 기존 dirty worktree·학생/TEST 데이터 보존. reset/clean/push/deploy/remote migration 없음.
+- `scripts/installer/contract.ts`, `security.ts`, `management-api.ts`, `orchestrator.ts`, `fake-backend.ts`를 추가했다. 이 경로는 `src/`에 import하지 않아 정적 Vite bundle에 포함되지 않는다.
+- Management API adapter는 프로젝트 ref 확인, migration 적용, Secret 이름 조회/누락 시 설정, 함수 hash 비교·배포, OPTIONS probe를 지원한다. `EphemeralCredential`은 서버/CLI 경계에서만 사용하고 폐기 후 재사용을 차단한다. URL/ref production guard와 안전한 오류/redaction을 포함한다.
+- `qa:installer:mock`와 B01~B25 로컬 계약 검사를 추가했다. 누락 migration 계산·부분 재개·Secret 보존·함수 skip/deploy/probe·대상 mismatch·credential disposal을 확인한다. 합성 결과는 LIVE Supabase 성공으로 집계하지 않는다.
+- 실제 OAuth 앱/installer backend 배포, TEST status/repair, migration/function/Secret 원격 작업, QR encoder, 빈 프로젝트 E2E는 승인·실행 장소·비용 미확정으로 NOT_RUN/BLOCKED. 교사 외부 수동 작업 감소는 0개.
+- `qa/installer/INSTALLER_REPORT.md`, `CURRENT_REQUIREMENTS.md`, `DISTRIBUTION_ARCHITECTURE.md`에 Phase 7B 구현/한계/승인 조건을 반영했다.
+- OAuth authorization URL·state·S256 PKCE·일회성 callback 소비·만료·단기 token exchange 계약(`scripts/installer/oauth.ts`)과 공개 Setup 소스의 privileged import 차단 검사를 추가했다. Supabase migration Management API가 선택된 partner OAuth 앱 전용이라는 공식 조건을 확인해 일반 OAuth만으로 자동 migration을 보장하지 않도록 보고했다.
+- 최신 `npm test`: 194/194 PASS. `npm run qa:installer:mock`, typecheck, lint, build, typecheck:edge, test:security, audit:problems, audit:presentation 모두 PASS. 실제 TEST remote installer, OAuth 앱 등록, migration/function/Secret 변경, QR 생성, browser installer E2E는 실행하지 않음.
+
+## 2026-09-13 — Phase 7B 공개 installer client 연결
+
+- `src/lib/installerClient.ts`를 추가해 `/setup`이 관리 토큰 없이 HttpOnly 설치 세션 기반의 상태·계획·설치·복구·업데이트·철회 API를 호출할 수 있는 공개 계약을 마련했다. `VITE_INSTALLER_API_URL`이 명시된 경우에만 4단계에서 상태를 읽고, 없으면 기존의 관리 실행부 연결 필요 안내를 유지한다.
+- client는 HTTPS endpoint만 허용하고 `Authorization` 헤더·Secret·비밀번호·PIN을 전송하지 않는다. 실제 installer backend는 여전히 배포하지 않았으며 원격 호출은 실행하지 않았다.
+- `tests/installer-client.test.ts`에 HttpOnly 요청, 공개 target payload, 오류 redaction, endpoint guard를 추가했다.
+- 최종 로컬 검사: `npm test` 198/198, `npm run typecheck`, `npm run lint`, `npm run build`, `npm run typecheck:edge`, `npm run test:security`, `npm run audit:problems`, `npm run audit:presentation`, `npm run qa:installer:mock` 모두 PASS. 브라우저·Management API·원격 변경은 실행하지 않았다.
+
+## 2026-09-13 — Phase 7C Easy Setup 공통 계약 정리
+
+- 면담실 참고 소스는 현재 로컬 작업 공간과 이 환경의 원격 조회에서 확인하지 못해 `qa/installer/AI_INTERVIEW_EASY_SETUP_REFERENCE.md`에 `NOT_FOUND`로 기록했다. 확인하지 못한 Worker·Durable Object·AI 전용 구현은 수학 앱에 복사하지 않았다.
+- `scripts/installer/math-manifest.ts`에 `stacking-blocks-math` 전용 manifest를 추가했다. 001~017 migration source, `student-auth`·`student-api`, `APP_SESSION_SECRET`, 두 OPTIONS probe만 선언하고 AI capability는 비워 두었다.
+- 공개 `installerClient`에 OAuth authorize 시작, 세션 생성, 일회성 PAT fallback 전달, 설치 세션 철회 경로를 추가했다. PAT는 클라이언트 저장·로그·URL에 남기지 않는 요청 계약으로만 지원한다. `/setup`은 명시적인 `VITE_INSTALLER_API_URL`이 있을 때만 OAuth 연결 버튼과 원격 상태 조회를 활성화한다.
+- 비교표: `qa/installer/EASY_SETUP_COMPARISON.md`. 실제 OAuth 앱·backend 배포·TEST status/repair·원격 설치는 실행하지 않았다.
+- 최종 `npm test` 201/201 PASS, typecheck·lint·build·Edge·보안·문제/프레젠테이션 감사·installer mock PASS.
+
+## 2026-09-13 — Phase 7C HTTP 실행부 및 Easy Setup 통합
+
+- OAuth 우선 공개 client와 앱별 수학 manifest를 유지하면서, `scripts/installer/http-server.ts`에 `/api/installer/session`, `/credential`, `/status`, `/plan`, `/install`, `/repair`, `/update`, `/session DELETE` 로컬 HTTP 실행부를 추가했다. PAT는 HttpOnly 세션의 메모리 credential로만 받고, 완료·철회·만료 때 폐기한다.
+- HTTP 실행부는 project ref/URL guard, origin allowlist, 15분 기본 TTL, 단계별 오케스트레이터 재개, 완료 후 PAT 폐기를 포함한다. 실제 Management API/PAT/OAuth 연결은 실행하지 않았다.
+- 면담실 Easy Setup 참고 코드는 로컬/원격에서 확인하지 못해 조사·비교 문서에 `NOT_FOUND`로 기록했다. AI 전용 기능을 수학 설치에 추가하지 않았다.
+- HTTP 통합 테스트 2개는 이 샌드박스의 localhost listen EPERM으로 SKIPPED/BLOCKED이며, 나머지 테스트와 정적 검사는 통과했다. 최종 `npm test`: 204개 중 202 PASS, 2 SKIPPED.
+- Phase 7D 배포 게이트: `/health` 및 HTTP installer 경로는 로컬 실행부로만 준비했다. 실제 TEST backend 배포·PAT status/repair/update·`/setup` 원격 연결·QR 구현은 외부 실행 환경 승인 전 NOT_RUN/NOT_IMPLEMENTED이다. 최종 `npm test`: 205개 중 203 PASS, 2 SKIPPED(환경 EPERM).
+
+## 2026-09-13 — Phase 7E TEST installer backend 배포 준비
+
+- 시작/최종 HEAD `622eb7afde878e41bdbe1ba780de56ce1a4ee6a9`, 브랜치 `feature/spatial-math-redesign-v1`; 기존 dirty worktree·학생/TEST 데이터 보존. push/deploy/remote migration/외부 자원 생성 없음.
+- `scripts/installer/runtime.ts`, `scripts/installer/start.ts`를 추가해 TEST 전용 Node HTTPS 호스트에 올릴 수 있는 실행 진입점과 환경변수 guard를 마련했다. `INSTALLER_MODE=TEST`, 허용 TEST ref/origin, 운영 ref 차단, 세션 Secret 길이, 포트를 시작 전에 검증한다.
+- `http-server.ts`는 서명된 HttpOnly·SameSite=Strict cookie와 `NO_CHANGES`/`UP_TO_DATE` read-only maintenance 결과를 지원한다. 설치가 필요한 상태에서만 기존 오케스트레이터가 실행된다.
+- `scripts/installer/qa-remote.ts` 및 `npm run qa:installer:remote`는 TEST 환경변수의 PAT로 health→session→status→plan→repair→update→revoke를 검사하고, ref hash·안전한 상태 요약만 gitignored artifact에 저장한다. 원격 실행은 하지 않았다.
+- `.env.installer.example`을 추가했고 production secret/PAT는 포함하지 않았다. QR encoder는 이번에도 구현하지 않아 NOT_IMPLEMENTED로 유지한다.
+- 현재 로컬 검사: `npm test` 207개 중 205 PASS, 2 SKIPPED(localhost listen EPERM), typecheck/lint/build/Edge/security/audit/mock PASS. 실제 HTTPS backend, TEST status/plan/repair/update, SetupPage remote, QR, 신규 설치 E2E는 NOT_RUN/BLOCKED. 교사 외부 수동 작업 감소 0개.

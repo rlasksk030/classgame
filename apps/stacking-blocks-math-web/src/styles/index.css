@@ -139,6 +139,147 @@ button {
   gap: 8px;
 }
 
+.installer-wizard {
+  width: min(760px, 100%);
+  margin: 0 auto;
+  gap: 18px;
+}
+
+.installer-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.installer-steps {
+  display: grid;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.installer-steps span {
+  min-width: 78px;
+  padding: 7px 8px;
+  border: 2px solid var(--line-soft);
+  border-radius: var(--radius);
+  color: var(--ink-soft);
+  font-size: 12px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.installer-steps span.active {
+  border-color: var(--sky);
+  background: #edf6fd;
+  color: var(--sky-dark);
+  font-weight: 800;
+}
+
+.installer-steps span.done {
+  border-color: var(--ok);
+  color: var(--ok);
+}
+
+.installer-card {
+  min-height: 300px;
+  padding: 22px;
+  border: 2px solid var(--line-soft);
+  border-radius: var(--radius);
+  background: var(--world-bg);
+}
+
+.installer-card > h2 {
+  font-size: 24px;
+}
+
+.installer-card .toolbar-row {
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.installer-checks {
+  display: grid;
+  gap: 4px;
+  padding: 10px 14px;
+  border-radius: var(--radius);
+  background: var(--bg-panel);
+}
+
+.installer-checks p {
+  margin: 0;
+}
+
+.installer-textarea {
+  min-height: 150px;
+  resize: vertical;
+}
+
+.installer-footer {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.help-link,
+.link-button {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--sky-dark);
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.pin-list {
+  padding: 14px;
+  border: 2px dashed var(--ok);
+  border-radius: var(--radius);
+  background: #f4fbf1;
+}
+
+.pin-list h3,
+.pin-list p {
+  margin: 0;
+}
+
+.pin-list p + p {
+  margin-top: 6px;
+}
+
+.pin-list code {
+  margin-left: 12px;
+  font-size: 18px;
+  letter-spacing: 0.18em;
+}
+
+.class-link-card {
+  display: grid;
+  gap: 8px;
+  padding: 14px;
+  border: 2px solid var(--sky);
+  border-radius: var(--radius);
+  background: #f4f9fd;
+}
+
+.class-link-card a {
+  overflow-wrap: anywhere;
+  color: var(--sky-dark);
+}
+
+@media (max-width: 680px) {
+  .installer-steps {
+    display: flex;
+  }
+
+  .installer-header {
+    flex-direction: column;
+  }
+}
+
 .btn-primary {
   background: var(--grass);
   color: var(--ink-invert);
@@ -596,3 +737,8 @@ button {
   .world-layout { grid-template-columns: minmax(0, 1fr); }
   .teacher-table-wrap { overflow-x: auto; }
 }
+
+/* 보관함의 닫힌 큐브도 현재 배치 재료를 표시한다. */
+.palette-material-pastel { --block-top:#f3d0e2; --block-front:#e9b8d1; --block-side:#bc91a7; }
+.palette-material-brick { --block-top:#dda18f; --block-front:#c97b68; --block-side:#9f5e4e; }
+.palette-material-tile { --block-top:#bad8e5; --block-front:#8eb8c9; --block-side:#6b93a4; }

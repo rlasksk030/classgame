@@ -57,3 +57,12 @@ npm run qa:local
 `npm run qa:local`은 현재 앱 디렉터리와 HEAD를 기록하고, Vite production build를 만든 뒤 임시 loopback 포트에서 `vite preview`를 시작한다. 실행기가 시작한 preview만 종료하며, 기존 서버는 건드리지 않는다. Playwright Chromium으로 실제 학생 route와 Renderer를 열고 합성 student-api 응답을 사용해 셀 입력·정사각형 셀·앞/옆 라벨 위치·숫자/선택 제출·5차시 제한·완료 후 단계 이동·Builder 마우스/터치 드래그 저장·10×10 건축 복원을 검사한다.
 
 결과는 `qa/local-browser-qa/report.json`, `qa/local-browser-qa/report.md`에 저장하고 성공/실패 캡처는 `qa/local-browser-qa/screenshots/`, preview 로그는 `qa/local-browser-qa/preview.log`, 실패 trace는 `qa/local-browser-qa/<case-id>.trace.zip`에 남긴다. 재실행하면 기존 결과를 `qa/local-browser-qa/history/<HEAD>-<timestamp>/`에 먼저 보존한다. `--headed` 또는 `QA_HEADED=1`로 운영자 맥에서 브라우저 창을 표시할 수 있다. 이 실행기는 `UI_WITH_TEST_DATA` 결과만 기록하며 실제 Supabase 성공으로 승격하지 않는다. inventory 전체는 중복 없는 총문항 수로 합산하지 않고 대표 브라우저 범위 밖을 NOT_RUN 후속 대상으로 명시한다.
+
+## 최종 배포 필수 체크 — INSTALL_EASY
+
+- [ ] 다른 교사의 기본 설치에서 터미널·GitHub·SQL·함수 수동 배포·env 편집·관리 비밀값 복사를 제거하고 실제 전후 작업량을 기록.
+- [ ] 계정 연결·학급/명단 입력·링크/QR 전달·학생 로그인·첫 저장·재접속 복원.
+- [ ] 설치 중단 이어하기·재시도·다른 기기 재연결·기존 데이터 보존 업데이트.
+- [ ] 개발 경험 없는 교사가 제작자 실시간 도움 없이 완료한 실제 신규 설치/업데이트 증거.
+
+현재 수동 작업 감소0 / 실행부 미구현 / 승인 전. READY 표시와 학습 QA만으로 이 항목을 완료하지 않는다.

@@ -2,6 +2,7 @@ node_modules
 dist
 .env
 .env.local
+.env.test.local
 *.tsbuildinfo
 .wrangler
 
@@ -9,4 +10,9 @@ test-results/
 playwright-report/
 qa/screenshots/
 qa/local-browser-qa/
+qa/redesign-phase5/runtime/
+qa/installer/runtime/
+qa/redesign-phase1/
+qa/redesign-browser/
+supabase/.temp/
 *.DS_Store

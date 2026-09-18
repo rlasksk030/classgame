@@ -279,6 +279,7 @@ export default function LessonPage() {
 
   const applyProblem = (next: StudentProblem) => {
     setRestoring(true);
+    setBusy(false);
     setProblem(next);
     setSelection(null);
     setExtraInformation(false);
@@ -509,12 +510,14 @@ export default function LessonPage() {
       return;
     }
 
+    const submissionView = restoreToken.current;
     setBusy(true);
     setMessage(null);
 
     try {
       await flushSnapshot();
       const response = await submitAttempt(problem.id, submission);
+      if(restoreToken.current!==submissionView) return;
       setResult(response.grade);
       setAttempt((prev) => ({
         ...prev,
@@ -529,13 +532,13 @@ export default function LessonPage() {
       if (!response.grade.correct) setWrongProblemIds(current => current.includes(problem.id) ? current : [...current, problem.id]);
       if (response.grade.completed && problem.stage !== "more") {
         const refreshed = await getLessonProblems(lessonNum).catch(() => null);
-        if (refreshed) setRequiredComplete(Boolean(refreshed.requiredComplete));
+        if (refreshed && restoreToken.current===submissionView) setRequiredComplete(Boolean(refreshed.requiredComplete));
       }
 
     } catch (err) {
-      setMessage(err instanceof Error ? err.message : "채점 중 오류가 발생했습니다.");
+      if(restoreToken.current===submissionView) setMessage(err instanceof Error ? err.message : "채점 중 오류가 발생했습니다.");
     } finally {
-      setBusy(false);
+      if(restoreToken.current===submissionView) setBusy(false);
     }
   };
 
@@ -713,7 +716,8 @@ export default function LessonPage() {
     return <p className="muted">정답 입력창이 없으면 직접 조작 후 정답 확인을 눌러주세요.</p>;
   };
 
-  const allowLayer = !!problem?.given.allowLayerView;
+  const restrictedView = problem?.given.allowRotate === false && !extraInformation;
+  const allowLayer = !!problem?.given.allowLayerView && !restrictedView;
   const answerUnavailable = problem?.problemType === "PROJECTION_DRAW" && projectionFacesFor(problem).length === 0;
   const totalLayerButtons = useMemo(() => {
     if (!problem) return [] as number[];
@@ -826,7 +830,7 @@ export default function LessonPage() {
               {!practiceSet && <p>새 문제 묶음을 복원할 수 있는 서버인지 확인되지 않아 전환을 멈췄어요. 선생님께 문제 서버 업데이트를 요청해 주세요. 현재 답안과 기록은 보존돼요.</p>}
               {(practiceSet?.requiresRepair || duplicateTaskCount(problems.filter(item=>item.stage==='more'))>0) && <p role="status">이 문제 묶음에 반복 과제가 있거나 새 묶음 전환이 끝나지 않았어요. 기존 답안·XP는 보존됩니다. {practiceSet?.contractVersion===2 ? '‘새 문제 더 풀기’로 수정된 묶음을 시작할 수 있어요.' : '수정된 문제 서버가 아직 연결되지 않았어요. 선생님께 서버 업데이트를 요청해 주세요.'}</p>}
               <button className="btn btn-sm" disabled={busy || practiceSet?.contractVersion!==2} onClick={async () => {
-                if (!window.confirm('현재 묶음과 학습 기록을 보존하고 새 문제 묶음을 시작할까요?')) return;
+                if (!window.confirm('기존 답안·진도·XP는 보존됩니다. 새 문제 묶음은 1번부터 시작해요. 새 묶음으로 옮길까요?')) return;
                 setBusy(true);
                 try {
                   if(!practiceSet) return;
@@ -871,7 +875,7 @@ export default function LessonPage() {
               </button>
               <button className="btn btn-sm" onClick={() => void flushSnapshot()} disabled={restoring}>저장</button>
               <span role="status">{saveStatus}</span>
-              <span className="muted">블록 수: {blocks.length}</span>
+              {isBuildType(problem.problemType) && !restrictedView && <span className="muted">블록 수: {blocks.length}</span>}
             </div>
 
             {allowLayer ? (
@@ -892,7 +896,7 @@ export default function LessonPage() {
             ) : null}
 
             <BlockWorld
-              allowRotate={problem.given.allowRotate !== false || extraInformation}
+              allowRotate={!restrictedView}
               grid={problem.grid}
               blocks={isBuildType(problem.problemType) ? blocks : problem.givenBlocks}
               selected={selection}

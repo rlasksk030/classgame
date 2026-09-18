@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: stacking-blocks-math-installer-test
+    runtime: node
+    rootDir: apps/stacking-blocks-math-web
+    buildCommand: npm ci
+    startCommand: npm run installer:server
+    healthCheckPath: /health
+    envVars:
+      - key: INSTALLER_MODE
+        value: TEST
+      - key: HOST
+        value: 0.0.0.0
+      - key: INSTALLER_ALLOWED_PROJECT_REFS
+        value: tkniwelldgdlgwavyfdj
+      - key: INSTALLER_PRODUCTION_REF
+        value: stacking-blocks-math
+      - key: INSTALLER_ALLOWED_ORIGIN
+        sync: false
+      - key: INSTALLER_SESSION_SECRET
+        generateValue: true

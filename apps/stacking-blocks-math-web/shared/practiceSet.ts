@@ -68,3 +68,8 @@ export function practiceDisplaySeed(rows:{code?:string|null}[],lesson:number,sav
   const has=(seed:number)=>rows.some(row=>String(row.code??'').startsWith(`GEN-L${lesson}-S${seed}-`));
   return !has(savedSeed)&&has(originalSeed)?originalSeed:savedSeed;
 }
+
+/** 이전 기록은 읽기만 허용한다. 재제출/위치 저장으로 현재 세트를 되돌리지 않는다. */
+export function canReadHistoricalPractice(action:string):boolean {
+  return ['problem','snapshot:get','asset'].includes(action);
+}

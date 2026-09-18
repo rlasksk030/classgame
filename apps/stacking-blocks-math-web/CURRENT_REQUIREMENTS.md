@@ -1,5 +1,14 @@
 # 현재 요구사항 기준표
 
+## INSTALL_EASY — 다른 교사용 최종 배포판 필수 완료 조건
+
+- **미구현 / 최종 완료 차단**. READY 판정 개선과 별개이며 실제 제거한 교사 수동 작업 **0개**.
+- 계정 연결 → 학급 이름·학생 명단 붙여넣기 → 학생 링크·QR → 학생 로그인·첫 저장·재접속 복원을 목표로 한다.
+- 일반 교사에게 터미널/GitHub/SQL/함수 배포/env 편집/관리 토큰·서버 비밀키 복사를 요구하지 않는 설치 실행부가 필요하다. 설치 중단 이어하기·재시도·다른 기기 재연결·학생/PIN/진도/작품 보존 업데이트를 포함한다.
+- 기존 DISTRIBUTION_ARCHITECTURE의 권장 실행안 한 개(제작자 운영 Supabase OAuth 실행부)를 재사용한다. 중앙 실행부 도입·권한·비밀 보관·비용 승인 전 생성/배포하지 않는다. 현재 교사 Auth 계정 수동 생성까지 완전히 없앤 실행안은 아니므로 목표 충족으로 표시하지 않는다.
+- 최종 검증은 개발 경험 없는 다른 교사가 제작자 실시간 도움 없이 신규 설치와 저장·복원에 성공한 경우다. 신규 설치/업데이트 실제 검증 NOT_RUN. 학습 QA PASS만으로 전체 완료 금지.
+
+
 ## 2026-09-12 실제 35문항 / 설치 실행안 후속
 
 - 시작 HEAD 875229a. 기존 READY 수정·b7ae120 생성기 수정을 이번 신규 성과로 다시 계산하지 않는다.
@@ -13,17 +22,27 @@
 
 이번 메시지의 10개 요구를 통합한다. attachments 검색에서 해당 제목의 별도 첨부 전문은 찾지 못했다. R01~R06, 학습·채점·3D·자동 QA 요구는 유지하며 설치 작업으로 대체하지 않는다.
 
+### Phase 7 구현 상태 (2026-09-13)
+
+기존 `/setup` 경로를 8단계 설치 마법사로 확장했다. 연결 확인, 설치 위치 이어하기, 교사 Auth 로그인, 학급 생성/선택, 학생 명단 일괄 생성, 학생 로그인 smoke, 학생 접속 링크 복사를 기존 API 경로에 연결했다. 실제 수정은 `src/pages/SetupPage.tsx`, `src/lib/installer.ts`, `src/styles/index.css`, `tests/installer.test.ts`에 있다.
+
+다만 정적 SPA와 공개 Publishable key만으로 migration·Edge Function·APP_SESSION_SECRET을 자동 설치할 수는 없다. 이번 Phase 7B에서 브라우저 번들에 포함되지 않는 `scripts/installer/` 실행 계약·Supabase Management API 어댑터·재개 가능한 오케스트레이터·합성 백엔드와, 관리 토큰을 받지 않는 `src/lib/installerClient.ts`를 추가했다. Phase 7C에서는 앱별 `InstallerManifest`, OAuth 우선 공개 연결 경계, 별도 실행 장소용 `scripts/installer/http-server.ts`를 추가하고 면담실 참고 구조를 조사 문서로 분리했다. 실제 OAuth 앱/installer backend 배포와 원격 설치는 승인 전 실행하지 않았으므로 INSTALL-01/03/04/05의 실제 자동화·신규 설치 관통 검증은 PARTIAL/BLOCKED로 유지한다. 관리 토큰이나 service_role을 브라우저에 넣는 우회는 금지했다. 이번 변경으로 실제 교사 외부 수동 작업을 제거한 수는 0개이며, 상세 결과는 `qa/installer/INSTALLER_REPORT.md`에 기록한다.
+
 | 요구 ID | 최신 요구 | 폐기한 이전 요구 | 실제 구현 파일 | 완료 확인 방법 | 상태 |
 |---|---|---|---|---|---|
-| INSTALL-01 | 처음 시작하기→우리 반 만들기→수업 시작; 기본 설치에서 터미널/SQL/GitHub/함수 배포/env/관리 토큰 복사 제거 | 외부 수동 준비를 3단계 뒤에 숨김 | 기존 SetupPage·TeacherPage 재사용 대상 | 빈 프로젝트 실제 교사 작업 기록 | BLOCKED: 안전한 실행부 없음 |
+| INSTALL-01 | 처음 시작하기→우리 반 만들기→수업 시작; 기본 설치에서 터미널/SQL/GitHub/함수 배포/env/관리 토큰 복사 제거 | 외부 수동 준비를 3단계 뒤에 숨김 | `src/pages/SetupPage.tsx`, `src/lib/installer.ts`, `scripts/installer/*` | 빈 프로젝트 실제 교사 작업 기록 | PARTIAL: 실행 계약·Management API 어댑터는 로컬 구현, 교사에게 제공되는 backend 없음 |
 | INSTALL-02 | 공개 설정 연결과 설치 완료를 구분 | 설정/학급만으로 READY | src/lib/distribution.ts, src/pages/SetupPage.tsx | 선행 조건·학생 로그인·저장·복원 누락 시 READY 금지 | IMPLEMENTED |
-| INSTALL-03 | OAuth API·권한·실행 장소·비용 확인 후 자동화 | 브라우저에 관리 토큰·Secret 요구 | DISTRIBUTION_ARCHITECTURE.md | 공식 API 대조 및 실행부 승인 | BLOCKED |
-| INSTALL-04 | 재설치·업데이트·재개 시 기존 학생/PIN/진도/작품/Secret 보존 | SQL 전체 재실행·Secret 재생성 | 기존 VersionService와 migration 재사용 대상 | 원격 이력/해시 비교·중단 복구 | NOT_STARTED: 실행부 없음 |
-| INSTALL-05 | 교사 인증→학급/학생 생성→학생 인증→첫 활동 저장→새 세션 복원까지 완료 확인 | 연결 성공 화면만 제공 | src/lib/distribution.ts | 실제 신규 설치·업데이트 관통 증거 | BLOCKED: 상태 계약만 구현 |
+| INSTALL-03 | OAuth API·권한·실행 장소·비용 확인 후 자동화 | 브라우저에 관리 토큰·Secret 요구 | `scripts/installer/management-api.ts`, DISTRIBUTION_ARCHITECTURE.md | 공식 API 대조 및 실행부 승인 | PARTIAL: 서버 전용 Management API 호출 계약, OAuth 등록·배포 미실행 |
+| INSTALL-04 | 재설치·업데이트·재개 시 기존 학생/PIN/진도/작품/Secret 보존 | SQL 전체 재실행·Secret 재생성 | `scripts/installer/orchestrator.ts`, `scripts/installer/fake-backend.ts` | 원격 이력/해시 비교·중단 복구 | PARTIAL: idempotent 로컬 오케스트레이터, 원격 상태 검증 미실행 |
+| INSTALL-05 | 교사 인증→학급/학생 생성→학생 인증→첫 활동 저장→새 세션 복원까지 완료 확인 | 연결 성공 화면만 제공 | `src/pages/SetupPage.tsx`, `src/lib/installer.ts`, `src/lib/distribution.ts`, `scripts/installer/*` | 실제 신규 설치·업데이트 관통 증거 | PARTIAL: 기존 마법사와 실행 계약 연결, 실제 신규/업데이트 관통 검증 BLOCKED |
 
 설계·구현·LOCAL_LOGIC·UI_WITH_TEST_DATA·실제 신규 설치·실제 업데이트를 각각 보고한다. 점검 플래그는 실제 서버 검증 증거를 대신하지 않는다.
 
 이 문서는 2026-09-12 최신 사용자 지시를 기준으로 작성했다. 상태는 코드/단위 검증과 실제 브라우저·Supabase 검증을 구분한다.
+
+### Phase 7E 배포 준비 (2026-09-13)
+
+`scripts/installer/runtime.ts`와 `start.ts`는 TEST 전용 Node 실행부의 시작 계약을 제공한다. 허용 project ref/origin, 운영 ref 차단, 서명된 HttpOnly 세션, 짧은 TTL, PAT 메모리 보관을 검증한다. `qa:installer:remote`는 실제 실행 시에만 환경변수의 TEST PAT를 사용하고 안전한 상태 artifact만 남긴다. 이는 배포 준비 상태이며 HTTPS 호스트·도메인·권한·비용 승인이 없어 `INSTALL-03/04/05`의 LIVE 완료나 교사 수동 작업 감소로 계산하지 않는다. QR encoder와 `/setup`의 실제 remote 연결은 미구현/미검증이다.
 
 | 요구 ID | 최신 요구 | 폐기한 이전 요구 | 실제 구현 파일 | 완료 확인 방법 | 상태 |
 |---|---|---|---|---|---|

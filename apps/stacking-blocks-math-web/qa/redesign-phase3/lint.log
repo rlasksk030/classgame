@@ -1,0 +1,12 @@
+
+> stacking-blocks-math-web@1.0.0 lint
+> eslint .
+
+
+/Users/kimnana/Documents/codex/classgame/apps/stacking-blocks-math-web/qa/redesign-phase3/benchmark.mjs
+  7:13   error  'performance' is not defined  no-undef
+  7:221  error  'performance' is not defined  no-undef
+  9:250  error  'URL' is not defined          no-undef
+
+✖ 3 problems (3 errors, 0 warnings)
+

@@ -1,0 +1,20 @@
+✔ S01/S09 full profiles on one column have one model (50.253666ms)
+✔ S02 multiple models with the same count remain distinct (49.985666ms)
+✔ S03/S05/S08 independently enumerated seven 2x2 positive profiles (82.221417ms)
+✔ S04 contradiction is zero solutions, never determinable (0.993958ms)
+✔ S06 top only and S07 top plus front (1.736625ms)
+✔ S10 exact count refines to unique (1.0045ms)
+✔ S11 fixed asymmetric right profile and S12 project agreement (2.800417ms)
+✔ S12/S13 all small solutions obey input and gravity with independent height-pair oracle (106.977917ms)
+✔ node/time/cancel budgets cannot claim uniqueness (95.634583ms)
+✔ invalid bounds, height/layer shape, floating layers and duplicates rejected (107.619875ms)
+✔ height and layer round trips with fixed count and middle-layer inference (1.623083ms)
+✔ given visible block forces its supporting column without inventing other restrictions (21.257959ms)
+ℹ tests 12
+ℹ suites 0
+ℹ pass 12
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4230.933667

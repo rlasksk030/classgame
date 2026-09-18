@@ -3,11 +3,13 @@ import { spawn, spawnSync, execFileSync } from "node:child_process";
 import { createServer } from "node:http";
 import { mkdirSync, writeFileSync, appendFileSync, existsSync, readFileSync, readdirSync, cpSync } from "node:fs";
 import { resolve, join } from "node:path";
+import { createHash } from "node:crypto";
 import { deriveProblemPresentation } from "../shared/problemPresentation.ts";
 import { EMPTY_BUILDING, ARCHITECTURE_GRID, type Building } from "../shared/activities.ts";
 import type { BlockCoord, Grid2D, StudentProblem, StudentSubmission } from "../shared/types.ts";
-import { generateValidatedPracticeSet, practiceSetStatus } from "../shared/practiceSet.ts";
+import { generateValidatedPracticeSet, practiceSetStatus, generatedProblemId } from "../shared/practiceSet.ts";
 import { grade } from "../shared/grading.ts";
+import { applyAttempt, INITIAL_ATTEMPT, type AttemptState } from "../shared/attempts.ts";
 
 type JsonRecord = Record<string, unknown>;
 
@@ -38,9 +40,11 @@ const screenshotDir = join(artifactDir, "screenshots");
 const reportJsonPath = join(artifactDir, "report.json");
 const reportMarkdownPath = join(artifactDir, "report.md");
 const previewLogPath = join(artifactDir, "preview.log");
+const qaToken = Buffer.from(JSON.stringify({sid:'qa-student',cid:'qa-class'})).toString('base64url')+'.qa-not-a-real-signature';
 const headed = process.argv.includes("--headed") || process.env.QA_HEADED === "1";
-const representativeCount = 14;
-const lesson5Set = generateValidatedPracticeSet(5,35,123);
+const representativeCount = 16;
+let executionIdentity: Record<string,string> = {};
+const lesson5Set = await Promise.all(generateValidatedPracticeSet(5,35,123).map(async p=>({...p,id:await generatedProblemId(p.code)})));
 
 mkdirSync(screenshotDir, { recursive: true });
 
@@ -152,7 +156,10 @@ type MockState = {
   project: Building | null;
   savedProjectPayload: JsonRecord | null;
   calls: string[];
-  countReveal: boolean;
+  outcomes: Record<string, AttemptState>;
+  delayedAttempt?: string;
+  replacement?: {seed:number;displayedSeed:number;starts:number;records:StudentProblem[]};
+  lists: string[][];
 };
 
 function homePayload() {
@@ -160,7 +167,7 @@ function homePayload() {
 }
 
 function makeMock(problems: StudentProblem[], project: Building | null = null): MockState {
-  return { positions: {}, problems, snapshots: {}, attempts: [], project, savedProjectPayload: null, calls: [], countReveal: false };
+  return { positions: {}, problems, snapshots: {}, attempts: [], project, savedProjectPayload: null, calls: [], outcomes: {}, lists: [] };
 }
 
 async function installMock(page: Page, state: MockState, baseUrl: string, requiredComplete = false) {
@@ -169,10 +176,16 @@ async function installMock(page: Page, state: MockState, baseUrl: string, requir
     if(url.origin!==new URL(baseUrl).origin && !['data:','blob:'].includes(url.protocol)) return route.abort();
     return route.fallback();
   });
-  await page.addInitScript(({ url }) => {
+  await page.addInitScript(({ url, token }) => {
     localStorage.setItem("stacking-installation-config", JSON.stringify({ installationId: "qa-local", supabaseUrl: url, supabasePublishableKey: "qa-publishable-key" }));
-    localStorage.setItem("sb.student.token", "qa-student-session");
-  }, { url: baseUrl });
+    if(!sessionStorage.getItem("qa-started")) { localStorage.setItem("sb.student.token", token); sessionStorage.setItem("qa-started","1"); }
+  }, { url: baseUrl, token:qaToken });
+  await page.route("**/functions/v1/student-auth", async route => {
+    const body=route.request().postDataJSON();
+    if(body.action==='class') return route.fulfill({json:{classId:'qa-class',className:'QA 학급'}});
+    if(body.action==='login' && body.name==='QA 학생' && body.pin==='0000') return route.fulfill({json:{token:qaToken,expiresAt:'2099-01-01',student:{id:'qa-student',classId:'qa-class',name:'QA 학생'}}});
+    return route.fulfill({status:401,json:{code:'PIN_INVALID',message:'합성 계정만 허용'}});
+  });
   await page.route("**/functions/v1/student-api", async route => {
     const body = (route.request().postDataJSON() ?? {}) as JsonRecord;
     const action = String(body.action ?? "");
@@ -181,17 +194,27 @@ async function installMock(page: Page, state: MockState, baseUrl: string, requir
     let response: JsonRecord;
     if (action === "lessonProblems") {
       const rows=state.problems.filter(problem=>problem.lesson===Number(body.lesson));
+      state.lists.push(rows.map(p=>p.id));
       response={problems:rows,requiredComplete,seedFallback:false,currentProblemId:state.positions[Number(body.lesson)]??null,
-        practiceSet:practiceSetStatus(rows.map(p=>({code:p.id,order_index:p.orderIndex})),Number(body.lesson),rows.find(p=>p.seed!==undefined)?.seed??0,20)};
+        practiceSet:practiceSetStatus(rows.map(p=>({code:(p as StudentProblem & {code?:string}).code??p.id,order_index:p.orderIndex})),Number(body.lesson),state.replacement?.seed??rows.find(p=>p.seed!==undefined)?.seed??0,20,state.replacement?.displayedSeed??rows.find(p=>p.seed!==undefined)?.seed??0)};
     }
-    else if (action === "problem") response = { problem: current, attempt: { wrongCount: 0, hintShown: false, answerRevealed: false, completed: false }, hint: null, revealedAnswer: null };
+    else if(action==='practice:new-set' && state.replacement) {
+      const before=state.replacement.seed;
+      if(body.expectedSeed===before) {
+        const nextSeed=(before+7919)%1000000;
+        const next=await Promise.all(generateValidatedPracticeSet(5,20,nextSeed).map(async p=>studentProblem({...p,id:await generatedProblemId(p.code)})));
+        if(state.replacement.seed===before) { state.problems=next;state.replacement.seed=nextSeed;state.replacement.displayedSeed=nextSeed;state.replacement.starts++; }
+      }
+      response={seed:state.replacement.seed};
+    }
+    else if (action === "problem") response = { problem: current, attempt: state.outcomes[String(body.problemId)] ?? INITIAL_ATTEMPT, hint: null, revealedAnswer: null };
     else if (action === "snapshot:get") response = { snapshot: { blocks: state.snapshots[String(body.problemId)] ?? [] } };
     else if (action === "snapshot") { state.snapshots[String(body.problemId)] = Array.isArray(body.blocks) ? body.blocks as BlockCoord[] : []; response = { ok: true }; }
     else if (action === "position") { state.positions[Number(body.lesson)]=String(body.problemId); response = { ok: true }; }
     else if (action === "home") response = homePayload();
     else if (action === "rewards") response = { xp: 50, equippedMaterial: "pastel", introTheme: "blueprint", catalog: [] };
     else if (action === "activity:project:get") response = { building: state.project };
-    else if (action === "activity:project:save") { state.savedProjectPayload = body; state.project = body.building; response = { version: (state.project?.version ?? 0) + 1 }; }
+    else if (action === "activity:project:save") { state.savedProjectPayload = body; state.project = {...body.building,version:(body.building?.version??0)+1}; response = { version: state.project?.version }; }
     else if (action === "attempt") {
       const submission = body.submission as StudentSubmission;
       state.attempts.push({ problemId: String(body.problemId), submission });
@@ -200,17 +223,23 @@ async function installMock(page: Page, state: MockState, baseUrl: string, requir
       else if (current?.problemType === "CHOICE") correct = submission.kind === "choice" && submission.index === 1;
       else if (current?.problemType === "PROJECTION_DRAW") correct = submission.kind === "projections" && JSON.stringify(submission.projections) === JSON.stringify({ top: tripleProjection, front: tripleProjection, side: tripleProjection });
       else if (current?.problemType === "FREE_BUILD") correct = submission.kind === "blocks" && (submission.blocks?.length ?? 0) > 0;
-      const generated = lesson5Set.find(p=>p.code===current?.id);
+      const generated = lesson5Set.find(p=>p.id===current?.id);
       if (generated) correct=grade({...generated,submission}).correct;
-      if (state.countReveal) response = { grade: { correct: false, wrongCount: 4, message: "정답을 확인하고 다시 풀어 보세요.", hint: "앞면의 칸을 세어 보세요.", revealedAnswer: { count: 9, explanation: "앞면의 아홉 칸이 정답입니다." }, needsRebuild: false, completed: false, xpEarned: 0, stars: 0, detail: null } };
-      else response = { grade: { correct, wrongCount: correct ? 0 : 1, message: correct ? "정답이에요!" : "다시 살펴보세요.", hint: null, revealedAnswer: null, needsRebuild: false, completed: correct, xpEarned: correct ? 10 : 0, stars: correct ? 1 : 0, detail: null } };
+      const outcome=applyAttempt(state.outcomes[current.id]??INITIAL_ATTEMPT,correct,current.problemType==='FREE_BUILD');
+      state.outcomes[current.id]=outcome.state;
+      if(state.delayedAttempt===current.id) await new Promise(resolve=>setTimeout(resolve,1200));
+      response = { grade: { correct, wrongCount:outcome.state.wrongCount, message:outcome.message,
+        hint:outcome.sendHint?'앞면의 칸을 세어 보세요.':null,
+        revealedAnswer:outcome.sendAnswer?{count:9,explanation:'앞면의 아홉 칸이 정답입니다.'}:null,
+        needsRebuild:outcome.needsRebuild,completed:outcome.state.completed,xpEarned:outcome.xpEarned,stars:outcome.stars,detail:null } };
     } else if (action.startsWith("activity:")) response = { ok: true, code: "QA1234", state: { wrongCount: 0, hintShown: false, answerRevealed: false, completed: false }, outcome: { correct: true, message: "정답이에요!" }, answer: null };
     else response = { error: { code: "QA_UNEXPECTED_ACTION", message: "QA mock에 없는 요청입니다." } };
     await route.fulfill({ status: response.error ? 400 : 200, json: response });
   });
 }
 
-async function dragPaletteToBoard(page: Page): Promise<void> {
+async function dragPaletteToBoard(page: Page, countLabel='블록 수: 1'): Promise<void> {
+  await page.getByRole("button", { name: "쌓기나무 보관함. 블록을 작업판에 놓기" }).scrollIntoViewIfNeeded();
   const palette = await page.getByRole("button", { name: "쌓기나무 보관함. 블록을 작업판에 놓기" }).boundingBox();
   const canvas = await page.getByLabel("쌓기나무 3D 작업판").boundingBox();
   assertCondition(palette && canvas, "보관함 또는 3D 작업판의 화면 영역을 찾지 못했습니다.");
@@ -220,13 +249,13 @@ async function dragPaletteToBoard(page: Page): Promise<void> {
     await page.mouse.down();
     await page.mouse.move(canvas.x + canvas.width * rx, canvas.y + canvas.height * ry, { steps: 20 });
     await page.mouse.up();
-    if (await textVisible(page, "블록 수: 1")) return;
-    await page.waitForTimeout(100);
+    try { await expect(page.getByText(countLabel,{exact:true})).toBeVisible({timeout:800}); return; } catch { /* 다음 유효 칸 후보 */ }
   }
   throw new Error("실제 작업판의 유효한 칸에 보관함 블록을 놓지 못했습니다.");
 }
 
 async function touchDragPaletteToBoard(page: Page): Promise<void> {
+  await page.getByRole("button", { name: "쌓기나무 보관함. 블록을 작업판에 놓기" }).scrollIntoViewIfNeeded();
   const palette = await page.getByRole("button", { name: "쌓기나무 보관함. 블록을 작업판에 놓기" }).boundingBox();
   const canvas = await page.getByLabel("쌓기나무 3D 작업판").boundingBox();
   assertCondition(palette && canvas, "터치 QA에서 보관함 또는 3D 작업판의 화면 영역을 찾지 못했습니다.");
@@ -240,21 +269,22 @@ async function touchDragPaletteToBoard(page: Page): Promise<void> {
     await session.send("Input.dispatchTouchEvent", { type: "touchMove", touchPoints: [middle] });
     await session.send("Input.dispatchTouchEvent", { type: "touchMove", touchPoints: [end] });
     await session.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
-    if (await textVisible(page, "블록 수: 1")) return;
-    await page.waitForTimeout(100);
+    try { await expect(page.getByText("블록 수: 1",{exact:true})).toBeVisible({timeout:800}); return; } catch { /* 다음 유효 칸 후보 */ }
   }
   throw new Error("터치로 실제 작업판의 유효한 칸에 보관함 블록을 놓지 못했습니다.");
 }
 
-async function runCase(browser: Browser, baseUrl: string, spec: { id: string; title: string; problemId?: string; problems: StudentProblem[]; run: (page: Page, state: MockState) => Promise<void>; project?: Building | null; requiredComplete?: boolean; touch?: boolean }): Promise<CaseResult> {
+async function runCase(browser: Browser, baseUrl: string, spec: { id: string; title: string; problemId?: string; problems: StudentProblem[]; run: (page: Page, state: MockState) => Promise<void>; prepare?: (state:MockState)=>void; project?: Building | null; requiredComplete?: boolean; touch?: boolean }): Promise<CaseResult> {
   const state = makeMock(spec.problems, spec.project);
+  spec.prepare?.(state);
   const context = await browser.newContext({ viewport: spec.touch ? { width: 1024, height: 768 } : { width: 1366, height: 768 }, hasTouch: Boolean(spec.touch) });
   const page = await context.newPage();
+  page.setDefaultTimeout(12000);
   const browserErrors: string[] = [];
   page.on("pageerror", error => browserErrors.push(error.message));
   page.on("console", message => { if (message.type() === "error") browserErrors.push(message.text()); });
   const metadata = spec.problems.find(problem => problem.id === spec.problemId) ?? spec.problems[0];
-  const result: CaseResult = { id: spec.id, title: spec.title, category: "UI_WITH_TEST_DATA", status: "FAIL", problemId: metadata?.id, templateId: metadata?.templateId, seed: metadata?.seed, generatorVersion: metadata?.generatorVersion, problemVersion: "qa-fixture-v1" };
+  const result: CaseResult = { id: spec.id, title: spec.title, category: "UI_WITH_TEST_DATA", status: "FAIL", problemId: metadata?.id, templateId: metadata?.templateId, seed: metadata?.seed, generatorVersion: metadata?.generatorVersion, problemVersion: metadata?.generatorVersion ? `generator-v${metadata.generatorVersion}` : "qa-fixture-v1" };
   const caseTracePath = join(artifactDir, `${spec.id}.trace.zip`);
   await context.tracing.start({ screenshots: true, snapshots: true, sources: true });
   try {
@@ -270,7 +300,7 @@ async function runCase(browser: Browser, baseUrl: string, spec: { id: string; ti
     result.failedStep = failureStep(failureMessage);
     result.cause = failureCause(failureMessage);
     result.expected = "학생 route의 실제 입력·제출·결과 흐름이 끝까지 동작";
-    result.actual = error instanceof Error ? error.message : String(error);
+    result.actual = (error instanceof Error ? error.message : String(error))+`\n최근 합성 API: ${state.calls.slice(-10).join(", ")}`;
     const path = join(screenshotDir, `${spec.id}-fail.png`);
     await page.screenshot({ path, fullPage: true }).catch(() => undefined);
     result.screenshot = path;
@@ -279,6 +309,7 @@ async function runCase(browser: Browser, baseUrl: string, spec: { id: string; ti
   }
   await context.tracing.stop({ path: caseTracePath }).catch(() => undefined);
   await context.close();
+  console.log(`[QA] ${spec.id}: ${result.status}${result.actual ? ' — '+result.actual.slice(0,150):''}`);
   return result;
 }
 
@@ -305,10 +336,10 @@ function writeReport(results: CaseResult[], extra: Record<string, unknown> = {})
   const inventoryPath = resolve(appDir, "PROBLEM_INVENTORY.json");
   let inventory: { counts?: { fixed?: number; templates?: number; activities?: number; assignedPractice?: number } } | null = null;
   try { inventory = JSON.parse(readFileSync(inventoryPath, "utf8")); } catch { /* 보고서에 없음으로 기록 */ }
-  const counts = results.reduce<Record<string, number>>((all, item) => { all[item.status] = (all[item.status] ?? 0) + 1; return all; }, {});
+  const counts = results.reduce<Record<string, number>>((all, item) => { all[item.status] = (all[item.status] ?? 0) + 1; return all; }, {PASS:0,FAIL:0,BLOCKED:0,NOT_RUN:0});
   const report = {
     generatedAt: new Date().toISOString(),
-    execution: { head: git(["rev-parse", "HEAD"]), branch: git(["branch", "--show-current"]), workingTree: git(["status", "--short"]), mode: headed ? "headed" : "headless", category: "UI_WITH_TEST_DATA", baseUrl: extra.baseUrl ?? null },
+    execution: { ...executionIdentity, mode: headed ? "headed" : "headless", category: "UI_WITH_TEST_DATA", baseUrl: extra.baseUrl ?? null },
     inventory: inventory ? { fixed: inventory.counts.fixed, templates: inventory.counts.templates, activities: inventory.counts.activities, assignedPractice: inventory.counts.assignedPractice, note: "inventory 항목은 중복될 수 있어 합산하지 않음" } : null,
     planned: Number(extra.planned ?? results.length),
     executed: results.filter(item => item.status === "PASS" || item.status === "FAIL").length,
@@ -348,27 +379,33 @@ async function main() {
     if (existsSync(reportJsonPath)) {
       const historyDir = join(artifactDir, "history", `${git(["rev-parse", "HEAD"])}-${Date.now()}`);
       mkdirSync(historyDir, { recursive: true });
-      for (const file of [reportJsonPath, reportMarkdownPath, previewLogPath]) if (existsSync(file)) cpSync(file, join(historyDir, file.split("/").pop()!));
+      for (const file of [reportJsonPath, reportMarkdownPath, previewLogPath, join(artifactDir,"lesson5-set35-browser.json"),join(artifactDir,'build-manifest.json')]) if (existsSync(file)) cpSync(file, join(historyDir, file.split("/").pop()!));
       if (existsSync(screenshotDir)) cpSync(screenshotDir, join(historyDir, "screenshots"), { recursive: true });
       for (const file of readdirSync(artifactDir).filter(name => name.endsWith(".trace.zip"))) cpSync(join(artifactDir, file), join(historyDir, file));
     }
     writeFileSync(previewLogPath, "local-browser-qa startup\n");
+    executionIdentity={head:git(["rev-parse","HEAD"]),branch:git(["branch","--show-current"]),workingTree:git(["status","--short"])};
     const buildEnv = { ...process.env };
     delete buildEnv.VITE_SUPABASE_URL;
     delete buildEnv.VITE_SUPABASE_PUBLISHABLE_KEY;
     delete buildEnv.VITE_INSTALLATION_ID;
     const build = spawnSync("npm", ["run", "build"], { cwd: appDir, env: buildEnv, stdio: "inherit" });
     assertCondition(build.status === 0, "production build가 실패했습니다.");
+    const distFiles=readdirSync(resolve(appDir,'dist'),{recursive:true}).map(String).filter(name=>!name.endsWith('/')&& /\.(html|js|css|mjs|svg|png|json|txt)$/.test(name)).sort();
+    const distHashes=distFiles.map(name=>({name,sha256:createHash('sha256').update(readFileSync(resolve(appDir,'dist',name))).digest('hex')}));
+    executionIdentity.buildSha256=createHash('sha256').update(JSON.stringify(distHashes)).digest('hex');
+    writeFileSync(join(artifactDir,'build-manifest.json'),JSON.stringify({execution:executionIdentity,files:distHashes},null,2));
     const executable = chromium.executablePath();
     assertCondition(existsSync(executable), `Playwright Chromium 실행 파일이 없습니다: ${executable}`);
     const port = await reservePort();
     const baseUrl = `http://127.0.0.1:${port}`;
     writeFileSync(previewLogPath, `preview ${baseUrl}\n`);
-    preview = spawn("npm", ["run", "preview", "--", "--host", "127.0.0.1", "--port", String(port), "--strictPort"], { cwd: appDir, env: buildEnv, stdio: ["ignore", "pipe", "pipe"] });
+    preview = spawn(process.execPath, [resolve(appDir,"node_modules/vite/bin/vite.js"), "preview", "--host", "127.0.0.1", "--port", String(port), "--strictPort"], { cwd: appDir, env: buildEnv, stdio: ["ignore", "pipe", "pipe"] });
     preview.stdout?.on("data", chunk => appendFileSync(previewLogPath, String(chunk)));
     preview.stderr?.on("data", chunk => appendFileSync(previewLogPath, String(chunk)));
     const ready = await waitForPreview(`${baseUrl}/`);
     assertCondition(ready, `production preview가 시작되지 않았습니다. 로그: ${previewLogPath}`);
+    assertCondition(await (await fetch(`${baseUrl}/`)).text()===readFileSync(resolve(appDir,'dist/index.html'),'utf8'),'preview가 이번 production build와 일치하지 않습니다.');
     const browser = await chromium.launch({ headless: !headed, args: ["--enable-unsafe-swiftshader"] });
     try {
       const run = (spec: Parameters<typeof runCase>[2]) => runCase(browser, baseUrl, spec);
@@ -381,12 +418,12 @@ async function main() {
         // front/side 실루엣은 화면에서 행을 뒤집어 표시하므로 underlying row 0은 두 번째 행이다.
         const edgeCell = await cells.nth(0).boundingBox();
         assertCondition(edgeCell, "첫 번째 입력 셀의 화면 영역을 찾지 못했습니다.");
-        await page.mouse.click(edgeCell.x + 3, edgeCell.y + 3);
+        await cells.nth(0).click({ position: { x: 3, y: 3 } });
         for (const index of [6, 10]) await cells.nth(index).click();
         await page.getByRole("button", { name: "정답 확인", exact: true }).click();
         assertCondition(state.attempts[0]?.submission.kind === "projections", "제출 payload가 projections가 아닙니다.");
         assertCondition(state.attempts[0]?.submission.projections?.top?.[0]?.[0] === true, "입력한 셀이 payload에 반영되지 않았습니다.");
-        assertCondition(await textVisible(page, "정답이에요"), "채점 결과가 화면에 표시되지 않았습니다.");
+        await expect(page.getByText("정답이에요", { exact: false }).first()).toBeVisible();
       }}));
       initial.push(await run({ id: "T02-l12-triple-grid", title: "12차시 실제 세 격자 입력·제출", problemId: lesson12Fixture.id, problems: [lesson12Fixture], run: async (page, state) => {
         await page.goto(`${baseUrl}/lesson/12/solve`);
@@ -404,7 +441,7 @@ async function main() {
         await page.getByRole("button", { name: "2. 알 수 없어요", exact: true }).click();
         await page.getByRole("button", { name: "정답 확인", exact: true }).click();
         assertCondition(state.attempts[0]?.submission.kind === "choice" && state.attempts[0].submission.index === 1, "정보 충분성 선택 payload가 잘못되었습니다.");
-        assertCondition(await textVisible(page, "정답이에요"), "판단형 채점 결과가 보이지 않습니다.");
+        await expect(page.getByText("정답이에요",{exact:false}).first()).toBeVisible();
       }}));
       initial.push(await run({ id: "T04-l5-hidden-none-count", title: "5차시 숨은 블록 없음 3×3 개수", problemId: countFixture.id, problems: [countFixture], run: async (page, state) => {
         await page.goto(`${baseUrl}/lesson/5`);
@@ -412,61 +449,91 @@ async function main() {
         await page.locator('input[placeholder="정답을 입력"]').fill("9");
         await page.getByRole("button", { name: "정답 확인", exact: true }).click();
         assertCondition(state.attempts[0]?.submission.kind === "count" && state.attempts[0].submission.value === 9, "3×3 입력이 9로 제출되지 않았습니다.");
-        assertCondition(await textVisible(page, "정답이에요"), "9개 정답 결과가 보이지 않습니다.");
+        await expect(page.getByText("정답이에요",{exact:false}).first()).toBeVisible();
       }}));
-      initial.push(await run({ id: "T05-number-reveal", title: "숫자 정답 공개는 재구성을 요구하지 않음", problemId: countFixture.id, problems: [countFixture], run: async (page, state) => {
-        state.countReveal = true;
+      initial.push(await run({ id: "T05-number-reveal", title: "숫자 정답 공개는 재구성을 요구하지 않음", problemId: countFixture.id, problems: [countFixture], run: async (page) => {
         await page.goto(`${baseUrl}/lesson/5`);
         await waitForStudentPage(page);
         await page.locator('input[placeholder="정답을 입력"]').fill("8");
-        await page.getByRole("button", { name: "정답 확인", exact: true }).click();
-        assertCondition(await textVisible(page, "정답: 9개"), "숫자 정답 공개 자료가 보이지 않습니다.");
+        for(let attempt=1;attempt<=4;attempt++) {
+          await page.getByRole("button", { name: "정답 확인", exact: true }).click();
+          await expect(page.getByText(`오답 수: ${attempt}`,{exact:true})).toBeVisible();
+          if(attempt<4) await expect(page.getByText('정답: 9개',{exact:true})).toHaveCount(0);
+          if(attempt===3) await expect(page.getByText('힌트: 앞면의 칸을 세어 보세요.',{exact:true})).toBeVisible();
+        }
+        await expect(page.getByText("정답: 9개",{exact:true})).toBeVisible();
         assertCondition(!(await textVisible(page, "정답 모양대로 다시 쌓기")), "숫자 문제에 재구성 단계가 표시됩니다.");
       }}));
       initial.push(await run({ id: "T06-stage-position", title: "학습 단계와 현재 문항 위치 유지", problemId: stageFixtures[0].id, problems: stageFixtures, requiredComplete: true, run: async (page, _state) => {
         await page.goto(`${baseUrl}/lesson/2`);
         await waitForStudentPage(page);
-        assertCondition(await textVisible(page, "개념 단계 문항"), "개념 단계 문항이 시작 화면에 없습니다.");
+        await expect(page.getByText("개념 단계 문항",{exact:false}).first()).toBeVisible();
         await page.getByRole("button", { name: /② 문제 풀기/ }).click();
-        assertCondition(await textVisible(page, "확인 단계 문항"), "문제 확인 단계로 전환되지 않았습니다.");
+        await expect(page.getByText("확인 단계 문항",{exact:false}).first()).toBeVisible();
         await page.getByRole("button", { name: "정답 확인", exact: true }).click();
-        assertCondition(await textVisible(page, "확인 단계 문항"), "제출 후 현재 문항이 바뀌거나 초기화되었습니다.");
+        await expect(page.getByText("확인 단계 문항",{exact:false}).first()).toBeVisible();
       }}));
       initial.push(await run({ id: "T07-builder-drag", title: "실제 보관함 드래그·블록 저장", problemId: builderFixture.id, problems: [builderFixture], run: async (page, state) => {
         await page.goto(`${baseUrl}/lesson/1`);
         await waitForStudentPage(page);
         await dragPaletteToBoard(page);
-        assertCondition(await textVisible(page, "블록 수: 1"), "보관함 드래그 후 블록 수가 1로 갱신되지 않았습니다.");
+        await expect(page.getByText("블록 수: 1",{exact:false}).first()).toBeVisible();
         await page.getByRole("button", { name: "저장", exact: true }).click();
-        assertCondition(state.snapshots[builderFixture.id]?.length === 1, "3D snapshot 저장 요청이 없거나 블록이 저장되지 않았습니다.");
+        await expect.poll(()=>state.snapshots[builderFixture.id]?.length).toBe(1);
       }}));
       initial.push(await run({ id: "T08-builder-touch", title: "터치 보관함 드래그·블록 배치", problemId: builderFixture.id, problems: [builderFixture], touch: true, run: async (page) => {
         await page.goto(`${baseUrl}/lesson/1`);
         await waitForStudentPage(page);
         await touchDragPaletteToBoard(page);
-        assertCondition(await textVisible(page, "블록 수: 1"), "터치 보관함 드래그 후 블록 수가 1로 갱신되지 않았습니다.");
+        await expect(page.getByText("블록 수: 1",{exact:false}).first()).toBeVisible();
       }}));
       initial.push(await run({ id: "T09-architecture-10x10", title: "10차시 10×10 작업판·재료·저장", problems: [], project: null, run: async (page, state) => {
         await page.goto(`${baseUrl}/lesson/10/project`);
         await waitForStudentPage(page);
-        assertCondition(await textVisible(page, "10×10"), "신규 건축판 10×10 표시가 없습니다.");
-        assertCondition(await textVisible(page, "최대 3층"), "최대 3층 조건이 보이지 않습니다.");
+        await expect(page.getByText("10×10",{exact:false}).first()).toBeVisible();
+        await expect(page.getByText("최대 3층",{exact:false}).first()).toBeVisible();
         assertCondition(await visible(page, '[aria-label="블록 재료 선택"]'), "건축 재료 영역이 보이지 않습니다.");
         await page.getByRole("button", { name: "파스텔", exact: true }).click();
         await page.getByLabel("건축물 이름").fill("QA 건축물");
         await page.getByLabel("설계 이유").fill("수업 테스트");
         await page.getByLabel("건축물 설명").fill("10×10 작업판 저장 확인");
-        await dragPaletteToBoard(page);
+        await dragPaletteToBoard(page,"쌓기나무 1개");
+        // 3개 층의 공간 이름·설명은 실제 저장 검증 조건이다.
+        for(let floor=1;floor<=3;floor++) {
+          await page.getByRole('tab',{name:`${floor}층`,exact:true}).click();
+          await page.getByLabel('공간 이름',{exact:true}).fill(`QA ${floor}층`);
+          await page.getByLabel('공간 설명',{exact:true}).fill(`공간 ${floor} 설명`);
+        }
         await page.getByRole("button", { name: "10차시 설계 저장", exact: true }).click();
+        await expect.poll(()=>state.savedProjectPayload?.building?.blocks?.length).toBe(1);
         assertCondition(state.savedProjectPayload?.building?.grid_width === ARCHITECTURE_GRID.gridWidth && state.savedProjectPayload?.building?.grid_depth === ARCHITECTURE_GRID.gridDepth, "저장 payload의 신규 작업판 크기가 10×10이 아닙니다.");
         assertCondition(Object.values(state.savedProjectPayload?.building?.block_appearance ?? {}).includes("pastel"), "선택한 재료가 저장 payload에 반영되지 않았습니다.");
+        // 네 모서리는 기존 접근성용 좌표 입력 UI로 검사한다. 위의 실제 drag 검사와 구분한다.
+        await page.getByText('버튼으로 놓기',{exact:true}).click();
+        for(const [x,z] of [[1,1],[10,1],[1,10],[10,10]]) {
+          await page.getByLabel('가로',{exact:true}).fill(String(x));
+          await page.getByLabel('세로',{exact:true}).fill(String(z));
+          await page.getByRole('button',{name:'쌓기',exact:true}).click();
+        }
+        await expect(page.getByText('쌓기나무 5개',{exact:true})).toBeVisible();
+        await page.getByRole('button',{name:'10차시 설계 저장',exact:true}).click();
+        await expect.poll(()=>state.project?.blocks.length).toBe(5);
+        for(const [x,z] of [[0,0],[9,0],[0,9],[9,9]]) assertCondition(state.project!.blocks.some(b=>b.x===x&&b.z===z),'저장 구조에 실제 모서리 좌표가 없습니다.');
+        await page.screenshot({path:join(screenshotDir,'T09-four-corners.png'),fullPage:true});
+        const saved=JSON.stringify(state.project);
+        await page.goto(`${baseUrl}/lesson/11/project`);
+        await expect(page.getByText('QA 건축물',{exact:true}).first()).toBeVisible();
+        await expect(page.getByText('1층 · QA 1층 — 공간 1 설명',{exact:true})).toBeVisible();
+        await page.getByRole('button',{name:'건축물 수정하기',exact:true}).click();
+        await expect(page.getByText('쌓기나무 5개',{exact:true})).toBeVisible();
+        assertCondition(JSON.stringify(state.project)===saved,'10→11차시 열람이 저장 작품을 바꿨습니다.');
       }}));
       initial.push(await run({ id: "T10-architecture-restore", title: "11차시 건축물 소개서 복원", problems: [], project: initialBuilding, run: async (page) => {
         await page.goto(`${baseUrl}/lesson/11/project`);
         await waitForStudentPage(page);
-        assertCondition(await textVisible(page, "QA 건축물"), "저장된 건축물 이름이 복원되지 않았습니다.");
-        assertCondition(await textVisible(page, "1층 · 1층 공간"), "층별 설명이 복원되지 않았습니다.");
-        assertCondition(await textVisible(page, "위에서 본 모양"), "소개서의 투영 자료가 보이지 않습니다.");
+        await expect(page.getByText("QA 건축물",{exact:false}).first()).toBeVisible();
+        await expect(page.getByText("1층 · 1층 공간",{exact:false}).first()).toBeVisible();
+        await expect(page.getByRole('table',{name:'위',exact:true})).toBeVisible();
       }}));
       initial.push(await run({ id: "T11-grid-shape-orientation", title: "격자 셀 정사각형·앞/옆 위치", problemId: projectionFixture.id, problems: [projectionFixture], run: async (page) => {
         await page.goto(`${baseUrl}/lesson/3/solve`);
@@ -506,45 +573,104 @@ async function main() {
             if(p.answer.kind==='choice') await page.getByRole('button',{name:`${p.answer.index+1}. ${p.choices[p.answer.index]}`,exact:true}).click();
             else if(p.answer.kind==='count') await page.locator('input[inputmode="numeric"]').fill(String(p.answer.value));
             if(index===2 && p.answer.kind==='count') {
+              await page.getByRole('button',{name:'① 개념 배우기',exact:true}).click();
+              await page.getByRole('button',{name:'③ 더 풀어보기로 이동',exact:true}).click();
+              await expect(page.getByText(p.title,{exact:true})).toBeVisible();
+              await expect(page.locator('input[inputmode="numeric"]')).toHaveValue(String(p.answer.value));
               await page.reload();
               await page.getByText(p.title,{exact:true}).waitFor({state:'visible'});
               await expect(page.locator('input[inputmode="numeric"]')).toHaveValue(String(p.answer.value));
               await expect(submit).toBeEnabled();
             }
-            const response=page.waitForResponse(r=>r.url().endsWith('/student-api')&&r.request().postDataJSON()?.action==='attempt');
-            await submit.click();
-            const payload=await (await response).json();
+            const [response]=await Promise.all([page.waitForResponse(r=>r.url().endsWith('/student-api')&&r.request().postDataJSON()?.action==='attempt'),submit.click()]);
+            const payload=await response.json();
             assertCondition(payload.grade?.correct===true,`문항 ${index+1}: 입력 payload 채점 실패`);
-            assertCondition(state.attempts.at(-1)?.problemId===p.code,`문항 ${index+1}: 이전 문항 ID로 제출됨`);
+            assertCondition(state.attempts.at(-1)?.problemId===p.id,`문항 ${index+1}: 이전 문항 ID로 제출됨`);
             await page.getByText('정답이에요!',{exact:false}).first().waitFor({state:'visible'});
             const screenshot=join(screenshotDir,`T14-${String(index+1).padStart(2,'0')}.png`);
             await page.screenshot({path:screenshot,fullPage:true});
-            comparison.push({index:index+1,problemId:p.code,templateId:p.templateId,seed:p.seed,version:p.generatorVersion,prompt:p.prompt,status:'PASS',screenshot});
+            comparison.push({index:index+1,problemId:p.id,templateId:p.templateId,seed:p.seed,version:p.generatorVersion,prompt:p.prompt,status:'PASS',screenshot});
             if(index<lesson5Set.length-1) await page.getByRole('button',{name:'다음 문제',exact:true}).click();
           }
+          await page.getByRole('button',{name:'차시 결과 보기',exact:true}).click();
+          await expect(page).toHaveURL(/\/world$/);
+          await page.getByRole('button',{name:'나가기',exact:false}).click();
+          await page.goto(`${baseUrl}/?class=QA`);
+          await page.getByLabel('이름',{exact:true}).fill('QA 학생');
+          await page.getByLabel('PIN 4자리',{exact:true}).fill('0000');
+          await page.getByRole('button',{name:'들어가기',exact:false}).click();
+          await expect(page).toHaveURL(/\/world$/);
+          await page.goto(`${baseUrl}/lesson/5/practice`);
+          await expect(page.getByText(lesson5Set[34].title,{exact:true})).toBeVisible();
+          await expect(page.getByRole('button',{name:'정답 확인',exact:true})).toBeDisabled();
+          assertCondition(state.lists.every(ids=>JSON.stringify(ids)===JSON.stringify(lesson5Set.map(p=>p.id))),'재조회 순서/ID 불일치');
         } finally {
           writeFileSync(join(artifactDir,'lesson5-set35-browser.json'),JSON.stringify({category:'UI_WITH_TEST_DATA',head:git(['rev-parse','HEAD']),rows:comparison,notRun:35-comparison.length,liveSet:false},null,2));
         }
       }}));
+      initial.push(await run({id:'T15-late-grade',title:'늦은 채점 응답은 다음 문항을 덮지 않는다',problems:lesson5Set.map(p=>studentProblem({...p})),requiredComplete:true,run:async(page,state)=>{
+        state.delayedAttempt=lesson5Set[0].id;
+        await page.goto(`${baseUrl}/lesson/5/practice`);
+        const first=lesson5Set[0];
+        await expect(page.getByText(first.title,{exact:true})).toBeVisible();
+        await expect(page.getByRole('button',{name:'정답 확인',exact:true})).toBeEnabled();
+        const pending=page.waitForResponse(r=>r.request().postDataJSON()?.action==='attempt');
+        void pending.catch(()=>undefined);
+        await page.getByRole('button',{name:'정답 확인',exact:true}).click();
+        await page.getByRole('button',{name:'다음',exact:true}).click();
+        await expect(page.getByText(lesson5Set[1].title,{exact:true})).toBeVisible();
+        await page.locator('input[inputmode="numeric"]').fill('7');
+        await pending;
+        await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
+        await expect(page.locator('input[inputmode="numeric"]')).toHaveValue('7');
+        await expect(page.getByText('오답 수: 0',{exact:true})).toBeVisible();
+        await expect(page.getByRole('button',{name:'정답 확인',exact:true})).toBeEnabled();
+      }}));
+      const oldRows=JSON.parse(readFileSync(resolve(appDir,'qa/practice-sets/2026-09-12-live-investigation/remote-public-problems.json'),'utf8')).rows.filter((r:JsonRecord)=>r.order_index>2);
+      const oldProblems:StudentProblem[]=oldRows.map((r:JsonRecord)=>studentProblem({id:r.id,code:r.code,lesson:5,stage:'more',orderIndex:r.order_index,title:r.title,prompt:r.prompt,problemType:r.problem_type,grid:{gridWidth:r.grid_width,gridDepth:r.grid_depth,maxHeight:r.max_height},givenBlocks:r.given_blocks,startBlocks:r.start_blocks??[],given:r.given,choices:r.choices,difficulty:1,xp:10}));
+      initial.push(await run({id:'T16-old-set-replacement',title:'옛 11번 보존·명시적 새 세트·중복 클릭',problems:oldProblems,requiredComplete:true,prepare:state=>{
+        state.positions[5]=oldProblems[10].id;
+        state.outcomes[oldProblems[10].id]={...INITIAL_ATTEMPT,wrongCount:2};
+        state.replacement={seed:603756,displayedSeed:595837,starts:0,records:structuredClone(oldProblems)};
+      },run:async(page,state)=>{
+        await page.goto(`${baseUrl}/lesson/5/practice`);
+        await expect(page.getByRole('heading',{name:'③ 더 풀어보기 11 / 35',exact:true})).toBeVisible();
+        await expect(page.getByText('오답 수: 2',{exact:true})).toBeVisible();
+        await expect(page.getByText('이전에 요청한 새 묶음이 아직 준비되지 않아',{exact:false})).toBeVisible();
+        await page.reload();
+        await expect(page.getByRole('heading',{name:'③ 더 풀어보기 11 / 35',exact:true})).toBeVisible();
+        const oldRecord=JSON.stringify(state.outcomes),oldIds=state.replacement!.records.map(p=>p.id);
+        page.on('dialog',dialog=>dialog.accept());
+        await page.getByRole('button',{name:'새 문제 더 풀기',exact:true}).dblclick();
+        await expect(page.getByRole('heading',{name:'③ 더 풀어보기 1 / 20',exact:true})).toBeVisible();
+        assertCondition(state.replacement?.starts===1,'이중 클릭이 새 묶음을 두 번 만듦');
+        assertCondition(state.replacement.seed===611675,'기대 seed에서 전환되지 않음');
+        assertCondition(JSON.stringify(state.outcomes)===oldRecord,'이전 시도 기록 변경');
+        assertCondition(JSON.stringify(state.replacement.records.map(p=>p.id))===JSON.stringify(oldIds),'이전 문항 삭제');
+        const nextIds=state.problems.map(p=>p.id);
+        await page.reload();
+        await expect(page.getByRole('heading',{name:'③ 더 풀어보기 1 / 20',exact:true})).toBeVisible();
+        assertCondition(JSON.stringify(state.problems.map(p=>p.id))===JSON.stringify(nextIds),'새 세트 재조회 ID 변경');
+      }}));
       initial.push(await run({ id: "T13-learn-stage-page", title: "개념 배우기 독립 페이지와 문제 풀기 전환", problems: [projectionFixture], run: async (page) => {
         await page.goto(`${baseUrl}/lesson/3/learn`);
         await waitForStudentPage(page);
-        assertCondition(await textVisible(page, "① 개념 배우기"), "개념 배우기 페이지 제목이 보이지 않습니다.");
-        assertCondition(await textVisible(page, "안내된 탐구"), "개념 배우기 안내 활동이 보이지 않습니다.");
-        assertCondition(await textVisible(page, "직접 해 보기"), "개념 배우기 조작 안내가 보이지 않습니다.");
+        await expect(page.getByText("① 개념 배우기",{exact:false}).first()).toBeVisible();
+        await expect(page.getByText("안내된 탐구",{exact:false}).first()).toBeVisible();
+        await expect(page.getByText("직접 해 보기",{exact:false}).first()).toBeVisible();
         await page.getByRole("button", { name: "② 문제 풀기 시작", exact: true }).click();
         await waitForStudentPage(page);
         assertCondition(page.url().endsWith("/lesson/3/solve"), "문제 풀기 페이지 URL로 이동하지 않았습니다.");
-        assertCondition(await textVisible(page, "세 방향 격자 표현"), "문제 풀기 단계의 실제 문항이 보이지 않습니다.");
+        await expect(page.getByText("세 방향 격자 표현",{exact:true})).toBeVisible();
       }}));
       initial.push(await run({ id: "T12-completion-navigation", title: "4차시 완료 후 다음 학습 단계 이동", problemId: completionFixtures[0].id, problems: completionFixtures, requiredComplete: true, run: async (page) => {
         await page.goto(`${baseUrl}/lesson/4`);
         await waitForStudentPage(page);
         await page.getByRole("button", { name: "2. 두 번째", exact: true }).click();
         await page.getByRole("button", { name: "정답 확인", exact: true }).click();
-        assertCondition(await textVisible(page, "개념 단계 문항"), "제출 뒤 현재 완료 문항이 사라졌습니다.");
+        await expect(page.getByText("개념 단계 문항",{exact:false}).first()).toBeVisible();
         await page.getByRole("button", { name: "문제 풀기 시작", exact: true }).click();
-        assertCondition(await textVisible(page, "확인 단계 문항"), "완료 후 다음 학습 단계로 이동하지 못했습니다.");
+        await expect(page.getByText("확인 단계 문항",{exact:true})).toBeVisible();
       }}));
     } finally {
       await browser.close();

@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { stageProblemIndex } from '../shared/problemSession.ts';
-import { practiceSetStatus, generateValidatedPracticeSet, taskFingerprint, practiceDisplaySeed } from '../shared/practiceSet.ts';
+import { practiceSetStatus, generateValidatedPracticeSet, taskFingerprint, practiceDisplaySeed, canReadHistoricalPractice } from '../shared/practiceSet.ts';
 
 test('직접 practice 재접속은 해당 단계의 서버 현재 문항을 복원한다', () => {
   const rows = [{ id: 'learn', stage: 'concept' }, ...['p1','p2','p3'].map(id => ({ id, stage: 'more' }))];
@@ -46,4 +46,9 @@ test('실제 35행 형태는 기본 추가 1개와 생성 34개/중복 코드 17
   assert.equal(practiceSetStatus(fresh,5,603756,20).requiresRepair, false);
   assert.equal(practiceDisplaySeed([...rows,...fresh],5,603756,595837),603756,'새 세트 저장이 확인되면 새 seed 복원');
   assert.equal(practiceSetStatus([{code:'GEN-L5-S1-01',order_index:100}],5,1,5).requiresRepair,false,'옛 버전이라는 이유만으로 불량 세트로 판정하지 않는다');
+});
+
+test('과거 기록 열람은 허용하되 위치·답안·블록 재저장으로 활성세트를 되돌리지 않는다',()=>{
+  for(const action of ['problem','snapshot:get','asset']) assert.equal(canReadHistoricalPractice(action),true);
+  for(const action of ['position','attempt','snapshot','practice:new-set']) assert.equal(canReadHistoricalPractice(action),false);
 });

@@ -1,5 +1,6 @@
 import { activityRequest } from "../_shared/activities.ts";
 import { canonicalize, validStructure, toHeightMap } from "../../../shared/blocks.ts";
+import { makeChallengeCard, validatePeerBlocks, gradePeer, type ChallengeCard, type ChallengeCardType } from "../../../shared/phase4.ts";
 import { applyAttempt, INITIAL_ATTEMPT } from "../../../shared/attempts.ts";
 import {
   type ProblemGiven,
@@ -11,7 +12,7 @@ import {
 } from "../../../shared/types.ts";
 import { SEED_PROBLEMS } from "../../../shared/seedProblems.ts";
 import { generatePracticeProblems, recommendedPracticeCount } from "../../../shared/practiceGenerator.ts";
-import { generateValidatedPracticeSet, generatedProblemId, selectPracticeRows, practiceSetStatus, isAssignedPracticeCode, practiceDisplaySeed } from "../../../shared/practiceSet.ts";
+import { generateValidatedPracticeSet, generatedProblemId, selectPracticeRows, practiceSetStatus, isAssignedPracticeCode, practiceDisplaySeed, canReadHistoricalPractice } from "../../../shared/practiceSet.ts";
 import { conceptTagsForProblemType } from "../../../shared/problemMetadata.ts";
 import { deriveProblemPresentation } from "../../../shared/problemPresentation.ts";
 import { REWARD_CATALOG, rewardUnlocked, sanitizeMaterial, sanitizeTheme, type RewardMaterial, type RewardTheme } from "../../../shared/rewards.ts";
@@ -47,6 +48,22 @@ type Action =
   | "snapshot"
   | "snapshot:get"
   | "share:create"
+  | "peer-problem:publish"
+  | "peer-problem:list"
+  | "peer-problem:get"
+  | "peer-problem:hint"
+  | "peer-problem:submit"
+  | "peer-problem:attempts"
+  | "project:save"
+  | "project:load"
+  | "progress:save"
+  | "progress:get"
+  | "attempt:save"
+  | "reflection:save"
+  | "reflection:get"
+  | "practice-set:get-or-create"
+  | "teacher:peer-problem:list"
+  | "teacher:peer-problem:hide"
   | "teacher:classes"
   | "teacher:class-upsert"
   | "teacher:students:list"
@@ -469,6 +486,109 @@ function normalizeAttemptState(row: AttemptRow | null) {
   };
 }
 
+function isPhase5StudentAction(action: string): boolean {
+  return action.startsWith("peer-problem:") || action === "project:save" || action === "project:load" || action === "progress:save" || action === "progress:get" || action === "attempt:save" || action === "reflection:save" || action === "reflection:get" || action === "practice-set:get-or-create";
+}
+
+function publicPeerRow(row: Record<string, unknown>, attempt?: Record<string, unknown> | null) {
+  const publicData = safeJson<{ card?: unknown; grid?: unknown; totalBlocks?: unknown }>(row.public_problem_json, {});
+  return {
+    problemId: String(row.problem_id), version: Number(row.version), classId: String(row.class_id),
+    title: String(row.title ?? ""), authorDisplayName: String(row.author_display_name ?? "학생").slice(0, 40),
+    publicProblemData: publicData, publishedAt: String(row.published_at ?? row.created_at ?? ""),
+    solveCount: Number(row.solve_count ?? 0),
+    myAttempt: attempt ? { completed: Boolean(attempt.completed_at), score: Number(attempt.score_awarded ?? 0), usedHint: Boolean(attempt.used_hint) } : null,
+  };
+}
+
+async function phase5StudentAction(db: Awaited<ReturnType<typeof serviceClient>>, body: Record<string, unknown>, session: StudentCtx, action: string): Promise<Response> {
+  const installationId = text(body.installationId, 120);
+  if (!installationId) return fail(400, "INSTALLATION_REQUIRED", "설치 정보를 확인해 주세요.");
+  if (action === "peer-problem:publish") {
+    const blocks = canonicalizeProblemBlocks(body.blocks);
+    const structure = validatePeerBlocks(blocks);
+    const cardType = text(body.cardType, 20) as ChallengeCardType;
+    const hintType = text(body.hintType, 20) as ChallengeCardType;
+    if (structure || !["views", "top", "heightMap", "layers"].includes(cardType) || !["views", "top", "heightMap", "layers"].includes(hintType)) return fail(400, "PEER_VALIDATION", structure ?? "문제 카드와 힌트를 확인해 주세요.");
+    const card = makeChallengeCard(blocks, cardType); const hint = makeChallengeCard(blocks, hintType);
+    const title = text(body.title, 120) || "친구 문제";
+    const problemId = crypto.randomUUID();
+    const { error } = await db.from("sb_student_created_problems").insert({ problem_id: problemId, version: 1, installation_id: installationId, class_id: session.classId, author_student_id: session.studentId, title, public_problem_json: { card, grid: { gridWidth: 3, gridDepth: 3, maxHeight: 12 }, totalBlocks: 10 }, hidden_validation_json: { blocks, card, hint }, hint_type: hintType, status: "published", published_at: new Date().toISOString() });
+    if (error) { console.error("[student-api] peer publish failed", { code: error.code }); return fail(500, "PEER_PUBLISH_FAILED", "문제를 게시하지 못했습니다."); }
+    return ok({ problem: { problemId, version: 1, classId: session.classId, title, publicProblemData: { card, grid: { gridWidth: 3, gridDepth: 3, maxHeight: 12 }, totalBlocks: 10 } } });
+  }
+  if (action === "peer-problem:list" || action === "peer-problem:get") {
+    let query = db.from("sb_student_created_problems").select("problem_id,version,class_id,author_student_id,title,public_problem_json,published_at,created_at,status").eq("installation_id", installationId).eq("class_id", session.classId).eq("status", "published");
+    if (action === "peer-problem:get") query = query.eq("problem_id", text(body.problemId, 80)).eq("version", Number(body.version) || 1);
+    const loaded = await query;
+    if (loaded.error) return fail(500, "PEER_LOAD_FAILED", "친구 문제를 불러오지 못했습니다.");
+    const rows = action === "peer-problem:list" ? (loaded.data ?? []).filter((row: Record<string, unknown>) => String(row.author_student_id) !== session.studentId) : (loaded.data ?? []);
+    const attempts = rows.length ? await db.from("sb_peer_problem_attempts").select("problem_id,problem_version,completed_at,score_awarded,used_hint").eq("installation_id", installationId).eq("student_id", session.studentId).in("problem_id", rows.map((r: Record<string, unknown>) => String(r.problem_id))) : { data: [] };
+    const problems = rows.map((row: Record<string, unknown>) => publicPeerRow(row, (attempts.data as Record<string, unknown>[] | undefined)?.find((a) => String(a.problem_id) === String(row.problem_id) && Number(a.problem_version) === Number(row.version)) ?? null));
+    if (action === "peer-problem:get" && !problems[0]) return fail(404, "PEER_NOT_FOUND", "친구 문제를 찾을 수 없습니다.");
+    return ok(action === "peer-problem:get" ? { problem: problems[0] } : { problems });
+  }
+  if (action === "peer-problem:hint") {
+    const problemId = text(body.problemId, 80); const version = Number(body.version) || 1;
+    const loaded = await db.from("sb_student_created_problems").select("problem_id,version,class_id,hidden_validation_json,status").eq("installation_id", installationId).eq("class_id", session.classId).eq("problem_id", problemId).eq("version", version).eq("status", "published").maybeSingle();
+    if (loaded.error || !loaded.data) return fail(404, "PEER_NOT_FOUND", "친구 문제를 찾을 수 없습니다.");
+    const privateData = safeJson<{ hint?: ChallengeCard }>(loaded.data.hidden_validation_json, {});
+    const existing = await db.from("sb_peer_problem_attempts").select("id").eq("installation_id", installationId).eq("problem_id", problemId).eq("problem_version", version).eq("student_id", session.studentId).maybeSingle();
+    if (!existing.data) await db.from("sb_peer_problem_attempts").insert({ installation_id: installationId, class_id: session.classId, problem_id: problemId, problem_version: version, student_id: session.studentId, used_hint: true, submitted_answer_json: {}, is_correct: false, score_awarded: 0 });
+    return ok({ hint: privateData.hint ?? null });
+  }
+  if (action === "peer-problem:submit") {
+    const problemId = text(body.problemId, 80); const version = Number(body.version) || 1; const blocks = canonicalizeProblemBlocks(body.blocks);
+    const loaded = await db.from("sb_student_created_problems").select("problem_id,version,class_id,author_student_id,hidden_validation_json,status").eq("installation_id", installationId).eq("class_id", session.classId).eq("problem_id", problemId).eq("version", version).in("status", ["published", "hidden"]).maybeSingle();
+    if (loaded.error || !loaded.data) return fail(404, "PEER_NOT_FOUND", "친구 문제를 찾을 수 없습니다.");
+    const existing = await db.from("sb_peer_problem_attempts").select("*").eq("installation_id", installationId).eq("problem_id", problemId).eq("problem_version", version).eq("student_id", session.studentId).maybeSingle();
+    if (existing.data?.completed_at) return ok({ attempt: existing.data });
+    const privateData = safeJson<{ blocks?: { x: number; y: number; z: number }[]; card?: ChallengeCard; hint?: ChallengeCard }>(loaded.data.hidden_validation_json, {});
+    const usedHint = Boolean(existing.data?.used_hint); const structure = validStructure(blocks, { gridWidth: 3, gridDepth: 3, maxHeight: 12 });
+    const challenge = { id: problemId, version, classId: session.classId, authorId: String(loaded.data.author_student_id), title: "", blocks: privateData.blocks ?? [], card: privateData.card as ChallengeCard, hint: privateData.hint as ChallengeCard, published: true, hidden: false };
+    const correct = structure && Boolean(privateData.card) && gradePeer(blocks, challenge, usedHint); const score = String(loaded.data.author_student_id) === session.studentId || !correct ? 0 : usedHint ? 1 : 2;
+    const payload = { installation_id: installationId, class_id: session.classId, problem_id: problemId, problem_version: version, student_id: session.studentId, used_hint: usedHint, submitted_answer_json: { kind: "blocks", blocks }, is_correct: correct, score_awarded: score, completed_at: correct ? new Date().toISOString() : null };
+    const saved = existing.data ? await db.from("sb_peer_problem_attempts").update(payload).eq("id", existing.data.id).select("*").single() : await db.from("sb_peer_problem_attempts").insert(payload).select("*").single();
+    if (saved.error) { console.error("[student-api] peer submit failed", { code: saved.error.code }); return fail(500, "PEER_SUBMIT_FAILED", "풀이를 저장하지 못했습니다."); }
+    return ok({ attempt: saved.data });
+  }
+  if (action === "peer-problem:attempts") {
+    const loaded = await db.from("sb_peer_problem_attempts").select("problem_id,problem_version,used_hint,is_correct,score_awarded,completed_at,created_at").eq("installation_id", installationId).eq("student_id", session.studentId).eq("class_id", session.classId).order("created_at", { ascending: false });
+    return loaded.error ? fail(500, "PEER_LOAD_FAILED", "풀이 기록을 불러오지 못했습니다.") : ok({ attempts: loaded.data ?? [] });
+  }
+  if (action === "project:load") {
+    const loaded = await db.from("sb_projects").select("*").eq("student_id", session.studentId).eq("class_id", session.classId).maybeSingle();
+    return loaded.error ? fail(500, "PROJECT_LOAD_FAILED", "작품을 불러오지 못했습니다.") : ok({ project: loaded.data ?? null });
+  }
+  if (action === "project:save") {
+    const expectedVersion = Number(body.expectedVersion ?? body.version ?? 0);
+    const projectData = { building_name: text(body.title, 120), reason: text(body.reason, 500), description: text(body.description, 1000), layer_notes: body.layerUsageNotes ?? body.layerNotes ?? [], blocks: body.blocks ?? [], block_appearance: body.materials ?? body.blockAppearance ?? {}, intro_theme: text(body.introTheme, 40) || "blueprint", grid_width: Number(body.gridWidth) || 10, grid_depth: Number(body.gridDepth) || 10, max_height: Number(body.maxHeight) || 3, submitted: Boolean(body.submitted) };
+    const saved = await db.rpc("sb_save_building", { p_student: session.studentId, p_class: session.classId, p_version: expectedVersion, p_data: projectData });
+    if (saved.error) return fail(saved.error.message === "VERSION_CONFLICT" ? 409 : 500, saved.error.message === "VERSION_CONFLICT" ? "PROJECT_VERSION_CONFLICT" : "PROJECT_SAVE_FAILED", saved.error.message === "VERSION_CONFLICT" ? "최신 작품을 먼저 불러와 주세요." : "작품을 저장하지 못했습니다.");
+    return ok({ projectVersion: Number(saved.data ?? expectedVersion + 1), project: projectData });
+  }
+  if (action === "progress:save" || action === "attempt:save") {
+    const lesson = Number(body.lesson); const setId = text(body.setId, 120); const problemId = text(body.problemId, 120); const problemVersion = Number(body.problemVersion) || 1;
+    const prior = await db.from("sb_lesson_progress_records").select("first_attempt_result,attempt_count,hint_level").eq("installation_id", installationId).eq("class_id", session.classId).eq("student_id", session.studentId).eq("lesson", lesson).eq("set_id", setId).eq("problem_id", problemId).eq("problem_version", problemVersion).maybeSingle();
+    const record = { installation_id: installationId, class_id: session.classId, student_id: session.studentId, curriculum_version: text(body.curriculumVersion, 40) || "v1", lesson, stage: text(body.stage, 12), set_id: setId, problem_id: problemId, problem_version: problemVersion, question_index: Number(body.questionIndex) || 0, answer: body.answer ?? {}, first_attempt_result: prior.data?.first_attempt_result ?? body.firstAttemptResult ?? null, attempt_count: Math.max(Number(prior.data?.attempt_count ?? 0), Number(body.attemptCount) || 0), hint_level: Math.max(Number(prior.data?.hint_level ?? 0), Number(body.hintLevel) || 0), final_result: body.finalResult ?? null, remediation_status: body.remediationStatus ?? "none", completed_at: body.completedAt ?? null };
+    const saved = await db.from("sb_lesson_progress_records").upsert(record, { onConflict: "installation_id,class_id,student_id,lesson,set_id,problem_id,problem_version" }).select("*").single();
+    return saved.error ? fail(500, "PROGRESS_SAVE_FAILED", "진도를 저장하지 못했습니다.") : ok({ progress: saved.data });
+  }
+  if (action === "progress:get") {
+    const loaded = await db.from("sb_lesson_progress_records").select("*").eq("installation_id", installationId).eq("class_id", session.classId).eq("student_id", session.studentId).eq("lesson", Number(body.lesson)).eq("set_id", text(body.setId, 120));
+    return loaded.error ? fail(500, "PROGRESS_LOAD_FAILED", "진도를 불러오지 못했습니다.") : ok({ progress: loaded.data ?? [] });
+  }
+  if (action === "reflection:save" || action === "reflection:get") {
+    const lesson = Number(body.lesson); const curriculumVersion = text(body.curriculumVersion, 40) || "v1";
+    if (action === "reflection:get") { const loaded = await db.from("sb_student_lesson_reflections").select("lesson,curriculum_version,confidence,favorite_concept,self_praise").eq("installation_id", installationId).eq("class_id", session.classId).eq("student_id", session.studentId).eq("lesson", lesson).eq("curriculum_version", curriculumVersion).maybeSingle(); return loaded.error ? fail(500, "REFLECTION_LOAD_FAILED", "자기평가를 불러오지 못했습니다.") : ok({ reflection: loaded.data ?? null }); }
+    const saved = await db.from("sb_student_lesson_reflections").upsert({ installation_id: installationId, class_id: session.classId, student_id: session.studentId, lesson, curriculum_version: curriculumVersion, confidence: body.confidence ?? null, favorite_concept: text(body.favoriteConcept, 120) || null, self_praise: text(body.selfPraise, 240) || null }, { onConflict: "installation_id,student_id,lesson,curriculum_version" }).select("*").single(); return saved.error ? fail(500, "REFLECTION_SAVE_FAILED", "자기평가를 저장하지 못했습니다.") : ok({ reflection: saved.data });
+  }
+  if (action === "practice-set:get-or-create") {
+    const lesson = Number(body.lesson); const curriculumVersion = text(body.curriculumVersion, 40) || "v1"; const targetTotal = [5, 10, 15, 20].includes(Number(body.targetTotal)) ? Number(body.targetTotal) : 5; const seed = Number(body.seed) || 0; const setId = text(body.setId, 120) || `practice-${lesson}-${seed}`; const existing = await db.from("sb_practice_assignments").select("*").eq("installation_id", installationId).eq("student_id", session.studentId).eq("lesson", lesson).eq("active", true).maybeSingle(); if (existing.data) return ok({ assignment: existing.data }); const saved = await db.from("sb_practice_assignments").insert({ installation_id: installationId, class_id: session.classId, student_id: session.studentId, lesson, curriculum_version: curriculumVersion, set_id: setId, seed, problem_ids: body.problemIds ?? [], target_total: targetTotal, active: true }).select("*").single(); return saved.error ? fail(500, "PRACTICE_SET_FAILED", "연습 문제 묶음을 준비하지 못했습니다.") : ok({ assignment: saved.data });
+  }
+  return fail(400, "BAD_ACTION", "지원되지 않는 Phase 5 action 입니다.");
+}
+
 Deno.serve(async (req: Request) => {
   const cors = handlePreflight(req);
   if (cors) return cors;
@@ -488,9 +608,11 @@ Deno.serve(async (req: Request) => {
   const action = text(body.action, 40) as Action;
 
   // 학생 동작
-  if (action === "asset" || action.startsWith("activity:") || action === "home" || action === "rewards" || action === "rewards:equip" || action === "lessonProblems" || action === "practice:new-set" || action === "problem" || action === "attempt" || action === "snapshot" || action === "snapshot:get" || action === "position") {
+  if (action === "asset" || action.startsWith("activity:") || action === "home" || action === "rewards" || action === "rewards:equip" || action === "lessonProblems" || action === "practice:new-set" || action === "problem" || action === "attempt" || action === "snapshot" || action === "snapshot:get" || action === "position" || isPhase5StudentAction(action)) {
     const studentSession = await requireStudent(req, db);
     if (studentSession instanceof Response) return studentSession;
+
+    if (isPhase5StudentAction(action)) return phase5StudentAction(db, body, studentSession, action);
 
     if (action.startsWith("activity:")) return activityRequest(db, body, studentSession);
 
@@ -520,6 +642,7 @@ Deno.serve(async (req: Request) => {
             ]);
             if(attempt.error||snapshot.error) return fail(500,"PRACTICE_LOAD_FAILED","기존 학습 기록을 확인하지 못했어요.");
             if(!attempt.data?.length&&!snapshot.data?.length) return fail(404,"PROBLEM_NOT_FOUND","현재 배정된 문제나 본인의 이전 학습 기록이 아닙니다.");
+            if(!canReadHistoricalPractice(action)) return fail(409,"PRACTICE_HISTORY_READ_ONLY","이전 묶음의 기록은 보기만 가능해요. 현재 묶음에서 이어서 풀어 주세요.");
           }
         }
         if (action === "snapshot") {
@@ -994,6 +1117,22 @@ Deno.serve(async (req: Request) => {
   if (action.startsWith("teacher:")) {
     const teacherId = await requireTeacher(req);
     if (!teacherId) return fail(401, "TEACHER_AUTH", "교사 인증이 필요합니다.");
+
+    if (action === "teacher:peer-problem:list" || action === "teacher:peer-problem:hide") {
+      const classId = text(body.classId, 80); const installationId = text(body.installationId, 120);
+      if (!classId || !(await teacherOwnsClass(db, teacherId, classId))) return fail(403, "FORBIDDEN_CLASS", "담당 학급만 확인할 수 있습니다.");
+      const problemId = text(body.problemId, 80); const version = Number(body.version) || 1;
+      if (action === "teacher:peer-problem:hide") {
+        if (!problemId || !installationId) return fail(400, "BAD_PARAM", "문제 정보가 필요합니다.");
+        const updated = await db.from("sb_student_created_problems").update({ status: "hidden", hidden_at: new Date().toISOString() }).eq("installation_id", installationId).eq("class_id", classId).eq("problem_id", problemId).eq("version", version).select("problem_id,version,status").maybeSingle();
+        if (updated.error || !updated.data) return fail(404, "PEER_NOT_FOUND", "문제를 찾을 수 없습니다.");
+        return ok({ problem: updated.data });
+      }
+      if (!installationId) return fail(400, "INSTALLATION_REQUIRED", "설치 정보를 확인해 주세요.");
+      const loaded = await db.from("sb_student_created_problems").select("problem_id,version,class_id,title,public_problem_json,published_at,created_at,status").eq("class_id", classId).eq("installation_id", installationId).order("created_at", { ascending: false });
+      if (loaded.error) return fail(500, "PEER_LOAD_FAILED", "친구 문제를 불러오지 못했습니다.");
+      return ok({ problems: (loaded.data ?? []).map((row: Record<string, unknown>) => publicPeerRow(row)) });
+    }
 
     if (action === "teacher:classes") {
       const { data } = await db

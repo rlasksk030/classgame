@@ -1,0 +1,50 @@
+{
+  "head": "b1638f9f38115987e743531301d26d81730117f4",
+  "workingTree": true,
+  "results": [
+    {
+      "name": "unit",
+      "exitCode": 0,
+      "start": "2026-09-13T00:20:14.935426+00:00",
+      "end": "2026-09-13T00:20:38.199913+00:00"
+    },
+    {
+      "name": "typecheck",
+      "exitCode": 0,
+      "start": "2026-09-13T00:20:38.207430+00:00",
+      "end": "2026-09-13T00:22:00.871515+00:00"
+    },
+    {
+      "name": "lint",
+      "exitCode": 0,
+      "start": "2026-09-13T00:22:00.893353+00:00",
+      "end": "2026-09-13T00:23:06.593629+00:00"
+    },
+    {
+      "name": "edge",
+      "exitCode": 0,
+      "start": "2026-09-13T00:23:06.609768+00:00",
+      "end": "2026-09-13T00:23:42.017868+00:00"
+    },
+    {
+      "name": "security",
+      "exitCode": 0,
+      "start": "2026-09-13T00:23:42.024555+00:00",
+      "end": "2026-09-13T00:23:59.404753+00:00"
+    },
+    {
+      "name": "e2e-typecheck",
+      "exitCode": 1,
+      "start": "2026-09-13T00:23:59.420675+00:00",
+      "end": "2026-09-13T00:24:10.928662+00:00"
+    },
+    {
+      "name": "e2e-typecheck-explicit",
+      "exitCode": 0,
+      "confirmedAt": "2026-09-13T00:24:48.072099+00:00",
+      "command": "npx tsc --noEmit --target ES2022 --module ESNext --moduleResolution Bundler --allowImportingTsExtensions --skipLibCheck --strict e2e/redesign.spec.ts e2e/redesign-phase2.spec.ts e2e/redesign-phase3.spec.ts playwright.redesign.config.ts",
+      "log": "e2e-explicit-verified.log",
+      "note": "The earlier auxiliary command used nonexistent tsconfig.e2e.json; retained failure log. Explicit existing test sources successfully checked."
+    }
+  ]
+}

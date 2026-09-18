@@ -25,6 +25,8 @@ test('P47 L11 reads the same saved project and exposes representations', async (
   await expect(page.getByRole('heading', { name: '11차시 · 건축물 소개서 만들기' })).toBeVisible();
   await expect(page.getByText('QA 건축물')).toBeVisible();
   await expect(page.getByRole('heading', { name: '한 장 소개서 미리보기' })).toBeVisible();
+  await expect(page.getByRole('button', { name: '이미지로 저장' })).toBeVisible();
+  await expect(page.getByRole('button', { name: '한 장 PDF 저장' })).toBeVisible();
 });
 
 test('P48 L12 common review supports count input and self evaluation without practice', async ({ page }) => {
@@ -39,4 +41,6 @@ test('P48 L12 common review supports count input and self evaluation without pra
   await page.getByLabel('나에게 주는 칭찬').fill('자료를 꼼꼼히 비교했어요.');
   await page.getByRole('button', { name: '마무리 저장' }).click();
   await expect(page.getByText('자기평가는 점수로 채점하지 않아요.')).toBeVisible();
+  await page.reload();
+  await expect(page.getByText('공통 문제 3/6')).toBeVisible();
 });

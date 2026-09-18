@@ -2,7 +2,7 @@
 
 ## 승인 검토용 권장안 1개 — 제작자 Supabase 설치 실행부 (2026-09-12)
 
-**설계안이며 실행부는 미구현/미운영이다. 실제로 제거한 교사 수동 작업은 아직 0개다.** 아래 안은 Cloudflare 서버 사용 없이 반복적인 기술 설치를 줄이지만, 현재의 ‘새 중앙 서버 금지’ 조건에 대한 예외 승인이 필요하다. 승인하지 않으면 공개 URL/key만으로 같은 자동화를 실행할 수 없다.
+**관리 실행부는 로컬 코드 계약과 서버 전용 Management API 어댑터까지 구현했지만 아직 미배포/미운영이다. 실제로 제거한 교사 수동 작업은 아직 0개다.** 아래 안은 Cloudflare 서버 사용 없이 반복적인 기술 설치를 줄이지만, 제작자 소유의 별도 실행 장소가 필요하므로 현재의 ‘새 중앙 서버 금지’ 조건에 대한 예외 승인이 필요하다. 승인하지 않으면 공개 URL/key만으로 같은 자동화를 실행할 수 없다.
 
 ### 실행 장소와 담당
 
@@ -38,7 +38,7 @@
 
 ### 자동화 API와 권한
 
-서버가 OAuth Management API로 프로젝트 조회/생성, [migration 적용](https://supabase.com/docs/reference/api/v1-apply-a-migration), [함수 배포](https://supabase.com/docs/reference/api/v1-deploy-a-function), Secrets 조회/설정을 한다. 공개 publishable key만으로 실행하지 않는다.
+서버가 OAuth Management API로 프로젝트 조회/생성, [migration 적용](https://supabase.com/docs/reference/api/v1-apply-a-migration), [함수 배포](https://supabase.com/docs/reference/api/v1-deploy-a-function), Secrets 조회/설정을 한다. 공개 publishable key만으로 실행하지 않는다. Supabase 문서상 migration Management API는 선택된 partner OAuth 앱에만 제공되므로, OAuth 앱 승인 범위가 확인되기 전에는 자동 migration을 지원한다고 약속하지 않는다.
 
 [공식 scope 표](https://supabase.com/docs/guides/integrations/build-a-supabase-oauth-integration/oauth-scopes)를 기준으로 Organizations Read, Projects Read/Write, Database Read/Write, Edge Functions Read/Write, Secrets Read/Write, Auth Read를 승인 후보로 정한다. Storage Read는 bucket 확인에 사용한다. Billing·Domain·Branch는 요청하지 않는다. 실제 endpoint별 최소 scope 조합은 신규 설치 시험에서 확인해야 한다. 특히 Database Write/Secrets Read는 단일 앱 테이블·공개키만으로 제한된 권한이 아니므로 넓은 관리 권한이라는 사실을 교사에게 알린다. 실행부 allowlist는 위험을 줄이지만 플랫폼 권한 자체를 좁히지는 않는다.
 
@@ -66,7 +66,7 @@
 
 승인 대상은 **제작자 소유의 별도 Supabase Free 설치 프로젝트와 OAuth 앱 운영, 위 관리 scope·최대24시간 암호화 토큰 보관, 명시적으로 승인된 교사 프로젝트에만 설치/업데이트 실행**이다. 중앙 실행부 금지의 예외가 필요하며 Cloudflare는 여전히 정적이다. 유료 전환·임의 기존 프로젝트 변경·학생 데이터 중앙 수집은 승인 범위 밖이다.
 
-지금은 공식 API 조사와 위 설계만 했다. 프로젝트/OAuth 앱/서버/Secret 생성, 배포, 원격 migration, 신규 설치·업데이트 실험은 **NOT_RUN**이다. 현재 설치 완료 판정 수정은 기존 체크포인트 그대로 유지했다.
+`scripts/installer/contract.ts`, `security.ts`, `management-api.ts`, `orchestrator.ts`, `fake-backend.ts`에 실행 계약·대상 바인딩·암호학적 Secret 생성·단계별 재개·Management API 호출·합성 상태 어댑터를 두었다. 이는 브라우저 번들에 포함되지 않으며 management credential은 `EphemeralCredential` 수명 안에서만 사용한다. OAuth 앱/실행 서버/Secret 생성, 배포, 원격 migration, 신규 설치·업데이트 실험은 **NOT_RUN**이다. 현재 설치 완료 판정 수정은 기존 체크포인트 그대로 유지했다.
 
 ## 간편 설치 추가 계약 — 2026-09-12
 
@@ -97,11 +97,11 @@
 
 ### 보존·재개·완료
 
-향후 실행부는 installationId/project ref/목표 release별 migration 버전·해시, 함수 bundle 해시, 마지막 성공 단계, 안전한 오류 코드를 보관한다. 재시도마다 실제 원격 상태를 재조회한다. 불명확한 수동 SQL 이력은 자동 재실행하지 않는다. 기존 학생/PIN/진도/작품과 적용 migration을 보존하고 기존 Secret은 재생성하지 않는다. 중복 학급 생성 방지·부분 성공·작업 잠금·토큰 만료·중단 복구를 검증해야 한다. 이 실행부와 영속 재개 기능은 아직 미구현이다.
+향후 실행부는 installationId/project ref/목표 release별 migration 버전·해시, 함수 bundle 해시, 마지막 성공 단계, 안전한 오류 코드를 보관한다. 재시도마다 실제 원격 상태를 재조회한다. 불명확한 수동 SQL 이력은 자동 재실행하지 않는다. 기존 학생/PIN/진도/작품과 적용 migration을 보존하고 기존 Secret은 재생성하지 않는다. 중복 학급 생성 방지·부분 성공·작업 잠금·토큰 만료·중단 복구를 검증해야 한다. 원격 installer session과 OAuth callback 서버는 아직 미배포이며, 로컬 오케스트레이터는 누락 단계만 재개한다.
 
-LocalVersionService는 원격 release를 조회하지 않는다. SCHEMA_VERSION도 실제 DB 적용 증거가 아니다. 현재 저장소에는 001~016 migration이 있으며 원격 적용 여부는 프로젝트별 확인 대상이다. 설치 완료는 연결·DB/RLS·함수·Storage·교사·학급 및 학생 인증·첫 활동 저장·새 세션 복원 증거까지 필요하다. 상태 함수의 boolean 입력만으로 LIVE 성공을 주장하지 않는다.
+LocalVersionService는 원격 release를 조회하지 않는다. SCHEMA_VERSION도 실제 DB 적용 증거가 아니다. 현재 저장소에는 001~017 migration이 있으며 원격 적용 여부는 프로젝트별 확인 대상이다. 설치 완료는 연결·DB/RLS·함수·Storage·교사·학급 및 학생 인증·첫 활동 저장·새 세션 복원 증거까지 필요하다. 상태 함수의 boolean 입력만으로 LIVE 성공을 주장하지 않는다.
 
-실제 신규 설치/업데이트/중단 복구: NOT_RUN. 자동 실행부: BLOCKED(장소·권한·비용 승인 필요). 수업 오류와 기존 QA 미완료 항목은 계속 우선 처리한다.
+실제 신규 설치/업데이트/중단 복구: NOT_RUN. 원격 자동 실행부 운영: BLOCKED(장소·권한·비용 승인 필요). 로컬 실행 계약의 합성 재개 검사는 통과했지만 실제 TEST 상태 확인은 아직 하지 않았다. 수업 오류와 기존 QA 미완료 항목은 계속 우선 처리한다.
 
 이 앱은 여러 교사가 각자의 Supabase 프로젝트에 연결해 사용하는 배포판을 목표로 한다. 현재 코드에는 개인 프로젝트의 URL·키·교사·학급·학생 값을 하드코딩하지 않는다. 브라우저는 런타임 `RuntimeSupabaseConfig`를 우선 사용하고, `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`와 선택적인 `VITE_INSTALLATION_ID`는 개발·테스트 fallback으로만 사용한다. `service_role` 키와 `APP_SESSION_SECRET`은 Edge Function Secret으로만 둔다.
 
@@ -116,6 +116,12 @@ Cloudflare는 개발자 계정 비용이 발생하지 않는 **순수 정적 호
 - 브라우저에서 `service_role` 키나 Edge Function Secret을 사용하지 않는다. Cloudflare 서버 환경변수도 핵심 기능의 전제 조건으로 만들지 않는다.
 
 학생 수와 교사 수가 늘어도 개발자 Cloudflare 계정에서 동적 요청을 처리하지 않는다. Supabase의 무료 요금제·제한과 각 교사의 데이터베이스 비용은 Cloudflare 비용과 별도로 관리한다.
+
+### 설치 실행부의 현재 경계 (Phase 7E)
+
+정적 Pages 산출물에는 Supabase 관리 토큰이나 Secret을 넣지 않는다. 현재 준비된 `scripts/installer/start.ts`는 Node 런타임, 아웃바운드 HTTPS, 메모리 세션, 암호화 모듈, 저장소의 migration/function 소스 읽기가 필요하며 TEST allowlist와 운영 ref 차단을 시작 시 검증한다. Management API 호출은 서버 전용 `SupabaseManagementBackend`가 PAT를 일시적으로 사용한다.
+
+이 실행부를 실제 교사에게 제공하려면 HTTPS Node 호스트, 도메인과 허용 origin, `INSTALLER_SESSION_SECRET`, TEST project ref allowlist, PAT 또는 Supabase OAuth 앱과 callback 운영이 필요하다. 별도 호스트는 Cloudflare Pages의 정적 범위 밖이며 비용·권한·운영 주체가 승인되지 않아 생성·배포하지 않았다. `npm run installer:server`는 승인된 호스트에서 기동할 준비된 진입점이고, `npm run qa:installer:remote`는 TEST 환경변수로 원격 상태를 점검하는 운영자용 실행기다. QR encoder와 실제 remote `/setup` 연결은 아직 미구현/미검증이다.
 
 ### 공통 정적 산출물과 연결 설정
 
@@ -143,7 +149,7 @@ getInstallationStatus({
 });
 ```
 
-`/setup`은 `checkSupabaseConnection`으로 `/auth/v1/settings`만 읽어 연결을 확인하고 공개 설정을 저장한다. DB 설치·Storage bucket 생성·교사 인증은 자동 실행하지 않는다. 향후 `checkRequiredTables`, `checkRequiredFunctions`, `checkStorageBuckets`, `checkTeacherAdmin`, `checkClassConfiguration` 점검을 이어 붙일 수 있다.
+`/setup`은 8단계 교사 마법사로 연결 확인, 교사 Auth 로그인, 기존 학급 선택/생성, 학생 명단 일괄 생성, 학생 로그인 smoke, 접속 링크 복사를 제공한다. 설치 위치는 설치 ID·단계·학급 식별자만 `stacking-installer-progress`에 저장하고 PIN·비밀번호·access token은 저장하지 않는다. DB 설치·Storage bucket 생성·Edge Function 배포·Secret 설정은 여전히 자동 실행하지 않는다. 정적 SPA와 공개 Publishable key만으로 관리 작업을 수행할 수 없기 때문이다. 안전한 관리용 실행부와 권한·비용 승인이 없는 상태에서 설치 완료를 가장하지 않는다.
 
 ## 업데이트 구조
 

@@ -1,0 +1,15 @@
+✔ L5 solver-backed semantics, count certainty, min/max and boolean renderer contracts (28.566834ms)
+✔ L6 validates candidates and accepts a different structure with the same three projections (3.777458ms)
+✔ L7 exact height reconstruction and independently expected right/front silhouettes (3.563958ms)
+✔ L8 legal nested layers, exact reconstruction, error example and explicit fixed rule (8.44475ms)
+✔ all Phase3 activity/assessment contracts, exact totals and adaptive tags (24.269416ms)
+✔ L5 fixed oblique builder enforces public columns and hidden-column ceiling (1.881625ms)
+✔ publication rejects solver classification and min/max metadata mismatches (1.286959ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 942.913792

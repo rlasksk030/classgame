@@ -16,6 +16,7 @@ interface WorldProps extends SceneState {
   allowedViews?: ViewPreset[];
   appearance?: Record<string, RewardMaterial>;
   activeMaterial?: RewardMaterial;
+  onActiveMaterialChange?: (next: RewardMaterial) => void;
   allowedMaterials?: RewardMaterial[];
   onAppearanceChange?: (next: Record<string, RewardMaterial>) => void;
 }
@@ -32,6 +33,8 @@ export default function BlockWorld(props: WorldProps) {
   const [layerOnly, setLayerOnly] = useState<number | null>(null);
   const [cellX, setCellX] = useState(0), [cellZ, setCellZ] = useState(0);
   const [activeMaterial, setActiveMaterial] = useState<RewardMaterial>(props.activeMaterial ?? 'wood');
+  const activeMaterialRef = useRef(activeMaterial);
+  activeMaterialRef.current = activeMaterial;
   useEffect(() => { if (props.activeMaterial) setActiveMaterial(props.activeMaterial); }, [props.activeMaterial]);
   const [showFirstUseHint, setShowFirstUseHint] = useState(() => {
     try { return !localStorage.getItem('sb.block-world-hint-seen'); } catch { return true; }
@@ -53,7 +56,7 @@ export default function BlockWorld(props: WorldProps) {
       const removed = latest.current.blocks.filter(block => !nextKeys.has(appearanceKey(block.x, block.y, block.z)));
       if (added.length === 1 && removed.length === 1 && previous[appearanceKey(removed[0].x, removed[0].y, removed[0].z)]) {
         result[appearanceKey(added[0].x, added[0].y, added[0].z)] = previous[appearanceKey(removed[0].x, removed[0].y, removed[0].z)];
-      } else for (const block of added) result[appearanceKey(block.x, block.y, block.z)] = activeMaterial;
+      } else for (const block of added) result[appearanceKey(block.x, block.y, block.z)] = activeMaterialRef.current;
       latest.current.onAppearanceChange(result);
     }
     latest.current.onSnapshotChange?.(next);
@@ -83,7 +86,7 @@ export default function BlockWorld(props: WorldProps) {
     }
     return () => { world?.dispose(); scene.current = null; };
   }, [props.grid.gridWidth, props.grid.gridDepth, props.grid.maxHeight]);
-  useEffect(() => { scene.current?.update({ ...props, layerOnly }); }, [props.blocks, props.selected, props.layerMax, props.answerGhost, props.disabled, props.allowRotate, props.appearance, props.highlightedBlocks, layerOnly]);
+  useEffect(() => { scene.current?.update({ ...props, layerOnly: props.allowRotate === false ? null : layerOnly }); }, [props.blocks, props.selected, props.layerMax, props.answerGhost, props.disabled, props.allowRotate, props.appearance, props.highlightedBlocks, layerOnly]);
   useEffect(() => { scene.current?.setView(props.preset, orthographic); }, [props.preset, orthographic]);
 
   const place = () => {
@@ -96,7 +99,7 @@ export default function BlockWorld(props: WorldProps) {
       <output aria-label="현재 관찰 시점">{props.allowRotate === false ? '고정된 시점' : {top: '위', front: '앞', side: props.allowedViews?.includes('right') ? '오른쪽' : '옆(오른쪽)', back: '뒤', left: '왼쪽', free: '자유'}[cameraView]}</output>
       {(Object.keys(VIEW_PRESET_LABELS) as ViewPreset[]).filter(view => props.allowedViews ? props.allowedViews.includes(view) : !['back','left','right'].includes(view)).map(preset => <button type="button" className="btn btn-sm" disabled={props.allowRotate === false} key={preset} onClick={() => { props.onPreset?.(preset); scene.current?.setView(preset, orthographic); }}>{VIEW_PRESET_LABELS[preset]}</button>)}
       <label><input type="checkbox" disabled={props.allowRotate === false} checked={orthographic} onChange={e => setOrthographic(e.target.checked)} /> 방향에 맞춰 보기</label>
-      <select disabled={props.allowRotate === false} aria-label="현재 층만 보기" value={layerOnly ?? ''} onChange={e => setLayerOnly(e.target.value === '' ? null : Number(e.target.value))}>
+      <select disabled={props.allowRotate === false} aria-label="현재 층만 보기" value={props.allowRotate === false ? '' : layerOnly ?? ''} onChange={e => setLayerOnly(e.target.value === '' ? null : Number(e.target.value))}>
         <option value="">모든 층</option>
         {Array.from({ length: props.grid.maxHeight }, (_, i) => <option key={i} value={i + 1}>{i + 1}층만 보기</option>)}
       </select>
@@ -107,9 +110,9 @@ export default function BlockWorld(props: WorldProps) {
       <div ref={frontLabel} className="front-direction-label" aria-label="작업판 앞" style={{bottom:'auto',transform:'translate(-50%, -50%)',pointerEvents:'none'}}>앞</div>
     </div>
     {!props.disabled && <div className="toolbar-row" style={{ padding: 10, flexWrap: 'wrap' }}>
-      {props.allowedMaterials?.length ? <div className="material-picker" aria-label="블록 재료 선택"><strong>재료</strong>{props.allowedMaterials.map(material => <button key={material} type="button" className={`btn btn-sm material-${material} ${activeMaterial === material ? 'btn-primary' : ''}`} onClick={() => { setActiveMaterial(material); if (props.selected && props.onAppearanceChange) props.onAppearanceChange({ ...(props.appearance ?? {}), [appearanceKey(props.selected.x, props.selected.y, props.selected.z)]: material }); props.onMessage?.(props.selected ? '선택한 블록의 재료를 바꿨어요.' : '새 블록 재료를 선택했어요.'); }}>{material === 'wood' ? '원목' : material === 'pastel' ? '파스텔' : material === 'brick' ? '벽돌' : '타일'}</button>)}</div> : null}
+      {props.allowedMaterials?.length ? <div className="material-picker" aria-label="블록 재료 선택"><strong>재료</strong>{props.allowedMaterials.map(material => <button key={material} type="button" className={`btn btn-sm material-${material} ${activeMaterial === material ? 'btn-primary' : ''}`} onClick={() => { setActiveMaterial(material); props.onActiveMaterialChange?.(material); if (props.selected && props.onAppearanceChange) props.onAppearanceChange({ ...(props.appearance ?? {}), [appearanceKey(props.selected.x, props.selected.y, props.selected.z)]: material }); props.onMessage?.(props.selected ? '선택한 블록의 재료를 바꿨어요.' : '새 블록 재료를 선택했어요.'); }}>{material === 'wood' ? '원목' : material === 'pastel' ? '파스텔' : material === 'brick' ? '벽돌' : '타일'}</button>)}</div> : null}
       <div
-        className="block-palette"
+        className={`block-palette palette-material-${activeMaterial}`}
         role="button"
         tabIndex={0}
         aria-label="쌓기나무 보관함. 블록을 작업판에 놓기"
