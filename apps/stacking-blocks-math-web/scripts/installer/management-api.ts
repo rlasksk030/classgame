@@ -87,11 +87,17 @@ export class SupabaseManagementBackend implements InstallerBackend {
   }
 
   async deployFunction(target: InstallerTarget, bundle: FunctionBundle): Promise<FunctionDeployment> {
-    const response = await this.request<FunctionDeployment>("functions", `/v1/projects/${encodeURIComponent(target.projectRef)}/functions/deploy?slug=${encodeURIComponent(bundle.slug)}`, {
+    // The real deploy endpoint takes multipart/form-data (FunctionDeployBody),
+    // not a JSON body: one "file" part per source file plus a "metadata" part.
+    const entrypoint = typeof bundle.metadata.entrypoint_path === "string" ? bundle.metadata.entrypoint_path : "index.ts";
+    const form = new FormData();
+    for (const file of bundle.files) form.append("file", new Blob([file], { type: "text/typescript" }), entrypoint);
+    form.append("metadata", JSON.stringify(bundle.metadata));
+    const response = await this.request<{ version?: number; ezbr_sha256?: string; status?: string }>("functions", `/v1/projects/${encodeURIComponent(target.projectRef)}/functions/deploy?slug=${encodeURIComponent(bundle.slug)}`, {
       method: "POST",
-      body: JSON.stringify({ file: bundle.files, metadata: bundle.metadata }),
+      body: form,
     });
-    return { slug: bundle.slug, version: response.version, hash: response.hash, status: response.status };
+    return { slug: bundle.slug, version: response.version, hash: response.ezbr_sha256, status: response.status };
   }
 
   async probeFunction(target: InstallerTarget, slug: FunctionDeployment["slug"]): Promise<void> {
@@ -103,7 +109,9 @@ export class SupabaseManagementBackend implements InstallerBackend {
   async request<T>(stage: "target" | "migrations" | "secret" | "functions", path: string, init: RequestInit = {}): Promise<T> {
     const headers = new Headers(init.headers);
     headers.set("accept", "application/json");
-    if (init.body) headers.set("content-type", "application/json");
+    // FormData bodies (multipart function deploys) need fetch to set their
+    // own boundary-bearing content-type; only force JSON for string bodies.
+    if (typeof init.body === "string") headers.set("content-type", "application/json");
     let response: Response;
     try {
       response = await this.#credential.use((token) => this.#fetch(`${this.#baseUrl}${path}`, { ...init, headers: new Headers([...headers, ["authorization", `Bearer ${token}`]]) }));

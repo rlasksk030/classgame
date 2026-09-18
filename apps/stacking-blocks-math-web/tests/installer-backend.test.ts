@@ -285,3 +285,22 @@ test("B37 management adapter rebuilds migration filenames from the real API's sp
   const backend = new SupabaseManagementBackend({ accessToken: new EphemeralCredential("temporary-token"), fetchImpl, baseUrl: "https://management.invalid" });
   assert.deepEqual(await backend.listAppliedMigrations(target), ["202609110001_initial.sql", "202609110002_seed.sql"]);
 });
+
+test("B38 management adapter deploys functions as multipart form data and reads the real hash field", async () => {
+  const requests: Array<{ url: string; body?: unknown; contentType: string | null }> = [];
+  const fetchImpl = async (input: string | URL, init?: RequestInit): Promise<Response> => {
+    const headers = new Headers(init?.headers);
+    requests.push({ url: String(input), body: init?.body, contentType: headers.get("content-type") });
+    return new Response(JSON.stringify({ version: 3, ezbr_sha256: "deployed-hash", status: "ACTIVE" }), { status: 200, headers: { "content-type": "application/json" } });
+  };
+  const backend = new SupabaseManagementBackend({ accessToken: new EphemeralCredential("temporary-token"), fetchImpl, baseUrl: "https://management.invalid" });
+  const bundle = fakeBundle("student-api");
+  const result = await backend.deployFunction(target, bundle);
+  assert.equal(result.hash, "deployed-hash");
+  assert.ok(requests[0].url.includes(`slug=${bundle.slug}`));
+  assert.ok(requests[0].body instanceof FormData);
+  const form = requests[0].body as FormData;
+  assert.ok(form.get("file") !== null);
+  assert.equal(typeof form.get("metadata"), "string");
+  assert.equal(requests[0].contentType, null);
+});
