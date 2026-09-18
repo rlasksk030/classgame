@@ -39,9 +39,18 @@ export class SupabaseManagementBackend implements InstallerBackend {
   async listAppliedMigrations(target: InstallerTarget): Promise<string[]> {
     const response = await this.request<unknown>("migrations", `/v1/projects/${encodeURIComponent(target.projectRef)}/database/migrations`);
     if (!Array.isArray(response)) throw new InstallerError("INSTALLER_MIGRATION_RESPONSE_INVALID", "migrations", "원격 migration 상태 응답을 해석할 수 없습니다.");
+    // The Management API returns {version, name} with name stripped of its
+    // leading timestamp (e.g. version "202609110001", name "initial"), not the
+    // "<version>_<name>.sql" filename our local migration plan uses. Rebuild
+    // the filename so it matches plan.migrations[].name.
     return response.flatMap((item) => {
       if (typeof item === "string") return [item];
-      if (item && typeof item === "object" && typeof (item as { name?: unknown }).name === "string") return [(item as { name: string }).name];
+      if (item && typeof item === "object") {
+        const version = typeof (item as { version?: unknown }).version === "string" ? (item as { version: string }).version : undefined;
+        const name = typeof (item as { name?: unknown }).name === "string" ? (item as { name: string }).name : undefined;
+        if (version && name) return [`${version}_${name}.sql`];
+        if (name) return [name];
+      }
       return [];
     });
   }

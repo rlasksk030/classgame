@@ -279,3 +279,9 @@ test("B36 hosted installer uses a cross-origin compatible secure cookie", () => 
   assert.equal(resolveSessionCookieSameSite(false), "Strict");
   assert.throws(() => resolveSessionCookieSameSite(false, "None"), (error: unknown) => error instanceof Error && "code" in error && (error as { code?: unknown }).code === "INSTALLER_COOKIE_CONFIG_INVALID");
 });
+
+test("B37 management adapter rebuilds migration filenames from the real API's split version/name shape", async () => {
+  const fetchImpl = async (): Promise<Response> => new Response(JSON.stringify([{ version: "202609110001", name: "initial" }, { version: "202609110002", name: "seed" }]), { status: 200, headers: { "content-type": "application/json" } });
+  const backend = new SupabaseManagementBackend({ accessToken: new EphemeralCredential("temporary-token"), fetchImpl, baseUrl: "https://management.invalid" });
+  assert.deepEqual(await backend.listAppliedMigrations(target), ["202609110001_initial.sql", "202609110002_seed.sql"]);
+});
