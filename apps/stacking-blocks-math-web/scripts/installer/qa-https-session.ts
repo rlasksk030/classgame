@@ -37,9 +37,29 @@ try {
   stage = "health-cors";
   const health = await call("/health"); expect(health.status).toBe(200); expect(health.mode).toBe("TEST");
   checks.healthCORS = "PASS";
-  stage = "session-cors-cookie";
+  stage = "origin-guard";
+  // Only this test page is synthetic; every backend response remains live HTTPS.
+  const deniedOrigin = "https://installer-origin-check.invalid";
+  const deniedPage = await context.newPage();
+  await deniedPage.route(deniedOrigin + "/", route => route.fulfill({ contentType: "text/html", body: "<!doctype html><title>Origin guard check</title>" }));
+  await deniedPage.goto(deniedOrigin);
+  const blocked = await deniedPage.evaluate(async endpoint => {
+    try { await fetch(endpoint + "/health", { credentials: "include", signal: AbortSignal.timeout(30_000) }); return false; }
+    catch (error) { return error instanceof TypeError; }
+  }, endpoint);
+  expect(blocked).toBe(true);
+  // Inspect the server denial independently because CORS hides it from page JS.
+  const denial = await context.request.get(endpoint + "/health", { headers: { Origin: deniedOrigin } });
+  expect(denial.status()).toBe(403);
+  expect((await denial.json()).code).toBe("INSTALLER_ORIGIN_BLOCKED");
+  expect(denial.headers()["access-control-allow-origin"]).toBeUndefined();
+  await deniedPage.close();
+  checks.originGuard = "PASS: browser denied; live HTTP 403 INSTALLER_ORIGIN_BLOCKED; no allow-origin";
+  stage = "session-create";
   expect((await call("/api/installer/session", "POST", target)).status).toBe(201);
-  const cookie = (await context.cookies(endpoint)).find(item => item.name === "installer_session");
+  checks.sessionCreate = "PASS";
+  stage = "session-cookie";
+  const cookie = (await context.cookies(endpoint + "/api/installer/session")).find(item => item.name === "installer_session");
   expect(cookie?.httpOnly).toBe(true); expect(cookie?.secure).toBe(true); expect(cookie?.sameSite).toBe("None");
   checks.cookie = "HttpOnly/Secure/SameSite=None";
   stage = "reload-session";
@@ -52,7 +72,12 @@ try {
   stage = "revoke";
   expect((await call("/api/installer/session", "DELETE")).status).toBe(200);
   expect((await call("/api/installer/status")).code).toBe("INSTALLER_SESSION_REQUIRED");
-  checks.revoke = "PASS";
+  // Replaying the old cookie must fail too: deleting only the browser cookie is insufficient.
+  await context.addCookies([cookie!]);
+  const revoked = await call("/api/installer/status");
+  expect(revoked.status).toBe(401); expect(revoked.code).toBe("INSTALLER_SESSION_REQUIRED");
+  await context.clearCookies();
+  checks.revoke = "PASS: old cookie replay rejected with 401 INSTALLER_SESSION_REQUIRED";
   await page.screenshot({ path: join(directory, "setup.png"), fullPage: true });
 } catch {
   checks[stage] = "FAIL"; process.exitCode = 1;

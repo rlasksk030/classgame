@@ -257,3 +257,15 @@ Management OAuth는 공식 Supabase OAuth 흐름의 callback/state/PKCE와 clien
 - After that gate: separate empty TEST project approval/provisioning, allowlist binding, actual PAT authorization, fresh install, post-install teacher/class/3-student/login/progress/L9/project smoke remain NOT_RUN. Existing `stacking-blocks-math-test` and both production databases must remain untouched.
 - Actual remote retry/repair/update, session expiry during real install, Render log credential review: NOT_RUN. Local mock/HTTP checks are not substitutes.
 - External teacher manual work actually eliminated by a proven fresh install: **0** so far. No Easy Setup completion claim.
+
+## Approved TEST origin / actual HTTPS session gate — 2026-09-19
+
+**/setup HTTPS transport/session gate: PASS. Fresh installation: NOT_RUN (explicit stop).**
+
+- User approved the exact TEST frontend origin. Saved only `INSTALLER_ALLOWED_ORIGIN=https://stacking-blocks-math-setup-test.onrender.com` on TEST backend `srv-damhnvm1egvs73ca667g`. Render deployment `dep-dan9l0egekts7387bfq0` succeeded with runtime commit `ac95c9eb137b612f81aab1cd0652018f721395be`. This supersedes the pending origin gate above.
+- Real HTTPS Chromium run at `2026-09-19T14:24:54.199Z`: /setup visible, allowed-origin CORS PASS; forbidden-origin browser fetch rejected and independent live HTTP probe returned 403 `INSTALLER_ORIGIN_BLOCKED` with no allow-origin header.
+- Session POST returned 201. Cookie properties: HttpOnly, Secure, SameSite=None. Reload preserved the session (status returned `INSTALLER_AUTH_REQUIRED`, rather than missing session; no PAT was supplied). Revoke returned 200, then both normal access and replay of the old cookie returned 401 `INSTALLER_SESSION_REQUIRED`.
+- Production target binding rejected before Supabase access. Requests restricted to frontend and backend health/session/status. No PAT, Supabase access, project creation, install, migration, data write or production change.
+- Evidence: `runtime/https-session-1789827890089/result.json`, `runtime/https-session-1789827890089/setup.png` (visually reviewed). The denied-origin test document alone is synthetic; backend responses are real HTTPS, not mocked.
+- QA helper change only: add origin denial and revoked-cookie replay assertions; correct cookie inspection URL to `/api/installer/session` because the cookie is deliberately scoped to `/api/installer`. First failing test artifact `runtime/https-session-1789827812151/` preserved; this was a test path mismatch, not a server cookie fix. Related ESLint and diff whitespace check PASS. Existing app/runtime unchanged.
+- Stop point: before creating/binding a fresh TEST Supabase or running automated installation. PAT-authorized installation, fresh install and post-install school flow remain NOT_RUN; final teacher PAT-free connection is still incomplete.
