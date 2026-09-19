@@ -84,6 +84,10 @@ export async function activityRequest(db:ReturnType<typeof serviceClient>, body:
   const final=solveState(saved.state);
   return ok({outcome:{...outcome,state:final,xpEarned:0,stars:0},state:final,...(final.answerRevealed?{revealedAnswer:c.blocks}:{}),hintGiven:final.hintShown?challengeGiven(c.blocks,(c.hint_type as ChallengeType)??'heightMap'):undefined,score:final.score});
  }
+ if(action==='activity:review:get'){
+  const {data,error}=await db.from('sb_self_evaluations').select('confidence,reflection').eq('student_id',student.studentId).maybeSingle();
+  return error?fail(500,'LOAD_FAILED','자기평가를 불러오지 못했습니다.'):ok({evaluation:data});
+ }
  if(action==='activity:review:save'){
   const confidence=Number(body.confidence);
   if(![1,2,3].includes(confidence))return fail(400,'BAD_VALUE','자기평가를 선택해 주세요.');

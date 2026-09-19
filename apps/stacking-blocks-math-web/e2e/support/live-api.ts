@@ -12,13 +12,17 @@ type Row=Record<string,unknown>;
 export const CLASS='33333333-3333-4333-8333-333333333333';
 export const STUDENTS=['55555555-5555-4555-8555-555555555551','55555555-5555-4555-8555-555555555552','55555555-5555-4555-8555-555555555553'];
 export const SYNTHETIC_PIN='4826';
-export async function liveApi(){
+export async function liveApi(options:{students?:Array<{id:string;classId:string;classCode:string;name:string}>}={}){
+ const students=options.students??STUDENTS.map((id,i)=>({id,classId:CLASS,classCode:'QAONLY',name:`QA학생${i+1}`}));
  const pg=new PGlite();
  await pg.exec(`create role anon;create role authenticated;create role service_role bypassrls;create schema auth;create table auth.users(id uuid primary key);create function auth.uid() returns uuid language sql stable as $$select null::uuid$$;create schema storage;create table storage.buckets(id text primary key,name text,public boolean,file_size_limit bigint,allowed_mime_types text[]);create table storage.objects(id uuid primary key default gen_random_uuid(),bucket_id text,name text);alter table storage.objects enable row level security;create function storage.foldername(text) returns text[] language sql as $$select string_to_array($1,'/')$$;`);
  for(const f of readdirSync('supabase/migrations').sort())await pg.exec(readFileSync(`supabase/migrations/${f}`,'utf8').replace('create extension if not exists "pgcrypto";',''));
- await pg.exec(`insert into auth.users values('11111111-1111-4111-8111-111111111111');insert into sb_classes(id,teacher_id,name,class_code) values('${CLASS}','11111111-1111-4111-8111-111111111111','합성 QA반','QAONLY');`);
- for(const [i,id] of STUDENTS.entries())await pg.query('insert into sb_students(id,class_id,name,pin_hash) values($1,$2,$3,$4)',[id,CLASS,`QA학생${i+1}`,'synthetic-only']);
- for(let lesson=1;lesson<=12;lesson++)await pg.query('insert into sb_lesson_settings(class_id,lesson,locked) values($1,$2,false)',[CLASS,lesson]);
+ await pg.exec("insert into auth.users values('11111111-1111-4111-8111-111111111111')");
+ for(const klass of [...new Map(students.map(s=>[s.classId,s])).values()]){
+  await pg.query('insert into sb_classes(id,teacher_id,name,class_code) values($1,$2,$3,$4)',[klass.classId,'11111111-1111-4111-8111-111111111111','합성 QA반',klass.classCode]);
+  for(let lesson=1;lesson<=12;lesson++)await pg.query('insert into sb_lesson_settings(class_id,lesson,locked) values($1,$2,false)',[klass.classId,lesson]);
+ }
+ for(const s of students)await pg.query('insert into sb_students(id,class_id,name,pin_hash) values($1,$2,$3,$4)',[s.id,s.classId,s.name,'synthetic-only']);
  const ident=(s:string)=>{if(!/^[a-z_][a-z0-9_]*$/.test(s))throw Error('unsafe identifier');return s;};
  function table(name:string){
   const filters:Array<[string,unknown]>=[];let columns='*',order='',limit='',single=false,rows:Row[]|null=null,upsert=false,conflict='student_id',ignore=false;
@@ -38,16 +42,17 @@ export async function liveApi(){
  const response=(body:unknown,status=200)=>Response.json(body,{status});
  async function request(path:string,body:Row,token:string|undefined):Promise<Response>{
   if(path.endsWith('student-auth')){
-   if(body.classCode!=='QAONLY')return response({error:{code:'CLASS_NOT_FOUND',message:'반을 찾지 못했어요.'}},404);
-   if(body.action==='class')return response({className:'합성 QA반',classId:CLASS});
-   const index=['QA학생1','QA학생2','QA학생3'].indexOf(String(body.name));
-   if(index<0||body.pin!==SYNTHETIC_PIN)return response({error:{code:'PIN_INVALID',message:'이름과 PIN을 확인해 주세요.'}},401);
-   const id=STUDENTS[index],value=Buffer.from(JSON.stringify({sid:id,cid:CLASS})).toString('base64')+'.synthetic';tokens.set(value,id);
-   return response({token:value,expiresAt:'2099-01-01',student:{id,name:body.name,classId:CLASS,className:'합성 QA반'}});
+   const klass=students.find(s=>s.classCode===body.classCode);
+   if(!klass)return response({error:{code:'CLASS_NOT_FOUND',message:'반을 찾지 못했어요.'}},404);
+   if(body.action==='class')return response({className:'합성 QA반',classId:klass.classId});
+   const student=students.find(s=>s.classCode===body.classCode&&s.name===body.name);
+   if(!student||body.pin!==SYNTHETIC_PIN)return response({error:{code:'PIN_INVALID',message:'이름과 PIN을 확인해 주세요.'}},401);
+   const id=student.id,value=Buffer.from(JSON.stringify({sid:id,cid:student.classId})).toString('base64')+'.synthetic';tokens.set(value,id);
+   return response({token:value,expiresAt:'2099-01-01',student:{id,name:body.name,classId:student.classId,className:'합성 QA반'}});
   }
   const sid=tokens.get(token??'');if(!sid)return response({error:{code:'SESSION_INVALID',message:'다시 로그인해 주세요.'}},401);
   const action=String(body.action),key=`${sid}:${body.problemId}`;
-  if(action.startsWith('activity:'))return activityRequest(db as unknown as Parameters<typeof activityRequest>[0],body,{studentId:sid,classId:CLASS});
+  if(action.startsWith('activity:'))return activityRequest(db as unknown as Parameters<typeof activityRequest>[0],body,{studentId:sid,classId:students.find(s=>s.id===sid)!.classId});
   if(action==='home')return response({student:{classId:CLASS,className:'합성 QA반',rewards:{totalXp:0,totalStars:0,badges:[],streak:0},lessons:Array.from({length:12},(_,i)=>({lesson:i+1,locked:false,totalProblems:problems.filter(p=>p.lesson===i+1).length,completedProblems:problems.filter(p=>p.lesson===i+1&&attempts.get(`${sid}:${p.id}`)?.completed).length,completed:false,stars:0}))}});
   if(action==='lessonProblems'){const ps=problems.filter(p=>p.lesson===Number(body.lesson));return response({problems:ps.map(publicProblem),seedFallback:false,requiredComplete:ps.every(p=>attempts.get(`${sid}:${p.id}`)?.completed),currentProblemId:positions.get(`${sid}:${body.lesson}`)});}
   const p=problems.find(p=>p.id===body.problemId);
