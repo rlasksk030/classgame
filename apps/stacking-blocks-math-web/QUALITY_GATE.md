@@ -38,6 +38,8 @@ npm run audit:problems
 npm run audit:presentation
 npm run audit:semantics
 npm run audit:solvability
+npm run oracle:verify
+npm run oracle:known-issues
 npm test
 npm run test:security
 npm run typecheck

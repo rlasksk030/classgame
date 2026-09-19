@@ -15,6 +15,8 @@
     "audit:presentation": "node --experimental-strip-types scripts/audit-presentation.ts",
     "audit:semantics": "node --experimental-strip-types scripts/audit-semantics.ts",
     "audit:solvability": "node --experimental-strip-types scripts/audit-solvability.ts",
+    "oracle:verify": "node --experimental-strip-types scripts/oracle-cross-check.ts",
+    "oracle:known-issues": "node --experimental-strip-types scripts/oracle-known-issues.ts",
     "qa:curriculum": "node --experimental-strip-types scripts/qa-curriculum.ts",
     "audit:lessons": "node --experimental-strip-types scripts/qa-curriculum.ts",
     "qa:local": "node --experimental-strip-types scripts/local-browser-qa.ts",
