@@ -29,3 +29,11 @@ jobs:
       - run: npm run build
       - run: npx playwright install --with-deps chromium
       - run: npm run test:e2e
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: math-live-browser-${{ github.sha }}
+          path: |
+            apps/stacking-blocks-math-web/test-results/
+            apps/stacking-blocks-math-web/playwright-report/
+          retention-days: 7

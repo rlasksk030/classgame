@@ -1,9 +1,11 @@
-import { test, expect, type Page } from '@playwright/test';
+import {type Page} from '@playwright/test';
+import {test,expect,configureLivePage} from './live-fixture';
 const problem = {
-  id:'f706d292-b923-47d9-8d0d-7087c2d81922', lesson:1, orderIndex:1, problemType:'FREE_BUILD', title:'쌓기 연습', prompt:'직접 쌓아 보세요.',
+  stage:'check', id:'f706d292-b923-47d9-8d0d-7087c2d81922', lesson:1, orderIndex:1, problemType:'FREE_BUILD', title:'쌓기 연습', prompt:'직접 쌓아 보세요.',
   grid:{gridWidth:4,gridDepth:4,maxHeight:4}, givenBlocks:[],startBlocks:[], given:{allowLayerView:true,allowRotate:true,minBlocks:1},choices:[],gradingMode:'exact',
 };
 async function setup(page:Page) {
+  await configureLivePage(page);
   let saved:unknown[]=[];
   let offline=false;
   const calls:string[]=[];
@@ -17,7 +19,7 @@ async function setup(page:Page) {
     if(body.action==='snapshot') {if(offline){await route.abort('internetdisconnected');return;}saved=body.blocks;payload={ok:true};}
     await route.fulfill({json:payload});
   });
-  await page.goto('/lesson/1');
+  await page.goto('/lesson/1/solve');
   await expect(page.getByRole('button',{name:'쌓기나무 보관함. 블록을 작업판에 놓기'})).toBeEnabled();
   return {calls,getSaved:()=>saved,setOffline:(value:boolean)=>{offline=value;}};
 }
@@ -46,7 +48,7 @@ test('Babylon renders; mouse drag snaps, undo/redo and saved state restore',asyn
   expect(errors).toEqual([]);
 });
 test('touch pointer drag places a block without orbit conflict',async({browser})=>{
-  const context=await browser.newContext({viewport:{width:1024,height:768},hasTouch:true});
+  const context=await browser.newContext({baseURL:'http://127.0.0.1:4173',viewport:{width:1024,height:768},hasTouch:true});
   const page=await context.newPage();await setup(page);
   await page.getByRole('button',{name:'위에서 보기',exact:true}).click();await page.waitForTimeout(500);
   const palette=await page.getByRole('button',{name:'쌓기나무 보관함. 블록을 작업판에 놓기'}).boundingBox();

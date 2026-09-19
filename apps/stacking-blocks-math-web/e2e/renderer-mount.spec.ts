@@ -1,8 +1,9 @@
-import { test, expect, type Page } from "@playwright/test";
+import {type Page} from "@playwright/test";
+import {test,expect} from "./live-fixture";
 
 const projection = [[true, false], [true, true]];
 const tripleProblem = {
-  id: "qa-triple", lesson: 3, orderIndex: 2, problemType: "PROJECTION_DRAW", title: "세 방향 그리기",
+  stage: "check", id: "qa-triple", lesson: 3, orderIndex: 2, problemType: "PROJECTION_DRAW", title: "세 방향 그리기",
   prompt: "위·앞·옆에서 본 모양을 모두 그려 보세요.", grid: { gridWidth: 2, gridDepth: 2, maxHeight: 2 },
   givenBlocks: [{ x: 0, y: 0, z: 0 }], startBlocks: [], choices: [], difficulty: 1, xp: 10,
   given: { projections: { top: projection, front: projection, side: projection }, allowRotate: true },
@@ -29,7 +30,7 @@ async function openProblem(page: Page, problem: typeof tripleProblem) {
           : { problem, attempt: { wrongCount: 0, hintShown: false, answerRevealed: false, completed: false }, hint: null, revealedAnswer: null };
     await route.fulfill({ json: payload });
   });
-  await page.goto(`/lesson/${problem.lesson}`);
+  await page.goto(`/lesson/${problem.lesson}/solve`);
   await expect(page.locator("[data-answer-renderer]")).toHaveAttribute("data-answer-renderer", /Renderer$/);
 }
 
@@ -55,7 +56,7 @@ test("projection cells change the submitted payload on the real student route", 
     await route.fulfill({ json: payload });
   });
 
-  await page.goto("/lesson/3");
+  await page.goto("/lesson/3/solve");
   const renderer = page.locator('[data-answer-renderer="TripleProjectionGridRenderer"]');
   await expect(renderer).toBeVisible();
   const firstCell = renderer.locator("button.cell-btn").first();
@@ -93,7 +94,7 @@ test("a projection problem without evidence cannot submit or increase attempts",
             : { problem: malformed, attempt: { wrongCount: 0, hintShown: false, answerRevealed: false, completed: false }, hint: null, revealedAnswer: null };
     await route.fulfill({ json: payload });
   });
-  await page.goto("/lesson/3");
+  await page.goto("/lesson/3/solve");
   await expect(page.getByRole("alert")).toContainText("문제를 표시하지 못했어요");
   await expect(page.getByRole("button", { name: "정답 확인", exact: true })).toBeDisabled();
   expect(attemptCalls).toBe(0);
