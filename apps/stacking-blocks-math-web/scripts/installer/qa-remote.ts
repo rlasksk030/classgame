@@ -2,7 +2,9 @@ import { createHash } from "node:crypto";
 import { mkdir, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 
-if (process.argv.includes("--browser-ui")) {
+if (process.argv.includes("--https-session")) {
+  await import("./qa-https-session.ts");
+} else if (process.argv.includes("--browser-ui")) {
   await import("./qa-setup-browser.ts");
 } else {
 type Json = Record<string, unknown>;

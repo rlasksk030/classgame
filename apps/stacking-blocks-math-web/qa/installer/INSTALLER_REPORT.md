@@ -227,3 +227,33 @@ Management OAuth는 공식 Supabase OAuth 흐름의 callback/state/PKCE와 clien
 ### 배포 전 승인 조건
 
 새 HTTPS Node 호스트와 도메인, `INSTALLER_ALLOWED_ORIGIN`, TEST project ref allowlist, 단기 PAT 또는 Supabase OAuth 앱/redirect URI, Secret 보관·철회 정책, 운영 비용을 승인해야 한다. 승인 전에는 로컬 진입점과 mock 검사만 사용한다. 교사 외부 수동 설치 작업 감소는 아직 0개다.
+
+## Easy Setup HTTPS TEST checkpoint — 2026-09-19
+
+**RESULT: PARTIAL — fresh Supabase install NOT_RUN.** This section supersedes older session/UI limitations above, without treating past checks as current evidence.
+
+- Start: `24c8bd1924ace1a56616f2135dbbb636fef0e481`.
+- Runtime verification: `e6c2289ee4bc158dd62405347dab99d6a7aba43f` (frontend and backend Render Live confirmed). Existing untracked work preserved.
+- TEST frontend created: https://stacking-blocks-math-setup-test.onrender.com/setup (Render Static Site `srv-dan95ibm8hqs73agpk9g`, feature branch, SPA rewrite).
+- Existing TEST backend: https://stacking-blocks-math-installer-test.onrender.com (`srv-damhnvm1egvs73ca667g`). No production service or Supabase database changed.
+- User explicitly approved PAT **for this TEST only**. Final teacher distribution still requires connection without manually entering PAT; INSTALL_EASY is not complete.
+- /setup now connects its existing session/credential/install/status/repair/update/revoke API. The masked token clears before transmission and is never persisted by the client. A fixed 15-minute server session supports reconnect/status and explicit revoke; server restarts require authorization again.
+- A failed browser test caught a genuine native `fetch` receiver error before any installer HTTP request. Added a failing regression, corrected the default transport, then verified the HTTPS UI.
+- Project-scoped in-process lock prevents concurrent installs across separate sessions; target mismatch and attacker origin are rejected. Job identifiers no longer expose session identifiers.
+- Migration source names written by Management API and CLI version/name history are both recognized. Schema version/count are derived from current sources (18 migrations). Existing function secret is preserved on retry/repair/update.
+
+### Executed evidence
+
+- Local installer suite: **58 PASS / 0 FAIL / 0 SKIP**, 2026-09-19 UTC, runtime source `e6c2289`; subsequent uncommitted changes are QA helper only.
+- Related lint and `qa:installer:mock`: PASS. Local full typecheck was stopped after dependency-file reads stalled; it is not counted as PASS.
+- CI for `e6c2289`: typecheck/lint/unit/Edge/security/build/existing browser checks PASS: https://github.com/rlasksk030/classgame/actions/runs/35447692322 . No manual oracle rerun; existing push workflow ran its configured checks.
+- **UI_WITH_TEST_DATA: 5/5 PASS**, actual HTTPS /setup using Playwright input/click/reload. Covers connection/session contract, masked PAT clear, install/teacher gate, reload, no PAT in browser storage/URL, repair/update/revoke/expiry. This is not Supabase remote installation or actual cookie/CORS verification.
+- Passing capture and result: `runtime/setup-ui-1789826846398/installed.png`, `runtime/setup-ui-1789826846398/result.json`. Capture visually reviewed. Earlier failing captures retained in `runtime/setup-ui-1789826492533/` and `runtime/setup-ui-1789826590391/`.
+
+### Pending gate (not bypassed)
+
+- Backend's saved origin remains `https://pending-test-frontend.invalid`. Replacement with the actual TEST frontend origin is prepared in Render but **not saved**, pending the browser-policy action-time confirmation already requested.
+- `npm run qa:installer:remote -- --https-session` is prepared for real HTTPS health/CORS/HttpOnly/Secure/SameSite=None/reload/revoke checks with no PAT and no Supabase requests. Required public env: INSTALLER_FRONTEND_URL, INSTALLER_REMOTE_URL, INSTALLER_TEST_PROJECT_REF, INSTALLER_BUILD_COMMIT. NOT_RUN until origin setting is approved/applied.
+- After that gate: separate empty TEST project approval/provisioning, allowlist binding, actual PAT authorization, fresh install, post-install teacher/class/3-student/login/progress/L9/project smoke remain NOT_RUN. Existing `stacking-blocks-math-test` and both production databases must remain untouched.
+- Actual remote retry/repair/update, session expiry during real install, Render log credential review: NOT_RUN. Local mock/HTTP checks are not substitutes.
+- External teacher manual work actually eliminated by a proven fresh install: **0** so far. No Easy Setup completion claim.
