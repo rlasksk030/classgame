@@ -41,6 +41,11 @@ export async function activityRequest(db:ReturnType<typeof serviceClient>, body:
    system=await systemChallengeRows(student.classId);
    const {error:bankError}=await db.from('sb_shared_challenges').upsert(system,{onConflict:'id',ignoreDuplicates:true});
    if(bankError)return fail(500,'CHALLENGE_BANK_UNAVAILABLE','기본 연습 문제를 준비하지 못했습니다.');
+   const {data:stored,error:storedError}=await db.from('sb_shared_challenges').select('*').eq('class_id',student.classId).eq('source','system');
+   if(storedError)return fail(500,'CHALLENGE_BANK_UNAVAILABLE','기본 연습 문제를 불러오지 못했습니다.');
+   const ordered=system.map(c=>stored?.find(row=>row.id===c.id));
+   if(ordered.some(c=>!c))return fail(500,'CHALLENGE_BANK_UNAVAILABLE','기본 연습 문제를 확인하지 못했습니다.');
+   system=ordered as ChallengeRow[];
   }
   const completed=(id:string)=>Boolean(solves?.some(s=>s.challenge_id===id&&s.correct));
   const ordered=(items:ChallengeRow[])=>items.sort((a,b)=>Number(completed(a.id))-Number(completed(b.id))).map(c=>challengeCard(c,completed(c.id)));

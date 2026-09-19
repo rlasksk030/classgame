@@ -67,7 +67,7 @@ test("projection cells change the submitted payload on the real student route", 
   await expect.poll(() => attemptBody).not.toBeNull();
   const submission = attemptBody?.submission as { kind?: string; projections?: Record<string, boolean[][]> } | undefined;
   expect(submission?.kind).toBe("projections");
-  expect(submission?.projections?.top?.[0]?.[0]).toBe(true);
+  expect(submission?.projections?.top?.[1]?.[0]).toBe(true);
   expect(submission?.projections?.front?.[0]?.[0]).toBe(false);
   expect(submission?.projections?.side?.[0]?.[0]).toBe(false);
 });

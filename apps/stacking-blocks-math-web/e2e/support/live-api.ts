@@ -19,7 +19,7 @@ export async function liveApi(){
  await pg.exec(`insert into auth.users values('11111111-1111-4111-8111-111111111111');insert into sb_classes(id,teacher_id,name,class_code) values('${CLASS}','11111111-1111-4111-8111-111111111111','합성 QA반','QAONLY');`);
  for(const [i,id] of STUDENTS.entries())await pg.query('insert into sb_students(id,class_id,name,pin_hash) values($1,$2,$3,$4)',[id,CLASS,`QA학생${i+1}`,'synthetic-only']);
  for(let lesson=1;lesson<=12;lesson++)await pg.query('insert into sb_lesson_settings(class_id,lesson,locked) values($1,$2,false)',[CLASS,lesson]);
- const ident=(s:string)=>{if(!/^[a-z_]+$/.test(s))throw Error('unsafe identifier');return s;};
+ const ident=(s:string)=>{if(!/^[a-z_][a-z0-9_]*$/.test(s))throw Error('unsafe identifier');return s;};
  function table(name:string){
   const filters:Array<[string,unknown]>=[];let columns='*',order='',limit='',single=false,rows:Row[]|null=null,upsert=false,conflict='student_id',ignore=false;
   const q={select(c='*'){columns=c==='*'?'*':c.split(',').map(ident).join(',');return q;},eq(k:string,v:unknown){filters.push([ident(k),v]);return q;},order(k:string,opts:{ascending:boolean}){order=` order by ${ident(k)} ${opts.ascending?'asc':'desc'}`;return q;},limit(n:number){limit=` limit ${Number(n)}`;return q;},maybeSingle(){single=true;return q;},insert(r:Row|Row[]){rows=Array.isArray(r)?r:[r];return q;},upsert(r:Row|Row[],options?:{onConflict?:string;ignoreDuplicates?:boolean}){rows=Array.isArray(r)?r:[r];upsert=true;conflict=options?.onConflict??'student_id';ignore=Boolean(options?.ignoreDuplicates);return q;},then(resolve:(v:{data:unknown;error:unknown})=>unknown){return (async()=>{try{

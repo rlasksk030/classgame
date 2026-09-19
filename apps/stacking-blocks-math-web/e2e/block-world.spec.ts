@@ -29,6 +29,7 @@ test('Babylon renders; mouse drag snaps, undo/redo and saved state restore',asyn
   const canvas=page.getByLabel('쌓기나무 3D 작업판');
   await page.getByRole('button',{name:'위에서 보기',exact:true}).click();
   await page.waitForTimeout(500);
+  await page.getByRole('button',{name:'쌓기나무 보관함. 블록을 작업판에 놓기'}).scrollIntoViewIfNeeded();
   const palette=await page.getByRole('button',{name:'쌓기나무 보관함. 블록을 작업판에 놓기'}).boundingBox();
   const box=await canvas.boundingBox();
   expect(palette).not.toBeNull();expect(box).not.toBeNull();
@@ -51,6 +52,7 @@ test('touch pointer drag places a block without orbit conflict',async({browser})
   const context=await browser.newContext({baseURL:'http://127.0.0.1:4173',viewport:{width:1024,height:768},hasTouch:true});
   const page=await context.newPage();await setup(page);
   await page.getByRole('button',{name:'위에서 보기',exact:true}).click();await page.waitForTimeout(500);
+  await page.getByRole('button',{name:'쌓기나무 보관함. 블록을 작업판에 놓기'}).scrollIntoViewIfNeeded();
   const palette=await page.getByRole('button',{name:'쌓기나무 보관함. 블록을 작업판에 놓기'}).boundingBox();
   const canvas=await page.getByLabel('쌓기나무 3D 작업판').boundingBox();
   const session=await context.newCDPSession(page);
@@ -65,6 +67,8 @@ test('palette tap then board tap places a block', async({page})=>{
   await setup(page);
   const palette=page.getByRole('button',{name:'쌓기나무 보관함. 블록을 작업판에 놓기'});
   const canvas=page.getByLabel('쌓기나무 3D 작업판');
+  await page.getByRole('button',{name:'위에서 보기',exact:true}).click();
+  await page.waitForTimeout(500);
   await palette.click();
   const box=await canvas.boundingBox();
   expect(box).not.toBeNull();
@@ -88,7 +92,7 @@ test('failed server save retains local draft across reload then syncs',async({pa
   await page.getByText('버튼으로 놓기',{exact:true}).click();
   await page.getByRole('button',{name:'쌓기',exact:true}).click();
   await page.getByRole('button',{name:'저장',exact:true}).click();
-  await expect(page.getByRole('status')).toContainText('인터넷이 연결되면');
+  await expect(page.getByRole('status').filter({hasText:'인터넷이 연결되면'})).toContainText('인터넷이 연결되면');
   await page.reload();await expect(page.getByText('블록 수: 1',{exact:true})).toBeVisible();
   state.setOffline(false);
   await page.evaluate(()=>window.dispatchEvent(new Event('online')));
