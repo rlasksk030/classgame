@@ -1,0 +1,129 @@
+{
+  "scope": "UI_WITH_TEST_DATA",
+  "commit": "a6f2d40c97aa434ed5d2c690224acaeef81ab82d",
+  "ciRun": 35444229628,
+  "stats": {
+    "startTime": "2026-09-19T12:55:55.216Z",
+    "duration": 36152.396,
+    "expected": 19,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "cases": [
+    {
+      "file": "block-world.spec.ts",
+      "title": "Babylon renders; mouse drag snaps, undo/redo and saved state restore",
+      "status": "expected",
+      "durationMs": 5370
+    },
+    {
+      "file": "block-world.spec.ts",
+      "title": "touch pointer drag places a block without orbit conflict",
+      "status": "expected",
+      "durationMs": 2394
+    },
+    {
+      "file": "block-world.spec.ts",
+      "title": "palette tap then board tap places a block",
+      "status": "expected",
+      "durationMs": 2524
+    },
+    {
+      "file": "block-world.spec.ts",
+      "title": "free rotation changes the actual canvas and does not trigger saving",
+      "status": "expected",
+      "durationMs": 2986
+    },
+    {
+      "file": "block-world.spec.ts",
+      "title": "failed server save retains local draft across reload then syncs",
+      "status": "expected",
+      "durationMs": 2176
+    },
+    {
+      "file": "block-world.spec.ts",
+      "title": "lesson 5 restricts its initial camera and unlocks after answering and requesting information",
+      "status": "expected",
+      "durationMs": 3386
+    },
+    {
+      "file": "block-world.spec.ts",
+      "title": "lesson 5 restriction also blocks touch orbit while other lessons remain free",
+      "status": "expected",
+      "durationMs": 1694
+    },
+    {
+      "file": "block-world.spec.ts",
+      "title": "lesson 2 keeps camera orbit controls enabled",
+      "status": "expected",
+      "durationMs": 1993
+    },
+    {
+      "file": "live-flow.spec.ts",
+      "title": "P0 real routes: login, world, learn, submit, logout/login restore and student isolation",
+      "status": "expected",
+      "durationMs": 9875
+    },
+    {
+      "file": "live-flow.spec.ts",
+      "title": "P1 lesson9 live system fallback, real building input, score and no private DTO",
+      "status": "expected",
+      "durationMs": 5981
+    },
+    {
+      "file": "live-flow.spec.ts",
+      "title": "P1 lesson9 creator and independent solver use same API/SQL with hint score",
+      "status": "expected",
+      "durationMs": 11119
+    },
+    {
+      "file": "live-flow.spec.ts",
+      "title": "P1 live lesson10 save and lesson11 restore use same server record",
+      "status": "expected",
+      "durationMs": 3569
+    },
+    {
+      "file": "live-flow.spec.ts",
+      "title": "P1 live lesson12 numeric submission and reflection persist",
+      "status": "expected",
+      "durationMs": 2132
+    },
+    {
+      "file": "renderer-mount.spec.ts",
+      "title": "projection problem mounts the triple grid renderer in the DOM",
+      "status": "expected",
+      "durationMs": 911
+    },
+    {
+      "file": "renderer-mount.spec.ts",
+      "title": "projection cells change the submitted payload on the real student route",
+      "status": "expected",
+      "durationMs": 1136
+    },
+    {
+      "file": "renderer-mount.spec.ts",
+      "title": "a projection problem without evidence cannot submit or increase attempts",
+      "status": "expected",
+      "durationMs": 835
+    },
+    {
+      "file": "renderer-mount.spec.ts",
+      "title": "layer problem mounts one input grid per layer",
+      "status": "expected",
+      "durationMs": 830
+    },
+    {
+      "file": "visual.spec.ts",
+      "title": "desktop route screenshots",
+      "status": "expected",
+      "durationMs": 6900
+    },
+    {
+      "file": "visual.spec.ts",
+      "title": "tablet touch route screenshots",
+      "status": "expected",
+      "durationMs": 1391
+    }
+  ]
+}
