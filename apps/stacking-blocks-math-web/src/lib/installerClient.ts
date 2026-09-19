@@ -1,12 +1,8 @@
-/**
- * Public, credential-free client for the optional installer backend.
- *
- * Management credentials are held by the backend in an HttpOnly session. This
- * client deliberately sends no bearer token, Secret, password, or PIN and is
- * safe to include in the static SPA bundle.
- */
+/** Public installer transport. PAT is sent once to the configured HTTPS server,
+ * never persisted here, and never returned by the backend. */
 
 export type InstallerPublicTarget = {
+  environment?: "TEST";
   projectRef: string;
   projectUrl: string;
   publishableKey?: string;
@@ -23,6 +19,8 @@ export type InstallerRemoteStatus =
 
 export interface InstallerStatusResponse {
   status: InstallerRemoteStatus;
+  appliedMigrationCount?: number;
+  requiredMigrationCount?: number;
   completedStages?: string[];
   missingMigrations?: string[];
   functions?: Array<{ slug: string; status?: string; version?: number }>;
@@ -85,7 +83,7 @@ export class InstallerClient {
   }
 
   createSession(target: InstallerPublicTarget): Promise<InstallerSessionResponse> {
-    return this.request<InstallerSessionResponse>("POST", "/api/installer/session", target);
+    return this.request<InstallerSessionResponse>("POST", "/api/installer/session", { ...target, environment: "TEST" });
   }
 
   /** Starts the server-side OAuth flow; the browser receives only a redirect URL. */
@@ -95,7 +93,7 @@ export class InstallerClient {
 
   /** PAT fallback. The value is sent once and is never stored by this client. */
   provideTemporaryCredential(pat: string): Promise<InstallerSessionResponse> {
-    return this.request<InstallerSessionResponse>("POST", "/api/installer/credential", { pat } as unknown as InstallerPublicTarget);
+    return this.request<InstallerSessionResponse>("POST", "/api/installer/credential", { pat });
   }
 
   getStatus(target: InstallerPublicTarget): Promise<InstallerStatusResponse> {

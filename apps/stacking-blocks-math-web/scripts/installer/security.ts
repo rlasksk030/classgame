@@ -23,7 +23,7 @@ export function redactInstallerObject(value: unknown): unknown {
 }
 
 export function assertSafeTarget(target: { environment: string; projectRef: string }, productionRef: string): void {
-  if (target.environment === "PRODUCTION" || target.projectRef === productionRef) {
+  if (target.environment === "PRODUCTION" || target.projectRef === productionRef || ["lpjpwrgzwumnikroledh", "klruqcakrpmdviyhzrpy"].includes(target.projectRef)) {
     throw new InstallerError("PRODUCTION_TARGET_BLOCKED", "target", "운영 프로젝트에는 설치할 수 없습니다.");
   }
 }

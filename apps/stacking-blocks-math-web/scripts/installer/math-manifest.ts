@@ -16,5 +16,6 @@ export const MATH_INSTALLER_MANIFEST: InstallerManifest = {
 /** Reads the repository migration names without loading SQL into a browser bundle. */
 export async function readMathManifest(migrationsDirectory: string): Promise<InstallerManifest> {
   const names = (await readdir(migrationsDirectory)).filter((name) => /^202\d+_.+\.sql$/.test(name)).sort();
-  return { ...MATH_INSTALLER_MANIFEST, migrations: names };
+  if (!names.length) throw new Error("INSTALLER_MIGRATIONS_MISSING");
+  return { ...MATH_INSTALLER_MANIFEST, schemaVersion: names.at(-1)!.split("_")[0], migrations: names };
 }

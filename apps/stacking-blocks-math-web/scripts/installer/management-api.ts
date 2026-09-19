@@ -48,6 +48,9 @@ export class SupabaseManagementBackend implements InstallerBackend {
       if (item && typeof item === "object") {
         const version = typeof (item as { version?: unknown }).version === "string" ? (item as { version: string }).version : undefined;
         const name = typeof (item as { name?: unknown }).name === "string" ? (item as { name: string }).name : undefined;
+        // Our Management API apply request stores the complete source filename.
+        // Its server-assigned version differs; CLI-created rows use a short name.
+        if (name && /^202\d+_.+\.sql$/.test(name)) return [name];
         if (version && name) return [`${version}_${name}.sql`];
         if (name) return [name];
       }

@@ -7,6 +7,7 @@ import { assertSafeTarget, assertTargetBinding, EphemeralCredential } from "./se
 
 interface InstallerSession {
   id: string;
+  jobId: string;
   target: InstallerTarget;
   credential?: EphemeralCredential;
   state?: InstallState;
@@ -42,7 +43,7 @@ export class InstallerSessionStore {
 
   create(target: InstallerTarget): InstallerSession {
     this.clearExpired();
-    const session: InstallerSession = { id: randomBytes(24).toString("base64url"), target, expiresAt: this.#now() + this.#ttlMs };
+    const session: InstallerSession = { id: randomBytes(24).toString("base64url"), jobId: randomBytes(16).toString("hex"), target, expiresAt: this.#now() + this.#ttlMs };
     this.#sessions.set(session.id, session);
     return session;
   }
@@ -92,16 +93,21 @@ export function resolveSessionCookieSameSite(sessionCookieSecure = false, reques
 export function createInstallerServer(options: InstallerHttpOptions, store = new InstallerSessionStore(options.ttlMs, options.now)): Server {
   const allowedOrigins = new Set(options.allowedOrigins ?? []);
   const allowedProjectRefs = new Set(options.allowedProjectRefs ?? []);
+  // One TEST Node instance owns all sessions; the lock spans separate tabs/sessions.
+  const activeProjects = new Set<string>();
   const server = createServer((request, response) => {
-    void handleRequest(request, response, options, store, allowedOrigins, allowedProjectRefs);
+    void handleRequest(request, response, options, store, allowedOrigins, allowedProjectRefs, activeProjects);
   });
+  const expiry = setInterval(() => store.clearExpired(), 30_000);
+  expiry.unref();
+  server.once("close", () => clearInterval(expiry));
   return server;
 }
 
-async function handleRequest(request: IncomingMessage, response: ServerResponse, options: InstallerHttpOptions, store: InstallerSessionStore, allowedOrigins: Set<string>, allowedProjectRefs: Set<string>): Promise<void> {
+async function handleRequest(request: IncomingMessage, response: ServerResponse, options: InstallerHttpOptions, store: InstallerSessionStore, allowedOrigins: Set<string>, allowedProjectRefs: Set<string>, activeProjects: Set<string>): Promise<void> {
   applyCors(request, response, allowedOrigins);
-  if (request.method === "OPTIONS") { response.writeHead(204); response.end(); return; }
   if (!originAllowed(request, allowedOrigins)) { sendError(response, 403, "INSTALLER_ORIGIN_BLOCKED", "설치 요청 출처를 확인할 수 없습니다."); return; }
+  if (request.method === "OPTIONS") { response.writeHead(204); response.end(); return; }
   const url = new URL(request.url ?? "/", "http://installer.local");
   try {
     if (url.pathname === "/health" && request.method === "GET") { sendJson(response, 200, { ok: true, service: "stacking-blocks-installer", status: "ok", release: options.plan.appVersion, mode: options.mode ?? "TEST" }); return; }
@@ -112,11 +118,13 @@ async function handleRequest(request: IncomingMessage, response: ServerResponse,
       assertTargetBinding(target);
       if (options.mode === "TEST" && target.environment !== "TEST") throw new InstallerError("INSTALLER_TEST_TARGET_REQUIRED", "target", "TEST 프로젝트만 연결할 수 있습니다.");
       if (allowedProjectRefs.size > 0 && !allowedProjectRefs.has(target.projectRef)) throw new InstallerError("INSTALLER_PROJECT_NOT_ALLOWED", "target", "허용된 TEST 프로젝트가 아닙니다.");
-      const session = store.create(target);
+      const previous = getSession(request, store, options.sessionSecret);
+      const sameTarget = previous?.target.projectRef === target.projectRef && previous.target.projectUrl === target.projectUrl;
+      const session = sameTarget ? previous! : store.create(target);
       const cookieValue = options.sessionSecret ? `${session.id}.${signSession(session.id, options.sessionSecret)}` : session.id;
       const sameSite = resolveSessionCookieSameSite(options.sessionCookieSecure, options.sessionCookieSameSite);
-      response.setHeader("set-cookie", `installer_session=${cookieValue}; HttpOnly; SameSite=${sameSite}; Path=/api/installer${options.sessionCookieSecure ? "; Secure" : ""}`);
-      sendJson(response, 201, { status: "CREATED" });
+      response.setHeader("set-cookie", `installer_session=${cookieValue}; HttpOnly; SameSite=${sameSite}; Max-Age=${Math.max(0, Math.floor((session.expiresAt - (options.now ?? Date.now)()) / 1000))}; Path=/api/installer${options.sessionCookieSecure ? "; Secure" : ""}`);
+      sendJson(response, 201, { status: session.credential && !session.credential.disposed ? "AUTHORIZED" : "CREATED" });
       return;
     }
     if (url.pathname === "/api/installer/authorize" && request.method === "POST") {
@@ -126,6 +134,7 @@ async function handleRequest(request: IncomingMessage, response: ServerResponse,
     const session = getSession(request, store, options.sessionSecret);
     if (url.pathname === "/api/installer/session" && request.method === "DELETE") {
       if (session) store.delete(session.id);
+      response.setHeader("set-cookie", `installer_session=; Max-Age=0; HttpOnly; Path=/api/installer; SameSite=${resolveSessionCookieSameSite(options.sessionCookieSecure, options.sessionCookieSameSite)}${options.sessionCookieSecure ? "; Secure" : ""}`);
       sendJson(response, 200, { revoked: true });
       return;
     }
@@ -136,6 +145,12 @@ async function handleRequest(request: IncomingMessage, response: ServerResponse,
       store.setCredential(session.id, pat);
       sendJson(response, 200, { status: "AUTHORIZED" });
       return;
+    }
+    // A stale UI must never operate on a different project bound to this cookie.
+    const requested = request.method === "GET" ? Object.fromEntries(url.searchParams) : await readJson(request);
+    if (requested && typeof requested === "object" && "projectRef" in requested) {
+      const value = requested as { projectRef?: unknown; projectUrl?: unknown };
+      if (value.projectRef !== session.target.projectRef || value.projectUrl !== session.target.projectUrl) throw new InstallerError("INSTALLER_TARGET_MISMATCH", "target", "현재 선택한 프로젝트의 설치 권한을 다시 연결해 주세요.");
     }
     const credential = session.credential;
     if (!credential || credential.disposed) { sendError(response, 401, "INSTALLER_AUTH_REQUIRED", "Supabase 설치 권한을 먼저 연결해 주세요."); return; }
@@ -150,15 +165,20 @@ async function handleRequest(request: IncomingMessage, response: ServerResponse,
     }
     if (url.pathname === "/api/installer/install" || url.pathname === "/api/installer/repair" || url.pathname === "/api/installer/update") {
       if (request.method !== "POST") { sendError(response, 405, "METHOD_NOT_ALLOWED", "지원하지 않는 요청입니다."); return; }
-      if (url.pathname === "/api/installer/repair" || url.pathname === "/api/installer/update") {
-        const current = await statusFor(session, backend, options.plan);
-        const action = maintenanceAction(url.pathname, String(current.status));
-        if (action) { sendJson(response, 200, { jobId: session.id, status: "COMPLETE", action }); return; }
-      }
-      const state = await runInstaller({ target: session.target, plan: options.plan, backend, previous: session.state, onState: (next) => { session.state = next; } });
-      session.state = state;
-      if (state.status === "COMPLETE") credential.dispose();
-      sendJson(response, 200, { jobId: session.id, status: state.status === "COMPLETE" ? "COMPLETE" : "PARTIAL", action: "INSTALL" });
+      if (activeProjects.has(session.target.projectRef)) { sendError(response, 409, "INSTALLER_BUSY", "이 프로젝트의 설치가 진행 중입니다. 잠시 후 상태를 확인해 주세요."); return; }
+      activeProjects.add(session.target.projectRef);
+      try {
+        if (url.pathname === "/api/installer/repair" || url.pathname === "/api/installer/update") {
+          const current = await statusFor(session, backend, options.plan);
+          const action = maintenanceAction(url.pathname, String(current.status));
+          if (action) { sendJson(response, 200, { jobId: session.jobId, status: "COMPLETE", action }); return; }
+        }
+        const state = await runInstaller({ target: session.target, plan: options.plan, backend, previous: session.state, onState: (next) => { session.state = next; } });
+        session.state = state;
+        // Keep only in memory until the fixed session TTL or explicit revoke.
+        // This permits status, refresh and repair without persisting PAT anywhere.
+        sendJson(response, 200, { jobId: session.jobId, status: state.status === "COMPLETE" ? "COMPLETE" : "PARTIAL", action: "INSTALL" });
+      } finally { activeProjects.delete(session.target.projectRef); }
       return;
     }
     sendError(response, 404, "INSTALLER_ROUTE_NOT_FOUND", "설치 경로를 찾을 수 없습니다.");
@@ -187,7 +207,7 @@ async function statusFor(session: InstallerSession, backend: InstallerBackend, p
 
 async function planFor(session: InstallerSession, backend: InstallerBackend, plan: InstallerPlan): Promise<Record<string, unknown>> {
   const [migrations, secrets, functions] = await Promise.all([backend.listAppliedMigrations(session.target), backend.listSecrets(session.target), backend.listFunctions(session.target)]);
-  return { migrations: plan.migrations.map((item) => ({ name: item.name, status: migrations.includes(item.name) ? "APPLIED" : "PENDING" })), functions: plan.functions.map((bundle) => ({ slug: bundle.slug, status: functions.some((item) => item.slug === bundle.slug && item.hash === bundle.hash) ? "INSTALLED" : functions.some((item) => item.slug === bundle.slug) ? "UPDATE_REQUIRED" : "MISSING" })), secretConfigured: secrets.includes("APP_SESSION_SECRET") };
+  return { migrations: plan.migrations.map((item) => ({ name: item.name, status: migrations.includes(item.name) ? "APPLIED" : "PENDING" })), functions: plan.functions.map((bundle) => ({ slug: bundle.slug, status: functions.some((item) => item.slug === bundle.slug && item.hash === bundle.hash) ? "INSTALLED" : functions.some((item) => item.slug === bundle.slug) ? "UPDATE_REQUIRED" : "MISSING" })), secretConfigured: secrets.includes("APP_SESSION_SECRET"), action: plan.migrations.every(item => migrations.includes(item.name)) && secrets.includes("APP_SESSION_SECRET") && plan.functions.every(bundle => functions.some(item => item.slug === bundle.slug && item.hash === bundle.hash)) ? "NO_RUNTIME_CHANGES" : "CHANGES_REQUIRED" };
 }
 
 function parseTarget(value: unknown): InstallerTarget {

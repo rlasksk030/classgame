@@ -60,3 +60,13 @@ test("installer client maps safe backend error codes without exposing response b
 test("installer client rejects non-HTTPS production endpoints", () => {
   assert.throws(() => new InstallerClient("http://installer.example"), (error: unknown) => error instanceof InstallerClientError && error.code === "INSTALLER_ENDPOINT_INVALID");
 });
+
+test("browser session creation supplies the required TEST environment contract", async () => {
+  let body: Record<string, unknown> = {};
+  const client = new InstallerClient("https://installer.example", async (_url, init) => {
+    body = JSON.parse(String(init?.body));
+    return new Response('{"status":"CREATED"}', { headers: { "content-type": "application/json" } });
+  });
+  await client.createSession(target);
+  assert.deepEqual(body, { ...target, environment: "TEST" });
+});

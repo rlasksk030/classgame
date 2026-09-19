@@ -233,7 +233,7 @@ test("B31 math installer plan loads checked-in migration and function sources", 
   assert.ok(plan.functions.every((item) => item.files[0].path === `supabase/functions/${item.slug}/index.ts` && item.files[0].content.includes("Deno.serve")));
   assert.ok(plan.functions.every((item) => item.files.length > 1), "expects the shared-module import closure, not just index.ts");
   assert.ok(plan.functions.every((item) => item.metadata.entrypoint_path === `supabase/functions/${item.slug}/index.ts`));
-  assert.equal(plan.schemaVersion, "202609130017");
+  assert.equal(plan.schemaVersion, plan.migrations.at(-1)!.name.split("_")[0]);
 });
 
 test("B32 TEST runtime requires an allowlist and long-lived session secret", () => {
@@ -318,4 +318,14 @@ test("B39 listFunctions treats the remote's stored name as our own bundle-hash m
   const backend = new SupabaseManagementBackend({ accessToken: new EphemeralCredential("temporary-token"), fetchImpl, baseUrl: "https://management.invalid" });
   const [deployment] = await backend.listFunctions(target);
   assert.equal(deployment.hash, "closure-hash");
+});
+
+test("management-created migration keeps its source filename despite server-assigned version", async () => {
+  const name = "202609110001_initial.sql";
+  const backend = new SupabaseManagementBackend({ accessToken: new EphemeralCredential("synthetic-only"), fetchImpl: async () => new Response(JSON.stringify([{ version: "20260919180000", name }]), { headers: { "content-type": "application/json" } }) });
+  assert.deepEqual(await backend.listAppliedMigrations(target), [name]);
+});
+
+test("known production refs are denied even with a mistaken production name config", () => {
+  for (const projectRef of ["lpjpwrgzwumnikroledh", "klruqcakrpmdviyhzrpy"]) assert.throws(() => assertSafeTarget({ environment: "TEST", projectRef }, "stacking-blocks-math"), /운영 프로젝트/);
 });

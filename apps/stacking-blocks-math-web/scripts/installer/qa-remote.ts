@@ -2,6 +2,9 @@ import { createHash } from "node:crypto";
 import { mkdir, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 
+if (process.argv.includes("--browser-ui")) {
+  await import("./qa-setup-browser.ts");
+} else {
 type Json = Record<string, unknown>;
 
 const endpoint = required("INSTALLER_REMOTE_URL").replace(/\/$/, "");
@@ -87,3 +90,5 @@ function required(name: string): string {
 }
 
 function fail(code: string): never { throw new Error(code); }
+
+}

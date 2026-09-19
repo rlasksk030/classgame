@@ -8,6 +8,7 @@ import type { FunctionBundle } from "./contract.ts";
 /** Builds the server-side release plan from the checked-in math sources. */
 export async function readMathInstallerPlan(root: string): Promise<InstallerPlan> {
   const migrations = await readMigrationPlan(join(root, "supabase", "migrations"));
+  if (!migrations.length) throw new Error("INSTALLER_MIGRATIONS_MISSING");
   const functions = await Promise.all(MATH_INSTALLER_MANIFEST.functions.map(async (slug) => {
     const entrypointPath = `supabase/functions/${slug}/index.ts`;
     const files = await collectFunctionBundleFiles(root, join(root, "supabase", "functions", slug, "index.ts"));
@@ -19,5 +20,5 @@ export async function readMathInstallerPlan(root: string): Promise<InstallerPlan
     const bundle: FunctionBundle = { slug, files, metadata: { entrypoint_path: entrypointPath, verify_jwt: false, name: hash }, hash };
     return bundle;
   }));
-  return { migrations, functions, appVersion: MATH_INSTALLER_MANIFEST.release, schemaVersion: MATH_INSTALLER_MANIFEST.schemaVersion, productionRef: process.env.INSTALLER_PRODUCTION_REF ?? "stacking-blocks-math" };
+  return { migrations, functions, appVersion: MATH_INSTALLER_MANIFEST.release, schemaVersion: migrations.at(-1)!.name.split("_")[0], productionRef: process.env.INSTALLER_PRODUCTION_REF ?? "stacking-blocks-math" };
 }

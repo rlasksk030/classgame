@@ -42,6 +42,7 @@ export async function runInstaller(options: InstallerRunOptions): Promise<Instal
   assertSafeTarget(target, plan.productionRef);
   assertTargetBinding(target);
   const state = stateFor(target, plan, options.previous);
+  delete state.lastError;
   try {
     const project = await options.backend.inspectProject(target);
     if (project.ref !== target.projectRef) throw new InstallerError("INSTALLER_TARGET_MISMATCH", "target", "설치 대상 프로젝트가 일치하지 않습니다.");
