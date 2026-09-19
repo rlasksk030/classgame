@@ -15,6 +15,10 @@ const browser = await chromium.launch({ headless: true });
 const context = await browser.newContext({ viewport: { width: 1280, height: 900 } });
 const page = await context.newPage();
 const checks: Array<{ name: string; status: string }> = [];
+const requests: Array<{ host: string; path: string; method: string }> = [];
+const errors: string[] = [];
+page.on("requestfailed", request => { errors.push(`${new URL(request.url()).hostname}: ${request.failure()?.errorText ?? "REQUEST_FAILED"}`); });
+page.on("console", message => { if (message.type() === "error") errors.push(message.text().replace(/synthetic-qa-only-not-a-real-token/g, "[REDACTED]")); });
 let authorized = false;
 let installed = false;
 let installs = 0;
@@ -23,6 +27,7 @@ let stage = "load";
 const syntheticPat = "synthetic-qa-only-not-a-real-token";
 await context.route("**/*", async route => {
   const request = route.request(); const url = new URL(request.url());
+  if (url.origin !== origin) requests.push({ host: url.hostname, path: url.pathname, method: request.method() });
   if (url.origin === origin) return route.continue();
   if (url.origin === "https://synthetic-setup-test.supabase.co" && url.pathname === "/auth/v1/settings") return route.fulfill({ json: {} });
   if (url.origin !== apiOrigin) return route.abort();
@@ -81,12 +86,13 @@ try {
   await page.getByRole("button", { name: "상태 확인", exact: true }).click();
   await expect(page.getByRole("alert")).toContainText("만료");
   checks.push({ name: "repair, update, revoke and expired-session recovery", status: "PASS" });
-} catch {
+} catch (error) {
+  errors.push(error instanceof Error ? error.message.replaceAll(syntheticPat, "[REDACTED]") : "BROWSER_FAILURE");
   checks.push({ name: stage, status: "FAIL" });
   await page.screenshot({ path: join(output, "failed.png"), fullPage: true });
   process.exitCode = 1;
 } finally {
-  await writeFile(join(output, "result.json"), JSON.stringify({ kind: "UI_WITH_TEST_DATA", remoteSupabaseWrites: false, codeCommit: process.env.INSTALLER_BUILD_COMMIT ?? "NOT_RECORDED", executedAt: new Date().toISOString(), frontend: origin, checks }, null, 2));
+  await writeFile(join(output, "result.json"), JSON.stringify({ kind: "UI_WITH_TEST_DATA", remoteSupabaseWrites: false, codeCommit: process.env.INSTALLER_BUILD_COMMIT ?? "NOT_RECORDED", executedAt: new Date().toISOString(), frontend: origin, checks, requests, errors }, null, 2));
   await browser.close();
 }
 console.log(JSON.stringify({ kind: "UI_WITH_TEST_DATA", checks, output }));

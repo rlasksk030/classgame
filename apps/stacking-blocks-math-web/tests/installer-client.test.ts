@@ -70,3 +70,11 @@ test("browser session creation supplies the required TEST environment contract",
   await client.createSession(target);
   assert.deepEqual(body, { ...target, environment: "TEST" });
 });
+
+test("default transport invokes browser fetch without an InstallerClient receiver", async (t) => {
+  t.mock.method(globalThis, "fetch", async function (this: unknown) {
+    assert.equal(this, undefined, "native browser fetch rejects an unrelated receiver");
+    return new Response('{"status":"CREATED"}', { headers: { "content-type": "application/json" } });
+  });
+  assert.equal((await new InstallerClient("https://installer.example").createSession(target)).status, "CREATED");
+});

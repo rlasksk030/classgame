@@ -64,7 +64,7 @@ export class InstallerClient {
   readonly #baseUrl: string;
   readonly #fetch: FetchLike;
 
-  constructor(endpoint: string, fetchImpl: FetchLike = fetch) {
+  constructor(endpoint: string, fetchImpl: FetchLike = (input, init) => fetch(input, init)) {
     let parsed: URL;
     try {
       parsed = new URL(endpoint);
