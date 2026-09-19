@@ -1,3 +1,4 @@
+import {requiredSolveIds} from '../../shared/lessonProgression.ts';
 /** Playwright-only transport. Real activity handler + PostgreSQL RPC; synthetic auth/lesson records. */
 import {PGlite} from '@electric-sql/pglite';
 import {readFileSync,readdirSync} from 'node:fs';
@@ -12,7 +13,7 @@ type Row=Record<string,unknown>;
 export const CLASS='33333333-3333-4333-8333-333333333333';
 export const STUDENTS=['55555555-5555-4555-8555-555555555551','55555555-5555-4555-8555-555555555552','55555555-5555-4555-8555-555555555553'];
 export const SYNTHETIC_PIN='4826';
-export async function liveApi(options:{students?:Array<{id:string;classId:string;classCode:string;name:string}>}={}){
+export async function liveApi(options:{liveStages?:boolean;students?:Array<{id:string;classId:string;classCode:string;name:string}>}={}){
  const students=options.students??STUDENTS.map((id,i)=>({id,classId:CLASS,classCode:'QAONLY',name:`QA학생${i+1}`}));
  const pg=new PGlite();
  await pg.exec(`create role anon;create role authenticated;create role service_role bypassrls;create schema auth;create table auth.users(id uuid primary key);create function auth.uid() returns uuid language sql stable as $$select null::uuid$$;create schema storage;create table storage.buckets(id text primary key,name text,public boolean,file_size_limit bigint,allowed_mime_types text[]);create table storage.objects(id uuid primary key default gen_random_uuid(),bucket_id text,name text);alter table storage.objects enable row level security;create function storage.foldername(text) returns text[] language sql as $$select string_to_array($1,'/')$$;`);
@@ -37,7 +38,7 @@ export async function liveApi(options:{students?:Array<{id:string;classId:string
  const tokens=new Map<string,string>();
  const attempts=new Map<string,ReturnType<typeof applyAttempt>['state']>();
  const snapshots=new Map<string,unknown>();const positions=new Map<string,string>();const submissions:Row[]=[];
- const problems=SEED_PROBLEMS.filter(p=>[3,5,12].includes(p.lesson)).map(p=>({...p,id:p.code,stage:'check' as const,presentation:deriveProblemPresentation(p)}));
+ const problems=SEED_PROBLEMS.filter(p=>[3,5,12].includes(p.lesson)).map(p=>({...p,id:p.code,stage:(options.liveStages ? (p.orderIndex<=1?'concept':p.orderIndex===2?'check':'more') : 'check') as 'concept'|'check'|'more',presentation:deriveProblemPresentation(p)}));
  const publicProblem=(p:typeof problems[number])=>{const {answer:_,hint:__,explanation:___,...dto}=p;void _;void __;void ___;return dto;};
  const response=(body:unknown,status=200)=>Response.json(body,{status});
  async function request(path:string,body:Row,token:string|undefined):Promise<Response>{
@@ -54,7 +55,7 @@ export async function liveApi(options:{students?:Array<{id:string;classId:string
   const action=String(body.action),key=`${sid}:${body.problemId}`;
   if(action.startsWith('activity:'))return activityRequest(db as unknown as Parameters<typeof activityRequest>[0],body,{studentId:sid,classId:students.find(s=>s.id===sid)!.classId});
   if(action==='home')return response({student:{classId:CLASS,className:'합성 QA반',rewards:{totalXp:0,totalStars:0,badges:[],streak:0},lessons:Array.from({length:12},(_,i)=>({lesson:i+1,locked:false,totalProblems:problems.filter(p=>p.lesson===i+1).length,completedProblems:problems.filter(p=>p.lesson===i+1&&attempts.get(`${sid}:${p.id}`)?.completed).length,completed:false,stars:0}))}});
-  if(action==='lessonProblems'){const ps=problems.filter(p=>p.lesson===Number(body.lesson));return response({problems:ps.map(publicProblem),seedFallback:false,requiredComplete:ps.every(p=>attempts.get(`${sid}:${p.id}`)?.completed),currentProblemId:positions.get(`${sid}:${body.lesson}`)});}
+  if(action==='lessonProblems'){const ps=problems.filter(p=>p.lesson===Number(body.lesson));return response({problems:ps.map(publicProblem),seedFallback:false,requiredComplete:requiredSolveIds(ps).length>0&&requiredSolveIds(ps).every(id=>attempts.get(`${sid}:${id}`)?.completed),currentProblemId:positions.get(`${sid}:${body.lesson}`)});}
   const p=problems.find(p=>p.id===body.problemId);
   if(action==='problem')return response({problem:p&&publicProblem(p),attempt:attempts.get(key)??INITIAL_ATTEMPT,hint:null,revealedAnswer:null});
   if(action==='snapshot:get')return response({snapshot:snapshots.get(key)??null});

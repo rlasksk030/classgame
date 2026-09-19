@@ -1,3 +1,4 @@
+import { requiredSolveIds } from '../../../shared/lessonProgression.ts';
 import { activityRequest } from "../_shared/activities.ts";
 import { canonicalize, validStructure, toHeightMap } from "../../../shared/blocks.ts";
 import { makeChallengeCard, validatePeerBlocks, gradePeer, type ChallengeCard, type ChallengeCardType } from "../../../shared/phase4.ts";
@@ -824,8 +825,7 @@ Deno.serve(async (req: Request) => {
       }
       const parsed=(problemRows as DbProblemRow[]|null)?.map(row=>parseProblemRow(row)).filter(Boolean)??[];
       const merged = [...parsed];
-      const requiredRows=(problemRows as DbProblemRow[]|null)?.filter(row=>Number(row.order_index)<=2)??[];
-      const requiredIds=requiredRows.map(row=>row.id);
+      const requiredIds=requiredSolveIds(parsed.filter((p): p is NonNullable<typeof p> => p !== null));
       const {data:requiredAttempts}=requiredIds.length?await db.from("sb_problem_attempts").select("problem_id,completed").eq("student_id",studentSession.studentId).in("problem_id",requiredIds):{data:[] as {problem_id:string;completed:boolean}[]};
       const requiredComplete=requiredIds.length>0&&requiredIds.every(id=>requiredAttempts?.some(row=>row.problem_id===id&&row.completed));
       const stages={concept:parsed.filter(p=>p?.stage==='concept').length,check:parsed.filter(p=>p?.stage==='check').length,more:parsed.filter(p=>p?.stage==='more').length};

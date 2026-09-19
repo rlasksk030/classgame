@@ -115,3 +115,32 @@ test('P1 live lesson12 numeric submission and reflection persist',async({page})=
 
  }finally{await api.close();}
 });
+
+
+test('P1 progression: completed solve unlocks practice after reload and relogin without a graded learn attempt',async({page})=>{
+ const api=await liveApi({liveStages:true});try{
+ await connect(page,api);await login(page);await page.goto('/lesson/5/solve');
+ const p=SEED_PROBLEMS.find(p=>p.lesson===5&&p.orderIndex===2)!;
+ if(p.answer.kind!=='choice')throw Error('L5 solve fixture must require a choice');
+ await page.getByRole('button',{name:`${p.answer.index+1}. ${p.choices[p.answer.index]}`,exact:true}).click();
+ await page.getByRole('button',{name:'정답 확인',exact:true}).click();
+ await expect(page.getByRole('button',{name:'다음 단계',exact:true})).toBeEnabled();
+ await expect(page.getByRole('button',{name:'② 문제 풀기 · 완료',exact:true})).toBeVisible();
+ const submissions=api.submissions.length;
+ await page.reload();await expect(page.getByText('이 문제는 이미 완료했습니다.',{exact:true})).toBeVisible();
+ let rejectPosition=true;
+ await page.route('https://math-e2e.invalid/functions/v1/student-api',async route=>{
+  if(route.request().postDataJSON()?.action==='position'&&rejectPosition){rejectPosition=false;await route.fulfill({status:503,contentType:'application/json',body:JSON.stringify({error:{code:'SAVE_FAILED',message:'위치 저장 실패'}})});return;}
+  await route.fallback();
+ });
+ await page.getByRole('button',{name:'다음 단계',exact:true}).click();
+ await expect(page.getByText('위치 저장 실패',{exact:true})).toBeVisible();await expect(page).toHaveURL(/\/solve$/);
+ await page.getByRole('button',{name:'다음 단계',exact:true}).click();
+ await expect(page).toHaveURL(/\/lesson\/5\/practice$/);
+ await expect(page.getByRole('button',{name:'③ 더 풀어보기',exact:true})).toHaveAttribute('aria-current','step');
+ await page.goto('/world');await page.getByRole('button',{name:'나가기',exact:true}).click();await login(page);
+ await page.goto('/lesson/5/solve');await expect(page.getByRole('button',{name:'다음 단계',exact:true})).toBeEnabled();
+ await page.getByRole('button',{name:'다음 단계',exact:true}).click();await expect(page).toHaveURL(/\/practice$/);
+ expect(api.submissions.length).toBe(submissions);
+ }finally{await api.close();}
+});

@@ -150,6 +150,8 @@ export default function LessonPage() {
 
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
+  const [moving, setMoving] = useState(false);
+  const navigationPending = useRef(false);
   const [restoring, setRestoring] = useState(true);
   const [saveStatus, setSaveStatus] = useState("");
   const [message, setMessage] = useState<string | null>(null);
@@ -378,7 +380,7 @@ export default function LessonPage() {
     [lessonNum],
   );
 
-  const flushSnapshot = useCallback(async () => {
+  const flushSnapshot = useCallback(async (strict = false) => {
     if (!problem || restoring) return;
     if (problem.id.startsWith("seed:")) return;
     const key = draftKey(getStudentToken(), problem.id);
@@ -398,6 +400,7 @@ export default function LessonPage() {
       setSaveStatus("저장했어요.");
     } catch {
       setSaveStatus("현재 기기에 임시 저장했어요. 인터넷이 연결되면 다시 저장할게요.");
+      if (strict) throw new Error("저장하지 못했어요. 연결을 확인한 뒤 다시 이동해 주세요.");
     }
   }, [blocks, lessonNum, problem, restoring]);
 
@@ -542,58 +545,43 @@ export default function LessonPage() {
     }
   };
 
+  const navigateSaved = async (next: StudentProblem | undefined, stage?: "concept" | "check" | "more") => {
+    if (navigationPending.current || busy || restoring) return;
+    navigationPending.current = true;
+    setMoving(true);
+    try {
+      await flushSnapshot(true);
+      if (next && !next.id.startsWith("seed:")) await saveProblemPosition(next.id, lessonNum);
+      if (!next) { navigate("/world"); return; }
+      const targetStage = stage ?? stageFilter;
+      saveStageCursor(lessonNum, targetStage, next.id);
+      setStageFilter(targetStage);
+      setProblemIndex(problems.filter(p => p.stage === targetStage).findIndex(p => p.id === next.id));
+      if (stage) navigate(`/lesson/${lessonNum}/${stage === "check" ? "solve" : stage === "more" ? "practice" : "learn"}`);
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "저장하지 못했어요. 다시 이동해 주세요.");
+    } finally { navigationPending.current = false; setMoving(false); }
+  };
+
   const moveToStage = (stage: "concept" | "check" | "more") => {
-    void flushSnapshot();
     if (stage === "more" && !requiredComplete) {
       setMessage("③ 더 풀어보기는 ② 문제 풀기를 완료한 뒤 열려요.");
       return;
     }
-    const stageProblems = problems.filter(item => item.stage === stage);
-    const savedId = readStageCursor(lessonNum, stage);
-    const first = stageProblems.find(item => item.id === savedId) ?? stageProblems[0];
-    if (!first) {
-      setMessage("다음 학습 단계가 아직 준비되지 않았어요.");
-      return;
-    }
-    setStageFilter(stage);
-    navigate(`/lesson/${lessonNum}/${stage === "check" ? "solve" : stage === "more" ? "practice" : "learn"}`);
-    setProblemIndex(Math.max(0, stageProblems.findIndex(item => item.id === first.id)));
-    saveStageCursor(lessonNum, stage, first.id);
-    applyProblem(first);
-    if (!first.id.startsWith("seed:")) void saveProblemPosition(first.id, lessonNum);
+    const candidates = problems.filter(item => item.stage === stage);
+    const next = candidates.find(item => item.id === readStageCursor(lessonNum, stage)) ?? candidates[0];
+    if (!next) { setMessage("다음 학습 단계가 아직 준비되지 않았어요."); return; }
+    void navigateSaved(next, stage);
   };
 
-  // 완료한 문제도 다음 행동을 선택할 수 있어야 합니다. 제출과 이동을
-  // 같은 disabled 조건으로 묶지 않고, 단계의 경계에서는 다음 단계를
-  // 명시적으로 안내해 현재 문항 위치가 갑자기 초기화되지 않게 합니다.
-  const canNavigate = Boolean(problem && visibleProblems.length > 0 && (problemIndex < visibleProblems.length - 1 || attempt.completed));
-  const nextActionLabel = (() => {
-    if (!problem || !attempt.completed) return "다음";
-    if (problemIndex < visibleProblems.length - 1) return "다음 문제";
-    if (currentStage === "concept") return "문제 풀기 시작";
-    if (currentStage === "check") return requiredComplete && problems.some(item => item.stage === "more") ? "더 풀어보기 시작" : "차시 결과 보기";
-    return "차시 결과 보기";
-  })();
-
+  const canNavigate = Boolean(!busy && !restoring && !moving && problem && visibleProblems.length > 0 && (problemIndex < visibleProblems.length - 1 || attempt.completed));
+  const nextStage = currentStage === "concept" ? "check" : currentStage === "check" && requiredComplete && problems.some(p => p.stage === "more") ? "more" : null;
+  const nextActionLabel = problemIndex < visibleProblems.length - 1 ? "다음 문제" : nextStage ? "다음 단계" : "학습 완료";
   const goNext = () => {
     if (!problem || !canNavigate) return;
-    void flushSnapshot();
-    if (problemIndex < visibleProblems.length - 1) {
-      const next = visibleProblems[problemIndex + 1];
-      if (next) {
-        if (next.stage) saveStageCursor(lessonNum, next.stage, next.id);
-        if (!next.id.startsWith("seed:")) void saveProblemPosition(next.id, lessonNum);
-      }
-      setProblemIndex(value => value + 1);
-      return;
-    }
-    if (currentStage === "concept") {
-      moveToStage("check");
-    } else if (currentStage === "check" && requiredComplete && problems.some(item => item.stage === "more")) {
-      moveToStage("more");
-    } else {
-      navigate("/world");
-    }
+    if (problemIndex < visibleProblems.length - 1) void navigateSaved(visibleProblems[problemIndex + 1]);
+    else if (nextStage) moveToStage(nextStage);
+    else void navigateSaved(undefined);
   };
 
   const doUndo = () => {
@@ -778,20 +766,7 @@ export default function LessonPage() {
         <section className="panel stack" aria-label="차시 학습 단계">
           <strong>학습 단계</strong>
           <div className="toolbar-row">
-            {([['concept','① 개념 배우기'],['check','② 문제 풀기'],['more','③ 더 풀어보기']] as const).map(([value,label])=><button key={value} className={`btn btn-sm ${currentStage===value?'btn-primary':''}`} disabled={value==='more'&&!requiredComplete} onClick={()=>{
-              void flushSnapshot();
-              navigate(`/lesson/${lessonNum}/${value === 'check' ? 'solve' : value === 'more' ? 'practice' : 'learn'}`);
-              setStageFilter(value);
-              const stageProblems = problems.filter(item => item.stage === value);
-              const savedId = readStageCursor(lessonNum, value);
-              const first = stageProblems.find(item => item.id === savedId) ?? stageProblems[0];
-              if (first) {
-                setProblemIndex(Math.max(0, stageProblems.findIndex(item => item.id === first.id)));
-                saveStageCursor(lessonNum, value, first.id);
-                applyProblem(first);
-                if (!first.id.startsWith('seed:')) void saveProblemPosition(first.id, lessonNum);
-              }
-            }}>{label} {value==='more'&&!requiredComplete?'(필수 학습 후 열림)':''}</button>)}
+            {([['concept','① 개념 배우기'],['check','② 문제 풀기'],['more','③ 더 풀어보기']] as const).map(([value,label])=><button key={value} className={`btn btn-sm ${currentStage===value?'btn-primary':''}`} aria-current={currentStage===value?'step':undefined} disabled={moving || busy || restoring || (value==='more'&&!requiredComplete)} onClick={()=>moveToStage(value)}>{label}{value==='check'&&requiredComplete?' · 완료':''} {value==='more'&&!requiredComplete?'(필수 학습 후 열림)':''}</button>)}
           </div>
           <p className="muted">① {problems.filter(item=>item.stage==='concept').length}문제 · ② {problems.filter(item=>item.stage==='check').length}문제 · ③ {problems.filter(item=>item.stage==='more').length}문제{requiredComplete?' · 필수 학습 완료':' · ② 문제 풀기를 먼저 완료해 주세요.'}</p>
           {requiredComplete && problems.some(item => item.stage === 'more') && (
@@ -938,7 +913,7 @@ export default function LessonPage() {
               >{renderEditor()}</div>
 
               <div className="toolbar-row" style={{ marginTop: 12 }}>
-                <button className="btn" onClick={submit} disabled={restoring || busy || attempt.completed || answerUnavailable}>
+                <button className="btn" onClick={submit} disabled={restoring || busy || moving || attempt.completed || answerUnavailable}>
                   {busy ? "채점 중…" : "정답 확인"}
                 </button>
                 <button className="btn btn-sm" onClick={() => {
