@@ -101,3 +101,11 @@ test('difficulty follows reasoning and input rather than question order',()=>{
  const wrongKind={...p[3],answer:{kind:'choice' as const,index:0},choices:['하나']};
  assert.equal(validateCandidate(wrongKind).ok,false);
 });
+
+
+test('v3 saved rows are not labelled as legacy when restored',async()=>{
+ const {practiceSetStatus}=await import('../shared/practiceSet.ts');
+ const rows=generateValidatedPracticeSet(5,5,123).map(p=>({code:p.code,order_index:p.orderIndex}));
+ const status=practiceSetStatus(rows,5,123,5);
+ assert.equal(status.legacyVersion,false);assert.equal(status.requiresRepair,false);
+});

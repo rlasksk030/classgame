@@ -40,6 +40,8 @@ let fixedChecked = 0;
 let generatedChecked = 0;
 let dfsRuns = 0;
 let dfsCapped = 0;
+const versions:Record<string,{checked:number;dfs:number;capped:number}>={};
+let activeVersion="fixed";
 
 function record(problem: Problem, field: string, detail: string, oracleValue: unknown, existingValue: unknown) {
   mismatches.push({ code: problem.code, lesson: problem.lesson, problemType: problem.problemType, field, detail, oracleValue, existingValue });
@@ -205,10 +207,17 @@ function checkGrader(problem: Problem, dfsResult: ConstraintSolveResult | undefi
 
 function checkProblem(problem: Problem) {
   problemsChecked++;
+  const stats=versions[activeVersion]??{checked:0,dfs:0,capped:0};versions[activeVersion]=stats;stats.checked++;
+  const before=dfsRuns,beforeCapped=dfsCapped;
   checkGeometry(problem);
   const dfsResult = checkConstraint(problem);
   checkInformationSufficiency(problem);
   checkGrader(problem, dfsResult);
+  if(['minimum','maximum','sufficient','multiple','impossible-count'].includes(problem.given.reasoning??'')) {
+    const result=solveViewConstraint(problem.given.projections??{},problem.grid,{solutionCap:Number.MAX_SAFE_INTEGER});
+    dfsRuns++;if(result.capped)dfsCapped++;
+  }
+  stats.dfs+=dfsRuns-before;stats.capped+=dfsCapped-beforeCapped;
 }
 
 // --- Run over every fixed problem ---
@@ -224,9 +233,10 @@ const GENERATOR_LESSONS = [1, 2, 3, 4, 5, 6, 7, 8, 12];
 const SEEDS_PER_LESSON = Number(process.env.ORACLE_SEEDS ?? 60);
 
 for (const lesson of GENERATOR_LESSONS) {
-  const templateCount = Math.max(getProblemTemplates(lesson).length, 1);
-  for (const version of [1, 2] as const) {
-    for (let seed = 0; seed < SEEDS_PER_LESSON; seed++) {
+  for (const version of [1, 2, 3] as const) {
+    activeVersion=String(version);
+    const templateCount = Math.max(getProblemTemplates(lesson,version).length, 1);
+    for (let seed = 0; seed < (version===3?Math.max(SEEDS_PER_LESSON,120):SEEDS_PER_LESSON); seed++) {
       const generated = generatePracticeProblems(lesson, templateCount, seed, version);
       for (const problem of generated) {
         checkProblem(problem);
@@ -247,6 +257,7 @@ const report = {
   generatedChecked,
   dfsRuns,
   dfsCapped,
+  versions,
   mismatchCount: mismatches.length,
   mismatches,
 };
@@ -256,8 +267,10 @@ const lines: string[] = [];
 lines.push("# Independent Math Oracle — Cross-check Report");
 lines.push("");
 lines.push(`생성 시각: ${report.generatedAt}`);
-lines.push(`검증한 문제 수: 고정 ${fixedChecked}개 + 생성 ${generatedChecked}개 (차시당 시드 ${SEEDS_PER_LESSON}개 × 버전 2종) = 총 ${problemsChecked}개`);
+lines.push(`검증한 문제 수: 고정 ${fixedChecked}개 + 생성 ${generatedChecked}개 (차시당 시드 ${SEEDS_PER_LESSON}개 × 버전 3종) = 총 ${problemsChecked}개`);
 lines.push(`DFS 제약 검증 실행 횟수: ${dfsRuns} (한도 도달: ${dfsCapped})`);
+lines.push(`버전별 검사/DFS/한도: ${JSON.stringify(versions)}`);
+lines.push('구버전 한도 도달은 완전 탐색 PASS가 아닙니다. 신규 v3의 극값·유일성은 완전 탐색만 사용합니다.');
 lines.push(`불일치: ${mismatches.length}건`);
 lines.push("");
 if (mismatches.length === 0) {

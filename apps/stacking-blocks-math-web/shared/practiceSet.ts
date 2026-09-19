@@ -57,7 +57,7 @@ export function isAssignedPracticeCode(code:string|null|undefined,lesson:number,
 export function practiceSetStatus<T extends {code?:string|null;order_index:number}>(rows:T[],lesson:number,seed:number,targetCount:number,displayedSeed=seed) {
   const generated=rows.filter(row=>String(row.code??'').startsWith(`GEN-L${lesson}-S${displayedSeed}-`));
   const duplicateCodes=generated.length-new Set(generated.map(row=>row.code)).size;
-  const legacy=lesson===5&&generated.some(row=>!row.code?.endsWith('-V2'));
+  const legacy=lesson===5&&generated.some(row=>!/-V[23]$/.test(row.code??''));
   return { contractVersion:2 as const, seed, displayedSeed, awaitingReplacement:displayedSeed!==seed, targetCount, generatedCount:generated.length,
     supplementalCount:rows.filter(row=>!String(row.code??'').startsWith('GEN-L')&&row.order_index>2).length,
     duplicateCodes, legacyVersion:legacy, requiresRepair:duplicateCodes>0||displayedSeed!==seed };

@@ -8,7 +8,7 @@ const at=new Date().toISOString();
 const path=`qa/practice-sets/${at.replace(/[:.]/g,'-')}`;
 mkdirSync(path,{recursive:true});
 const seed=123;
-const before=generatePracticeProblems(5,35,seed), after=generateValidatedPracticeSet(5,35,seed);
+const before=generatePracticeProblems(5,35,seed,1), after=generateValidatedPracticeSet(5,35,seed);
 const rows=(set:typeof before)=>set.map((p,i)=>({order:i+1,problemId:p.code,templateId:p.templateId,seed:p.seed,generatorVersion:p.generatorVersion,
   prompt:p.prompt,given:p.given,answerInput:p.answer.kind,taskFingerprint:taskFingerprint(p),screenProblemId:null,screenStatus:'BLOCKED'}));
 const otherLessons=[1,2,3,4,5,6,7,8,12].flatMap(lesson=>[5,10,15,20].map(count=>{
