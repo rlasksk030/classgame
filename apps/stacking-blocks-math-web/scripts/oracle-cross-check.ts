@@ -252,6 +252,7 @@ mkdirSync("oracle/reports", { recursive: true });
 const report = {
   generatedAt: new Date().toISOString(),
   seedsPerLesson: SEEDS_PER_LESSON,
+  seedsPerLessonByVersion: { 1: SEEDS_PER_LESSON, 2: SEEDS_PER_LESSON, 3: Math.max(SEEDS_PER_LESSON, 120) },
   problemsChecked,
   fixedChecked,
   generatedChecked,
@@ -267,7 +268,7 @@ const lines: string[] = [];
 lines.push("# Independent Math Oracle — Cross-check Report");
 lines.push("");
 lines.push(`생성 시각: ${report.generatedAt}`);
-lines.push(`검증한 문제 수: 고정 ${fixedChecked}개 + 생성 ${generatedChecked}개 (차시당 시드 ${SEEDS_PER_LESSON}개 × 버전 3종) = 총 ${problemsChecked}개`);
+lines.push(`검증한 문제 수: 고정 ${fixedChecked}개 + 생성 ${generatedChecked}개 (차시당 v1/v2 시드 ${SEEDS_PER_LESSON}개씩, v3 시드 ${Math.max(SEEDS_PER_LESSON,120)}개) = 총 ${problemsChecked}개`);
 lines.push(`DFS 제약 검증 실행 횟수: ${dfsRuns} (한도 도달: ${dfsCapped})`);
 lines.push(`버전별 검사/DFS/한도: ${JSON.stringify(versions)}`);
 lines.push('구버전 한도 도달은 완전 탐색 PASS가 아닙니다. 신규 v3의 극값·유일성은 완전 탐색만 사용합니다.');

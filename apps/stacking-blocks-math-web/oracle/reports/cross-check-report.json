@@ -1,11 +1,38 @@
 {
-  "generatedAt": "2026-09-19T10:21:25.882Z",
+  "generatedAt": "2026-09-19T12:20:40.701Z",
   "seedsPerLesson": 60,
-  "problemsChecked": 6750,
+  "seedsPerLessonByVersion": {
+    "1": 60,
+    "2": 60,
+    "3": 120
+  },
+  "problemsChecked": 13950,
   "fixedChecked": 30,
-  "generatedChecked": 6720,
-  "dfsRuns": 905,
+  "generatedChecked": 13920,
+  "dfsRuns": 2586,
   "dfsCapped": 894,
+  "versions": {
+    "1": {
+      "checked": 3360,
+      "dfs": 480,
+      "capped": 480
+    },
+    "2": {
+      "checked": 3360,
+      "dfs": 420,
+      "capped": 413
+    },
+    "3": {
+      "checked": 7200,
+      "dfs": 1680,
+      "capped": 0
+    },
+    "fixed": {
+      "checked": 30,
+      "dfs": 6,
+      "capped": 1
+    }
+  },
   "mismatchCount": 0,
   "mismatches": []
 }

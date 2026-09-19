@@ -1,99 +1,90 @@
 {
-  "generatedAt": "2026-09-19T10:21:40.817Z",
-  "findings": [
-    {
-      "title": "고정 문제 중복/사실상 동일 (구조적 서명 일치)",
-      "detail": "L2-01(L2), L12-04(L12) — 도형·given·answer·gradingMode가 완전히 동일하고 제목/프롬프트만 다릅니다.",
-      "evidence": [
-        {
-          "code": "L2-01",
-          "lesson": 2,
-          "title": "이 사진은 어디에서 찍었을까"
-        },
-        {
-          "code": "L12-04",
-          "lesson": 12,
-          "title": "단원 마무리 · 이 사진은 어디에서 찍었을까"
-        }
-      ]
-    },
-    {
-      "title": "고정 문제 중복/사실상 동일 (구조적 서명 일치)",
-      "detail": "L6-01(L6), L6-03(L6) — 도형·given·answer·gradingMode가 완전히 동일하고 제목/프롬프트만 다릅니다.",
-      "evidence": [
-        {
-          "code": "L6-01",
-          "lesson": 6,
-          "title": "세 방향을 보고 똑같이 쌓기"
-        },
-        {
-          "code": "L6-03",
-          "lesson": 6,
-          "title": "조건을 만족하는 다른 모양"
-        }
-      ]
-    },
-    {
-      "title": "고정 문제 중복/사실상 동일 (구조적 서명 일치)",
-      "detail": "L7-02(L7), L12-05(L12) — 도형·given·answer·gradingMode가 완전히 동일하고 제목/프롬프트만 다릅니다.",
-      "evidence": [
-        {
-          "code": "L7-02",
-          "lesson": 7,
-          "title": "쌓은 모양을 숫자로 나타내기"
-        },
-        {
-          "code": "L12-05",
-          "lesson": 12,
-          "title": "단원 마무리 · 쌓은 모양을 숫자로 나타내기"
-        }
-      ]
-    },
-    {
-      "title": "고정 문제 중복/사실상 동일 (구조적 서명 일치)",
-      "detail": "L8-02(L8), L12-06(L12) — 도형·given·answer·gradingMode가 완전히 동일하고 제목/프롬프트만 다릅니다.",
-      "evidence": [
-        {
-          "code": "L8-02",
-          "lesson": 8,
-          "title": "층별 모양 그리기"
-        },
-        {
-          "code": "L12-06",
-          "lesson": 12,
-          "title": "단원 마무리 · 층별 모양 그리기"
-        }
-      ]
-    },
-    {
-      "title": "템플릿 \"lesson6-minimum\"가 실제로는 최소/최대 문제를 생성하지 않음",
-      "detail": "템플릿 카탈로그(shared/practiceGenerator.ts TEMPLATES[6])에는 존재하지만, 20개 표본 프롬프트 중 \"최소\"/\"최대\" 단어가 하나도 없습니다. 실제 프롬프트는 4종 범용 문구를 순환할 뿐입니다.",
-      "evidence": [
-        "가능한 모양 중 하나를 찾아 보세요."
-      ]
-    },
-    {
-      "title": "템플릿 \"lesson6-maximum\"가 실제로는 최소/최대 문제를 생성하지 않음",
-      "detail": "템플릿 카탈로그(shared/practiceGenerator.ts TEMPLATES[6])에는 존재하지만, 20개 표본 프롬프트 중 \"최소\"/\"최대\" 단어가 하나도 없습니다. 실제 프롬프트는 4종 범용 문구를 순환할 뿐입니다.",
-      "evidence": [
-        "세 방향 모습을 보고 직접 쌓아 보세요."
-      ]
-    },
-    {
-      "title": "CHOICE/BLOCK_POSITION 정답 위치 편중",
-      "detail": "선택형 문제 422개 중 index=0가 정답인 비율이 57.1%입니다. 절반 이상이 같은 위치에 몰려 있어 찍기 전략에 취약합니다.",
-      "evidence": [
-        {
-          "index": 0,
-          "count": 241,
-          "share": 0.5710900473933649
-        },
-        {
-          "index": 1,
-          "count": 181,
-          "share": 0.42890995260663506
-        }
-      ]
-    }
-  ]
+  "generatedAt": "2026-09-19T12:16:42.265Z",
+  "generatorVersion": 3,
+  "seeds": "0..119",
+  "fixed": 30,
+  "generated": 7200,
+  "peerBank": 24,
+  "dfsComplete": 360,
+  "duplicates": 0,
+  "choices": {
+    "2": [
+      320,
+      289
+    ],
+    "3": [
+      200,
+      186,
+      205
+    ]
+  },
+  "difficulty": {
+    "BASIC": 974,
+    "PRACTICE": 3346,
+    "APPLICATION": 2280,
+    "CHALLENGE": 600
+  },
+  "families": {
+    "lesson1-position-right": 120,
+    "lesson1-position-above": 120,
+    "lesson1-layer-count": 120,
+    "lesson1-total-count": 120,
+    "lesson1-description-choice": 120,
+    "lesson1-layer-compare": 120,
+    "lesson2-front-view": 120,
+    "lesson2-back-view": 120,
+    "lesson2-left-view": 120,
+    "lesson2-right-view": 120,
+    "lesson2-top-view": 120,
+    "lesson2-feature-check": 120,
+    "lesson3-top-draw": 120,
+    "lesson3-front-draw": 120,
+    "lesson3-side-draw": 120,
+    "lesson3-all-views": 120,
+    "lesson3-hidden-side": 120,
+    "lesson3-direction-judge": 120,
+    "lesson4-total-count": 120,
+    "lesson4-height-map": 120,
+    "lesson4-layer-count": 120,
+    "lesson4-layer-map": 120,
+    "lesson4-method-choice": 120,
+    "lesson4-missing-info": 120,
+    "lesson5-unknown-choice": 120,
+    "lesson5-hidden-min": 120,
+    "lesson5-hidden-max": 120,
+    "lesson5-extra-info": 120,
+    "lesson5-same-view": 120,
+    "lesson5-reveal-count": 120,
+    "lesson5-minimum": 120,
+    "lesson5-counterexample": 120,
+    "lesson6-build-views": 120,
+    "lesson6-another-solution": 120,
+    "lesson6-possible-shape": 120,
+    "lesson6-minimum": 120,
+    "lesson6-maximum": 120,
+    "lesson6-unique-or-many": 120,
+    "lesson6-add-height": 120,
+    "lesson6-invalid-count": 120,
+    "lesson7-height-to-build": 120,
+    "lesson7-build-to-height": 120,
+    "lesson7-total-from-height": 120,
+    "lesson7-fill-height": 120,
+    "lesson7-find-wrong-height": 120,
+    "lesson7-changed-height": 120,
+    "lesson8-layers-to-build": 120,
+    "lesson8-build-to-layers": 120,
+    "lesson8-missing-layer": 120,
+    "lesson8-layer-count": 120,
+    "lesson8-total-count": 120,
+    "lesson8-next-layer": 120,
+    "lesson12-direction": 120,
+    "lesson12-projection": 120,
+    "lesson12-count": 120,
+    "lesson12-height-map": 120,
+    "lesson12-layer-map": 120,
+    "lesson12-constraint": 120,
+    "lesson12-hidden-block": 120,
+    "lesson12-spatial-choice": 120
+  },
+  "failures": []
 }
