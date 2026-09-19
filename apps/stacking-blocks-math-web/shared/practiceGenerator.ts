@@ -1,3 +1,4 @@
+import { contentProblem, CONTENT_TEMPLATES, acceptContent, shuffleChoices } from './contentBank.ts';
 import { fromHeightMap, grid2DEqual, heightMapEqual, project, toHeightMap, toLayers, validStructure } from './blocks.ts';
 import type { BlockCoord, DifficultyTier, Grid2D, GridConfig, ProblemGiven, ProblemSourceType, ProblemType } from './types.ts';
 import type { SeedProblem } from './seedProblems.ts';
@@ -48,8 +49,9 @@ const TEMPLATES: Record<number, ProblemTemplate[]> = {
   12: [template(12,'lesson12-direction','CAMERA_DIRECTION'), template(12,'lesson12-projection','PROJECTION_DRAW'), template(12,'lesson12-count','COUNT'), template(12,'lesson12-height-map','HEIGHTMAP_FROM_BUILD'), template(12,'lesson12-layer-map','LAYER_DRAW'), template(12,'lesson12-constraint','BUILD_FROM_VIEWS'), template(12,'lesson12-hidden-block','COUNT_AMBIGUOUS'), template(12,'lesson12-spatial-choice','CHOICE')],
 };
 
-export function getProblemTemplates(lesson:number): ProblemTemplate[] {
-  return (TEMPLATES[lesson] ?? []).map(template => ({...template}));
+export function getProblemTemplates(lesson:number, version=3): ProblemTemplate[] {
+  if(version>=3 && CONTENT_TEMPLATES[lesson]) return CONTENT_TEMPLATES[lesson].map((id,i)=>({...template(lesson,id,contentProblem(lesson,i,123).problemType),generatorVersion:3}));
+  return (TEMPLATES[lesson] ?? []).map(template => ({...template,generatorVersion:version}));
 }
 
 export function validateGeneratedProblem(problem: Pick<SeedProblem, 'grid'|'givenBlocks'|'startBlocks'|'answer'|'gradingMode'|'problemType'|'given'>): boolean {
@@ -110,8 +112,14 @@ function base(lesson:number,index:number,blocks:BlockCoord[],type:ProblemType,gi
   return {code:`GEN-L${lesson}-${String(index+1).padStart(2,'0')}`,lesson,orderIndex:100+index,problemType:type,title:`${lesson}차시 연습 ${index+1}`,prompt:'쌓기나무 모양을 여러 방향에서 살펴보고 문제를 해결해 보세요.',grid,givenBlocks:blocks,startBlocks:[],given,choices:[],answer,gradingMode:mode,hint:'아래층부터 차례로 확인하고, 필요한 경우 층별 보기와 숫자 지도를 활용해 보세요.',explanation:'블록 좌표와 투영 정보를 비교하면 같은 입체를 정확히 표현할 수 있어요.',difficulty:tier===1?1:tier===2?2:3,xp:tier===1?20:tier===2?25:30,templateId:chosenTemplate.templateId,seed:index,generatorVersion:chosenTemplate.generatorVersion,difficultyTier,conceptTags:chosenTemplate.conceptTags,sourceType:'GENERATED_PRACTICE'};
 }
 
-/** 저장된 seed 없이도 같은 lesson/index가 늘 같은 문제를 만드는 순수 생성기. */
-export function generatePracticeProblems(lesson:number,count:number,seed=0,version=1):GeneratedProblem[]{
+/** Same lesson/index/seed/version reproduces the same content. v1/v2 remain explicit compatibility paths. */
+export function generatePracticeProblems(lesson:number,count:number,seed=0,version=3):GeneratedProblem[]{
+  if(version===3) return Array.from({length:count},(_,i)=> {
+    if(CONTENT_TEMPLATES[lesson])return contentProblem(lesson,i,seed);
+    const p=generatePracticeProblems(lesson,i+1,seed,2).find(p=>p.orderIndex===100+i);
+    if(!p)throw new Error("CONTENT_GENERATION_FAILED");
+    return acceptContent(shuffleChoices({...p,generatorVersion:3,code:p.code.replace(/-V2$/, "-V3")},seed^Math.imul(i+1,0x9e3779b9)^lesson));
+  });
   const out:GeneratedProblem[]=[];
   const grid=lesson%2===0?G4:G3;
   for(let i=0;i<count;i++){

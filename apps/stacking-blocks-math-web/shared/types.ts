@@ -177,6 +177,8 @@ export interface StudentProblem {
 
 /** 문제가 학생에게 "보여 주는" 조건. 정답 그 자체는 아니다. */
 export interface ProblemGiven {
+  /** Versioned content reasoning contract; derived from public evidence, never a hidden answer. */
+  reasoning?: "minimum" | "maximum" | "sufficient" | "multiple" | "no-hidden" | "height-sum" | "layer-sum" | "height-projection" | "layer-height" | "candidate-match" | "impossible-count" | "height-layers";
   projections?: Partial<Projections>;
   heightMap?: HeightMap;
   layers?: Grid2D[];

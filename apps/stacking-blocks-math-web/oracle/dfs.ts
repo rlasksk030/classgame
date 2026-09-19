@@ -34,6 +34,8 @@ export interface ConstraintSolveResult {
   uniqueness: Uniqueness;
   sampleSolutions: OracleBlock[][];
   nodesVisited: number;
+  minCount: number | null;
+  maxCount: number | null;
 }
 
 const SOLUTION_CAP = 500;
@@ -55,7 +57,7 @@ function columnMaxFromSide(side: OracleGrid2D | undefined, z: number, gridDepth:
   return m;
 }
 
-export function solveViewConstraint(target: ConstraintTarget, grid: OracleGrid): ConstraintSolveResult {
+export function solveViewConstraint(target: ConstraintTarget, grid: OracleGrid, options: { solutionCap?: number; exactCount?: number } = {}): ConstraintSolveResult {
   const { gridWidth, gridDepth, maxHeight } = grid;
 
   const requiredNonEmpty: (boolean | undefined)[][] = Array.from({ length: gridDepth }, (_, z) =>
@@ -73,6 +75,7 @@ export function solveViewConstraint(target: ConstraintTarget, grid: OracleGrid):
 
   let nodesVisited = 0;
   let solutionCount = 0;
+  let minCount = Infinity, maxCount = -Infinity;
   let capped = false;
   const sampleSolutions: OracleBlock[][] = [];
 
@@ -91,9 +94,12 @@ export function solveViewConstraint(target: ConstraintTarget, grid: OracleGrid):
     if (nodesVisited > NODE_BUDGET) { capped = true; return true; }
 
     if (index === columns.length) {
+      const total = heights.reduce((sum, row) => sum + row.reduce((a,b) => a+b, 0), 0);
+      if (options.exactCount !== undefined && total !== options.exactCount) return false;
+      minCount = Math.min(minCount, total); maxCount = Math.max(maxCount, total);
       solutionCount++;
       if (sampleSolutions.length < SAMPLE_LIMIT) sampleSolutions.push(heightsToBlocks());
-      if (solutionCount >= SOLUTION_CAP) { capped = true; return true; }
+      if (solutionCount >= (options.solutionCap ?? SOLUTION_CAP)) { capped = true; return true; }
       return false;
     }
 
@@ -148,6 +154,7 @@ export function solveViewConstraint(target: ConstraintTarget, grid: OracleGrid):
     uniqueness,
     sampleSolutions,
     nodesVisited,
+    minCount: solutionCount ? minCount : null, maxCount: solutionCount ? maxCount : null,
   };
 }
 

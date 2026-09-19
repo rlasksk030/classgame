@@ -1,3 +1,4 @@
+import { contentProblem } from './contentBank.ts';
 import { fromHeightMap, project, toHeightMap, toLayers } from "./blocks.ts";
 import type {
   BlockCoord,
@@ -670,9 +671,9 @@ export function seedForLesson(lesson: number): SeedProblem[] {
 
 export { grid2d, shape };
 
-const sixth = SEED_PROBLEMS.find(p => p.code === "L6-01")!;
-SEED_PROBLEMS.push({ ...sixth, code:"L6-03", orderIndex:3, title:"조건을 만족하는 다른 모양", gradingMode:"constraint", prompt:"위·앞·옆의 조건을 모두 만족하도록 쌓아 보세요. 조건이 같으면 다른 모양도 정답이에요." });
-for (const [source, code, order] of [["L2-01","L12-04",4],["L7-02","L12-05",5],["L8-02","L12-06",6]] as const) {
-  const original = SEED_PROBLEMS.find(p => p.code === source)!;
-  SEED_PROBLEMS.push({ ...original, code, lesson:12, orderIndex:order, title:`단원 마무리 · ${original.title}` });
+// New fixed tasks use the same evidence/answer contract as accepted content v3.
+// Existing persisted DB rows and attempts are not updated by this source catalog.
+for (const [lesson, mode, code, order] of [[6,3,'L6-03',3],[12,0,'L12-04',4],[12,3,'L12-05',5],[12,7,'L12-06',6]] as const) {
+  const p=contentProblem(lesson,mode,213);
+  SEED_PROBLEMS.push({...p,code,orderIndex:order,stage:undefined,sourceType:'BUILT_IN_WORKBOOK_STYLE',title:`${lesson}차시 종합 · ${order}`});
 }

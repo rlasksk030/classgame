@@ -48,7 +48,7 @@ test('practice generator is deterministic and scales by lesson', () => {
   assert.deepEqual(first[0].answer, second[0].answer);
   assert.equal(new Set(first.map(item => item.code)).size, 20);
   assert.ok(first.every(item => item.stage === 'more'));
-  assert.equal(first[0].generatorVersion, 1);
+  assert.equal(first[0].generatorVersion, 3);
   assert.ok(first[0].templateId);
   assert.ok(first[0].conceptTags?.includes('HEIGHT_MAP'));
 });
@@ -105,7 +105,8 @@ test('lesson 5 separates information sufficiency from no-hidden-block counting',
   const sufficiency = problems.find(problem => problem.templateId === 'lesson5-unknown-choice');
   const noHidden = problems.find(problem => problem.templateId === 'lesson5-hidden-min');
   assert.equal(sufficiency?.problemType, 'CHOICE');
-  assert.deepEqual(sufficiency?.choices, ['알 수 있어요', '알 수 없어요']);
+  assert.deepEqual([...(sufficiency?.choices ?? [])].sort(), ['알 수 있어요', '알 수 없어요'].sort());
+  if(sufficiency?.answer.kind === 'choice') assert.equal(sufficiency.choices[sufficiency.answer.index], '알 수 없어요');
   assert.equal(sufficiency?.answer.kind, 'choice');
   assert.equal(noHidden?.problemType, 'COUNT');
   assert.equal(noHidden?.answer.kind, 'count');

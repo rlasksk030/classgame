@@ -23,9 +23,9 @@ test('실제 DB 공개 문항 형식의 35행 반복을 보존하고 새 20개�
   assert.equal(new Set(publicTasks).size,6);
   const before=JSON.stringify(rows);
   for(const count of [20,35]) {
-    const fixed=generateValidatedPracticeSet(5,count,603756);
+    const fixed=generateValidatedPracticeSet(5,count,603756,2);
     assert.equal(new Set(fixed.map(taskFingerprint)).size,count);
-    assert.deepEqual(fixed,generateValidatedPracticeSet(5,count,603756));
+    assert.deepEqual(fixed,generateValidatedPracticeSet(5,count,603756,2));
   }
   assert.equal(JSON.stringify(rows),before);
 });

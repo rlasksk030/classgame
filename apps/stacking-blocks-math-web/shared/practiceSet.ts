@@ -24,19 +24,19 @@ export function auditPracticeSet(set: GeneratedProblem[]) {
   return {count:set.length,uniqueTasks:seen.size,families,duplicates,longestRun};
 }
 
-/** 기존 v1은 보존하고 새 세트만 별도 version/ID로 생성한다. */
-export function generateValidatedPracticeSet(lesson:number,count:number,seed:number):GeneratedProblem[] {
+/** Existing v1/v2 rows are preserved. Only new assignments use content v3 identities. */
+export function generateValidatedPracticeSet(lesson:number,count:number,seed:number,version=3):GeneratedProblem[] {
   if (!Number.isInteger(count) || count<1 || count>100 || ![1,2,3,4,5,6,7,8,12].includes(lesson)) throw new Error('PRACTICE_SET_UNSUPPORTED');
   const result:GeneratedProblem[]=[]; const seen=new Set<string>();
   for(let slot=0;slot<count;slot++) {
     let accepted=false;
     for(let attempt=0;attempt<256;attempt++) {
       const candidateSeed=(seed+Math.imul(attempt,104729))>>>0;
-      const candidate=generatePracticeProblems(lesson,slot+1,candidateSeed,2).find(p=>p.orderIndex===100+slot);
+      const candidate=generatePracticeProblems(lesson,slot+1,candidateSeed,version).find(p=>p.orderIndex===100+slot);
       if(!candidate) continue;
       const signature=taskFingerprint(candidate);
       if(seen.has(signature)) continue;
-      candidate.code=`GEN-L${lesson}-S${seed}-${String(slot+1).padStart(2,'0')}-V2`;
+      candidate.code=`GEN-L${lesson}-S${seed}-${String(slot+1).padStart(2,'0')}-V${version}`;
       result.push(candidate); seen.add(signature); accepted=true; break;
     }
     if(!accepted) throw new Error('PRACTICE_SET_INSUFFICIENT');
