@@ -36,6 +36,26 @@ test('PostgreSQL migrations, RLS isolation and atomic progression', async () => 
       insert into sb_classes(id,teacher_id,name,class_code) values('${classA}','${teacherA}','A','AAAA'),('${classB}','${teacherB}','B','BBBB');
       insert into sb_students(id,class_id,name,pin_hash) values('${student}','${classA}','학생','hashed');
       insert into sb_student_pin_vault(student_id,class_id,pin_plain) values('${student}','${classA}','7391');`);
+    // Live lesson 9: actual PostgreSQL first-completion score and isolation.
+    const challenge='66666666-6666-4666-8666-666666666666';
+    await db.query("insert into sb_shared_challenges(id,class_id,author_id,share_code,source) values($1,$2,null,'SYSTEMQA','system')",[challenge,classA]);
+    await db.query('insert into sb_lesson_settings(class_id,lesson,locked) values($1,9,false)',[classA]);
+    const finish={completed:true,hintShown:false,wrongCount:0,answerRevealed:false,expectedHintShown:false,score:999};
+    const done=await db.query<{result:{state:{score:number};awarded:boolean}}>('select sb_submit_challenge_v2($1,$2,0,$3) as result',[student,challenge,finish]);
+    assert.equal(done.rows[0].result.state.score,2,'first correct insert stores 2, never client 999');
+    const repeats=await Promise.all([1,2].map(()=>db.query<{result:{awarded:boolean}}>('select sb_submit_challenge_v2($1,$2,0,$3) as result',[student,challenge,finish])));
+    assert.ok(repeats.every(r=>r.rows[0].result.awarded===false));
+    assert.equal((await db.query('select * from sb_challenge_solves where challenge_id=$1',[challenge])).rows.length,1);
+    await db.query("insert into sb_shared_challenges(class_id,author_id,share_code,source) values($1,null,'OTHERQA','system')",[classB]);
+    const other=(await db.query<{id:string}>("select id from sb_shared_challenges where share_code='OTHERQA'")).rows[0].id;
+    await assert.rejects(()=>db.query('select sb_submit_challenge_v2($1,$2,0,$3)',[student,other,finish]),/FORBIDDEN/);
+    const own=(await db.query<{id:string}>("insert into sb_shared_challenges(class_id,author_id,share_code) values($1,$2,'OWNQA') returning id",[classA,student])).rows[0].id;
+    await assert.rejects(()=>db.query('select sb_submit_challenge_v2($1,$2,0,$3)',[student,own,finish]),/FORBIDDEN/);
+    const hinted=(await db.query<{id:string}>("insert into sb_shared_challenges(class_id,author_id,share_code,source) values($1,null,'HINTQA','system') returning id",[classA])).rows[0].id;
+    await db.query('select sb_submit_challenge_v2($1,$2,0,$3)',[student,hinted,{...finish,completed:false,hintShown:true}]);
+    await assert.rejects(()=>db.query('select sb_submit_challenge_v2($1,$2,0,$3)',[student,hinted,finish]),/VERSION_CONFLICT/);
+    const hintDone=await db.query<{result:{state:{score:number}}}>('select sb_submit_challenge_v2($1,$2,0,$3) as result',[student,hinted,{...finish,hintShown:true,expectedHintShown:true}]);
+    assert.equal(hintDone.rows[0].result.state.score,1);
     await db.query('insert into sb_student_progress(student_id,lesson,practice_seed) values($1,5,123)',[student]);
     const switches=await Promise.all(Array.from({length:2},()=>db.query('update sb_student_progress set practice_seed=8042 where student_id=$1 and lesson=5 and practice_seed=123 returning practice_seed',[student])));
     assert.equal(switches.reduce((n,result)=>n+result.rows.length,0),1,'동일 expectedSeed 전환은 한 번만 실행된다');

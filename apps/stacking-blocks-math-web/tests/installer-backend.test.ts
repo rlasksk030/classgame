@@ -228,7 +228,7 @@ test("B30 math manifest is isolated from interview capabilities and follows migr
 
 test("B31 math installer plan loads checked-in migration and function sources", async () => {
   const plan = await readMathInstallerPlan(fileURLToPath(new URL("..", import.meta.url)));
-  assert.equal(plan.migrations.length, 17);
+  assert.equal(plan.migrations.length, 18); // 17 existing + additive lesson 9 bank/atomic score migration
   assert.deepEqual(plan.functions.map((item) => item.slug), ["student-auth", "student-api"]);
   assert.ok(plan.functions.every((item) => item.files[0].path === `supabase/functions/${item.slug}/index.ts` && item.files[0].content.includes("Deno.serve")));
   assert.ok(plan.functions.every((item) => item.files.length > 1), "expects the shared-module import closure, not just index.ts");

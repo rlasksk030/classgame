@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { activityApi } from "../lib/studentApi";
 import { challengeGiven, type ChallengeType } from "../../shared/activities.ts";
@@ -15,6 +15,10 @@ const CHALLENGE_CARDS: Array<{ type: ChallengeType; title: string; description: 
 ];
 
 export default function PeerChallengePage() {
+  const [challenges,setChallenges]=useState<Array<{code:string;source:'student'|'system';title:string;completed:boolean}>>([]);
+  const [activeCode,setActiveCode]=useState('');
+  const loadSequence=useRef(0);
+  useEffect(()=>{let active=true;void activityApi<{challenges:typeof challenges}>('challenge:list',{}).then(r=>{if(active)setChallenges(r.challenges);}).catch(()=>{if(active)setMessage('문제 목록을 불러오지 못했어요. 친구 코드로 열거나 다시 접속해 주세요.');});return()=>{active=false;loadSequence.current++;};},[]);
   const [blocks, setBlocks] = useState<BlockCoord[]>([]);
   const [type, setType] = useState<ChallengeType>("views");
   const [hintType, setHintType] = useState<ChallengeType>("heightMap");
@@ -33,11 +37,14 @@ export default function PeerChallengePage() {
     try { await fn(); } catch (error) { setMessage(error instanceof Error ? error.message : "연결하지 못했습니다."); }
     finally { setBusy(false); }
   };
-  const load = () => run(async () => {
-    const result = await activityApi<{ given: ProblemGiven; hintGiven?: ProblemGiven; state: AttemptState & { score?: number }; answer: BlockCoord[] | null }>("challenge:get", { code });
-    setGiven(result.given); setHintGiven(result.hintGiven ?? null); setState(result.state); setAnswer(result.answer ?? undefined); setBlocks([]); setMessage("친구가 만든 조건을 보고 쌓아 보세요.");
+  const load = (selectedCode=code) => run(async () => {
+    const sequence=++loadSequence.current;
+    const result = await activityApi<{ given: ProblemGiven; hintGiven?: ProblemGiven; state: AttemptState & { score?: number }; revealedAnswer?: BlockCoord[] }>("challenge:get", { code:selectedCode });
+    if(sequence!==loadSequence.current)return;
+    setCode(selectedCode);setActiveCode(selectedCode);
+    setGiven(result.given); setHintGiven(result.hintGiven ?? null); setState(result.state); setAnswer(result.revealedAnswer ?? undefined); setBlocks([]); setMessage("친구가 만든 조건을 보고 쌓아 보세요.");
   });
-  const startNew = () => { setGiven(null); setHintGiven(null); setBlocks([]); setAnswer(undefined); setState(INITIAL_ATTEMPT); setShared(""); setHintType("heightMap"); setStep(1); setMessage(""); };
+  const startNew = () => { loadSequence.current++;setActiveCode(''); setGiven(null); setHintGiven(null); setBlocks([]); setAnswer(undefined); setState(INITIAL_ATTEMPT); setShared(""); setHintType("heightMap"); setStep(1); setMessage(""); };
   const previewGiven = challengeGiven(blocks, type);
 
   return <main className="screen app-max stack">
@@ -47,17 +54,22 @@ export default function PeerChallengePage() {
     <div className="toolbar-row">
       <label>친구 문제 코드<input className="field" value={code} maxLength={12} onChange={e => setCode(e.target.value.toUpperCase())} /></label>
       <button className="btn" disabled={busy || !code} onClick={() => void load()}>친구 문제 열기</button>
-      <button className="btn" onClick={startNew}>내 문제 만들기</button>
+      <button className="btn" disabled={busy} onClick={startNew}>내 문제 만들기</button>
     </div>
 
+    <section className="panel stack" aria-label="우리 반 문제 목록">
+      <h2>풀어 볼 문제</h2>
+      {challenges.length===0&&<p>친구 코드로 문제를 열거나 내 문제를 만들어 보세요.</p>}
+      <div className="toolbar-row">{challenges.map((c,i)=><button className="btn" key={c.code} disabled={busy} onClick={()=>void load(c.code)}>{c.source==='system'?'기본 연습':'친구 문제'} {i+1}{c.completed?' · 완료':''}</button>)}</div>
+    </section>
     {given ? <div className="world-layout">
-      <ActivityBuilder blocks={blocks} onChange={setBlocks} answer={answer} disabled={busy || Boolean(state.completed)} />
+      <ActivityBuilder key={activeCode} blocks={blocks} onChange={setBlocks} answer={answer} disabled={busy || Boolean(state.completed)} />
       <section className="panel stack">
-        <h2>친구의 문제</h2><Representations given={given} />
+        <h2>{challenges.find(c=>c.code===activeCode)?.source==='system'?'기본 연습 문제':'친구의 문제'}</h2><p>공개된 조건에 맞게 쌓기나무 10개를 쌓아 보세요.</p><Representations given={given} />
         <p>오답 {state.wrongCount}회 · 놀이 점수 {state.score ?? 0} / 2점</p>
         {state.hintShown && <><p>힌트: 친구가 만든 힌트 카드를 확인해 보세요.</p>{hintGiven && <Representations given={hintGiven} />}</>}
-        <button className="btn btn-sm" disabled={busy || state.completed || state.hintShown} onClick={() => void run(async () => { const result = await activityApi<{ state: AttemptState & { score?: number }; hint: string; hintGiven?: ProblemGiven }>("challenge:hint", { code }); setState(result.state); setHintGiven(result.hintGiven ?? null); setMessage(result.hint); })}>힌트 보기 (보상 1점)</button>
-        <button className="btn btn-primary" disabled={busy || state.completed} onClick={() => void run(async () => { const result = await activityApi<{ outcome: AttemptOutcome; state: AttemptState & { score?: number }; answer: BlockCoord[] | null; hintGiven?: ProblemGiven }>("challenge:attempt", { code, blocks }); setState(result.state); setHintGiven(result.hintGiven ?? null); setAnswer(result.answer ?? undefined); setMessage(result.outcome.message + (result.state.score ? ` ${result.state.score}점` : "")); })}>정답 확인</button>
+        <button className="btn btn-sm" disabled={busy || state.completed || state.hintShown} onClick={() => void run(async () => { const result = await activityApi<{ state: AttemptState & { score?: number }; hint: string; hintGiven?: ProblemGiven }>("challenge:hint", { code:activeCode }); setState(result.state); setHintGiven(result.hintGiven ?? null); setMessage(result.hint); })}>힌트 보기 (보상 1점)</button>
+        <button className="btn btn-primary" disabled={busy || state.completed} onClick={() => void run(async () => { const result = await activityApi<{ outcome: AttemptOutcome; state: AttemptState & { score?: number }; revealedAnswer?: BlockCoord[]; hintGiven?: ProblemGiven }>("challenge:attempt", { code:activeCode, blocks }); setState(result.state); setHintGiven(result.hintGiven ?? null); setAnswer(result.revealedAnswer ?? undefined); setMessage(result.outcome.message + (result.state.score ? ` ${result.state.score}점` : "")); })}>정답 확인</button>
         {state.answerRevealed && !state.completed && <button className="btn" onClick={() => setBlocks([])}>정답 모양대로 다시 쌓기</button>}
         <p role="status">{message}</p>
       </section>

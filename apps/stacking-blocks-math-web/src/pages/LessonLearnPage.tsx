@@ -52,7 +52,7 @@ export default function LessonLearnPage() {
       <BlockWorld grid={grid} blocks={blocks} selected={null} layerMax={null} preset={preset} onPreset={setPreset} onBlocksChange={setBlocks} onSelect={() => undefined} onMessage={() => undefined} />
     </section>
     <div className="toolbar-row">
-      <button className="btn btn-primary" onClick={() => navigate(`/lesson/${lessonNumber}/solve`)}>② 문제 풀기 시작</button>
+      <button className="btn btn-primary" onClick={() => navigate(lessonNumber === 9 ? "/lesson/9" : `/lesson/${lessonNumber}/solve`)}>② 문제 풀기 시작</button>
       <button className="btn" onClick={() => navigate(`/lesson/${lessonNumber}/practice`)}>③ 더 풀어보기로 이동</button>
     </div>
   </main>;
