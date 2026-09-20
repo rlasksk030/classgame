@@ -30,15 +30,35 @@ test("installer client sends install target as JSON and exposes no secret fields
   assert.equal(/secret|token|password|pin/i.test(body), false);
 });
 
-test("installer client supports OAuth authorization without receiving a management token", async () => {
+test("installer client supports OAuth authorization without a project chosen yet or a management token", async () => {
   let requestBody = "";
-  const client = new InstallerClient("https://installer.example", async (_url, init) => {
+  let requestUrl = "";
+  const client = new InstallerClient("https://installer.example", async (url, init) => {
+    requestUrl = String(url);
     requestBody = String(init?.body ?? "");
     return new Response(JSON.stringify({ authorizeUrl: "https://api.supabase.com/v1/oauth/authorize?state=opaque" }), { status: 200, headers: { "content-type": "application/json" } });
   });
-  const result = await client.beginAuthorization(target);
+  const result = await client.beginAuthorization();
   assert.match(result.authorizeUrl, /^https:\/\/api\.supabase\.com/);
-  assert.deepEqual(JSON.parse(requestBody), target);
+  assert.equal(requestUrl, "https://installer.example/api/installer/authorize");
+  assert.equal(requestBody, ""); // no target/credential is sent -- OAuth precedes project selection
+});
+
+test("installer client lists only the projects the teacher's own OAuth grant covers", async () => {
+  const client = new InstallerClient("https://installer.example", async () => new Response(JSON.stringify({ projects: [{ ref: "abc123", name: "6-1 math" }] }), { status: 200, headers: { "content-type": "application/json" } }));
+  const result = await client.listAccessibleProjects();
+  assert.deepEqual(result.projects, [{ ref: "abc123", name: "6-1 math" }]);
+});
+
+test("installer client sends teacher-account creation as JSON and returns no key material", async () => {
+  let requestBody = "";
+  const client = new InstallerClient("https://installer.example", async (_url, init) => {
+    requestBody = String(init?.body ?? "");
+    return new Response(JSON.stringify({ created: true, alreadyExists: false }), { status: 200, headers: { "content-type": "application/json" } });
+  });
+  const result = await client.createTeacherAccount("teacher@school.example", "correct-horse-battery");
+  assert.deepEqual(result, { created: true, alreadyExists: false });
+  assert.deepEqual(JSON.parse(requestBody), { email: "teacher@school.example", password: "correct-horse-battery" });
 });
 
 test("PAT fallback is sent once as a request body and never returned or persisted", async () => {

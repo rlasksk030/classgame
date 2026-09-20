@@ -329,3 +329,82 @@ test("management-created migration keeps its source filename despite server-assi
 test("known production refs are denied even with a mistaken production name config", () => {
   for (const projectRef of ["lpjpwrgzwumnikroledh", "klruqcakrpmdviyhzrpy"]) assert.throws(() => assertSafeTarget({ environment: "TEST", projectRef }, "stacking-blocks-math"), /운영 프로젝트/);
 });
+
+test("B40 listAccessibleProjects maps the real Management API project shape (id -> ref) for a teacher's project picker", async () => {
+  const fetchImpl = async (): Promise<Response> => new Response(JSON.stringify([{ id: "abc123", name: "6-1 math", region: "ap-northeast-2", status: "ACTIVE_HEALTHY" }, { malformed: true }]), { status: 200, headers: { "content-type": "application/json" } });
+  const backend = new SupabaseManagementBackend({ accessToken: new EphemeralCredential("temporary-token"), fetchImpl, baseUrl: "https://management.invalid" });
+  const projects = await backend.listAccessibleProjects();
+  assert.deepEqual(projects, [{ ref: "abc123", name: "6-1 math", region: "ap-northeast-2", status: "ACTIVE_HEALTHY" }]);
+});
+
+test("B41 getPublishableKey returns only the public key, never the secret/service_role entry", async () => {
+  const fetchImpl = async (): Promise<Response> => new Response(JSON.stringify([{ name: "publishable", api_key: "sb_publishable_visible" }, { name: "secret", api_key: "sb_secret_must_not_leak" }]), { status: 200, headers: { "content-type": "application/json" } });
+  const backend = new SupabaseManagementBackend({ accessToken: new EphemeralCredential("temporary-token"), fetchImpl, baseUrl: "https://management.invalid" });
+  const publishable = await backend.getPublishableKey(target);
+  assert.equal(publishable, "sb_publishable_visible");
+});
+
+test("B42 getServiceRoleCredential wraps the secret key as an EphemeralCredential, never a plain string", async () => {
+  const fetchImpl = async (): Promise<Response> => new Response(JSON.stringify([{ name: "publishable", api_key: "sb_publishable_visible" }, { name: "secret", api_key: "sb_secret_real_value" }]), { status: 200, headers: { "content-type": "application/json" } });
+  const backend = new SupabaseManagementBackend({ accessToken: new EphemeralCredential("temporary-token"), fetchImpl, baseUrl: "https://management.invalid" });
+  const serviceRole = await backend.getServiceRoleCredential(target);
+  assert.ok(serviceRole instanceof EphemeralCredential);
+  const seen = await serviceRole!.use(async (value) => value);
+  assert.equal(seen, "sb_secret_real_value");
+  serviceRole!.dispose();
+});
+
+test("B43 teacher account provisioner creates an Auth admin user using service_role server-side only and disposes it after one use", async () => {
+  const { ManagementTeacherAccountProvisioner } = await import("../scripts/installer/teacher-account.ts");
+  const managementFetch = async (): Promise<Response> => new Response(JSON.stringify([{ name: "secret", api_key: "sb_secret_temp" }]), { status: 200, headers: { "content-type": "application/json" } });
+  const backend = new SupabaseManagementBackend({ accessToken: new EphemeralCredential("temporary-token"), fetchImpl: managementFetch, baseUrl: "https://management.invalid" });
+  const adminRequests: Array<{ url: string; headers: Headers; body: string }> = [];
+  const goTrueFetch = async (input: string | URL, init?: RequestInit): Promise<Response> => {
+    adminRequests.push({ url: String(input), headers: new Headers(init?.headers), body: String(init?.body ?? "") });
+    return new Response(JSON.stringify({ id: "new-teacher-id" }), { status: 200, headers: { "content-type": "application/json" } });
+  };
+  const provisioner = new ManagementTeacherAccountProvisioner(backend, goTrueFetch);
+  const result = await provisioner.createTeacherAccount(target, "teacher@school.example", "correct-horse-battery");
+  assert.deepEqual(result, { created: true, alreadyExists: false });
+  assert.equal(adminRequests.length, 1);
+  assert.equal(adminRequests[0].url, `${target.projectUrl}/auth/v1/admin/users`);
+  assert.equal(adminRequests[0].headers.get("apikey"), "sb_secret_temp");
+  assert.equal(adminRequests[0].headers.get("authorization"), "Bearer sb_secret_temp");
+  const body = JSON.parse(adminRequests[0].body);
+  assert.equal(body.email, "teacher@school.example");
+  assert.equal(body.password, "correct-horse-battery");
+});
+
+test("B44 teacher account provisioner reports a duplicate email as alreadyExists, not an error, and never leaks it in the message", async () => {
+  const { ManagementTeacherAccountProvisioner } = await import("../scripts/installer/teacher-account.ts");
+  const managementFetch = async (): Promise<Response> => new Response(JSON.stringify([{ name: "secret", api_key: "sb_secret_temp" }]), { status: 200, headers: { "content-type": "application/json" } });
+  const backend = new SupabaseManagementBackend({ accessToken: new EphemeralCredential("temporary-token"), fetchImpl: managementFetch, baseUrl: "https://management.invalid" });
+  const goTrueFetch = async (): Promise<Response> => new Response(JSON.stringify({ msg: "A user with this email address has already been registered" }), { status: 422, headers: { "content-type": "application/json" } });
+  const provisioner = new ManagementTeacherAccountProvisioner(backend, goTrueFetch);
+  const result = await provisioner.createTeacherAccount(target, "teacher@school.example", "correct-horse-battery");
+  assert.deepEqual(result, { created: false, alreadyExists: true });
+});
+
+test("B45 teacher account provisioner rejects a weak password before ever fetching a key", async () => {
+  const { ManagementTeacherAccountProvisioner } = await import("../scripts/installer/teacher-account.ts");
+  const backend = new SupabaseManagementBackend({ accessToken: new EphemeralCredential("temporary-token"), fetchImpl: async () => { throw new Error("must not be called"); }, baseUrl: "https://management.invalid" });
+  const provisioner = new ManagementTeacherAccountProvisioner(backend, async () => { throw new Error("must not be called"); });
+  await assert.rejects(() => provisioner.createTeacherAccount(target, "teacher@school.example", "short"), (error: unknown) => error instanceof Error && "code" in error && (error as { code?: unknown }).code === "INSTALLER_TEACHER_ACCOUNT_PASSWORD_WEAK");
+});
+
+test("B46 OAuth grant store is one-time use and expires like the other TTL stores", async () => {
+  const { OAuthGrantStore } = await import("../scripts/installer/oauth.ts");
+  const store = new OAuthGrantStore(50);
+  const credential = new EphemeralCredential("oauth-access-token");
+  const id = store.create(credential);
+  assert.equal(store.size, 1);
+  assert.ok(store.peek(id));
+  const consumed = store.consume(id);
+  assert.equal(consumed, credential);
+  assert.equal(store.peek(id), undefined, "a consumed grant must not be usable again");
+  const other = new OAuthGrantStore(10);
+  const secondCredential = new EphemeralCredential("short-lived");
+  const secondId = other.create(secondCredential);
+  await new Promise((resolve) => setTimeout(resolve, 30));
+  assert.equal(other.peek(secondId), undefined);
+});
