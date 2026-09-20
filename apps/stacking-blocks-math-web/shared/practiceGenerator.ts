@@ -116,7 +116,13 @@ function findBlockPositionRig(
   offset: BlockCoord,
 ): { reference: BlockCoord; correct: BlockCoord; behind: BlockCoord; otherFloor: BlockCoord } | null {
   const present = new Set(blocks.map(keyOf));
-  for (const reference of blocks) {
+  // Prefer a reference block with a clear line of sight from the default camera (no other block
+  // sits directly in front of it, i.e. same x/y with a smaller z) so the red block is visible
+  // before the student rotates anything. Still falls back to an occluded block rather than
+  // returning null, since a rotatable-but-hidden answer beats no answer at all.
+  const unoccluded = (b: BlockCoord) => !blocks.some((other) => other.x === b.x && other.y === b.y && other.z < b.z);
+  const ordered = [...blocks].sort((a, b) => Number(unoccluded(b)) - Number(unoccluded(a)));
+  for (const reference of ordered) {
     const correct = { x: reference.x + offset.x, y: reference.y + offset.y, z: reference.z + offset.z };
     if (!present.has(keyOf(correct))) continue;
     const used = new Set([keyOf(reference), keyOf(correct)]);

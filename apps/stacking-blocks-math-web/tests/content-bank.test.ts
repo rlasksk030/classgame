@@ -65,6 +65,24 @@ test('choice shuffling keeps BLOCK_POSITION candidateBlocks in lockstep with cho
  }
  assert.deepEqual(original.given.candidateBlocks[0],{x:1,y:0,z:0});
 });
+test('lesson 1 BLOCK_POSITION reference block is usually visible without rotating (not buried behind another block)',()=>{
+ // "빨간 블록이 보임" was reported broken on a real device: the generator preferred whichever
+ // valid reference came first in array order, which could be occluded by a block in front of it
+ // (same x,y, smaller z) from the app's fixed default camera. It should now prefer an unoccluded
+ // one whenever the shape has one available.
+ let total=0,unoccluded=0;
+ for(let seed=0;seed<60;seed++){
+  const set=generatePracticeProblems(1,12,seed,3);
+  for(const p of set.filter(pr=>pr.problemType==='BLOCK_POSITION')){
+   const ref=p.given.referenceBlock; if(!ref) continue;
+   total++;
+   const blocked=p.givenBlocks.some(b=>b.x===ref.x&&b.y===ref.y&&b.z<ref.z);
+   if(!blocked) unoccluded++;
+  }
+ }
+ assert.ok(total>50,'expected many BLOCK_POSITION problems across seeds');
+ assert.ok(unoccluded/total>0.9,`expected the vast majority of reference blocks to be front-visible, got ${unoccluded}/${total}`);
+});
 test('lesson 1 BLOCK_POSITION problems have a real, geometrically correct reference/candidate rig (no fabricated red block)',()=>{
  for(let seed=0;seed<40;seed++){
   const set=generatePracticeProblems(1,12,seed,3);
