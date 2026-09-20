@@ -1,0 +1,12 @@
+{
+  "generatedAt": "2026-09-20T03:27:52.464Z",
+  "projectRef": "bykgkjwysliyqjqttabe",
+  "results": {
+    "A_concurrent_login": "PASS (4314ms wall, 0 failed, 0 collisions, max 4311ms)",
+    "B_concurrent_progress_save_isolation": "PASS (2616ms wall, 30/30 saved, 0 mismatches)",
+    "C1_lesson9_concurrent_list": "PASS (4332ms wall, 30/30 loaded)",
+    "C2_lesson9_concurrent_duplicate_reward_guard": "PASS (concurrent double-submit did not diverge (scores: [2,2]))",
+    "D_concurrent_project_save_isolation": "PASS (3168ms wall, 30/30 saved, 0 overwrites)",
+    "E_class_isolation": "PASS (no roster leak, no cross-class challenge visibility)"
+  }
+}
