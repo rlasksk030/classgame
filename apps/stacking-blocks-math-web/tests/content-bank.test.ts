@@ -27,6 +27,7 @@ import { generatePeerPracticeBank, selectPeerPractice } from '../shared/peerPrac
 import { gradePeer } from '../shared/phase4.ts';
 import { solveViewConstraint } from '../oracle/dfs.ts';
 import { shuffleChoices } from '../shared/contentBank.ts';
+import { auditProblemClarity } from '../shared/problemSemanticAudit.ts';
 
 test('v3 accepted sets preserve order, grading, visible uniqueness, and versioned IDs',()=>{
  for(const lesson of [5,6,12])for(const seed of [0,1,42,123,7919,603756])for(const n of [5,20,35]){
@@ -167,4 +168,26 @@ test('v3 saved rows are not labelled as legacy when restored',async()=>{
  const rows=generateValidatedPracticeSet(5,5,123).map(p=>({code:p.code,order_index:p.orderIndex}));
  const status=practiceSetStatus(rows,5,123,5);
  assert.equal(status.legacyVersion,false);assert.equal(status.requiresRepair,false);
+});
+
+test('semantic clarity: generated 1~12차시 practice problems never promise information the data does not provide',()=>{
+ const failures:string[]=[];
+ for(let lesson=1;lesson<=12;lesson++){
+  if(lesson===9||lesson===10||lesson===11) continue; // peer challenge / free-build projects: no generated choice/prompt content bank here
+  for(let seed=0;seed<12;seed++){
+   const set=generatePracticeProblems(lesson,12,seed,3);
+   for(const p of set){
+    for(const issue of auditProblemClarity(p)) failures.push(`lesson${lesson} seed${seed} ${p.templateId}: [${issue.field}] ${issue.detail}`);
+   }
+  }
+ }
+ assert.deepEqual(failures,[],`${failures.length} semantic clarity issue(s):\n${failures.slice(0,20).join('\n')}`);
+});
+
+test('semantic clarity: fixed seed problem bank (SEED_PROBLEMS) also passes the same audit',()=>{
+ const failures:string[]=[];
+ for(const p of SEED_PROBLEMS){
+  for(const issue of auditProblemClarity(p)) failures.push(`${p.code}: [${issue.field}] ${issue.detail}`);
+ }
+ assert.deepEqual(failures,[],`${failures.length} semantic clarity issue(s):\n${failures.slice(0,20).join('\n')}`);
 });

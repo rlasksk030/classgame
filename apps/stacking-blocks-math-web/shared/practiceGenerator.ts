@@ -193,8 +193,16 @@ export function generatePracticeProblems(lesson:number,count:number,seed=0,versi
         if(rig){given.referenceBlock=rig.reference;given.candidateBlocks=[rig.correct,rig.behind,rig.otherFloor];}
       }
       item=base(lesson,i,blocks,type,given,answer,grid,'exact',selectedTemplate);
-      item.choices=[`${position}에 있는 블록`,'뒤쪽에 있는 블록','다른 층의 블록'];
-      item.prompt=mode<2?`빨간 블록의 ${position}에 있는 블록을 골라 보세요.`:mode===4?'설명에 맞는 모양을 골라 보세요.':mode===5?'자리별로 센 수와 층별로 센 수가 같은지 확인해 보세요.':mode===2?'2층에 있는 쌓기나무는 몇 개인가요?':'전체 쌓기나무는 몇 개인가요?';
+      if(mode===4){
+        // "설명에 맞는 모양을 골라 보세요"는 학생이 판단할 설명 후보 자체가 없어 풀 수 없었다.
+        // 실제 도형에서 계산한 참/거짓 설명 문장으로 바꾼다(정답에 맞춰 문구를 지어내지 않음).
+        const total=blocks.length;
+        item.choices=[`쌓기나무는 모두 ${total}개예요.`,`쌓기나무는 모두 ${total+1}개예요.`,`쌓기나무는 모두 ${total+2}개예요.`];
+        item.prompt='이 모양을 정확히 설명한 문장을 골라 보세요.';
+      } else {
+        item.choices=[`${position}에 있는 블록`,'뒤쪽에 있는 블록','다른 층의 블록'];
+        item.prompt=mode<2?`빨간 블록의 ${position}에 있는 블록을 골라 보세요.`:mode===5?'자리별로 센 수와 층별로 센 수가 같은지 확인해 보세요.':mode===2?'2층에 있는 쌓기나무는 몇 개인가요?':'전체 쌓기나무는 몇 개인가요?';
+      }
     }
     else if(lesson===2){const dirs=['front','back','left','right','top'] as const; const d=dirs[i%dirs.length]; const projection=projectionForDirection(blocks,grid,d); const face=d==='top'?'top':d==='front'||d==='back'?'front':'side'; item=base(lesson,i,blocks,'CAMERA_DIRECTION',{projections:{[face]:projection},shownFrom:d,allowRotate:true},{kind:'direction',value:d},grid,'exact',selectedTemplate); item.prompt=`아래 모습은 어느 방향에서 본 것일까요?`;
     }
