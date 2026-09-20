@@ -161,14 +161,19 @@ button {
 }
 
 .installer-steps span {
-  min-width: 78px;
-  padding: 7px 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: 6px 4px;
   border: 2px solid var(--line-soft);
   border-radius: var(--radius);
   color: var(--ink-soft);
   font-size: 12px;
+  line-height: 1.25;
   text-align: center;
-  white-space: nowrap;
+  word-break: keep-all;
+  overflow-wrap: break-word;
 }
 
 .installer-steps span.active {
@@ -343,6 +348,19 @@ button {
 .error {
   color: var(--danger);
   font-weight: 700;
+}
+
+.result-banner {
+  margin: 12px 0 0;
+  padding: 10px 14px;
+  border: 2px solid var(--ok);
+  border-radius: var(--radius);
+  font-weight: 800;
+}
+
+.result-banner-success {
+  background: #e6f3df;
+  color: #35612f;
 }
 
 /* --- 레이아웃 ------------------------------------------------------------ */

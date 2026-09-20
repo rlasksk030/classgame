@@ -25,7 +25,7 @@ import {
   type TeacherStudentRow,
 } from "../lib/studentApi";
 
-const STEP_TITLES = ["시작", "Supabase 준비", "연결", "자동 설치", "교사 확인", "학급 만들기", "학생 만들기", "설치 완료"] as const;
+const STEP_TITLES = ["시작", "연결 준비", "연결", "자동 설치", "교사 확인", "학급 생성", "학생 생성", "설치 완료"] as const;
 
 async function checkSupabaseConnection(supabaseUrl: string, publishableKey: string): Promise<void> {
   const response = await fetch(`${supabaseUrl.replace(/\/$/, "")}/auth/v1/settings`, { headers: { apikey: publishableKey } });

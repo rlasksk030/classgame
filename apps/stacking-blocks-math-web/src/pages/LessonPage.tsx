@@ -912,6 +912,10 @@ export default function LessonPage() {
                 aria-label="문제 유형에 맞는 답안 입력"
               >{renderEditor()}</div>
 
+              {result?.completed ? (
+                <p className="result-banner result-banner-success">완료 + XP {result.xpEarned}, ⭐ {result.stars}</p>
+              ) : null}
+
               <div className="toolbar-row" style={{ marginTop: 12 }}>
                 <button className="btn" onClick={submit} disabled={restoring || busy || moving || attempt.completed || answerUnavailable}>
                   {busy ? "채점 중…" : "정답 확인"}
@@ -928,7 +932,7 @@ export default function LessonPage() {
                   이전
                 </button>
                 <button
-                  className="btn btn-sm"
+                  className={canNavigate ? "btn btn-primary" : "btn"}
                   onClick={goNext}
                   disabled={!canNavigate}
                 >
@@ -953,10 +957,6 @@ export default function LessonPage() {
 
               {message ? <p className="muted">{message}</p> : null}
               <p className="muted">오답 수: {attempt.wrongCount}</p>
-
-              {result ? (
-                <p className="muted">{result.completed ? `완료 + XP ${result.xpEarned}, ⭐ ${result.stars}` : null}</p>
-              ) : null}
             </div>
           </div>
         </div>
