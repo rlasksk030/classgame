@@ -619,6 +619,47 @@ button {
   outline: 3px solid #276ef1;
   outline-offset: 1px;
 }
+
+/* 숫자 지도 칸: tap-to-+1만 있으면 목표를 지나쳤을 때 되돌릴 수 없어 증가/감소를 각각 버튼으로 둔다. */
+.projection-table-number td {
+  height: 76px;
+}
+.number-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  height: 100%;
+}
+.number-cell-step {
+  width: 40px;
+  min-height: 26px;
+  padding: 0;
+  border: 2px solid var(--line-soft);
+  border-radius: 4px;
+  background: #fff;
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1;
+  cursor: pointer;
+}
+.number-cell-step:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+.number-cell-step:not(:disabled):hover,
+.number-cell-step:not(:disabled):focus-visible {
+  outline: 3px solid #276ef1;
+  outline-offset: 1px;
+}
+.number-cell-value {
+  min-width: 20px;
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--ink);
+  text-align: center;
+}
 .reference-block-label {
   position: absolute;
   z-index: 3;

@@ -105,3 +105,61 @@ test("layer problem mounts one input grid per layer", async ({ page }) => {
   await expect(page.locator('[data-answer-renderer="LayerMapInputRenderer"]')).toBeVisible();
   await expect(page.locator(".answer-box table.projection-table")).toHaveCount(2);
 });
+
+const heightMapProblem = {
+  ...tripleProblem, id: "qa-heightmap", lesson: 7, problemType: "HEIGHTMAP_FROM_BUILD", title: "숫자 지도 만들기",
+  prompt: "각 자리의 높이를 숫자로 나타내 보세요.", grid: { gridWidth: 2, gridDepth: 2, maxHeight: 9 },
+  given: { allowRotate: true },
+  presentation: { visibleRepresentations: ["MODEL_3D", "HEIGHT_MAP"], cameraPolicy: { mode: "FREE" }, answerInput: "HEIGHT_MAP", gridSpecs: { heightMap: { rows: 2, cols: 2 } }, instructions: [] },
+};
+
+test("height map cells support both increase and decrease, and clamp at 0 and 9 (real tap regression, not just +1 wrap)", async ({ page }) => {
+  let submitted: unknown = null;
+  await page.addInitScript(() => localStorage.setItem("sb.student.token", "qa-token"));
+  await page.route("**/functions/v1/student-api", async route => {
+    const body = route.request().postDataJSON() as Record<string, unknown>;
+    if (body.action === "attempt") submitted = (body as { submission?: unknown }).submission;
+    const payload = body.action === "lessonProblems"
+      ? { problems: [heightMapProblem], requiredComplete: false }
+      : body.action === "snapshot:get"
+        ? { snapshot: null }
+        : body.action === "attempt"
+          ? { grade: { correct: false, completed: false, wrongCount: 1, hint: null, revealedAnswer: null, message: "다시 살펴보세요.", xpEarned: 0, starsEarned: 0, detail: null } }
+          : { problem: heightMapProblem, attempt: { wrongCount: 0, hintShown: false, answerRevealed: false, completed: false }, hint: null, revealedAnswer: null };
+    await route.fulfill({ json: payload });
+  });
+
+  await page.goto("/lesson/7/solve");
+  const renderer = page.locator('[data-answer-renderer="HeightMapInputRenderer"]');
+  await expect(renderer).toBeVisible();
+  const firstCell = renderer.locator(".number-cell").first();
+  const dec = firstCell.locator(".number-cell-step").first();
+  const inc = firstCell.locator(".number-cell-step").last();
+  const value = firstCell.locator(".number-cell-value");
+
+  await expect(value).toHaveText("0");
+  await expect(dec).toBeDisabled(); // 0 is the floor: decrease must not be tappable below it
+
+  await inc.click(); await expect(value).toHaveText("1");
+  await inc.click(); await expect(value).toHaveText("2");
+  await expect(dec).toBeEnabled();
+  await dec.click(); await expect(value).toHaveText("1"); // overshoot-then-correct: 0 -> 1 -> 2 -> 1
+
+  for (let target = 2; target <= 9; target++) { // 1 -> 9, exactly reaching the ceiling
+    await inc.click();
+    await expect(value).toHaveText(String(target)); // wait for each commit before the next tap
+  }
+  await expect(inc).toBeDisabled(); // must clamp at 9, not wrap back to 0
+
+  await dec.click();
+  await expect(value).toHaveText("8");
+
+  await page.getByRole("button", { name: "정답 확인", exact: true }).click();
+  await expect.poll(() => submitted).toBeTruthy();
+  const heightMap = (submitted as { heightMap: number[][] }).heightMap;
+  // Only one cell was ever touched (the display grid may reorder rows for the floor view, so
+  // don't assume it lands back at [0][0]) — the rest must still be untouched zeros.
+  const flat = heightMap.flat();
+  expect(flat.filter((v) => v === 8)).toHaveLength(1);
+  expect(flat.reduce((sum, v) => sum + v, 0)).toBe(8);
+});

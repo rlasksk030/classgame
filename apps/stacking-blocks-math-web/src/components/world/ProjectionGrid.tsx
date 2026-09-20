@@ -18,26 +18,54 @@ export function ProjectionGrid({ title, rows, editable, onChange, valueType, rev
 
   const handleToggle = (r: number, c: number) => {
     if (!editable) return;
-
-    if (valueType === "number") {
-      const value = Number((rows[r] as number[])[c]);
-      const next = (rows as HeightMap).map((row) => [...row]);
-      next[r][c] = (value + 1) % 10;
-      onChange(next);
-      return;
-    }
-
     const next = (rows as Grid2D).map((row) => [...row]);
     next[r][c] = !next[r][c];
     onChange(next);
   };
 
-  const table = <table className="projection-table" aria-label={title}>
+  /** 숫자 칸은 tap-to-+1만 있으면 목표를 지나쳤을 때 되돌릴 방법이 없다. 증가/감소를 모두 눈에 보이는 버튼으로 제공한다. */
+  const stepNumber = (r: number, c: number, delta: 1 | -1) => {
+    if (!editable) return;
+    const value = Number((rows[r] as number[])[c] ?? 0);
+    const next = (rows as HeightMap).map((row) => [...row]);
+    next[r][c] = Math.max(0, Math.min(9, value + delta));
+    onChange(next);
+  };
+
+  const table = <table className={`projection-table${valueType === "number" ? " projection-table-number" : ""}`} aria-label={title}>
         <tbody>
           {Array.from({ length: rowCount }, (_, i) => reverseRows || orientation === "floor" ? displayCellToMathCoord(i, 0, rowCount).row : i).map((r) => (
             <tr key={`${title}-${r}`}>
               {Array.from({ length: colCount }).map((__, c) => {
-                const value = valueType === "number" ? Number((rows[r] as number[])[c] ?? 0) : Boolean((rows[r] as boolean[])[c]);
+                if (valueType === "number") {
+                  const value = Number((rows[r] as number[])[c] ?? 0);
+                  return (
+                    <td key={`${title}-${r}-${c}`}>
+                      <div className="number-cell">
+                        <button
+                          type="button"
+                          className="number-cell-step"
+                          onClick={() => stepNumber(r, c, -1)}
+                          aria-label={`${title} ${r + 1}행 ${c + 1}열 감소`}
+                          disabled={!editable || value <= 0}
+                        >
+                          －
+                        </button>
+                        <span className="number-cell-value" aria-live="polite">{value}</span>
+                        <button
+                          type="button"
+                          className="number-cell-step"
+                          onClick={() => stepNumber(r, c, 1)}
+                          aria-label={`${title} ${r + 1}행 ${c + 1}열 증가`}
+                          disabled={!editable || value >= 9}
+                        >
+                          ＋
+                        </button>
+                      </div>
+                    </td>
+                  );
+                }
+                const value = Boolean((rows[r] as boolean[])[c]);
                 return (
                   <td key={`${title}-${r}-${c}`}>
                     <button
@@ -45,10 +73,10 @@ export function ProjectionGrid({ title, rows, editable, onChange, valueType, rev
                       type="button"
                       onClick={() => handleToggle(r, c)}
                       aria-label={`${title} ${r + 1}행 ${c + 1}열`}
-                      aria-pressed={valueType === "boolean" ? Boolean(value) : undefined}
+                      aria-pressed={value}
                       disabled={!editable}
                     >
-                      {valueType === "number" ? value : value ? "●" : ""}
+                      {value ? "●" : ""}
                     </button>
                   </td>
                 );
