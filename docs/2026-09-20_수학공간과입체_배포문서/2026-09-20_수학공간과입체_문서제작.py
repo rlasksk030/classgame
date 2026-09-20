@@ -8,7 +8,7 @@ SRC=Path(__file__).resolve().parent
 ROOT=SRC.parent.parent
 OUT=ROOT/'배포자료'/'2026-09-20_수학공간과입체_교사용배포판'
 (OUT/'문서원본').mkdir(parents=True,exist_ok=True)
-(OUT/'설치파일').mkdir(exist_ok=True)
+(OUT/'설치및접속정보').mkdir(exist_ok=True)
 TITLE='수학 공간과 입체'
 LIMIT='현재 제공 주소는 TEST 검증용입니다. 다른 교사의 실제 학생 명단을 입력하기 전, 제작자에게 정식 수업 주소와 본인 프로젝트 설치 지원 여부를 확인하세요. 현재 설치 화면은 TEST용 관리 토큰 직접 입력을 요구하므로 일반 교사 배포 준비가 모두 끝난 상태는 아닙니다.'
 LESSONS=[('1','쌓기나무와 친해지기','기준 블록과 위치를 구별하고 직접 쌓기','빨간 기준 표시와 학생이 선택한 블록을 구분합니다.'),('2','어느 방향에서 본 모양일까요','앞·뒤·왼쪽·오른쪽에서 비교하기','학생이 바라보는 방향을 먼저 말하게 합니다.'),('3','세 방향 모습','위·앞·오른쪽 옆의 격자 표현','그림과 입력판의 앞 기준을 함께 확인합니다.'),('4','쌓기나무의 개수','자리별 높이와 층별 개수 비교','두 방법으로 센 합을 설명하게 합니다.'),('5','보이지 않는 쌓기나무','정보 충분성과 가정에 따른 개수 판단','질문의 가정과 공개된 자료를 먼저 읽습니다.'),('6','세 방향에서 쌓기','조건에 맞는 여러 입체 탐색','원본과 다르더라도 공개 조건을 만족할 수 있습니다.'),('7','높이 지도','자리별 수로 모양 표현하기','＋와 －로 잘못 입력한 높이를 바로잡습니다.'),('8','층별 지도','층별 표현을 합쳐 입체 이해하기','아래층의 지지와 층별 위치를 연결합니다.'),('9','쌓기나무 놀이터','문제 카드 제작과 친구 문제 풀이','친구 문제와 시스템 기본 연습을 구별합니다.'),('10','건축물 만들기','설계하고 작품 저장하기','제목·설계 이유와 저장 결과를 확인합니다.'),('11','건축물 소개','이전 작품 이어서 설명하기','10차시와 같은 작품인지 먼저 확인합니다.'),('12','단원 마무리','종합 문제와 자기평가','문제 결과와 자신감·배운 점을 구분합니다.')]
@@ -138,6 +138,9 @@ operation+='''
 질문 → 공개 자료 → 입력 방식 → 선택 상태 순으로 확인합니다. 위치 문제는 빨간 기준 표시를 찾았는지 묻습니다. 개수·충분성 문제는 가정부터 읽습니다. 오류 상태에서 정답 확인을 반복하게 하지 않습니다.
 ## 저장과 계정
 현재 기기에 임시 저장과 서버 저장 완료를 구분합니다. 작품을 이어 쓰려면 같은 학생 계정으로 들어갑니다. 학교 공용 기기에서는 매 학생이 나가기를 사용하게 합니다. 정오답·XP만으로 학생의 전체 성취를 단정하지 않습니다.
+## 교사 문제 미리보기
+교사 화면의 문제 미리보기에서 차시·문제 틀·seed를 골라 학생에게 보일 3D 모형과 문제 자료를 수업 전에 확인합니다. 문제 틀 이름은 한글 설명으로 표시됩니다.
+확인: 화면 확인용이며 정답을 미리 알려주지 않습니다. 수업 전 확인 용도로만 사용합니다.
 '''
 trouble='''# 문제해결 가이드
 오류가 나도 학생·학급·작품을 삭제하거나 새 프로젝트로 바꾸지 마세요. 먼저 아래 순서대로 확인하고, 해결되지 않으면 제작자에게 차시·단계·오류 문구만 전달합니다.
@@ -176,7 +179,7 @@ for name,text in zip(names,texts):
  (SRC/(name+'.md')).write_text(text,encoding='utf-8')
  d=Document();sec=d.sections[0];sec.page_height=Cm(29.7);sec.page_width=Cm(21);sec.top_margin=Cm(1.7);sec.bottom_margin=Cm(1.7);sec.left_margin=Cm(2);sec.right_margin=Cm(2)
  for st in ['Normal','Title','Heading 1','Heading 2','Caption']:
-  style=d.styles[st];style.font.name='Arial Unicode MS';style.font.color.rgb=RGBColor(0,0,0);style._element.get_or_add_rPr().rFonts.set(qn('w:eastAsia'),'Arial Unicode MS')
+  style=d.styles[st];style.font.name='Apple SD Gothic Neo';style.font.color.rgb=RGBColor(0,0,0);style._element.get_or_add_rPr().rFonts.set(qn('w:eastAsia'),'Apple SD Gothic Neo')
  d.styles['Normal'].font.size=Pt(10.5);d.styles['Normal'].paragraph_format.space_after=Pt(6);d.styles['Normal'].paragraph_format.line_spacing=1.15
  d.styles['Title'].font.size=Pt(23);d.styles['Heading 1'].font.size=Pt(14);d.styles['Heading 1'].paragraph_format.space_before=Pt(12);d.styles['Heading 1'].paragraph_format.space_after=Pt(5)
  d.core_properties.author='공간과 입체 제작팀';d.core_properties.title=name[3:];d.core_properties.comments='';d.core_properties.last_modified_by='공간과 입체 제작팀'
@@ -193,6 +196,6 @@ for name,text in zip(names,texts):
  field=OxmlElement('w:fldSimple');field.set(qn('w:instr'),'PAGE');footer._p.append(field)
  d.save(OUT/'문서원본'/(name+'.docx'))
 (OUT/'README.txt').write_text('수학 「공간과 입체」 교사용 배포 자료\n현재 판정: 일반 교사 배포 승인 전 검토판\n\n'+LIMIT+'\n\n처음 읽기: 00_먼저읽어주세요.pdf\n설치: 01_초보자용_설치사용설명서.pdf\n요약: 02_빠른설치가이드.pdf\n점검: 03_설치체크리스트.pdf\n수업: 04_수업운영가이드.pdf\n오류: 05_문제해결가이드.pdf\n\n웹 방식이므로 실행 파일이나 소스 전체는 포함하지 않습니다. 문서원본에는 편집 가능한 Word 파일이 있습니다. TEST 주소는 실제 수업 배포 주소가 아닙니다.\n',encoding='utf-8')
-(OUT/'설치파일'/'2026-09-20_수학공간과입체_접속안내.txt').write_text('설치 실행 파일은 필요하지 않습니다. 브라우저에서 사용합니다.\n현재 공개된 주소는 아래 TEST 검토용 주소뿐입니다. 실제 학생 명단을 입력하지 마세요.\n\nTEST 설치: https://stacking-blocks-math-setup-test.onrender.com/setup\nTEST 교사: https://stacking-blocks-math-setup-test.onrender.com/teacher\nTEST 학생 시작: https://stacking-blocks-math-setup-test.onrender.com/\n학생은 위 기본 주소가 아니라 교사 화면의 학생 링크 복사로 받은 전체 링크를 사용해야 합니다.\n\n다른 교사의 실제 수업용 주소 및 자동 설치 지원은 제작자 확인 후 제공합니다. 토큰·비밀번호·PIN·키를 이 파일에 적지 마세요.\n',encoding='utf-8')
+(OUT/'설치및접속정보'/'2026-09-20_수학공간과입체_설치접속정보.txt').write_text('설치 실행 파일은 필요하지 않습니다. 브라우저에서 사용합니다.\n현재 공개된 주소는 아래 TEST 검토용 주소뿐입니다. 실제 학생 명단을 입력하지 마세요.\n\nTEST 설치: https://stacking-blocks-math-setup-test.onrender.com/setup\nTEST 교사: https://stacking-blocks-math-setup-test.onrender.com/teacher\nTEST 학생 시작: https://stacking-blocks-math-setup-test.onrender.com/\n학생은 위 기본 주소가 아니라 교사 화면의 학생 링크 복사로 받은 전체 링크를 사용해야 합니다.\n\n다른 교사의 실제 수업용 주소 및 자동 설치 지원은 제작자 확인 후 제공합니다. 토큰·비밀번호·PIN·키를 이 파일에 적지 마세요.\n',encoding='utf-8')
 if (SRC/'스크린샷').exists():shutil.copytree(SRC/'스크린샷',OUT/'스크린샷',dirs_exist_ok=True)
 print(json.dumps({'documents':len(names),'output':str(OUT)},ensure_ascii=False))
