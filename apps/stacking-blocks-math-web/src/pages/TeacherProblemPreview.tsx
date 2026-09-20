@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { generatePracticeProblems, getProblemTemplates } from "@shared/practiceGenerator.ts";
+import { problemTemplateLabel } from "@shared/problemMetadata.ts";
 import type { ProblemPresentation } from "@shared/problemPresentation.ts";
 import type { ProblemType, StudentProblem } from "@shared/types.ts";
 import { lessonTitle } from "@shared/lessons.ts";
@@ -33,7 +34,7 @@ export default function TeacherProblemPreview() {
       <p className="muted">학생 화면에서 보이는 3D 모형, 자료, 문제 입력 방식을 저장 전에 확인하세요.</p>
       <div className="toolbar-row">
         <label>차시<select value={lesson} onChange={event => changeLesson(Number(event.target.value))}>{Array.from({ length: 12 }, (_, index) => <option key={index} value={index + 1}>{index + 1}차시 · {lessonTitle(index + 1)}</option>)}</select></label>
-        <label>문제 틀<select value={templateId} onChange={event => setTemplateId(event.target.value)}>{templates.map(template => <option key={template.templateId} value={template.templateId}>{template.templateId}</option>)}</select></label>
+        <label>문제 틀<select value={templateId} onChange={event => setTemplateId(event.target.value)}>{templates.map(template => <option key={template.templateId} value={template.templateId}>{problemTemplateLabel(template.templateId)}</option>)}</select></label>
         <label>seed<input type="number" min={0} max={9999} value={seed} onChange={event => setSeed(Math.max(0, Number(event.target.value) || 0))} /></label>
       </div>
     </section>

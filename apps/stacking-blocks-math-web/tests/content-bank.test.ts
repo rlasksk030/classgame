@@ -28,6 +28,8 @@ import { gradePeer } from '../shared/phase4.ts';
 import { solveViewConstraint } from '../oracle/dfs.ts';
 import { shuffleChoices } from '../shared/contentBank.ts';
 import { auditProblemClarity } from '../shared/problemSemanticAudit.ts';
+import { getProblemTemplates } from '../shared/practiceGenerator.ts';
+import { problemTemplateLabel, PROBLEM_TEMPLATE_LABELS } from '../shared/problemMetadata.ts';
 
 test('v3 accepted sets preserve order, grading, visible uniqueness, and versioned IDs',()=>{
  for(const lesson of [5,6,12])for(const seed of [0,1,42,123,7919,603756])for(const n of [5,20,35]){
@@ -190,4 +192,18 @@ test('semantic clarity: fixed seed problem bank (SEED_PROBLEMS) also passes the 
   for(const issue of auditProblemClarity(p)) failures.push(`${p.code}: [${issue.field}] ${issue.detail}`);
  }
  assert.deepEqual(failures,[],`${failures.length} semantic clarity issue(s):\n${failures.slice(0,20).join('\n')}`);
+});
+
+test('teacher template picker: every real templateId has a Korean label, no lesson has duplicate labels, unknown ids fall back safely',()=>{
+ const missing:string[]=[];
+ for(let lesson=1;lesson<=12;lesson++){
+  const templates=getProblemTemplates(lesson);
+  const labels=templates.map(t=>problemTemplateLabel(t.templateId));
+  for(const t of templates) if(!(t.templateId in PROBLEM_TEMPLATE_LABELS)) missing.push(`lesson${lesson}: ${t.templateId}`);
+  const duplicates=labels.filter((label,i)=>labels.indexOf(label)!==i);
+  assert.deepEqual(duplicates,[],`lesson ${lesson} has duplicate template labels: ${JSON.stringify(duplicates)}`);
+  assert.ok(labels.every(l=>l.trim().length>0),`lesson ${lesson} has a blank template label`);
+ }
+ assert.deepEqual(missing,[],`templateIds missing a label: ${missing.join(', ')}`);
+ assert.equal(problemTemplateLabel('unknown-future-template'),'unknown-future-template');
 });
