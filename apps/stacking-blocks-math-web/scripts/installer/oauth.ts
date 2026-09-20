@@ -78,3 +78,57 @@ export async function exchangeOAuthCode(options: OAuthTokenExchangeOptions): Pro
   const refreshToken = typeof (body as { refresh_token?: unknown }).refresh_token === "string" ? new EphemeralCredential((body as { refresh_token: string }).refresh_token) : undefined;
   return { accessToken: new EphemeralCredential((body as { access_token: string }).access_token), refreshToken, expiresIn: typeof (body as { expires_in?: unknown }).expires_in === "number" ? (body as { expires_in: number }).expires_in : undefined };
 }
+
+interface PendingGrant {
+  id: string;
+  accessToken: EphemeralCredential;
+  expiresAt: number;
+}
+
+/**
+ * Holds a just-exchanged OAuth access token between the callback redirect and
+ * the teacher's project pick, since at callback time no InstallerTarget (and
+ * therefore no InstallerSession) exists yet. One-time use: consuming a grant
+ * always removes it, whether the caller goes on to bind a session or not.
+ */
+export class OAuthGrantStore {
+  readonly #grants = new Map<string, PendingGrant>();
+  readonly #ttlMs: number;
+
+  constructor(ttlMs = 10 * 60 * 1000) {
+    this.#ttlMs = ttlMs;
+  }
+
+  create(accessToken: EphemeralCredential): string {
+    this.clearExpired();
+    const id = randomBytes(24).toString("base64url");
+    this.#grants.set(id, { id, accessToken, expiresAt: Date.now() + this.#ttlMs });
+    return id;
+  }
+
+  /** Returns the credential without consuming the grant (used to list projects). */
+  peek(id: string): EphemeralCredential | undefined {
+    const grant = this.#grants.get(id);
+    if (!grant || grant.expiresAt < Date.now()) { this.delete(id); return undefined; }
+    return grant.accessToken;
+  }
+
+  /** Removes and returns the credential (used once a project target is bound). */
+  consume(id: string): EphemeralCredential | undefined {
+    const credential = this.peek(id);
+    if (credential) this.#grants.delete(id);
+    return credential;
+  }
+
+  delete(id: string): void {
+    const grant = this.#grants.get(id);
+    grant?.accessToken.dispose();
+    this.#grants.delete(id);
+  }
+
+  clearExpired(): void {
+    for (const [id, grant] of this.#grants) if (grant.expiresAt < Date.now()) this.delete(id);
+  }
+
+  get size(): number { this.clearExpired(); return this.#grants.size; }
+}

@@ -1,6 +1,8 @@
-import { createInstallerServer, type InstallerHttpOptions } from "./http-server.ts";
+import { createInstallerServer, type InstallerHttpOptions, type InstallerManagementExtras, type InstallerOAuthConfig } from "./http-server.ts";
 import { readMathInstallerPlan } from "./math-plan.ts";
 import { SupabaseManagementBackend } from "./management-api.ts";
+import { ManagementTeacherAccountProvisioner } from "./teacher-account.ts";
+import { EphemeralCredential } from "./security.ts";
 
 export interface InstallerRuntimeConfig {
   mode: "TEST";
@@ -11,6 +13,10 @@ export interface InstallerRuntimeConfig {
   port: number;
   host: string;
   managementApiUrl?: string;
+  /** Absent until a Supabase OAuth App is registered (org dashboard, one-time
+   * human step) and its client id/secret/redirect URI are set as env vars.
+   * The PAT/allowlist path above keeps working unchanged either way. */
+  oauth?: { clientId: string; clientSecret: string; redirectUri: string };
 }
 
 /** Reads the deployment contract without ever printing secret values. */
@@ -31,14 +37,31 @@ export function readInstallerRuntimeConfig(env: NodeJS.ProcessEnv = process.env)
   if (sessionSecret.length < 32) throw new Error("INSTALLER_SESSION_SECRET_MISSING");
   const port = Number(env.PORT ?? 8787);
   if (!Number.isInteger(port) || port < 1 || port > 65535) throw new Error("INSTALLER_PORT_INVALID");
+  const oauthClientId = env.INSTALLER_OAUTH_CLIENT_ID?.trim();
+  const oauthClientSecret = env.INSTALLER_OAUTH_CLIENT_SECRET?.trim();
+  const oauthRedirectUri = env.INSTALLER_OAUTH_REDIRECT_URI?.trim();
+  if ((oauthClientId || oauthClientSecret || oauthRedirectUri) && !(oauthClientId && oauthClientSecret && oauthRedirectUri)) {
+    throw new Error("INSTALLER_OAUTH_CONFIG_INCOMPLETE");
+  }
   // A hosted installer must be reachable through its platform proxy. Local
   // development can still opt into loopback explicitly with HOST=127.0.0.1.
-  return { mode: "TEST", allowedOrigins, allowedProjectRefs, productionRef, sessionSecret, port, host: env.HOST?.trim() || "0.0.0.0", managementApiUrl: env.SUPABASE_MANAGEMENT_API_URL?.trim() || undefined };
+  return { mode: "TEST", allowedOrigins, allowedProjectRefs, productionRef, sessionSecret, port, host: env.HOST?.trim() || "0.0.0.0", managementApiUrl: env.SUPABASE_MANAGEMENT_API_URL?.trim() || undefined, oauth: oauthClientId && oauthClientSecret && oauthRedirectUri ? { clientId: oauthClientId, clientSecret: oauthClientSecret, redirectUri: oauthRedirectUri } : undefined };
+}
+
+function managementExtrasFor(config: InstallerRuntimeConfig, credential: EphemeralCredential): InstallerManagementExtras {
+  const backend = new SupabaseManagementBackend({ accessToken: credential, baseUrl: config.managementApiUrl });
+  const provisioner = new ManagementTeacherAccountProvisioner(backend);
+  return {
+    listAccessibleProjects: () => backend.listAccessibleProjects(),
+    createTeacherAccount: (target, email, password) => provisioner.createTeacherAccount(target, email, password),
+    getPublishableKey: (target) => backend.getPublishableKey(target),
+  };
 }
 
 export async function createConfiguredInstallerServer(root: string, env: NodeJS.ProcessEnv = process.env) {
   const config = readInstallerRuntimeConfig(env);
   const plan = await readMathInstallerPlan(root);
+  const oauth: InstallerOAuthConfig | undefined = config.oauth ? { clientId: config.oauth.clientId, clientSecret: new EphemeralCredential(config.oauth.clientSecret), redirectUri: config.oauth.redirectUri } : undefined;
   const options: InstallerHttpOptions = {
     plan,
     productionRef: config.productionRef,
@@ -49,6 +72,8 @@ export async function createConfiguredInstallerServer(root: string, env: NodeJS.
     sessionCookieSecure: config.allowedOrigins.every((origin) => origin.startsWith("https://")),
     sessionCookieSameSite: config.allowedOrigins.every((origin) => origin.startsWith("https://")) ? "None" : "Strict",
     createBackend: (credential) => new SupabaseManagementBackend({ accessToken: credential, baseUrl: config.managementApiUrl }),
+    createManagementExtras: (credential) => managementExtrasFor(config, credential),
+    oauth,
   };
   return { server: createInstallerServer(options), config, plan };
 }

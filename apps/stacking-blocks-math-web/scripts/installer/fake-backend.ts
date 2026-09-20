@@ -1,6 +1,8 @@
 import { createHash } from "node:crypto";
 import type { FunctionBundle, FunctionDeployment, InstallerBackend, InstallerTarget, MigrationInput, RemoteProject } from "./contract.ts";
 import { InstallerError } from "./contract.ts";
+import type { InstallerManagementExtras } from "./http-server.ts";
+import type { TeacherAccountResult } from "./teacher-account.ts";
 
 export interface FakeInstallerSeed {
   project?: RemoteProject;
@@ -35,4 +37,37 @@ export function createFakeInstallerBackend(seed: FakeInstallerSeed = {}): Instal
 export function fakeBundle(slug: FunctionDeployment["slug"]): FunctionBundle {
   const hash = createHash("sha256").update(slug).digest("hex");
   return { slug, files: [{ path: `supabase/functions/${slug}/index.ts`, content: `${slug}:bundle` }], metadata: { entrypoint_path: `supabase/functions/${slug}/index.ts`, verify_jwt: false, name: hash }, hash };
+}
+
+export interface FakeManagementExtrasSeed {
+  accessibleProjects?: RemoteProject[];
+  existingTeacherEmails?: string[];
+  rejectCreateTeacherAccount?: boolean;
+  publishableKeys?: Record<string, string>;
+}
+
+/** In-memory stand-in for InstallerManagementExtras, mirroring fake-backend's
+ * approach: no network calls, records enough to assert on in tests. */
+export function createFakeManagementExtras(seed: FakeManagementExtrasSeed = {}): InstallerManagementExtras & { calls: string[] } {
+  const calls: string[] = [];
+  const existingEmails = new Set((seed.existingTeacherEmails ?? []).map((email) => email.toLowerCase()));
+  return {
+    calls,
+    async listAccessibleProjects(): Promise<RemoteProject[]> {
+      calls.push("listAccessibleProjects");
+      return seed.accessibleProjects ?? [];
+    },
+    async createTeacherAccount(_target: InstallerTarget, email: string, password: string): Promise<TeacherAccountResult> {
+      calls.push(`createTeacherAccount:${email}`);
+      if (seed.rejectCreateTeacherAccount) throw new InstallerError("FAKE_TEACHER_ACCOUNT_FAILED", "target", "fake failure");
+      if (password.length < 8) throw new InstallerError("INSTALLER_TEACHER_ACCOUNT_PASSWORD_WEAK", "target", "비밀번호는 8자 이상이어야 합니다.");
+      if (existingEmails.has(email.toLowerCase())) return { created: false, alreadyExists: true };
+      existingEmails.add(email.toLowerCase());
+      return { created: true, alreadyExists: false };
+    },
+    async getPublishableKey(target: InstallerTarget): Promise<string | undefined> {
+      calls.push(`getPublishableKey:${target.projectRef}`);
+      return seed.publishableKeys?.[target.projectRef];
+    },
+  };
 }

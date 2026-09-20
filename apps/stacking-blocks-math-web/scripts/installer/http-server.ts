@@ -2,8 +2,10 @@ import { createServer, type IncomingMessage, type Server, type ServerResponse } 
 import { createHmac, randomBytes, timingSafeEqual } from "node:crypto";
 
 import { runInstaller, type InstallerPlan } from "./orchestrator.ts";
-import { InstallerError, type InstallState, type InstallerBackend, type InstallerTarget } from "./contract.ts";
+import { InstallerError, type InstallState, type InstallerBackend, type InstallerTarget, type RemoteProject } from "./contract.ts";
 import { assertSafeTarget, assertTargetBinding, EphemeralCredential } from "./security.ts";
+import { OAuthGrantStore, OAuthSessionStore, exchangeOAuthCode } from "./oauth.ts";
+import type { TeacherAccountResult } from "./teacher-account.ts";
 
 interface InstallerSession {
   id: string;
@@ -14,12 +16,40 @@ interface InstallerSession {
   expiresAt: number;
 }
 
+/** Operations that need an OAuth/PAT credential but no InstallerTarget yet
+ * (listing a teacher's own projects), or that go beyond the migrate/deploy
+ * InstallerBackend contract (creating the teacher's Auth account). Kept
+ * separate from InstallerBackend so the fake backend used by existing tests
+ * never has to implement them. */
+export interface InstallerManagementExtras {
+  listAccessibleProjects(): Promise<RemoteProject[]>;
+  createTeacherAccount(target: InstallerTarget, email: string, password: string): Promise<TeacherAccountResult>;
+  /** Public anon/publishable key only, so a teacher who connected via OAuth
+   * never has to visit Project Settings -> API by hand. Never the secret key. */
+  getPublishableKey(target: InstallerTarget): Promise<string | undefined>;
+}
+
+export interface InstallerOAuthConfig {
+  clientId: string;
+  clientSecret: EphemeralCredential;
+  /** Must exactly match the redirect URI registered with the Supabase OAuth App. */
+  redirectUri: string;
+  /** Injectable for tests; defaults to the real Supabase OAuth token endpoint. */
+  fetchImpl?: (input: string | URL, init?: RequestInit) => Promise<Response>;
+}
+
 export interface InstallerHttpOptions {
   plan: InstallerPlan;
   productionRef: string;
   createBackend: (credential: EphemeralCredential) => InstallerBackend;
+  /** Enables the OAuth authorize/callback/project-list routes. Omit to keep
+   * the PAT-only TEST/dev path (today's default; no config, no behavior change). */
+  oauth?: InstallerOAuthConfig;
+  createManagementExtras?: (credential: EphemeralCredential) => InstallerManagementExtras;
   allowedOrigins?: string[];
-  /** In TEST mode only these project refs may ever be bound. */
+  /** In TEST mode only these project refs may ever be bound. Dynamic OAuth binding
+   * (options.oauth) supersedes this for real teacher installs; this allowlist remains
+   * for the PAT dev/regression path only. */
   allowedProjectRefs?: string[];
   mode?: "TEST" | "STAGING" | "PRODUCTION";
   sessionCookieSecure?: boolean;
@@ -64,6 +94,17 @@ export class InstallerSessionStore {
     return session;
   }
 
+  /** Takes ownership of an already-created credential (e.g. an OAuth grant's
+   * access token) instead of round-tripping it through a new plain string. */
+  setCredentialFromEphemeral(id: string, credential: EphemeralCredential): InstallerSession {
+    const session = this.get(id);
+    if (!session) throw new InstallerError("INSTALLER_SESSION_EXPIRED", "target", "설치 세션이 만료되었습니다.");
+    session.credential?.dispose();
+    session.credential = credential;
+    session.expiresAt = this.#now() + this.#ttlMs;
+    return session;
+  }
+
   delete(id: string): void {
     const session = this.#sessions.get(id);
     session?.credential?.dispose();
@@ -95,16 +136,18 @@ export function createInstallerServer(options: InstallerHttpOptions, store = new
   const allowedProjectRefs = new Set(options.allowedProjectRefs ?? []);
   // One TEST Node instance owns all sessions; the lock spans separate tabs/sessions.
   const activeProjects = new Set<string>();
+  const oauthStore = new OAuthSessionStore(options.ttlMs);
+  const grantStore = new OAuthGrantStore(options.ttlMs);
   const server = createServer((request, response) => {
-    void handleRequest(request, response, options, store, allowedOrigins, allowedProjectRefs, activeProjects);
+    void handleRequest(request, response, options, store, allowedOrigins, allowedProjectRefs, activeProjects, oauthStore, grantStore);
   });
-  const expiry = setInterval(() => store.clearExpired(), 30_000);
+  const expiry = setInterval(() => { store.clearExpired(); oauthStore.clearExpired(); grantStore.clearExpired(); }, 30_000);
   expiry.unref();
   server.once("close", () => clearInterval(expiry));
   return server;
 }
 
-async function handleRequest(request: IncomingMessage, response: ServerResponse, options: InstallerHttpOptions, store: InstallerSessionStore, allowedOrigins: Set<string>, allowedProjectRefs: Set<string>, activeProjects: Set<string>): Promise<void> {
+async function handleRequest(request: IncomingMessage, response: ServerResponse, options: InstallerHttpOptions, store: InstallerSessionStore, allowedOrigins: Set<string>, allowedProjectRefs: Set<string>, activeProjects: Set<string>, oauthStore: OAuthSessionStore, grantStore: OAuthGrantStore): Promise<void> {
   applyCors(request, response, allowedOrigins);
   if (!originAllowed(request, allowedOrigins)) { sendError(response, 403, "INSTALLER_ORIGIN_BLOCKED", "설치 요청 출처를 확인할 수 없습니다."); return; }
   if (request.method === "OPTIONS") { response.writeHead(204); response.end(); return; }
@@ -117,24 +160,69 @@ async function handleRequest(request: IncomingMessage, response: ServerResponse,
       assertSafeTarget(target, options.productionRef);
       assertTargetBinding(target);
       if (options.mode === "TEST" && target.environment !== "TEST") throw new InstallerError("INSTALLER_TEST_TARGET_REQUIRED", "target", "TEST 프로젝트만 연결할 수 있습니다.");
-      if (allowedProjectRefs.size > 0 && !allowedProjectRefs.has(target.projectRef)) throw new InstallerError("INSTALLER_PROJECT_NOT_ALLOWED", "target", "허용된 TEST 프로젝트가 아닙니다.");
+      const grantId = getOAuthGrantId(request, options.sessionSecret);
+      const grantCredential = grantId ? grantStore.peek(grantId) : undefined;
+      if (grantCredential) {
+        // OAuth-authorized teacher: verify the picked project is actually one
+        // they granted access to, re-checked live (never trust the client echo).
+        if (!options.createManagementExtras) throw new InstallerError("INSTALLER_OAUTH_NOT_CONFIGURED", "target", "OAuth 연결이 설정되지 않았습니다.");
+        const accessible = await options.createManagementExtras(grantCredential).listAccessibleProjects();
+        if (!accessible.some((project) => project.ref === target.projectRef)) throw new InstallerError("INSTALLER_PROJECT_NOT_ALLOWED", "target", "권한이 없는 프로젝트입니다.");
+      } else if (allowedProjectRefs.size > 0 && !allowedProjectRefs.has(target.projectRef)) {
+        throw new InstallerError("INSTALLER_PROJECT_NOT_ALLOWED", "target", "허용된 TEST 프로젝트가 아닙니다.");
+      }
       const previous = getSession(request, store, options.sessionSecret);
       const sameTarget = previous?.target.projectRef === target.projectRef && previous.target.projectUrl === target.projectUrl;
       const session = sameTarget ? previous! : store.create(target);
-      const cookieValue = options.sessionSecret ? `${session.id}.${signSession(session.id, options.sessionSecret)}` : session.id;
-      const sameSite = resolveSessionCookieSameSite(options.sessionCookieSecure, options.sessionCookieSameSite);
-      response.setHeader("set-cookie", `installer_session=${cookieValue}; HttpOnly; SameSite=${sameSite}; Max-Age=${Math.max(0, Math.floor((session.expiresAt - (options.now ?? Date.now)()) / 1000))}; Path=/api/installer${options.sessionCookieSecure ? "; Secure" : ""}`);
-      sendJson(response, 201, { status: session.credential && !session.credential.disposed ? "AUTHORIZED" : "CREATED" });
+      let publishableKey: string | undefined;
+      if (grantId && grantCredential) {
+        const bound = grantStore.consume(grantId);
+        if (bound) store.setCredentialFromEphemeral(session.id, bound);
+        response.setHeader("set-cookie", [cookieHeader("installer_session", options.sessionSecret ? `${session.id}.${signSession(session.id, options.sessionSecret)}` : session.id, session.expiresAt, options), clearedCookieHeader("installer_oauth_grant", options)]);
+        if (bound && options.createManagementExtras) {
+          try { publishableKey = await options.createManagementExtras(bound).getPublishableKey(target); } catch { /* Non-fatal: the teacher can still enter it manually. */ }
+        }
+      } else {
+        response.setHeader("set-cookie", cookieHeader("installer_session", options.sessionSecret ? `${session.id}.${signSession(session.id, options.sessionSecret)}` : session.id, session.expiresAt, options));
+      }
+      sendJson(response, 201, { status: session.credential && !session.credential.disposed ? "AUTHORIZED" : "CREATED", ...(publishableKey ? { publishableKey } : {}) });
       return;
     }
     if (url.pathname === "/api/installer/authorize" && request.method === "POST") {
-      sendError(response, 501, "INSTALLER_OAUTH_NOT_CONFIGURED", "이 TEST 실행부에는 OAuth 연결이 설정되지 않았습니다.");
+      if (!options.oauth) { sendError(response, 501, "INSTALLER_OAUTH_NOT_CONFIGURED", "이 TEST 실행부에는 OAuth 연결이 설정되지 않았습니다."); return; }
+      const authorization = oauthStore.create(options.oauth.clientId, options.oauth.redirectUri);
+      sendJson(response, 200, { authorizeUrl: authorization.url });
+      return;
+    }
+    if (url.pathname === "/api/installer/oauth/callback" && request.method === "GET") {
+      if (!options.oauth) { sendError(response, 501, "INSTALLER_OAUTH_NOT_CONFIGURED", "이 TEST 실행부에는 OAuth 연결이 설정되지 않았습니다."); return; }
+      const code = url.searchParams.get("code");
+      const state = url.searchParams.get("state");
+      const returnOrigin = [...allowedOrigins][0];
+      if (!code || !state || !returnOrigin) { sendError(response, 400, "INSTALLER_OAUTH_CALLBACK_INVALID", "OAuth 콜백 요청이 올바르지 않습니다."); return; }
+      const pending = oauthStore.consume(state, options.oauth.redirectUri);
+      const tokens = await exchangeOAuthCode({ clientId: options.oauth.clientId, clientSecret: options.oauth.clientSecret, code, codeVerifier: pending.codeVerifier, redirectUri: pending.redirectUri, fetchImpl: options.oauth.fetchImpl });
+      tokens.refreshToken?.dispose(); // Not persisted in this TEST-scope flow; each install re-authorizes.
+      const grantId = grantStore.create(tokens.accessToken);
+      response.setHeader("set-cookie", cookieHeader("installer_oauth_grant", options.sessionSecret ? `${grantId}.${signSession(grantId, options.sessionSecret)}` : grantId, Date.now() + 10 * 60 * 1000, options));
+      response.writeHead(302, { location: `${returnOrigin}/setup?oauth=granted` });
+      response.end();
+      return;
+    }
+    if (url.pathname === "/api/installer/projects" && request.method === "GET") {
+      const grantId = getOAuthGrantId(request, options.sessionSecret);
+      const credential = grantId ? grantStore.peek(grantId) : undefined;
+      if (!credential) { sendError(response, 401, "INSTALLER_OAUTH_GRANT_REQUIRED", "Supabase 연결을 먼저 완료해 주세요."); return; }
+      if (!options.createManagementExtras) { sendError(response, 501, "INSTALLER_OAUTH_NOT_CONFIGURED", "이 TEST 실행부에는 OAuth 연결이 설정되지 않았습니다."); return; }
+      const projects = await options.createManagementExtras(credential).listAccessibleProjects();
+      const visible = projects.filter((project) => { try { assertSafeTarget({ environment: "TEST", projectRef: project.ref }, options.productionRef); return true; } catch { return false; } });
+      sendJson(response, 200, { projects: visible });
       return;
     }
     const session = getSession(request, store, options.sessionSecret);
     if (url.pathname === "/api/installer/session" && request.method === "DELETE") {
       if (session) store.delete(session.id);
-      response.setHeader("set-cookie", `installer_session=; Max-Age=0; HttpOnly; Path=/api/installer; SameSite=${resolveSessionCookieSameSite(options.sessionCookieSecure, options.sessionCookieSameSite)}${options.sessionCookieSecure ? "; Secure" : ""}`);
+      response.setHeader("set-cookie", clearedCookieHeader("installer_session", options));
       sendJson(response, 200, { revoked: true });
       return;
     }
@@ -161,6 +249,15 @@ async function handleRequest(request: IncomingMessage, response: ServerResponse,
     }
     if (url.pathname === "/api/installer/plan" && request.method === "POST") {
       sendJson(response, 200, await planFor(session, backend, options.plan));
+      return;
+    }
+    if (url.pathname === "/api/installer/teacher-account" && request.method === "POST") {
+      if (!options.createManagementExtras) { sendError(response, 501, "INSTALLER_TEACHER_ACCOUNT_NOT_CONFIGURED", "교사 계정 자동 생성이 설정되지 않았습니다."); return; }
+      // The body was already consumed above (readJson) for the target-mismatch check; reuse it.
+      const email = requested && typeof requested === "object" && typeof (requested as { email?: unknown }).email === "string" ? (requested as { email: string }).email : "";
+      const password = requested && typeof requested === "object" && typeof (requested as { password?: unknown }).password === "string" ? (requested as { password: string }).password : "";
+      const result = await options.createManagementExtras(credential).createTeacherAccount(session.target, email, password);
+      sendJson(response, 200, result);
       return;
     }
     if (url.pathname === "/api/installer/install" || url.pathname === "/api/installer/repair" || url.pathname === "/api/installer/update") {
@@ -217,13 +314,22 @@ function parseTarget(value: unknown): InstallerTarget {
   return { environment: candidate.environment, projectRef: candidate.projectRef, projectUrl: candidate.projectUrl, publishableKey: typeof candidate.publishableKey === "string" ? candidate.publishableKey : undefined, release: candidate.release };
 }
 
-function getSession(request: IncomingMessage, store: InstallerSessionStore, sessionSecret?: string): InstallerSession | undefined {
-  const cookie = request.headers.cookie?.split(";").map((part) => part.trim()).find((part) => part.startsWith("installer_session="));
+function readCookieId(request: IncomingMessage, name: string, sessionSecret?: string): string | undefined {
+  const cookie = request.headers.cookie?.split(";").map((part) => part.trim()).find((part) => part.startsWith(`${name}=`));
   if (!cookie) return undefined;
-  const raw = cookie.slice("installer_session=".length);
+  const raw = cookie.slice(name.length + 1);
   const [id, signature] = raw.split(".");
   if (sessionSecret && (!id || !signature || !safeEqual(signature, signSession(id, sessionSecret)))) return undefined;
+  return id || undefined;
+}
+
+function getSession(request: IncomingMessage, store: InstallerSessionStore, sessionSecret?: string): InstallerSession | undefined {
+  const id = readCookieId(request, "installer_session", sessionSecret);
   return id ? store.get(id) : undefined;
+}
+
+function getOAuthGrantId(request: IncomingMessage, sessionSecret?: string): string | undefined {
+  return readCookieId(request, "installer_oauth_grant", sessionSecret);
 }
 
 function signSession(id: string, secret: string): string {
@@ -233,6 +339,17 @@ function signSession(id: string, secret: string): string {
 function safeEqual(left: string, right: string): boolean {
   const a = Buffer.from(left); const b = Buffer.from(right);
   return a.length === b.length && timingSafeEqual(a, b);
+}
+
+function cookieHeader(name: string, value: string, expiresAt: number, options: InstallerHttpOptions): string {
+  const sameSite = resolveSessionCookieSameSite(options.sessionCookieSecure, options.sessionCookieSameSite);
+  const maxAge = Math.max(0, Math.floor((expiresAt - (options.now ?? Date.now)()) / 1000));
+  return `${name}=${value}; HttpOnly; SameSite=${sameSite}; Max-Age=${maxAge}; Path=/api/installer${options.sessionCookieSecure ? "; Secure" : ""}`;
+}
+
+function clearedCookieHeader(name: string, options: InstallerHttpOptions): string {
+  const sameSite = resolveSessionCookieSameSite(options.sessionCookieSecure, options.sessionCookieSameSite);
+  return `${name}=; Max-Age=0; HttpOnly; Path=/api/installer; SameSite=${sameSite}${options.sessionCookieSecure ? "; Secure" : ""}`;
 }
 
 function applyCors(request: IncomingMessage, response: ServerResponse, allowedOrigins: Set<string>): void {

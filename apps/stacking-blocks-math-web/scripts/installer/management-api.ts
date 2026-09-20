@@ -36,6 +36,50 @@ export class SupabaseManagementBackend implements InstallerBackend {
     return this.request<RemoteProject>("target", `/v1/projects/${encodeURIComponent(target.projectRef)}`);
   }
 
+  /** Lists every project this OAuth/PAT credential can see, for teacher-facing project pickers. */
+  async listAccessibleProjects(): Promise<RemoteProject[]> {
+    const response = await this.request<unknown>("target", "/v1/projects");
+    if (!Array.isArray(response)) throw new InstallerError("INSTALLER_PROJECT_LIST_INVALID", "target", "Supabase 프로젝트 목록 응답을 해석할 수 없습니다.");
+    return response.flatMap((item) => {
+      if (!item || typeof item !== "object") return [];
+      const ref = (item as { id?: unknown }).id;
+      if (typeof ref !== "string") return [];
+      const name = typeof (item as { name?: unknown }).name === "string" ? (item as { name: string }).name : undefined;
+      const region = typeof (item as { region?: unknown }).region === "string" ? (item as { region: string }).region : undefined;
+      const status = typeof (item as { status?: unknown }).status === "string" ? (item as { status: string }).status : undefined;
+      return [{ ref, name, region, status }];
+    });
+  }
+
+  /** Public anon/publishable key only; never touches service_role. Safe to send to the browser. */
+  async getPublishableKey(target: InstallerTarget): Promise<string | undefined> {
+    const keys = await this.#listApiKeys(target);
+    const match = keys.find((key) => key.name === "publishable" || key.name === "anon");
+    return match?.apiKey;
+  }
+
+  /**
+   * Wraps the service_role/secret key in an EphemeralCredential the instant it
+   * is read so the raw value never lives in a plain variable longer than this
+   * call. The caller must use().dispose() it and must never log/return it.
+   */
+  async getServiceRoleCredential(target: InstallerTarget): Promise<EphemeralCredential | undefined> {
+    const keys = await this.#listApiKeys(target);
+    const match = keys.find((key) => key.name === "secret" || key.name === "service_role");
+    return match ? new EphemeralCredential(match.apiKey) : undefined;
+  }
+
+  async #listApiKeys(target: InstallerTarget): Promise<Array<{ name: string; apiKey: string }>> {
+    const response = await this.request<unknown>("target", `/v1/projects/${encodeURIComponent(target.projectRef)}/api-keys?reveal=true`);
+    if (!Array.isArray(response)) throw new InstallerError("INSTALLER_KEY_RESPONSE_INVALID", "target", "Supabase API 키 응답을 해석할 수 없습니다.");
+    return response.flatMap((item) => {
+      if (!item || typeof item !== "object") return [];
+      const name = (item as { name?: unknown }).name;
+      const apiKey = (item as { api_key?: unknown }).api_key;
+      return typeof name === "string" && typeof apiKey === "string" ? [{ name, apiKey }] : [];
+    });
+  }
+
   async listAppliedMigrations(target: InstallerTarget): Promise<string[]> {
     const response = await this.request<unknown>("migrations", `/v1/projects/${encodeURIComponent(target.projectRef)}/database/migrations`);
     if (!Array.isArray(response)) throw new InstallerError("INSTALLER_MIGRATION_RESPONSE_INVALID", "migrations", "원격 migration 상태 응답을 해석할 수 없습니다.");
