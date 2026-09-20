@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* global process, console, fetch */
 /* Real remote verification against the fresh-e2e TEST Supabase project only.
  * Reads .env.fresh-e2e.local (never printed). Blocks production ref. Redacts secrets in output.
  */
