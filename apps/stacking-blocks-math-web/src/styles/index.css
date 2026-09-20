@@ -619,6 +619,26 @@ button {
   outline: 3px solid #276ef1;
   outline-offset: 1px;
 }
+.reference-block-label {
+  position: absolute;
+  z-index: 3;
+  visibility: hidden;
+  padding: 3px 9px;
+  border: 2px solid var(--berry);
+  border-radius: 6px;
+  background: var(--berry);
+  color: var(--ink-invert);
+  font-weight: 800;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+/* Reference block that is also currently selected: keep the red fill readable but add a
+   blue ring so the reference identity isn't lost under the selection highlight. */
+.reference-block-label-selected {
+  box-shadow: 0 0 0 3px var(--sky);
+}
+
 .front-direction-label {
   position: absolute;
   z-index: 2;

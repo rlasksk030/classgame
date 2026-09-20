@@ -24,6 +24,7 @@ interface WorldProps extends SceneState {
 export default function BlockWorld(props: WorldProps) {
   const canvas = useRef<HTMLCanvasElement>(null);
   const frontLabel = useRef<HTMLDivElement>(null);
+  const referenceLabel = useRef<HTMLDivElement>(null);
   const scene = useRef<BlockScene | null>(null);
   const latest = useRef(props);
   latest.current = props;
@@ -72,6 +73,11 @@ export default function BlockWorld(props: WorldProps) {
           label.style.visibility=position?'visible':'hidden';
           if(position){label.style.left=`${position.x}px`;label.style.top=`${position.y}px`;}
         },
+        referencePosition: position => {
+          const label=referenceLabel.current;if(!label)return;
+          label.style.visibility=position?'visible':'hidden';
+          if(position){label.style.left=`${position.x}px`;label.style.top=`${position.y}px`;}
+        },
         change: commit,
         select: block => latest.current.onSelect(block),
         message: message => latest.current.onMessage(message),
@@ -108,6 +114,16 @@ export default function BlockWorld(props: WorldProps) {
     <div className="world-canvas-shell">
       <canvas ref={canvas} className="world-canvas" aria-label="쌓기나무 3D 작업판" tabIndex={0} style={{ width: '100%', height: 'clamp(360px, 55vh, 560px)', display: 'block', touchAction: 'none' }} />
       <div ref={frontLabel} className="front-direction-label" aria-label="작업판 앞" style={{bottom:'auto',transform:'translate(-50%, -50%)',pointerEvents:'none'}}>앞</div>
+      {props.referenceBlocks?.length ? (
+        <div
+          ref={referenceLabel}
+          className={`reference-block-label${props.selected && props.referenceBlocks.some(b => b.x === props.selected?.x && b.y === props.selected?.y && b.z === props.selected?.z) ? ' reference-block-label-selected' : ''}`}
+          aria-label="기준 블록"
+          style={{ transform: 'translate(-50%, -120%)', pointerEvents: 'none' }}
+        >
+          기준
+        </div>
+      ) : null}
     </div>
     {!props.disabled && <div className="toolbar-row" style={{ padding: 10, flexWrap: 'wrap' }}>
       {props.allowedMaterials?.length ? <div className="material-picker" aria-label="블록 재료 선택"><strong>재료</strong>{props.allowedMaterials.map(material => <button key={material} type="button" className={`btn btn-sm material-${material} ${activeMaterial === material ? 'btn-primary' : ''}`} onClick={() => { setActiveMaterial(material); props.onActiveMaterialChange?.(material); if (props.selected && props.onAppearanceChange) props.onAppearanceChange({ ...(props.appearance ?? {}), [appearanceKey(props.selected.x, props.selected.y, props.selected.z)]: material }); props.onMessage?.(props.selected ? '선택한 블록의 재료를 바꿨어요.' : '새 블록 재료를 선택했어요.'); }}>{material === 'wood' ? '원목' : material === 'pastel' ? '파스텔' : material === 'brick' ? '벽돌' : '타일'}</button>)}</div> : null}

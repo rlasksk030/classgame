@@ -33,6 +33,12 @@ export interface SceneState {
 export interface SceneCallbacks {
   view?: (view: ObservedView) => void;
   frontPosition?: (point:{x:number;y:number}|null)=>void;
+  /**
+   * Screen-space position of the first referenceBlock, or null when off-screen/behind camera.
+   * An HTML overlay (not a WebGL material) so the "기준 블록" marker never depends on whether
+   * a material color actually rendered on a given device/browser.
+   */
+  referencePosition?: (point:{x:number;y:number}|null)=>void;
   change: (blocks: BlockCoord[]) => void;
   select: (block: BlockCoord | null) => void;
   message: (message: string | null) => void;
@@ -41,6 +47,7 @@ export interface SceneCallbacks {
 /** Owns GPU resources and pointer listeners. Network and persistence stay outside the engine. */
 export class BlockScene {
   private previousFrontPosition = "";
+  private previousReferencePosition = "";
   private previousView: ObservedView | null = null;
   private engine: Engine;
   private scene: Scene;
@@ -144,6 +151,16 @@ export class BlockScene {
       const point=marker.z>=0&&marker.z<=1&&marker.x>=0&&marker.x<=rect.width&&marker.y>=0&&marker.y<=rect.height?{x:Math.round(marker.x*10)/10,y:Math.round(marker.y*10)/10}:null;
       const positionKey=point?`${point.x},${point.y}`:'hidden';
       if(positionKey!==this.previousFrontPosition){this.previousFrontPosition=positionKey;this.callbacks.frontPosition?.(point);}
+      if(this.callbacks.referencePosition){
+        const refBlock=this.state.referenceBlocks?.[0];
+        let refPoint:{x:number;y:number}|null=null;
+        if(refBlock){
+          const refMarker=Vector3.Project(new Vector3(refBlock.x+0.5,refBlock.y+0.5,refBlock.z+0.5),Matrix.Identity(),this.scene.getTransformMatrix(),this.camera.viewport.toGlobal(rect.width,rect.height));
+          refPoint=refMarker.z>=0&&refMarker.z<=1&&refMarker.x>=0&&refMarker.x<=rect.width&&refMarker.y>=0&&refMarker.y<=rect.height?{x:Math.round(refMarker.x*10)/10,y:Math.round(refMarker.y*10)/10}:null;
+        }
+        const refKey=refPoint?`${refPoint.x},${refPoint.y}`:'hidden';
+        if(refKey!==this.previousReferencePosition){this.previousReferencePosition=refKey;this.callbacks.referencePosition(refPoint);}
+      }
       const view = observedView(this.camera.position.subtract(this.camera.target));
       if (view !== this.previousView) { this.previousView = view; this.callbacks.view?.(view); }
     });
