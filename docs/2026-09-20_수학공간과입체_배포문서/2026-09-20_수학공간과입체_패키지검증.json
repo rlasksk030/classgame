@@ -1,0 +1,36 @@
+{
+  "package": "2026-09-20_수학공간과입체_교사용배포판",
+  "files": 15,
+  "pages": {
+    "00_먼저읽어주세요": 1,
+    "01_초보자용_설치사용설명서": 13,
+    "02_빠른설치가이드": 1,
+    "03_설치체크리스트": 1,
+    "04_수업운영가이드": 5,
+    "05_문제해결가이드": 3
+  },
+  "total_pages": 24,
+  "sensitive_value_matches": 0,
+  "zip_crc": "PASS",
+  "extract_byte_compare": "PASS",
+  "repack_sha256_compare": "PASS",
+  "zip_sha256": "6f72745527927c7eca1d69e238228c149316a702bcf06a55816847ce0779ec91",
+  "zip_bytes": 891795,
+  "file_sha256": {
+    "00_먼저읽어주세요.pdf": "4245e6459aeb58c61aa86a13dba717f07bebd0e73d08de96a3c62f79050949eb",
+    "01_초보자용_설치사용설명서.pdf": "0e33753b6f7d0127c0a64f9919adcb0503992521b29bc275aa3de1f7a7158f29",
+    "02_빠른설치가이드.pdf": "0cf2ff04a7283350480402f21128f9a301c2559ab037511f109271f400cae878",
+    "03_설치체크리스트.pdf": "59644052bf7f5410c5ce2628b269f5181c649d0fb8b2dbe4bb1ebbe598b57db0",
+    "04_수업운영가이드.pdf": "0c81a006d9314c8e795f30bb770f5574fa2e53f0664c6d190ff06171982e815f",
+    "05_문제해결가이드.pdf": "c522250a7001c56dda265f20643f2d4efccf792e9f8175b77293d0fb38b6b854",
+    "README.txt": "2709a3166e3c6f23d8289bb55dde26f7a780a2b5bb1e31a3326b6afa550f230c",
+    "문서원본/00_먼저읽어주세요.docx": "2f3ab0b9e896f05b71055ebd9fb9bbb840f266b56ffa3e9f2e0e162f46901b06",
+    "문서원본/01_초보자용_설치사용설명서.docx": "c1531d8d7f6689e86d44e0afd9c280b0395ee1a5bbd24da2d48a7800b16df6cc",
+    "문서원본/02_빠른설치가이드.docx": "97f19721e5c52f63c5b676b49f3df268bc14708b15c14b41c275eac3c7e574f0",
+    "문서원본/03_설치체크리스트.docx": "9d67c2153ec8397d2bd7bdf80ae2d8ee5ba248c55cc5f793ebd634c7706118f0",
+    "문서원본/04_수업운영가이드.docx": "0dbe56e7dc8d75e0f75719d4dd3f8dce4b2a1cb5a8d07ee95038bf088ac5cce9",
+    "문서원본/05_문제해결가이드.docx": "402638c9adf1d1808e3276c1d7e98f8d1172584a3a394988ac848894086e16c3",
+    "설치파일/2026-09-20_수학공간과입체_접속안내.txt": "703d2a022f40e5b219e74f2b457ffdbf009291f5e33623480b6fba2fc3d36a65",
+    "스크린샷/2026-09-20_학생명단화면.png": "73ee693e0a30e75999ee8ff26d5e45a31fd8f27b71254f10bb87e1bf45e5bb41"
+  }
+}
