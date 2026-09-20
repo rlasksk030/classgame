@@ -86,7 +86,7 @@ export default function BlockWorld(props: WorldProps) {
     }
     return () => { world?.dispose(); scene.current = null; };
   }, [props.grid.gridWidth, props.grid.gridDepth, props.grid.maxHeight]);
-  useEffect(() => { scene.current?.update({ ...props, layerOnly: props.allowRotate === false ? null : layerOnly }); }, [props.blocks, props.selected, props.layerMax, props.answerGhost, props.disabled, props.allowRotate, props.appearance, props.highlightedBlocks, layerOnly]);
+  useEffect(() => { scene.current?.update({ ...props, layerOnly: props.allowRotate === false ? null : layerOnly }); }, [props.blocks, props.selected, props.layerMax, props.answerGhost, props.disabled, props.allowRotate, props.appearance, props.highlightedBlocks, props.referenceBlocks, props.inspectable, layerOnly]);
   useEffect(() => { scene.current?.setView(props.preset, orthographic); }, [props.preset, orthographic]);
 
   const place = () => {

@@ -1,5 +1,5 @@
 import { contentProblem, CONTENT_TEMPLATES, acceptContent, shuffleChoices } from './contentBank.ts';
-import { fromHeightMap, grid2DEqual, heightMapEqual, project, toHeightMap, toLayers, validStructure } from './blocks.ts';
+import { fromHeightMap, grid2DEqual, heightMapEqual, keyOf, project, toHeightMap, toLayers, validStructure } from './blocks.ts';
 import type { BlockCoord, DifficultyTier, Grid2D, GridConfig, ProblemGiven, ProblemSourceType, ProblemType } from './types.ts';
 import type { SeedProblem } from './seedProblems.ts';
 import { conceptTagsForLesson } from './problemMetadata.ts';
@@ -105,6 +105,35 @@ function shape(seed:number, lesson:number, maxHeight=4, gridWidth=4, gridDepth=4
 }
 function cells(blocks:BlockCoord[],grid:GridConfig):Grid2D[]{return toLayers(blocks,grid);}
 function filledCells(rows: Grid2D): number { return rows.reduce((sum, row) => sum + row.filter(Boolean).length, 0); }
+
+/**
+ * BLOCK_POSITION 문제용: 기준 블록 + 실제로 offset 방향에 존재하는 정답 블록 + 서로 다른
+ * 오답 후보 2개를 실제 생성된 blocks 안에서 찾는다. 좌표는 shared/spatialConventions.ts의
+ * 규칙(+x 오른쪽, +y 위, +z 뒤쪽)을 그대로 따른다. 가짜 좌표를 만들지 않고, 존재하지 않으면 null.
+ */
+function findBlockPositionRig(
+  blocks: BlockCoord[],
+  offset: BlockCoord,
+): { reference: BlockCoord; correct: BlockCoord; behind: BlockCoord; otherFloor: BlockCoord } | null {
+  const present = new Set(blocks.map(keyOf));
+  for (const reference of blocks) {
+    const correct = { x: reference.x + offset.x, y: reference.y + offset.y, z: reference.z + offset.z };
+    if (!present.has(keyOf(correct))) continue;
+    const used = new Set([keyOf(reference), keyOf(correct)]);
+    const behindCandidate = { x: reference.x, y: reference.y, z: reference.z + 1 };
+    const behind =
+      present.has(keyOf(behindCandidate)) && !used.has(keyOf(behindCandidate))
+        ? behindCandidate
+        : blocks.find((b) => !used.has(keyOf(b)));
+    if (!behind) continue;
+    used.add(keyOf(behind));
+    const otherFloor =
+      blocks.find((b) => b.y !== reference.y && !used.has(keyOf(b))) ?? blocks.find((b) => !used.has(keyOf(b)));
+    if (!otherFloor) continue;
+    return { reference, correct, behind, otherFloor };
+  }
+  return null;
+}
 function base(lesson:number,index:number,blocks:BlockCoord[],type:ProblemType,given:ProblemGiven,answer:SeedProblem['answer'],grid:GridConfig,mode:'exact'|'constraint'='exact',selectedTemplate?:ProblemTemplate):GeneratedProblem{
   const tier=index<5?1:index<10?2:index<13?3:3;
   const chosenTemplate = selectedTemplate ?? TEMPLATES[lesson]?.[0] ?? {templateId:`lesson${lesson}-practice`, lesson, problemType:type, conceptTags:conceptTagsForLesson(lesson), generatorVersion:1, difficulty:'PRACTICE' as DifficultyTier};
@@ -141,7 +170,26 @@ export function generatePracticeProblems(lesson:number,count:number,seed=0,versi
     const h=toHeightMap(blocks,grid);
     const selectedTemplate = TEMPLATES[lesson]?.[i % (TEMPLATES[lesson]?.length || 1)];
     let item:GeneratedProblem;
-    if(lesson===1){const mode=i%6; const position=mode===1?'위':'오른쪽'; const type=mode<2?'BLOCK_POSITION':mode===4?'CHOICE':'COUNT'; const answer=mode<2||mode===4?{kind:'choice',index:0} as const:{kind:'count',value:mode===2?blocks.filter(b=>b.y===1).length:blocks.length} as const; item=base(lesson,i,blocks,type,{allowRotate:true,allowLayerView:true,countOf:mode===2?'layer':undefined,countLayer:2},answer,grid,'exact',selectedTemplate); item.choices=[`${position}에 있는 블록`,'뒤쪽에 있는 블록','다른 층의 블록']; item.prompt=mode<2?`빨간 블록의 ${position}에 있는 블록을 골라 보세요.`:mode===4?'설명에 맞는 모양을 골라 보세요.':mode===5?'자리별로 센 수와 층별로 센 수가 같은지 확인해 보세요.':mode===2?'2층에 있는 쌓기나무는 몇 개인가요?':'전체 쌓기나무는 몇 개인가요?';}
+    if(lesson===1){
+      const mode=i%6; const position=mode===1?'위':'오른쪽'; const type=mode<2?'BLOCK_POSITION':mode===4?'CHOICE':'COUNT';
+      const answer=mode<2||mode===4?{kind:'choice',index:0} as const:{kind:'count',value:mode===2?blocks.filter(b=>b.y===1).length:blocks.length} as const;
+      const given:ProblemGiven={allowRotate:true,allowLayerView:true,countOf:mode===2?'layer':undefined,countLayer:2};
+      if(mode<2){
+        // BLOCK_POSITION만 기준 블록(빨간)과 실제 존재하는 후보 블록 3개가 필요하다. 없는 좌표를 지어내지 않고
+        // 실제 blocks 안에서 찾고, 못 찾으면 같은 문제 자리(i)에서만 모양을 다시 뽑는다(다른 자리에는 영향 없음).
+        const offset=mode===1?{x:0,y:1,z:0}:{x:1,y:0,z:0};
+        let rig=findBlockPositionRig(blocks,offset);
+        for(let attempt=0;attempt<200&&!rig;attempt++){
+          shapeSeed+=1;
+          blocks=shape(shapeSeed,lesson,grid.maxHeight,grid.gridWidth,grid.gridDepth,version);
+          rig=findBlockPositionRig(blocks,offset);
+        }
+        if(rig){given.referenceBlock=rig.reference;given.candidateBlocks=[rig.correct,rig.behind,rig.otherFloor];}
+      }
+      item=base(lesson,i,blocks,type,given,answer,grid,'exact',selectedTemplate);
+      item.choices=[`${position}에 있는 블록`,'뒤쪽에 있는 블록','다른 층의 블록'];
+      item.prompt=mode<2?`빨간 블록의 ${position}에 있는 블록을 골라 보세요.`:mode===4?'설명에 맞는 모양을 골라 보세요.':mode===5?'자리별로 센 수와 층별로 센 수가 같은지 확인해 보세요.':mode===2?'2층에 있는 쌓기나무는 몇 개인가요?':'전체 쌓기나무는 몇 개인가요?';
+    }
     else if(lesson===2){const dirs=['front','back','left','right','top'] as const; const d=dirs[i%dirs.length]; const projection=projectionForDirection(blocks,grid,d); const face=d==='top'?'top':d==='front'||d==='back'?'front':'side'; item=base(lesson,i,blocks,'CAMERA_DIRECTION',{projections:{[face]:projection},shownFrom:d,allowRotate:true},{kind:'direction',value:d},grid,'exact',selectedTemplate); item.prompt=`아래 모습은 어느 방향에서 본 것일까요?`;
     }
     else if(lesson===3){const views=[{top:p.top},{front:p.front},{side:p.side},{top:p.top,front:p.front,side:p.side},{side:p.side},{top:p.top}] as Partial<typeof p>[]; item=base(lesson,i,blocks,'PROJECTION_DRAW',{projections:views[i%views.length],allowRotate:true},{kind:'projections',projections:views[i%views.length]},grid,'exact',selectedTemplate); item.prompt=['위에서 본 모양','앞에서 본 모양','옆에서 본 모양','세 방향에서 본 모양'][i%4]+'을 격자에 나타내 보세요.';}

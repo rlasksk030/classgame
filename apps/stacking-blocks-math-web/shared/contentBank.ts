@@ -2,7 +2,7 @@
 import { fromHeightMap, project, toHeightMap, toLayers, grid2DEqual } from './blocks.ts';
 import { analyzeSolutions } from './problems/solvers/projection.ts';
 import type { GeneratedProblem } from './practiceGenerator.ts';
-import type { DifficultyTier } from './types.ts';
+import type { DifficultyTier, ProblemGiven } from './types.ts';
 import { conceptTagsForLesson } from './problemMetadata.ts';
 import { validateCandidate } from '../oracle/validate.ts';
 
@@ -11,13 +11,24 @@ export function randomFor(seed: number) {
  let state=seed>>>0;
  return () => { state=(state+0x6d2b79f5)>>>0;let t=state;t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);return ((t^(t>>>14))>>>0)/4294967296; };
 }
-/** Shuffle labels and the answer together. Older stored choices are never reshuffled. */
-export function shuffleChoices<T extends {choices:string[];answer:GeneratedProblem['answer']}>(p:T,seed:number):T {
+/**
+ * Shuffle labels and the answer together. Older stored choices are never reshuffled.
+ * When given.candidateBlocks exists (BLOCK_POSITION), it is permuted in lockstep with
+ * choices/answer.index so the tappable 3D block at index N still matches choices[N].
+ */
+export function shuffleChoices<T extends {choices:string[];answer:GeneratedProblem['answer'];given?:ProblemGiven}>(p:T,seed:number):T {
  if(p.answer.kind!=='choice')return p;
  const next=randomFor(seed), entries=p.choices.map((label,index)=>({label,index}));
  for(let i=entries.length-1;i>0;i--){const j=Math.floor(next()*(i+1));[entries[i],entries[j]]=[entries[j],entries[i]];}
  const correct=p.answer.index;
- return {...p,choices:entries.map(v=>v.label),answer:{kind:'choice',index:entries.findIndex(v=>v.index===correct)}};
+ const candidateBlocks=p.given?.candidateBlocks;
+ const reorderedCandidates=candidateBlocks?entries.map(v=>candidateBlocks[v.index]):undefined;
+ return {
+  ...p,
+  choices:entries.map(v=>v.label),
+  ...(reorderedCandidates?{given:{...p.given,candidateBlocks:reorderedCandidates}}:{}),
+  answer:{kind:'choice',index:entries.findIndex(v=>v.index===correct)},
+ };
 }
 export function contentDifficulty(p:GeneratedProblem):DifficultyTier {
  if(p.given.reasoning==='minimum'||p.given.reasoning==='maximum')return 'CHALLENGE';

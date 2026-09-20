@@ -202,6 +202,14 @@ export interface ProblemGiven {
   /** countOf 가 "layer" 일 때 몇 층인지 (1 부터). */
   countLayer?: number;
   note?: string;
+  /** BLOCK_POSITION 등에서 학생이 기준으로 삼아야 하는 블록 좌표 (3D에서 빨간색으로 표시). */
+  referenceBlock?: BlockCoord;
+  /**
+   * BLOCK_POSITION 에서 학생이 3D 화면에서 탭할 수 있는 실제 후보 블록 좌표.
+   * 정답 인덱스는 answer(kind:"choice").index 와 choices 배열의 순서를 그대로 따른다.
+   * 정답 여부는 여기 담지 않는다 (제출 전 노출 금지).
+   */
+  candidateBlocks?: BlockCoord[];
 }
 
 /** 채점 결과. */

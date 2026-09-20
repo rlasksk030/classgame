@@ -3,6 +3,7 @@ import { canonicalize } from "@shared/blocks.ts";
 import {
   DIRECTIONS,
   PROBLEM_TYPE_LABELS,
+  type BlockCoord,
   type Grid2D,
   type HeightMap,
   type Direction,
@@ -181,6 +182,7 @@ export default function LessonPage() {
   const [countInput, setCountInput] = useState("");
   const [directionValue, setDirectionValue] = useState<Direction>("front");
   const [choiceIndex, setChoiceIndex] = useState(0);
+  const [blockPositionPicked, setBlockPositionPicked] = useState(false);
 
   const [topMap, setTopMap] = useState<Grid2D>(createBoolGrid(4, 4));
   const [frontMap, setFrontMap] = useState<Grid2D>(createBoolGrid(4, 4));
@@ -244,6 +246,11 @@ export default function LessonPage() {
       return { kind: "choice", index: choiceIndex };
     }
 
+    if (current.problemType === "BLOCK_POSITION") {
+      if (!blockPositionPicked) return null;
+      return { kind: "choice", index: choiceIndex };
+    }
+
     if (current.problemType === "PROJECTION_DRAW") {
       const faces = projectionFacesFor(current);
       if (!faces.length) return null;
@@ -290,6 +297,7 @@ export default function LessonPage() {
     setResult(null);
     setCountInput("");
     setChoiceIndex(0);
+    setBlockPositionPicked(false);
     setDirectionValue((next.given?.shownFrom ?? "front") as Direction);
     setAttempt(DEFAULT_ATTEMPT_STATE);
 
@@ -318,7 +326,10 @@ export default function LessonPage() {
     if (draft) {
       if (typeof draft.countInput === "string") setCountInput(draft.countInput);
       if (draft.directionValue) setDirectionValue(draft.directionValue);
-      if (typeof draft.choiceIndex === "number") setChoiceIndex(draft.choiceIndex);
+      if (typeof draft.choiceIndex === "number") {
+        setChoiceIndex(draft.choiceIndex);
+        if (next.problemType === "BLOCK_POSITION") setBlockPositionPicked(true);
+      }
       if (isGridDraft(draft.topMap)) setTopMap(draft.topMap);
       if (isGridDraft(draft.frontMap)) setFrontMap(draft.frontMap);
       if (isGridDraft(draft.sideMap)) setSideMap(draft.sideMap);
@@ -615,6 +626,15 @@ export default function LessonPage() {
   const renderEditor = () => {
     if (!problem) return null;
 
+    if (problem.problemType === "BLOCK_POSITION") {
+      return (
+        <div className="answer-box">
+          <p className="muted">왼쪽 3D 화면에서 빨간 블록을 기준으로 정답 블록을 짚어(탭) 보세요.</p>
+          {blockPositionPicked ? <p>선택한 블록: {problem.choices[choiceIndex]}</p> : <p className="muted">아직 블록을 선택하지 않았어요.</p>}
+        </div>
+      );
+    }
+
     if (problem.problemType === "CHOICE") {
       return (
         <div className="answer-box">
@@ -881,9 +901,22 @@ export default function LessonPage() {
               onBlocksChange={(next) => {
                 setBlocksWithHistory(next);
               }}
-              onSelect={(next) => setSelection(next)}
+              onSelect={(next) => {
+                setSelection(next);
+                if (problem.problemType === "BLOCK_POSITION" && next && problem.given.candidateBlocks) {
+                  const matched = problem.given.candidateBlocks.findIndex(
+                    (c: BlockCoord) => c.x === next.x && c.y === next.y && c.z === next.z,
+                  );
+                  if (matched >= 0) {
+                    setChoiceIndex(matched);
+                    setBlockPositionPicked(true);
+                  }
+                }
+              }}
               onMessage={setMessage}
               answerGhost={attempt.revealedAnswer?.blocks ?? result?.revealedAnswer?.blocks}
+              referenceBlocks={problem.given.referenceBlock ? [problem.given.referenceBlock] : undefined}
+              inspectable={problem.problemType === "BLOCK_POSITION" && !attempt.completed}
               disabled={restoring || attempt.completed || !isBuildType(problem.problemType)}
               onSnapshotChange={() => undefined}
             />

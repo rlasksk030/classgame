@@ -24,6 +24,8 @@ export interface SceneState {
   layerOnly?: number | null;
   answerGhost?: BlockCoord[];
   highlightedBlocks?: BlockCoord[];
+  /** 문제 문구가 참조하는 기준 블록. 항상 뚜렷한 빨간색으로 표시한다 (BLOCK_POSITION 등). */
+  referenceBlocks?: BlockCoord[];
   disabled?: boolean;
   allowRotate?: boolean;
   appearance?: Record<string, RewardMaterial>;
@@ -49,6 +51,7 @@ export class BlockScene {
   private material: StandardMaterial;
   private blockMaterials = new Map<RewardMaterial, StandardMaterial>();
   private selectedMaterial: StandardMaterial;
+  private referenceMaterial: StandardMaterial;
   private ghostMaterial: StandardMaterial;
   private answerMaterial: StandardMaterial;
   private ghost: Mesh;
@@ -98,6 +101,8 @@ export class BlockScene {
     this.blockMaterials.set('brick', makeMaterial('brick', '#c97b68'));
     this.blockMaterials.set('tile', makeMaterial('tile', '#8eb8c9'));
     this.selectedMaterial = makeMaterial('selected', '#5d82c7');
+    // index.css --berry token, so "빨간 블록" text and the 3D block agree.
+    this.referenceMaterial = makeMaterial('reference', '#c0504d');
     this.ghostMaterial = makeMaterial('placement', '#86d8c0', 0.48);
     this.answerMaterial = makeMaterial('answer', '#6c77d5', 0.28);
     const floorMaterial = makeMaterial('floor', '#cfd8df');
@@ -160,7 +165,11 @@ export class BlockScene {
         this.cubes.set(key, mesh);
       }
       const appearance = state.appearance?.[key] ?? 'wood';
-      mesh.material = (state.selected && keyOf(state.selected) === key) || state.highlightedBlocks?.some(b => keyOf(b) === key) ? this.selectedMaterial : (this.blockMaterials.get(appearance) ?? this.material);
+      mesh.material = state.referenceBlocks?.some(b => keyOf(b) === key)
+        ? this.referenceMaterial
+        : (state.selected && keyOf(state.selected) === key) || state.highlightedBlocks?.some(b => keyOf(b) === key)
+          ? this.selectedMaterial
+          : (this.blockMaterials.get(appearance) ?? this.material);
       mesh.setEnabled(this.visible(block));
     }
     this.answers.forEach(mesh => mesh.dispose());

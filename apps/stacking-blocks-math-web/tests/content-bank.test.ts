@@ -52,6 +52,47 @@ test('choice shuffling is deterministic, unbiased by position, and preserves sem
  }
  assert.ok(counts.every(n=>n>400&&n<600));assert.equal(original.answer.index,0);
 });
+test('choice shuffling keeps BLOCK_POSITION candidateBlocks in lockstep with choices/answer',()=>{
+ const original={
+  choices:['오른쪽에 있는 블록','뒤쪽에 있는 블록','다른 층의 블록'],
+  answer:{kind:'choice' as const,index:0},
+  given:{referenceBlock:{x:0,y:0,z:0},candidateBlocks:[{x:1,y:0,z:0},{x:0,y:0,z:1},{x:0,y:1,z:0}]},
+ };
+ for(let seed=0;seed<200;seed++){
+  const p=shuffleChoices(original,seed);
+  assert.deepEqual(p.given!.candidateBlocks![p.answer.index],{x:1,y:0,z:0});
+  assert.equal(p.choices[p.answer.index],'오른쪽에 있는 블록');
+ }
+ assert.deepEqual(original.given.candidateBlocks[0],{x:1,y:0,z:0});
+});
+test('lesson 1 BLOCK_POSITION problems have a real, geometrically correct reference/candidate rig (no fabricated red block)',()=>{
+ for(let seed=0;seed<40;seed++){
+  const set=generatePracticeProblems(1,12,seed,3);
+  const positionProblems=set.filter(p=>p.problemType==='BLOCK_POSITION');
+  assert.ok(positionProblems.length>0,`seed ${seed} produced no BLOCK_POSITION problems`);
+  for(const p of positionProblems){
+   assert.ok(p.given.referenceBlock,`seed ${seed} ${p.templateId}: missing referenceBlock`);
+   assert.ok(p.given.candidateBlocks&&p.given.candidateBlocks.length===3,`seed ${seed} ${p.templateId}: missing 3 candidateBlocks`);
+   const candidateBlocks=p.given.candidateBlocks!;
+   const keyOf=(b:{x:number;y:number;z:number})=>`${b.x},${b.y},${b.z}`;
+   const keys=candidateBlocks.map(keyOf);
+   assert.equal(new Set(keys).size,3,'candidateBlocks must be 3 distinct blocks');
+   const ref=p.given.referenceBlock!;
+   assert.ok(!keys.includes(keyOf(ref)),'reference block must not also be a candidate');
+   const shapeKeys=new Set(p.givenBlocks.map(keyOf));
+   for(const c of candidateBlocks) assert.ok(shapeKeys.has(keyOf(c)),'every candidate must be a real block actually shown in 3D');
+   assert.ok(shapeKeys.has(keyOf(ref)),'reference block must be a real block actually shown in 3D');
+   assert.equal(p.answer.kind,'choice');
+   const correctBlock=candidateBlocks[(p.answer as {kind:'choice';index:number}).index];
+   const isRight=/오른쪽/.test(p.prompt), isUp=/위/.test(p.prompt);
+   if(isRight) assert.deepEqual(correctBlock,{x:ref.x+1,y:ref.y,z:ref.z},`seed ${seed}: 오른쪽 answer does not match reference+x`);
+   else if(isUp) assert.deepEqual(correctBlock,{x:ref.x,y:ref.y+1,z:ref.z},`seed ${seed}: 위 answer does not match reference+y`);
+   else assert.fail(`prompt did not state a known reference direction: ${p.prompt}`);
+   assert.equal(validateCandidate(p).ok,true);
+   assert.equal(grade({...p,submission:p.answer}).correct,true);
+  }
+ }
+});
 test('generated peer bank has 24 distinct public tasks, valid hints and a verified solution',()=>{
  const bank=generatePeerPracticeBank();assert.equal(bank.length,24);
  assert.equal(new Set(bank.map(p=>JSON.stringify(p.card))).size,24);
