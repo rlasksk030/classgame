@@ -44,6 +44,20 @@ export interface InstallerJobResponse {
 export interface InstallerSessionResponse {
   sessionId?: string;
   status: "CREATED" | "AUTHORIZED";
+  /** Present only when the session was just bound via OAuth: the project's own
+   * public key, fetched server-side so the teacher never has to copy it. */
+  publishableKey?: string;
+}
+
+export interface InstallerAccessibleProject {
+  ref: string;
+  name?: string;
+  region?: string;
+}
+
+export interface InstallerTeacherAccountResult {
+  created: boolean;
+  alreadyExists: boolean;
 }
 
 type FetchLike = (input: string | URL, init?: RequestInit) => Promise<Response>;
@@ -86,12 +100,27 @@ export class InstallerClient {
     return this.request<InstallerSessionResponse>("POST", "/api/installer/session", { ...target, environment: "TEST" });
   }
 
-  /** Starts the server-side OAuth flow; the browser receives only a redirect URL. */
-  beginAuthorization(target: InstallerPublicTarget): Promise<{ authorizeUrl: string }> {
-    return this.request<{ authorizeUrl: string }>("POST", "/api/installer/authorize", target);
+  /** Starts the server-side OAuth flow; the browser receives only a redirect URL.
+   * No project is known yet at this point -- OAuth authorization comes before
+   * project selection, not after. */
+  beginAuthorization(): Promise<{ authorizeUrl: string }> {
+    return this.request<{ authorizeUrl: string }>("POST", "/api/installer/authorize");
   }
 
-  /** PAT fallback. The value is sent once and is never stored by this client. */
+  /** Projects the teacher's own OAuth authorization actually grants access to,
+   * for a picker -- never a client-typed project ref. Requires having just
+   * completed the OAuth redirect (the server reads its own grant cookie). */
+  listAccessibleProjects(): Promise<{ projects: InstallerAccessibleProject[] }> {
+    return this.request<{ projects: InstallerAccessibleProject[] }>("GET", "/api/installer/projects");
+  }
+
+  /** Creates the teacher's Supabase Auth account on the installed project so
+   * they never have to open the Supabase Dashboard by hand. */
+  createTeacherAccount(email: string, password: string): Promise<InstallerTeacherAccountResult> {
+    return this.request<InstallerTeacherAccountResult>("POST", "/api/installer/teacher-account", { email, password });
+  }
+
+  /** PAT fallback for the dev/regression path. The value is sent once and is never stored by this client. */
   provideTemporaryCredential(pat: string): Promise<InstallerSessionResponse> {
     return this.request<InstallerSessionResponse>("POST", "/api/installer/credential", { pat });
   }
@@ -120,7 +149,7 @@ export class InstallerClient {
     return this.request<{ revoked: boolean }>("DELETE", "/api/installer/session");
   }
 
-  private async request<T>(method: "GET" | "POST" | "DELETE", path: string, body?: InstallerPublicTarget | { pat: string }): Promise<T> {
+  private async request<T>(method: "GET" | "POST" | "DELETE", path: string, body?: InstallerPublicTarget | { pat: string } | { email: string; password: string }): Promise<T> {
     const target = body && "projectRef" in body ? body : undefined;
     const query = method === "GET" && target
       ? `?${new URLSearchParams({ projectRef: target.projectRef, projectUrl: target.projectUrl, ...(target.publishableKey ? { publishableKey: target.publishableKey } : {}), release: target.release }).toString()}`

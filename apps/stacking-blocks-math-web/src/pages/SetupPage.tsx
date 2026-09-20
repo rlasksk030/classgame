@@ -11,7 +11,7 @@ import {
   type RuntimeSupabaseConfig,
 } from "../lib/config";
 import { clearInstallerProgress, readInstallerProgress, saveInstallerProgress, type InstallerStep } from "../lib/installer";
-import { getConfiguredInstallerClient, InstallerClientError, type InstallerRemoteStatus, type InstallerStatusResponse } from "../lib/installerClient";
+import { getConfiguredInstallerClient, InstallerClientError, type InstallerAccessibleProject, type InstallerRemoteStatus, type InstallerStatusResponse } from "../lib/installerClient";
 import { getSupabase } from "../lib/supabase";
 import {
   clearStudentToken,
@@ -92,6 +92,12 @@ export default function SetupPage() {
   const [installerStatusError, setInstallerStatusError] = useState(false);
   const [authorizing, setAuthorizing] = useState(false);
   const [temporaryPat, setTemporaryPat] = useState("");
+  const [useTemporaryPat, setUseTemporaryPat] = useState(false);
+  const [oauthAuthorized, setOauthAuthorized] = useState(false);
+  const [oauthProjects, setOauthProjects] = useState<InstallerAccessibleProject[] | null>(null);
+  const [selectedProjectRef, setSelectedProjectRef] = useState("");
+  const [teacherAccountMode, setTeacherAccountMode] = useState<"choose" | "create" | "login">("choose");
+  const [teacherAccountBusy, setTeacherAccountBusy] = useState(false);
   const [installerDetails, setInstallerDetails] = useState<InstallerStatusResponse | null>(null);
   const installerClient = useMemo(() => getConfiguredInstallerClient(), []);
   const [busy, setBusy] = useState(false);
@@ -109,6 +115,20 @@ export default function SetupPage() {
     setStep(next);
     if (installationId.trim()) saveInstallerProgress({ installationId: installationId.trim(), step: next, ...extra, updatedAt: new Date().toISOString() });
   };
+
+  useEffect(() => {
+    if (!installerClient) return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("oauth") !== "granted") return;
+    window.history.replaceState(null, "", window.location.pathname);
+    persistStep(4);
+    setBusy(true); setError(null);
+    installerClient.listAccessibleProjects()
+      .then((result) => { setOauthProjects(result.projects); setSelectedProjectRef(result.projects[0]?.ref ?? ""); })
+      .catch(() => setError("Supabase 연결은 됐지만 프로젝트 목록을 불러오지 못했습니다. 다시 연결해 주세요."))
+      .finally(() => setBusy(false));
+    // Runs once on the redirect back from Supabase's consent screen.
+  }, []);
 
   useEffect(() => {
     if (step < 5 || !connectionVerified) return;
@@ -179,6 +199,32 @@ export default function SetupPage() {
     } catch (reason) { installerFailure(reason); }
     finally { setAuthorizing(false); }
   };
+  const startOAuthConnect = async () => {
+    if (!installerClient || authorizing) return;
+    setAuthorizing(true); setError(null); setMessage(null);
+    try {
+      const { authorizeUrl } = await installerClient.beginAuthorization();
+      window.location.href = authorizeUrl;
+    } catch (reason) {
+      if (reason instanceof InstallerClientError && reason.status === 501) { setUseTemporaryPat(true); persistStep(3); }
+      else setError("Supabase 연결을 시작하지 못했습니다. 잠시 후 다시 시도해 주세요.");
+      setAuthorizing(false);
+    }
+  };
+  const selectOAuthProject = async () => {
+    if (!installerClient || !selectedProjectRef || busy) return;
+    setBusy(true); setError(null); setMessage(null);
+    try {
+      const projectUrl = `https://${selectedProjectRef}.supabase.co`;
+      const result = await installerClient.createSession({ projectRef: selectedProjectRef, projectUrl, release: "spatial-math-v1" });
+      const config: RuntimeSupabaseConfig = { installationId: installationId.trim(), supabaseUrl: projectUrl, supabasePublishableKey: result.publishableKey ?? "" };
+      saveRuntimeSupabaseConfig(config);
+      setSupabaseUrl(projectUrl); setConnectionVerified(true); setOauthAuthorized(true); setOauthProjects(null);
+      setMessage(result.publishableKey ? "선택한 프로젝트에 연결하고 설치 권한도 받았어요." : "선택한 프로젝트에 연결했지만 공개 키는 자동으로 받지 못했어요. 학생 접속에 필요하니 연결 화면에서 직접 입력해 주세요.");
+      persistStep(4);
+    } catch (reason) { installerFailure(reason); }
+    finally { setBusy(false); }
+  };
   const runInstallerAction = async (action: "install" | "repair" | "update" | "status" | "revoke") => {
     if (!installerClient || busy) return;
     setBusy(true); setError(null); setMessage(null);
@@ -204,6 +250,20 @@ export default function SetupPage() {
       setTeacherSignedIn(true); setTeacherPassword(""); setMessage("교사 로그인이 확인됐어요."); persistStep(6);
     } catch (reason) { setError(friendlyAuthError(reason)); }
     finally { setBusy(false); }
+  };
+
+  const createTeacherAccount = async (event: FormEvent) => {
+    event.preventDefault();
+    if (!installerClient || teacherAccountBusy) return;
+    setTeacherAccountBusy(true); setError(null); setMessage(null);
+    try {
+      const result = await installerClient.createTeacherAccount(teacherEmail.trim(), teacherPassword);
+      if (result.alreadyExists) { setMessage("이미 있는 계정이에요. 아래에서 로그인해 주세요."); setTeacherAccountMode("login"); return; }
+      setMessage("교사 계정을 만들었어요. 이제 같은 정보로 로그인해 주세요.");
+      setTeacherAccountMode("login");
+    } catch {
+      setError("교사 계정을 만들지 못했어요. 이메일 형식과 8자 이상 비밀번호를 확인해 주세요.");
+    } finally { setTeacherAccountBusy(false); }
   };
 
   const loadClasses = async () => {
@@ -277,35 +337,86 @@ export default function SetupPage() {
         {step === 3 && <form className="installer-card stack" onSubmit={connect}><h2>Supabase 연결</h2><label className="label" htmlFor="installer-url">Project URL <button type="button" className="help-link" title="Supabase → Project Settings → API">어디서 찾나요?</button></label><input id="installer-url" className="field" type="url" placeholder="https://your-project.supabase.co" value={supabaseUrl} onChange={(event) => setSupabaseUrl(event.target.value)} required /><label className="label" htmlFor="installer-key">Publishable key <button type="button" className="help-link" title="Supabase → Project Settings → API Keys">어디서 찾나요?</button></label><input id="installer-key" className="field" type="password" placeholder="sb_publishable_…" value={publishableKey} onChange={(event) => setPublishableKey(event.target.value)} required />{connectionVerified && <p className="success" role="status">Supabase 연결 완료</p>}{error && <p className="error" role="alert">{error}</p>}<button className="btn btn-primary" type="submit" disabled={busy}>{busy ? "연결 확인 중…" : "연결 확인"}</button><p className="muted">공개 키는 이 기기의 설치 설정에만 저장됩니다. service_role·관리 토큰은 입력하지 마세요.</p></form>}
 
         {step === 4 && <div className="installer-card stack">
-          <h2>설치 권한 연결</h2>
-          <p>TEST 전용 설치입니다. 선택한 Supabase에 수업 자료 구조와 학생 로그인 기능을 설치합니다. 기존 기록과 서버 비밀값은 보존합니다.</p>
-          <p>설치 대상: <strong>{projectRefFromUrl(supabaseUrl)}</strong></p>
-          {installerClient ? <>
-            <form className="stack" onSubmit={connectInstallerAuthorization}>
-              <label className="label" htmlFor="installer-pat">일회성 TEST 설치 권한 토큰 (PAT)</label>
-              <input id="installer-pat" className="field" type="password" autoComplete="off" spellCheck={false} value={temporaryPat} onChange={event => setTemporaryPat(event.target.value)} required />
-              <p className="muted"><a href="https://supabase.com/dashboard/account/tokens" target="_blank" rel="noreferrer">Supabase에서 TEST 설치용 토큰 만들기</a> → 여기에 붙여 넣어 주세요. service_role이나 DB 비밀번호는 입력하지 않습니다.</p>
-              <p className="muted">토큰은 입력 후 지우며, 설치 서버 메모리에서 최대 15분 동안만 사용합니다. 그동안 새로고침 후에도 이어서 확인할 수 있습니다. 서버 재시작이나 만료 후에는 다시 연결하세요.</p>
-              <button className="btn btn-primary" type="submit" disabled={authorizing || busy || !temporaryPat.trim()}>{authorizing ? "권한 확인 중…" : "설치 권한 연결"}</button>
-            </form>
-            <div className="installer-checks" aria-live="polite">
-              <p>{installerStatus ? installerStatusLabel(installerStatus) : installerStatusError ? "설치 권한을 연결한 후 상태를 확인해 주세요." : "설치 상태 확인 중…"}</p>
-              {installerDetails?.requiredMigrationCount !== undefined && <p>데이터 구조: {installerDetails.appliedMigrationCount ?? 0}/{installerDetails.requiredMigrationCount}</p>}
-              {installerDetails?.functions?.map(item => <p key={item.slug}>{item.slug}: {item.status}</p>)}
-            </div>
-            <div className="toolbar-row">
-              <button className="btn btn-primary" disabled={busy || authorizing || !installerStatus} onClick={() => void runInstallerAction("install")}>{busy ? "처리 중…" : "설치하기"}</button>
-              <button className="btn" disabled={busy || !installerStatus} onClick={() => void runInstallerAction("repair")}>이어서 복구</button>
-              <button className="btn" disabled={busy || !installerStatus} onClick={() => void runInstallerAction("update")}>업데이트</button>
-              <button className="btn" disabled={busy || authorizing} onClick={() => void runInstallerAction("status")}>상태 확인</button>
-              <button className="btn" disabled={busy || authorizing} onClick={() => void runInstallerAction("revoke")}>설치 권한 해제</button>
-            </div>
-          </> : <p className="notice">이 화면에 설치 서버가 연결되지 않았습니다. 공개 URL과 키만으로 설치를 완료할 수 없습니다.</p>}
-          {error && <p className="error" role="alert">{error}</p>}
-          <div className="toolbar-row"><button className="btn" disabled={busy} onClick={() => persistStep(3)}>연결 다시 확인</button><button className="btn btn-primary" disabled={busy || installerStatus !== "INSTALLED"} onClick={() => persistStep(5)}>교사 확인으로 계속</button></div>
+          <h2>{oauthProjects ? "내 프로젝트 선택" : "데이터베이스 준비"}</h2>
+          {oauthProjects ? <>
+            <p>Supabase 연결을 확인했어요. 이 수업앱을 설치할 프로젝트를 골라 주세요.</p>
+            {oauthProjects.length ? <>
+              <label className="label" htmlFor="installer-project-select">내 Supabase 프로젝트<select id="installer-project-select" className="field" value={selectedProjectRef} onChange={event => setSelectedProjectRef(event.target.value)}>{oauthProjects.map(project => <option value={project.ref} key={project.ref}>{project.name ?? project.ref}{project.region ? ` · ${project.region}` : ""}</option>)}</select></label>
+              <button className="btn btn-primary" disabled={busy || !selectedProjectRef} onClick={() => void selectOAuthProject()}>{busy ? "연결 중…" : "이 프로젝트로 계속"}</button>
+            </> : <p className="notice">선택할 수 있는 프로젝트가 없어요. Supabase에서 먼저 프로젝트를 만든 뒤 다시 연결해 주세요.</p>}
+          </> : <>
+            <p>학생 로그인 기능과 학습 기록을 저장할 준비를 합니다. 기존 기록과 서버 비밀값은 보존합니다.</p>
+            {connectionVerified && <p>설치 대상: <strong>{projectRefFromUrl(supabaseUrl)}</strong></p>}
+            {installerClient ? <>
+              {oauthAuthorized ? <p className="success" role="status">Supabase 연결로 설치 권한을 받았어요. 별도 토큰 입력이 필요 없습니다.</p> : <>
+                {!connectionVerified && !useTemporaryPat && <div className="stack">
+                  <button className="btn btn-primary" disabled={authorizing} onClick={() => void startOAuthConnect()}>{authorizing ? "연결 이동 중…" : "Supabase 연결"}</button>
+                  <p className="muted">버튼을 누르면 Supabase 로그인 화면으로 이동합니다. 이 앱은 토큰을 직접 보거나 저장하지 않습니다.</p>
+                  <button className="btn btn-sm" type="button" onClick={() => { setUseTemporaryPat(true); persistStep(3); }}>개발자용 임시 방법으로 연결</button>
+                </div>}
+                {connectionVerified && <form className="stack" onSubmit={connectInstallerAuthorization}>
+                  <label className="label" htmlFor="installer-pat">개발자용 임시 설치 권한 토큰</label>
+                  <input id="installer-pat" className="field" type="password" autoComplete="off" spellCheck={false} value={temporaryPat} onChange={event => setTemporaryPat(event.target.value)} required />
+                  <p className="muted"><a href="https://supabase.com/dashboard/account/tokens" target="_blank" rel="noreferrer">Supabase에서 TEST 설치용 토큰 만들기</a> → 여기에 붙여 넣어 주세요. 관리자 비밀 키나 DB 비밀번호는 입력하지 않습니다.</p>
+                  <p className="muted">토큰은 입력 후 지우며, 설치 서버 메모리에서 최대 15분 동안만 사용합니다. 그동안 새로고침 후에도 이어서 확인할 수 있습니다. 서버 재시작이나 만료 후에는 다시 연결하세요.</p>
+                  <button className="btn btn-primary" type="submit" disabled={authorizing || busy || !temporaryPat.trim()}>{authorizing ? "권한 확인 중…" : "설치 권한 연결"}</button>
+                </form>}
+              </>}
+              {(oauthAuthorized || (connectionVerified && (installerStatus || installerStatusError))) && <>
+                <div className="installer-checks" aria-live="polite">
+                  <p>{installerStatus ? installerStatusLabel(installerStatus) : installerStatusError ? "설치 권한을 연결한 후 상태를 확인해 주세요." : "설치 상태 확인 중…"}</p>
+                  {installerDetails?.requiredMigrationCount !== undefined && <p>데이터베이스 준비: {installerDetails.appliedMigrationCount ?? 0}/{installerDetails.requiredMigrationCount}</p>}
+                  {installerDetails?.functions?.map(item => <p key={item.slug}>학생 로그인 기능 ({item.slug === "student-auth" ? "인증" : "학습"}): {item.status}</p>)}
+                </div>
+                <div className="toolbar-row">
+                  <button className="btn btn-primary" disabled={busy || authorizing || !installerStatus} onClick={() => void runInstallerAction("install")}>{busy ? "처리 중…" : "수학 앱 설치"}</button>
+                  <button className="btn" disabled={busy || !installerStatus} onClick={() => void runInstallerAction("repair")}>이어서 복구</button>
+                  <button className="btn" disabled={busy || !installerStatus} onClick={() => void runInstallerAction("update")}>업데이트</button>
+                  <button className="btn" disabled={busy || authorizing} onClick={() => void runInstallerAction("status")}>설치 확인</button>
+                  <button className="btn" disabled={busy || authorizing} onClick={() => void runInstallerAction("revoke")}>설치 권한 해제</button>
+                </div>
+              </>}
+            </> : <p className="notice">이 화면에 설치 서버가 연결되지 않았습니다. 공개 URL과 키만으로 설치를 완료할 수 없습니다.</p>}
+            {error && <p className="error" role="alert">{error}</p>}
+            <div className="toolbar-row"><button className="btn" disabled={busy} onClick={() => persistStep(3)}>연결 다시 확인</button><button className="btn btn-primary" disabled={busy || installerStatus !== "INSTALLED"} onClick={() => persistStep(5)}>교사 확인으로 계속</button></div>
+          </>}
         </div>}
 
-        {step === 5 && <form className="installer-card stack" onSubmit={loginTeacher}><h2>교사 계정 확인</h2><p>Supabase Authentication에 만든 교사 계정으로 로그인합니다.</p><label className="label" htmlFor="installer-email">이메일</label><input id="installer-email" className="field" type="email" autoComplete="username" value={teacherEmail} onChange={(event) => setTeacherEmail(event.target.value)} required /><label className="label" htmlFor="installer-password">비밀번호</label><input id="installer-password" className="field" type="password" autoComplete="current-password" value={teacherPassword} onChange={(event) => setTeacherPassword(event.target.value)} required />{error && <p className="error" role="alert">{error}</p>}<button className="btn btn-primary" type="submit" disabled={busy}>{busy ? "확인 중…" : "교사 로그인"}</button><p className="muted">비밀번호는 저장하거나 로그에 남기지 않습니다.</p></form>}
+        {step === 5 && <div className="installer-card stack">
+          <h2>교사 계정</h2>
+          {installerClient && teacherAccountMode === "choose" && <>
+            <p>이 수업앱에 로그인할 교사 계정이 필요합니다. Supabase Dashboard를 열지 않아도 여기서 바로 만들 수 있어요.</p>
+            <div className="toolbar-row">
+              <button className="btn btn-primary" onClick={() => setTeacherAccountMode("create")}>교사 계정 만들기</button>
+              <button className="btn" onClick={() => setTeacherAccountMode("login")}>이미 계정이 있어요</button>
+            </div>
+          </>}
+          {installerClient && teacherAccountMode === "create" && <form className="stack" onSubmit={createTeacherAccount}>
+            <p>새 교사 계정을 만듭니다. 이 정보로 앞으로 교사 화면에 로그인합니다.</p>
+            <label className="label" htmlFor="installer-new-email">이메일</label>
+            <input id="installer-new-email" className="field" type="email" autoComplete="username" value={teacherEmail} onChange={(event) => setTeacherEmail(event.target.value)} required />
+            <label className="label" htmlFor="installer-new-password">비밀번호 (8자 이상)</label>
+            <input id="installer-new-password" className="field" type="password" autoComplete="new-password" minLength={8} value={teacherPassword} onChange={(event) => setTeacherPassword(event.target.value)} required />
+            {error && <p className="error" role="alert">{error}</p>}
+            <div className="toolbar-row">
+              <button className="btn btn-primary" type="submit" disabled={teacherAccountBusy}>{teacherAccountBusy ? "만드는 중…" : "계정 만들기"}</button>
+              <button className="btn btn-sm" type="button" onClick={() => setTeacherAccountMode("choose")}>취소</button>
+            </div>
+          </form>}
+          {(!installerClient || teacherAccountMode === "login") && <form className="stack" onSubmit={loginTeacher}>
+            <p>가지고 있는 교사 계정으로 로그인합니다.</p>
+            <label className="label" htmlFor="installer-email">이메일</label>
+            <input id="installer-email" className="field" type="email" autoComplete="username" value={teacherEmail} onChange={(event) => setTeacherEmail(event.target.value)} required />
+            <label className="label" htmlFor="installer-password">비밀번호</label>
+            <input id="installer-password" className="field" type="password" autoComplete="current-password" value={teacherPassword} onChange={(event) => setTeacherPassword(event.target.value)} required />
+            {error && <p className="error" role="alert">{error}</p>}
+            <div className="toolbar-row">
+              <button className="btn btn-primary" type="submit" disabled={busy}>{busy ? "확인 중…" : "교사 로그인"}</button>
+              {installerClient && <button className="btn btn-sm" type="button" onClick={() => setTeacherAccountMode("create")}>계정이 없어요, 새로 만들기</button>}
+            </div>
+          </form>}
+          <p className="muted">비밀번호는 저장하거나 로그에 남기지 않습니다.</p>
+        </div>}
 
         {step === 6 && <div className="installer-card stack"><h2>우리 반 만들기</h2><p>학급 이름을 입력하면 학급 코드가 자동으로 만들어집니다.</p>{classes.length > 0 && <label className="label" htmlFor="installer-class-select">기존 학급 선택<select id="installer-class-select" className="field" value={classId} onChange={(event) => setClassId(event.target.value)}>{classes.map((item) => <option value={item.id} key={item.id}>{item.name} ({item.class_code})</option>)}</select></label>}<form className="toolbar-row" onSubmit={createClass}><input className="field" aria-label="새 학급 이름" placeholder="예: 6학년 1반" value={className} onChange={(event) => setClassName(event.target.value)} /><button className="btn btn-primary" type="submit" disabled={busy || !className.trim()}>학급 만들기</button></form>{selectedClass && <p className="success" role="status">선택한 학급: {selectedClass.name} · 코드 {selectedClass.class_code}</p>}{error && <p className="error" role="alert">{error}</p>}<button className="btn" disabled={!classId || busy} onClick={() => persistStep(7, { classId, className: selectedClass?.name, studentCount: students.length })}>학생 만들기로 계속</button><button className="btn btn-sm" onClick={() => void loadClasses()} disabled={busy}>학급 목록 새로고침</button></div>}
 
