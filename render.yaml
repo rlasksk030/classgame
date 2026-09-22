@@ -20,3 +20,15 @@ services:
         sync: false
       - key: INSTALLER_SESSION_SECRET
         generateValue: true
+      # Zero-support OAuth connect: register a Supabase OAuth App (org dashboard,
+      # one-time human step) and set these three from its client id/secret and
+      # this service's own callback URL. All three must be present together or
+      # the server keeps the PAT-only fallback path (see runtime.ts). Never
+      # hardcode values here -- sync: false means Render prompts for them once
+      # in its dashboard instead of storing them in this file.
+      - key: INSTALLER_OAUTH_CLIENT_ID
+        sync: false
+      - key: INSTALLER_OAUTH_CLIENT_SECRET
+        sync: false
+      - key: INSTALLER_OAUTH_REDIRECT_URI
+        sync: false
