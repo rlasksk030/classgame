@@ -1,6 +1,7 @@
 import { INSTALLATION_CONFIG_KEY } from "./config.ts";
 
 export const INSTALLER_PROGRESS_KEY = "stacking-installer-progress";
+const INSTALLER_PENDING_ID_KEY = "stacking-installer-pending-id";
 
 export type InstallerStep = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
 
@@ -52,6 +53,27 @@ export function saveInstallerProgress(progress: InstallerProgress): void {
 export function clearInstallerProgress(): void {
   if (!isBrowser()) return;
   localStorage.removeItem(INSTALLER_PROGRESS_KEY);
+}
+
+/**
+ * A Supabase OAuth connect is a real browser navigation away and back (not a
+ * client-side route change), so any installationId held only in React state
+ * is lost. Without a stable id surviving that round trip, readInstallerProgress
+ * can never match the step this teacher was on before they left for Supabase's
+ * consent screen. Persist the id itself, separately from the full runtime
+ * config (which does not exist yet at this point in the flow).
+ */
+export function getOrCreatePendingInstallationId(fallback: () => string): string {
+  if (!isBrowser()) return fallback();
+  try {
+    const existing = localStorage.getItem(INSTALLER_PENDING_ID_KEY);
+    if (existing) return existing;
+  } catch {
+    return fallback();
+  }
+  const created = fallback();
+  try { localStorage.setItem(INSTALLER_PENDING_ID_KEY, created); } catch { /* best effort */ }
+  return created;
 }
 
 export function installerStorageIsScopedToInstallation(): boolean {
