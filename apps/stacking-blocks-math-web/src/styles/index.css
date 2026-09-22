@@ -205,6 +205,23 @@ button {
   flex-wrap: wrap;
 }
 
+.installer-advanced {
+  margin-top: 8px;
+  padding: 12px 14px;
+  border: 1px dashed var(--line-soft);
+  border-radius: var(--radius);
+}
+
+.installer-advanced summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--muted, inherit);
+}
+
+.installer-advanced form {
+  margin-top: 12px;
+}
+
 .installer-checks {
   display: grid;
   gap: 4px;

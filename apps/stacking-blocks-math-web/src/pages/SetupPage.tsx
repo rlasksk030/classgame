@@ -334,7 +334,28 @@ export default function SetupPage() {
 
         {step === 2 && <div className="installer-card stack"><h2>Supabase 준비</h2><p>학생 로그인과 학습 기록을 선생님의 Supabase에 저장합니다. Free 요금제로 시작할 수 있어요.</p><a className="btn" href="https://supabase.com/dashboard" target="_blank" rel="noreferrer">Supabase 열기</a><p className="muted">새 프로젝트를 만들었다면 Project Settings → API에서 공개 연결 정보를 확인해 주세요. 이 연결 단계에서는 공개 URL과 Publishable key만 사용합니다.</p><div className="toolbar-row"><button className="btn" onClick={() => persistStep(1)}>이전</button><button className="btn btn-primary" onClick={() => persistStep(3)}>연결 화면으로</button></div></div>}
 
-        {step === 3 && <form className="installer-card stack" onSubmit={connect}><h2>Supabase 연결</h2><label className="label" htmlFor="installer-url">Project URL <button type="button" className="help-link" title="Supabase → Project Settings → API">어디서 찾나요?</button></label><input id="installer-url" className="field" type="url" placeholder="https://your-project.supabase.co" value={supabaseUrl} onChange={(event) => setSupabaseUrl(event.target.value)} required /><label className="label" htmlFor="installer-key">Publishable key <button type="button" className="help-link" title="Supabase → Project Settings → API Keys">어디서 찾나요?</button></label><input id="installer-key" className="field" type="password" placeholder="sb_publishable_…" value={publishableKey} onChange={(event) => setPublishableKey(event.target.value)} required />{connectionVerified && <p className="success" role="status">Supabase 연결 완료</p>}{error && <p className="error" role="alert">{error}</p>}<button className="btn btn-primary" type="submit" disabled={busy}>{busy ? "연결 확인 중…" : "연결 확인"}</button><p className="muted">공개 키는 이 기기의 설치 설정에만 저장됩니다. service_role·관리 토큰은 입력하지 마세요.</p></form>}
+        {step === 3 && <div className="installer-card stack">
+          <h2>Supabase 연결</h2>
+          {connectionVerified ? <p className="success" role="status">Supabase 연결 완료</p> : <>
+            <p>버튼 한 번으로 선생님의 Supabase 계정에 연결합니다. Project URL이나 키를 직접 입력하지 않아도 됩니다.</p>
+            {installerClient ? <div className="stack">
+              <button className="btn btn-primary" disabled={authorizing} onClick={() => void startOAuthConnect()}>{authorizing ? "연결 이동 중…" : "Supabase 연결"}</button>
+              <p className="muted">버튼을 누르면 Supabase 로그인 화면으로 이동합니다. 이 앱은 토큰을 직접 보거나 저장하지 않습니다.</p>
+            </div> : <p className="notice">이 화면에 설치 서버가 연결되지 않았습니다. 아래 개발자용 수동 연결을 사용해 주세요.</p>}
+          </>}
+          {error && <p className="error" role="alert">{error}</p>}
+          <details className="installer-advanced" open={useTemporaryPat}>
+            <summary>개발자용 수동 연결</summary>
+            <form className="stack" onSubmit={connect}>
+              <label className="label" htmlFor="installer-url">Project URL <button type="button" className="help-link" title="Supabase → Project Settings → API">어디서 찾나요?</button></label>
+              <input id="installer-url" className="field" type="url" placeholder="https://your-project.supabase.co" value={supabaseUrl} onChange={(event) => setSupabaseUrl(event.target.value)} required />
+              <label className="label" htmlFor="installer-key">Publishable key <button type="button" className="help-link" title="Supabase → Project Settings → API Keys">어디서 찾나요?</button></label>
+              <input id="installer-key" className="field" type="password" placeholder="sb_publishable_…" value={publishableKey} onChange={(event) => setPublishableKey(event.target.value)} required />
+              <button className="btn btn-primary" type="submit" disabled={busy} onClick={() => setUseTemporaryPat(true)}>{busy ? "연결 확인 중…" : "연결 확인"}</button>
+              <p className="muted">공개 키는 이 기기의 설치 설정에만 저장됩니다. service_role·관리 토큰은 입력하지 마세요.</p>
+            </form>
+          </details>
+        </div>}
 
         {step === 4 && <div className="installer-card stack">
           <h2>{oauthProjects ? "내 프로젝트 선택" : "데이터베이스 준비"}</h2>
@@ -349,11 +370,6 @@ export default function SetupPage() {
             {connectionVerified && <p>설치 대상: <strong>{projectRefFromUrl(supabaseUrl)}</strong></p>}
             {installerClient ? <>
               {oauthAuthorized ? <p className="success" role="status">Supabase 연결로 설치 권한을 받았어요. 별도 토큰 입력이 필요 없습니다.</p> : <>
-                {!connectionVerified && !useTemporaryPat && <div className="stack">
-                  <button className="btn btn-primary" disabled={authorizing} onClick={() => void startOAuthConnect()}>{authorizing ? "연결 이동 중…" : "Supabase 연결"}</button>
-                  <p className="muted">버튼을 누르면 Supabase 로그인 화면으로 이동합니다. 이 앱은 토큰을 직접 보거나 저장하지 않습니다.</p>
-                  <button className="btn btn-sm" type="button" onClick={() => { setUseTemporaryPat(true); persistStep(3); }}>개발자용 임시 방법으로 연결</button>
-                </div>}
                 {connectionVerified && <form className="stack" onSubmit={connectInstallerAuthorization}>
                   <label className="label" htmlFor="installer-pat">개발자용 임시 설치 권한 토큰</label>
                   <input id="installer-pat" className="field" type="password" autoComplete="off" spellCheck={false} value={temporaryPat} onChange={event => setTemporaryPat(event.target.value)} required />
