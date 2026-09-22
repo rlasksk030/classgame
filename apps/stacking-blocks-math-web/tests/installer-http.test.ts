@@ -162,7 +162,7 @@ async function runningOAuthServer(seedProjects: Array<{ ref: string; name?: stri
   return { server, backend, extras, base: `http://127.0.0.1:${address.port}`, tokenRequests: () => tokenRequests };
 }
 
-test("OAuth authorize -> callback -> project list -> session binds the OAuth credential without ever posting a PAT", async (t) => {
+test("OAuth authorize -> callback -> project list -> session binds the OAuth credential and every maintenance route works without ever posting a PAT", async (t) => {
   const oauthTarget = { ...target, projectRef: "oauth-project", projectUrl: "https://oauth-project.supabase.co" };
   let running2: Awaited<ReturnType<typeof runningOAuthServer>>;
   try { running2 = await runningOAuthServer([{ ref: oauthTarget.projectRef, name: "Teacher's project" }, { ref: "production-ref", name: "prod" }], { [oauthTarget.projectRef]: "sb_publishable_auto_fetched" }); }
@@ -211,6 +211,20 @@ test("OAuth authorize -> callback -> project list -> session binds the OAuth cre
 
     const status = await fetch(`${running2.base}/api/installer/status`, { headers: { cookie: sessionCookie!, origin: "http://localhost:5173" } });
     assert.equal(status.status, 200);
+
+    // The zero-support promise: once OAuth bound this session's credential,
+    // every maintenance route works from that same cookie -- no /credential
+    // (PAT) call ever happens for plan, install, repair or update either.
+    const planHeaders = { cookie: sessionCookie!, origin: "http://localhost:5173" };
+    assert.equal((await fetch(`${running2.base}/api/installer/plan`, { method: "POST", headers: planHeaders })).status, 200);
+    assert.equal((await fetch(`${running2.base}/api/installer/install`, { method: "POST", headers: planHeaders })).status, 200);
+    assert.equal((await fetch(`${running2.base}/api/installer/repair`, { method: "POST", headers: planHeaders })).status, 200);
+    assert.equal((await fetch(`${running2.base}/api/installer/update`, { method: "POST", headers: planHeaders })).status, 200);
+
+    // Revoking the OAuth-bound session shuts every route back down, same as a PAT one.
+    await fetch(`${running2.base}/api/installer/session`, { method: "DELETE", headers: planHeaders });
+    assert.equal((await fetch(`${running2.base}/api/installer/status`, { headers: planHeaders })).status, 401);
+    assert.equal((await fetch(`${running2.base}/api/installer/install`, { method: "POST", headers: planHeaders })).status, 401);
   } finally { await new Promise<void>(resolve => running2.server.close(() => resolve())); }
 });
 

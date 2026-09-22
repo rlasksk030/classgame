@@ -157,8 +157,15 @@ export default function SetupPage() {
     let active = true;
     setInstallerStatusError(false); setInstallerStatus(null); setInstallerDetails(null);
     void installerClient.getStatus({ projectRef, projectUrl: supabaseUrl.trim(), publishableKey: runtimeConfig?.supabasePublishableKey, release: "spatial-math-v1" }).then((result) => {
-      if (active) { setInstallerStatus(result.status); setInstallerDetails(result); }
-    }).catch(() => { if (active) { setInstallerStatus(null); setInstallerStatusError(true); } });
+      // A successful status call proves the session already has a working
+      // credential -- whether that came from this page load's OAuth binding
+      // or one from before a reload -- so PAT prompts stay hidden either way.
+      if (active) { setInstallerStatus(result.status); setInstallerDetails(result); setOauthAuthorized(true); }
+    }).catch((reason) => {
+      if (!active) return;
+      setInstallerStatus(null); setInstallerStatusError(true);
+      if (reason instanceof InstallerClientError && (reason.code === "INSTALLER_AUTH_REQUIRED" || reason.code === "INSTALLER_SESSION_REQUIRED")) setOauthAuthorized(false);
+    });
     return () => { active = false; };
   }, [connectionVerified, installerClient, runtimeConfig?.supabasePublishableKey, step, supabaseUrl, vite.environment]);
 
@@ -402,15 +409,17 @@ export default function SetupPage() {
           <p>학생 로그인 기능과 학습 기록을 저장할 준비를 합니다. 기존 기록과 서버 비밀값은 보존합니다.</p>
           {connectionVerified && <p>설치 대상: <strong>{boundProjectLabel || projectRefFromUrl(supabaseUrl)}</strong></p>}
           {installerClient ? <>
-            {oauthAuthorized ? <p className="success" role="status">Supabase 연결로 설치 권한을 받았어요. 별도 토큰 입력이 필요 없습니다.</p> : <>
-              {connectionVerified && <form className="stack" onSubmit={connectInstallerAuthorization}>
+            {oauthAuthorized ? <p className="success" role="status">설치 준비가 완료되었습니다. 별도 토큰 입력이 필요 없어요.</p> : connectionVerified && <p className="notice">설치 권한을 아직 확인하지 못했어요. Supabase 연결이 끊겼다면 3단계에서 다시 연결하거나, 아래 개발자용 수동 연결을 사용해 주세요.</p>}
+            {connectionVerified && <details className="installer-advanced" open={useTemporaryPat && !oauthAuthorized}>
+              <summary>개발자용 수동 연결</summary>
+              <form className="stack" onSubmit={connectInstallerAuthorization}>
                 <label className="label" htmlFor="installer-pat">개발자용 임시 설치 권한 토큰</label>
                 <input id="installer-pat" className="field" type="password" autoComplete="off" spellCheck={false} value={temporaryPat} onChange={event => setTemporaryPat(event.target.value)} required />
                 <p className="muted"><a href="https://supabase.com/dashboard/account/tokens" target="_blank" rel="noreferrer">Supabase에서 TEST 설치용 토큰 만들기</a> → 여기에 붙여 넣어 주세요. 관리자 비밀 키나 DB 비밀번호는 입력하지 않습니다.</p>
                 <p className="muted">토큰은 입력 후 지우며, 설치 서버 메모리에서 최대 15분 동안만 사용합니다. 그동안 새로고침 후에도 이어서 확인할 수 있습니다. 서버 재시작이나 만료 후에는 다시 연결하세요.</p>
                 <button className="btn btn-primary" type="submit" disabled={authorizing || busy || !temporaryPat.trim()}>{authorizing ? "권한 확인 중…" : "설치 권한 연결"}</button>
-              </form>}
-            </>}
+              </form>
+            </details>}
             {(oauthAuthorized || (connectionVerified && (installerStatus || installerStatusError))) && <>
               <div className="installer-checks" aria-live="polite">
                 <p>{installerStatus ? installerStatusLabel(installerStatus) : installerStatusError ? "설치 권한을 연결한 후 상태를 확인해 주세요." : "설치 상태 확인 중…"}</p>
