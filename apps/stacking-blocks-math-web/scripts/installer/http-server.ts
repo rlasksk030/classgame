@@ -7,6 +7,21 @@ import { assertSafeTarget, assertTargetBinding, EphemeralCredential } from "./se
 import { OAuthGrantStore, OAuthSessionStore, exchangeOAuthCode } from "./oauth.ts";
 import type { TeacherAccountResult } from "./teacher-account.ts";
 
+/** Identifies this process instance in logs only -- never sent to a client
+ * and not a credential. Exists to prove or rule out "the session was created
+ * on one instance/container and looked up on a different one" (e.g. a
+ * rolling deploy or restart mid-flow) when a live OAuth-bound session goes
+ * missing right after binding, which no local test can reproduce. */
+const PROCESS_INSTANCE_ID = randomBytes(4).toString("hex");
+const PROCESS_STARTED_AT = new Date().toISOString();
+
+/** Non-secret diagnostic line for Render's log stream: never includes a
+ * credential, access token, PAT, or full cookie value -- only this
+ * process's instance id and a short prefix of an opaque session id. */
+function logInstallerDiagnostic(event: string, fields: Record<string, string | number | boolean> = {}): void {
+  console.error(JSON.stringify({ tag: "installer-diagnostic", event, instance: PROCESS_INSTANCE_ID, ...fields }));
+}
+
 interface InstallerSession {
   id: string;
   jobId: string;
@@ -159,7 +174,7 @@ async function handleRequest(request: IncomingMessage, response: ServerResponse,
   if (request.method === "OPTIONS") { response.writeHead(204); response.end(); return; }
   const url = new URL(request.url ?? "/", "http://installer.local");
   try {
-    if (url.pathname === "/health" && request.method === "GET") { sendJson(response, 200, { ok: true, service: "stacking-blocks-installer", status: "ok", release: options.plan.appVersion, mode: options.mode ?? "TEST" }); return; }
+    if (url.pathname === "/health" && request.method === "GET") { sendJson(response, 200, { ok: true, service: "stacking-blocks-installer", status: "ok", release: options.plan.appVersion, mode: options.mode ?? "TEST", instance: PROCESS_INSTANCE_ID, startedAt: PROCESS_STARTED_AT }); return; }
     if (url.pathname === "/api/installer/session" && request.method === "POST") {
       const body = await readJson(request);
       const target = parseTarget(body);
@@ -180,6 +195,7 @@ async function handleRequest(request: IncomingMessage, response: ServerResponse,
       const previous = getSession(request, store, options.sessionSecret);
       const sameTarget = previous?.target.projectRef === target.projectRef && previous.target.projectUrl === target.projectUrl;
       const session = sameTarget ? previous! : store.create(target);
+      logInstallerDiagnostic("session_created_or_reused", { reused: sameTarget, idPrefix: session.id.slice(0, 8), viaOAuth: Boolean(grantId && grantCredential) });
       let publishableKey: string | undefined;
       if (grantId && grantCredential) {
         const bound = grantStore.consume(grantId);
@@ -331,7 +347,15 @@ function readCookieId(request: IncomingMessage, name: string, sessionSecret?: st
 
 function getSession(request: IncomingMessage, store: InstallerSessionStore, sessionSecret?: string): InstallerSession | undefined {
   const id = readCookieId(request, "installer_session", sessionSecret);
-  return id ? store.get(id) : undefined;
+  if (!id) {
+    const cookieHeaderSent = Boolean(request.headers.cookie);
+    const nameSent = Boolean(request.headers.cookie?.includes("installer_session="));
+    logInstallerDiagnostic("session_lookup_no_usable_id", { cookieHeaderSent, installerSessionNamePresent: nameSent });
+    return undefined;
+  }
+  const session = store.get(id);
+  if (!session) logInstallerDiagnostic("session_lookup_unknown_or_expired", { idPrefix: id.slice(0, 8) });
+  return session;
 }
 
 function getOAuthGrantId(request: IncomingMessage, sessionSecret?: string): string | undefined {
