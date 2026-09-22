@@ -367,7 +367,10 @@ export default function SetupPage() {
 
         {step === 3 && <div className="installer-card stack">
           <h2>Supabase 연결</h2>
-          {connectionVerified ? <p className="success" role="status">Supabase 연결 완료{boundProjectLabel ? ` · ${boundProjectLabel}` : ""}</p> : oauthProjects ? <>
+          {connectionVerified ? <>
+            <p className="success" role="status">Supabase 연결 완료{boundProjectLabel ? ` · ${boundProjectLabel}` : ""}</p>
+            <button className="btn btn-primary" onClick={() => persistStep(4)}>자동 설치로 계속</button>
+          </> : oauthProjects ? <>
             <p>설치할 Supabase 프로젝트를 선택하세요.</p>
             {oauthProjects.length ? <>
               <label className="label" htmlFor="installer-project-select">내 Supabase 프로젝트<select id="installer-project-select" className="field" value={selectedProjectRef} onChange={event => setSelectedProjectRef(event.target.value)}>{oauthProjects.map(project => <option value={project.ref} key={project.ref}>{project.name ?? project.ref}{project.region ? ` · ${project.region}` : ""}</option>)}</select></label>
