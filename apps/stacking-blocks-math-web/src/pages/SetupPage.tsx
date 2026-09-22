@@ -90,6 +90,8 @@ export default function SetupPage() {
   const [studentSmokeVerified, setStudentSmokeVerified] = useState(false);
   const [installerStatus, setInstallerStatus] = useState<InstallerRemoteStatus | null>(null);
   const [installerStatusError, setInstallerStatusError] = useState(false);
+  const [connectionIssue, setConnectionIssue] = useState<"session" | "mismatch" | "network" | null>(null);
+  const [checkingConnection, setCheckingConnection] = useState(false);
   const [authorizing, setAuthorizing] = useState(false);
   const [temporaryPat, setTemporaryPat] = useState("");
   const [useTemporaryPat, setUseTemporaryPat] = useState(false);
@@ -152,20 +154,8 @@ export default function SetupPage() {
 
   useEffect(() => {
     if (step !== 4 || !connectionVerified || !installerClient) return;
-    const projectRef = projectRefFromUrl(supabaseUrl);
-    if (!projectRef) return;
     let active = true;
-    setInstallerStatusError(false); setInstallerStatus(null); setInstallerDetails(null);
-    void installerClient.getStatus({ projectRef, projectUrl: supabaseUrl.trim(), publishableKey: runtimeConfig?.supabasePublishableKey, release: "spatial-math-v1" }).then((result) => {
-      // A successful status call proves the session already has a working
-      // credential -- whether that came from this page load's OAuth binding
-      // or one from before a reload -- so PAT prompts stay hidden either way.
-      if (active) { setInstallerStatus(result.status); setInstallerDetails(result); setOauthAuthorized(true); }
-    }).catch((reason) => {
-      if (!active) return;
-      setInstallerStatus(null); setInstallerStatusError(true);
-      if (reason instanceof InstallerClientError && (reason.code === "INSTALLER_AUTH_REQUIRED" || reason.code === "INSTALLER_SESSION_REQUIRED")) setOauthAuthorized(false);
-    });
+    void checkInstallerConnection(() => active);
     return () => { active = false; };
   }, [connectionVerified, installerClient, runtimeConfig?.supabasePublishableKey, step, supabaseUrl, vite.environment]);
 
@@ -180,6 +170,36 @@ export default function SetupPage() {
   };
 
   const installerTarget = () => ({ projectRef: projectRefFromUrl(supabaseUrl) ?? "", projectUrl: supabaseUrl.trim(), publishableKey: runtimeConfig?.supabasePublishableKey, release: "spatial-math-v1" });
+  /** Server is the source of truth for whether this session's credential
+   * still works -- never inferred from a client-only flag. Used both by the
+   * step 4 mount effect and by the "연결 다시 확인" button, so a manual
+   * retry re-checks the same way instead of just navigating away. */
+  const checkInstallerConnection = async (isActive: () => boolean = () => true) => {
+    if (!installerClient) return;
+    const projectRef = projectRefFromUrl(supabaseUrl);
+    if (!projectRef) return;
+    setInstallerStatusError(false); setConnectionIssue(null);
+    try {
+      const result = await installerClient.getStatus({ projectRef, projectUrl: supabaseUrl.trim(), publishableKey: runtimeConfig?.supabasePublishableKey, release: "spatial-math-v1" });
+      if (!isActive()) return;
+      setInstallerStatus(result.status); setInstallerDetails(result); setOauthAuthorized(true);
+    } catch (reason) {
+      if (!isActive()) return;
+      setInstallerStatus(null); setInstallerStatusError(true);
+      if (reason instanceof InstallerClientError && (reason.code === "INSTALLER_AUTH_REQUIRED" || reason.code === "INSTALLER_SESSION_REQUIRED")) {
+        setOauthAuthorized(false); setConnectionIssue("session");
+      } else if (reason instanceof InstallerClientError && reason.code === "INSTALLER_TARGET_MISMATCH") {
+        setConnectionIssue("mismatch");
+      } else {
+        setConnectionIssue("network");
+      }
+    }
+  };
+  const recheckInstallerConnection = async () => {
+    if (checkingConnection) return;
+    setCheckingConnection(true);
+    try { await checkInstallerConnection(); } finally { setCheckingConnection(false); }
+  };
   const installerFailure = (reason: unknown) => {
     if (reason instanceof InstallerClientError && reason.code === "INSTALLER_PROJECT_NOT_ALLOWED") {
       setError("선택한 프로젝트에 대한 설치 권한이 없어요. 다른 프로젝트를 선택하거나 다시 연결해 주세요.");
@@ -409,7 +429,12 @@ export default function SetupPage() {
           <p>학생 로그인 기능과 학습 기록을 저장할 준비를 합니다. 기존 기록과 서버 비밀값은 보존합니다.</p>
           {connectionVerified && <p>설치 대상: <strong>{boundProjectLabel || projectRefFromUrl(supabaseUrl)}</strong></p>}
           {installerClient ? <>
-            {oauthAuthorized ? <p className="success" role="status">설치 준비가 완료되었습니다. 별도 토큰 입력이 필요 없어요.</p> : connectionVerified && <p className="notice">설치 권한을 아직 확인하지 못했어요. Supabase 연결이 끊겼다면 3단계에서 다시 연결하거나, 아래 개발자용 수동 연결을 사용해 주세요.</p>}
+            {oauthAuthorized ? <p className="success" role="status">설치 준비가 완료되었습니다. 별도 토큰 입력이 필요 없어요.</p> : connectionVerified && <p className="notice">
+              {connectionIssue === "session" ? "설치 세션을 확인하지 못했어요. 아래 \"연결 다시 확인\"으로 재시도하고, 계속 안 되면 3단계에서 Supabase 연결을 다시 진행해 주세요."
+                : connectionIssue === "mismatch" ? "선택한 프로젝트 정보가 서버와 일치하지 않아요. 3단계에서 프로젝트를 다시 선택해 주세요."
+                : connectionIssue === "network" ? "설치 서버에 연결하지 못했어요. 네트워크 상태를 확인한 뒤 아래 \"연결 다시 확인\"으로 재시도해 주세요."
+                : "설치 권한을 확인하는 중이에요…"}
+            </p>}
             {connectionVerified && <details className="installer-advanced" open={useTemporaryPat && !oauthAuthorized}>
               <summary>개발자용 수동 연결</summary>
               <form className="stack" onSubmit={connectInstallerAuthorization}>
@@ -436,7 +461,7 @@ export default function SetupPage() {
             </>}
           </> : <p className="notice">이 화면에 설치 서버가 연결되지 않았습니다. 공개 URL과 키만으로 설치를 완료할 수 없습니다.</p>}
           {error && <p className="error" role="alert">{error}</p>}
-          <div className="toolbar-row"><button className="btn" disabled={busy} onClick={() => persistStep(3)}>연결 다시 확인</button><button className="btn btn-primary" disabled={busy || installerStatus !== "INSTALLED"} onClick={() => persistStep(5)}>교사 확인으로 계속</button></div>
+          <div className="toolbar-row"><button className="btn" disabled={checkingConnection} onClick={() => void recheckInstallerConnection()}>{checkingConnection ? "확인 중…" : "연결 다시 확인"}</button><button className="btn btn-primary" disabled={busy || installerStatus !== "INSTALLED"} onClick={() => persistStep(5)}>교사 확인으로 계속</button></div>
         </div>}
 
         {step === 5 && <div className="installer-card stack">

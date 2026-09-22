@@ -78,10 +78,16 @@ export class InstallerSessionStore {
     return session;
   }
 
+  /** Sliding TTL: any authenticated activity (status/plan/install/...) keeps
+   * the session alive, not just the moment a credential was first set. Without
+   * this, a zero-support teacher who takes longer than one ttlMs window to
+   * click through steps -- perfectly normal -- gets silently logged out with
+   * no way back except a fresh OAuth authorization. */
   get(id: string): InstallerSession | undefined {
     const session = this.#sessions.get(id);
     if (!session) return undefined;
     if (session.expiresAt <= this.#now()) { this.delete(id); return undefined; }
+    session.expiresAt = this.#now() + this.#ttlMs;
     return session;
   }
 

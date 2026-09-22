@@ -74,6 +74,22 @@ test("installer HTTP blocks a disallowed browser origin and expires sessions", (
   assert.equal(store.size, 0);
 });
 
+test("installer session TTL slides forward on every authenticated read instead of expiring from creation time alone", () => {
+  // A zero-support teacher clicking through steps for longer than one ttlMs
+  // window is normal, not idle abuse -- each real status/plan/install call
+  // must push the deadline out, or OAuth-bound sessions die mid-flow with no
+  // way back except a fresh OAuth authorization.
+  const now = { value: 0 };
+  const store = new InstallerSessionStore(100, () => now.value);
+  const session = store.create(target);
+  now.value = 60;
+  assert.ok(store.get(session.id), "touching the session before it expires should succeed");
+  now.value = 60 + 90; // past the original creation-time deadline (100), but within 100ms of the last touch
+  assert.ok(store.get(session.id), "a session touched at t=60 must not expire from its original t=0 deadline");
+  now.value = 60 + 90 + 101; // genuinely idle for a full ttlMs since the last touch
+  assert.equal(store.get(session.id), undefined, "a session with no activity for a full ttlMs must still expire");
+});
+
 test('HTTPS session reconnect, concurrent installs and repair preserve the secret', async () => {
  const backend=createFakeInstallerBackend();
  const server=createInstallerServer({plan,productionRef:plan.productionRef,createBackend:()=>backend,allowedOrigins:['https://math-test.example'],allowedProjectRefs:[target.projectRef],mode:'TEST',sessionCookieSecure:true,sessionSecret:'synthetic-session-signing-value-32-characters'});
