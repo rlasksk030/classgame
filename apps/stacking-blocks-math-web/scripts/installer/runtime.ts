@@ -70,7 +70,12 @@ export async function createConfiguredInstallerServer(root: string, env: NodeJS.
     allowedProjectRefs: config.allowedProjectRefs,
     sessionSecret: config.sessionSecret,
     sessionCookieSecure: config.allowedOrigins.every((origin) => origin.startsWith("https://")),
-    sessionCookieSameSite: config.allowedOrigins.every((origin) => origin.startsWith("https://")) ? "None" : "Strict",
+    // The installer API is only ever reached through the frontend's own
+    // origin (a same-origin static-site rewrite proxies /api/installer/* to
+    // this service) -- every real request is same-site, so Lax works and is
+    // strictly safer than forcing None, which existed only for the
+    // cross-origin browser calls this proxy eliminates.
+    sessionCookieSameSite: "Lax",
     createBackend: (credential) => new SupabaseManagementBackend({ accessToken: credential, baseUrl: config.managementApiUrl }),
     createManagementExtras: (credential) => managementExtrasFor(config, credential),
     oauth,

@@ -277,6 +277,24 @@ test("B35 Render blueprint targets only the TEST installer", async () => {
   assert.doesNotMatch(blueprint, /key:\s*INSTALLER_ALLOWED_PROJECT_REFS\s*\n\s*value:\s*stacking-blocks-math\s*$/m);
 });
 
+test("B47 Render static site proxies the installer API same-origin, ordered before the SPA catch-all", async () => {
+  const blueprint = await readFile(new URL("../../../render.yaml", import.meta.url), "utf8");
+  const apiRewriteIndex = blueprint.indexOf("source: /api/installer/*");
+  const spaCatchAllIndex = blueprint.indexOf("source: /*");
+  assert.ok(apiRewriteIndex >= 0, "installer API rewrite route must exist");
+  assert.ok(spaCatchAllIndex >= 0, "SPA catch-all route must exist");
+  // Render matches routes in file order; if the catch-all came first, /api/installer/*
+  // would be swallowed into index.html and never reach the real backend.
+  assert.ok(apiRewriteIndex < spaCatchAllIndex, "the API rewrite must be listed before the SPA catch-all");
+  assert.match(blueprint, /destination:\s*https:\/\/stacking-blocks-math-installer-test\.onrender\.com\/api\/installer\/\*/);
+  assert.doesNotMatch(blueprint, /key:\s*VITE_INSTALLER_API_URL/, "must not hardcode a cross-origin installer URL; installerClient.ts defaults to same-origin");
+});
+
+test("B48 installer session cookie is Lax now that the API is only ever reached same-origin through the static-site proxy", async () => {
+  const runtimeSource = await readFile(new URL("../scripts/installer/runtime.ts", import.meta.url), "utf8");
+  assert.match(runtimeSource, /sessionCookieSameSite:\s*"Lax"/);
+});
+
 test("B36 hosted installer uses a cross-origin compatible secure cookie", () => {
   assert.equal(resolveSessionCookieSameSite(true), "None");
   assert.equal(resolveSessionCookieSameSite(false), "Strict");

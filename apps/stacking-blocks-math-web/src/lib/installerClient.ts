@@ -182,10 +182,17 @@ export class InstallerClient {
   }
 }
 
-/** The endpoint is public configuration only; no credential is read here. */
+/** The endpoint is public configuration only; no credential is read here.
+ * Defaults to this page's own origin: the installer session cookie only
+ * survives as a first-party cookie when /api/installer/* is reached through
+ * the frontend's own host (proxied by a same-origin static-site rewrite to
+ * the real backend), not by calling a different onrender.com host directly,
+ * which browsers may treat as third-party and refuse to store or send.
+ * VITE_INSTALLER_API_URL remains as a dev/special-case override only. */
 export function getConfiguredInstallerClient(): InstallerClient | null {
   const env = (import.meta as ImportMeta & { env?: Record<string, string | undefined> }).env ?? {};
-  const endpoint = env.VITE_INSTALLER_API_URL?.trim();
+  const configured = env.VITE_INSTALLER_API_URL?.trim();
+  const endpoint = configured || (typeof window !== "undefined" ? window.location.origin : "");
   if (!endpoint) return null;
   try { return new InstallerClient(endpoint); } catch { return null; }
 }

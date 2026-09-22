@@ -26,8 +26,38 @@ Blueprint가 사용하는 실행 설정은 다음과 같습니다.
 1. Render 서비스의 **Events**에서 배포가 끝날 때까지 기다립니다.
 2. 서비스의 **URL**을 열고 뒤에 `/health`를 붙입니다.
 3. JSON 응답에서 `ok: true`, `service: "stacking-blocks-installer"`, `mode: "TEST"`를 확인합니다.
-4. 수학 정적 앱의 빌드 환경에 `VITE_INSTALLER_API_URL`을 Render URL로 설정합니다.
+4. 수학 정적 앱(`stacking-blocks-math-setup-test`)의 빌드 환경에는 `VITE_INSTALLER_API_URL`을 **설정하지 않습니다** — 아래 same-origin proxy 절 참고. 설정돼 있다면 지우고 다시 빌드해야 합니다.
 5. 정적 앱을 다시 빌드한 뒤 `/setup`에서 Supabase 연결을 확인합니다.
+
+## Same-origin installer API proxy (필수, 2026-09-22)
+
+브라우저가 설치 세션 쿠키를 실제로 저장·전송하려면 `/api/installer/*`가
+정적 사이트(`stacking-blocks-math-setup-test`) 자신의 origin으로만 보여야
+합니다. 서로 다른 onrender.com 호스트 사이의 쿠키는 브라우저가
+third-party로 취급해 저장을 거부할 수 있습니다 (실제 live 재현·로그로 확인됨).
+
+`render.yaml`의 정적 사이트 서비스에 이미 다음 rewrite가 SPA catch-all보다
+먼저 선언되어 있습니다.
+
+```
+/api/installer/*  ->  https://stacking-blocks-math-installer-test.onrender.com/api/installer/*  (Rewrite)
+/*                ->  /index.html                                                                (Rewrite)
+```
+
+이 정적 사이트가 Render Blueprint로 관리되지 않고 대시보드에서 수동으로
+만들어진 경우, `render.yaml`을 고치는 것만으로는 실제 서비스에 반영되지
+않을 수 있습니다. 그 경우 사람이 직접 해야 하는 단계:
+
+1. Render 대시보드 → `stacking-blocks-math-setup-test` → **Redirects/Rewrites**에서
+   위 두 규칙을 (반드시 이 순서로) 추가합니다.
+2. 같은 서비스의 **Environment**에서 `VITE_INSTALLER_API_URL`을 제거하고 재배포(rebuild)합니다 — Vite 환경변수는 빌드 시점에 번들에 굳어지므로 값만 지우고 재배포하지 않으면 계속 예전 cross-origin 주소를 씁니다.
+3. `stacking-blocks-math-installer-test` 서비스의 `INSTALLER_OAUTH_REDIRECT_URI`를
+   `https://stacking-blocks-math-setup-test.onrender.com/api/installer/oauth/callback`으로 변경합니다 (기존 backend-host 콜백 URL이 아님).
+4. Supabase OAuth App의 Authorization callback URL도 위와 동일하게 맞춥니다.
+
+네 단계 모두 적용된 뒤에야 OAuth 콜백과 세션 쿠키가 전부 같은 origin에서
+발급·소비되어, 세 번째 hop(브라우저의 third-party 쿠키 정책)이 아예
+발생하지 않습니다.
 
 ## 아직 하지 않는 작업
 

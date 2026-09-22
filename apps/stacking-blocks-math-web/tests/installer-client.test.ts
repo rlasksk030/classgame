@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { InstallerClient, InstallerClientError } from "../src/lib/installerClient.ts";
+import { getConfiguredInstallerClient, InstallerClient, InstallerClientError } from "../src/lib/installerClient.ts";
 
 const target = { projectRef: "test-ref", projectUrl: "https://test-ref.supabase.co", release: "spatial-math-v1" };
 
@@ -89,6 +89,22 @@ test("browser session creation supplies the required TEST environment contract",
   });
   await client.createSession(target);
   assert.deepEqual(body, { ...target, environment: "TEST" });
+});
+
+test("getConfiguredInstallerClient defaults to this page's own origin, not a cross-origin backend host", () => {
+  // The installer session cookie only survives as a first-party cookie when
+  // /api/installer/* is reached through the frontend's own origin (a
+  // same-origin static-site rewrite proxies it to the real backend) --
+  // calling a different onrender.com host directly makes it third-party,
+  // which browsers may silently refuse to store or send.
+  Object.assign(globalThis, { window: { location: { origin: "https://stacking-blocks-math-setup-test.onrender.com" } } });
+  try {
+    const client = getConfiguredInstallerClient();
+    assert.ok(client);
+    assert.equal(client!.endpoint, "https://stacking-blocks-math-setup-test.onrender.com");
+  } finally {
+    delete (globalThis as { window?: unknown }).window;
+  }
 });
 
 test("default transport invokes browser fetch without an InstallerClient receiver", async (t) => {
