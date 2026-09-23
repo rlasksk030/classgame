@@ -57,26 +57,30 @@ test("C. non-square (rows != cols) grids still keep each individual cell square 
   assert.doesNotMatch(tableBlock!, /<button[^>]*style=/, "a cell <button> must not carry an inline size style");
 });
 
-test("D. number-map cells (.projection-table-number) no longer override only height -- both dimensions track --cell-size-number, still square", async () => {
+test("D. number-map cells: a dedicated square wrapper (.number-cell) owns the box size, not the <td> -- an HTML table row grows to fit its tallest cell's intrinsic content, so aspect-ratio/height on <td> alone does not reliably hold a 3-stacked-element cell square (confirmed live: computed width==height==64 across three viewports only after this fix)", async () => {
   const css = await readCss();
   const numberTd = block(css, ".projection-table-number td");
   assert.doesNotMatch(numberTd, /height:\s*76px/, "the old height-only override that produced a tall rectangle must be gone");
+  assert.doesNotMatch(numberTd, /\bheight:/, "the <td> must not set its own height -- that's the wrapper's job now, since <td> height is only a minimum a table row can still grow past");
   assert.match(numberTd, /width:\s*var\(--cell-size-number\)/);
-  assert.match(numberTd, /height:\s*var\(--cell-size-number\)/);
-  assert.match(numberTd, /aspect-ratio:\s*1\s*\/\s*1/);
   const numberCell = block(css, ".number-cell");
-  assert.match(numberCell, /width:\s*100%/);
-  assert.match(numberCell, /height:\s*100%/);
-  assert.match(numberCell, /aspect-ratio:\s*1\s*\/\s*1/);
+  assert.match(numberCell, /width:\s*var\(--cell-size-number\)/, "explicit width, not 100% of a <td> whose own height is unreliable");
+  assert.match(numberCell, /height:\s*var\(--cell-size-number\)/, "explicit height (not aspect-ratio alone) is what actually resists content-driven growth");
+  assert.match(numberCell, /overflow:\s*hidden/, "content that still wants to be taller must clip, never grow the box");
 });
 
-test("D2. the -/+ steppers inside a number cell are flex children that share the square cell rather than forcing it taller", async () => {
+test("D2. the -/+ steppers and value are CSS-grid rows that fill the fixed-size wrapper, never push it taller", async () => {
   const css = await readCss();
   const numberCell = block(css, ".number-cell");
-  assert.match(numberCell, /display:\s*flex/);
+  assert.match(numberCell, /display:\s*grid/);
+  assert.match(numberCell, /grid-template-rows:\s*1fr\s+1fr\s+1fr/, "three equal rows (-, value, +) inside the fixed-height wrapper");
   const step = block(css, ".number-cell-step");
-  assert.match(step, /flex:\s*1\s*1\s*0/, "steppers must flex-share the fixed square height, not add a fixed height of their own");
-  assert.doesNotMatch(step, /min-height:\s*26px/, "the old fixed 26px stepper height (part of the 76px total) must be gone");
+  assert.match(step, /height:\s*100%/);
+  assert.match(step, /min-height:\s*0/, "must be free to shrink to its 1fr row, not resist via an intrinsic button min-height");
+  assert.doesNotMatch(step, /min-height:\s*26px/, "the old fixed 26px stepper height (part of the original 76px total) must be gone");
+  const value = block(css, ".number-cell-value");
+  assert.match(value, /min-height:\s*0/);
+  assert.match(value, /overflow:\s*hidden/);
 });
 
 test("E. cell sizes shrink on small viewports via clamp()/vw while staying capped for large screens", async () => {

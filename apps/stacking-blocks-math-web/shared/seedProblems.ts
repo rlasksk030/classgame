@@ -409,10 +409,14 @@ export const SEED_PROBLEMS: SeedProblem[] = [
     givenBlocks: S7,
     startBlocks: [],
     given: {
+      // Free rotation/layer view would let the student just look at and count
+      // the 3D model directly, making the height map (the thing this problem
+      // is actually teaching) redundant. Lock the view the same way L5-01
+      // does, so summing the height map is the only way to the answer.
       heightMap: toHeightMap(S7, G4),
       projections: { front: project(S7, G4).front },
-      allowRotate: true,
-      allowLayerView: true,
+      allowRotate: false,
+      note: "숫자 지도의 수를 모두 더해서 구해 보세요.",
     },
     choices: [],
     answer: { kind: "count", value: countOf(S7) },

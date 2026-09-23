@@ -117,3 +117,29 @@ test("the CHOICE answer buttons only highlight the exact clicked option, never a
   assert.match(buttonBlock!, /choiceIndex === index \? "btn-primary" : ""/);
   assert.match(buttonBlock!, /onClick=\{\(\) => setChoiceIndex\(index\)\}/);
 });
+
+// Information-overexposure audit finding: practiceGenerator.ts's lesson-4/8/12
+// branches set given.heightMap/given.layers to the exact same value as
+// answer.heightMap/answer.layers for HEIGHTMAP_FROM_BUILD/LAYER_DRAW problems
+// (the generator's `given` object is shared across every mode in that
+// lesson's branch, unconditionally). Same leak class as the CAMERA_DIRECTION/
+// PROJECTION_DRAW bugs above, fixed the same way: never seed the editable
+// grid, and never show it in the "함께 제시된 정보" evidence card, for the
+// type the student is being asked to produce that exact data for.
+test("HEIGHTMAP_FROM_BUILD never seeds the editable height map from given.heightMap (student must produce it, not read it off)", async () => {
+  const source = await readLessonPageSource();
+  const applyProblemBody = source.match(/const applyProblem = \(next: StudentProblem\) => \{[\s\S]*?\n {2}\};/)?.[0];
+  assert.ok(applyProblemBody, "applyProblem must exist");
+  assert.match(applyProblemBody!, /const clearHeightMapAnswer = next\.problemType === "HEIGHTMAP_FROM_BUILD";/);
+  assert.match(applyProblemBody!, /setHeightMap\(!clearHeightMapAnswer && next\.given\?\.heightMap/);
+});
+
+test("renderEvidence hides the heightMap/layers reference card for HEIGHTMAP_FROM_BUILD/LAYER_DRAW -- showing it would display the exact answer next to the empty box asking the student to reproduce it", async () => {
+  const source = await readLessonPageSource();
+  const fnBody = source.match(/const renderEvidence = \(\) => \{[\s\S]*?\n {2}\};/)?.[0];
+  assert.ok(fnBody, "renderEvidence must exist");
+  assert.match(fnBody!, /const hideHeightMap = problem\.problemType === "HEIGHTMAP_FROM_BUILD";/);
+  assert.match(fnBody!, /const hideLayers = problem\.problemType === "LAYER_DRAW";/);
+  assert.match(fnBody!, /evidence\.heightMap && !hideHeightMap &&/);
+  assert.match(fnBody!, /!hideLayers && evidence\.layers\?\.map/);
+});

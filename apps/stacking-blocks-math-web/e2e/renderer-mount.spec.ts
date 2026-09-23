@@ -163,3 +163,44 @@ test("height map cells support both increase and decrease, and clamp at 0 and 9 
   expect(flat.filter((v) => v === 8)).toHaveLength(1);
   expect(flat.reduce((sum, v) => sum + v, 0)).toBe(8);
 });
+
+// practiceGenerator.ts's lesson-4 branch sets given.heightMap to the exact same
+// value as answer.heightMap for HEIGHTMAP_FROM_BUILD problems. If the editable
+// grid (or the "함께 제시된 정보" evidence card) ever seeded/showed that value,
+// the student would start on the finished answer with nothing left to do.
+const heightMapWithLeakyGiven = {
+  ...heightMapProblem, id: "qa-heightmap-leaky-given",
+  given: { allowRotate: true, allowLayerView: true, heightMap: [[3, 0], [0, 0]] },
+};
+
+test("HEIGHTMAP_FROM_BUILD never seeds the editable grid or the evidence card from given.heightMap (same leak class as the PROJECTION_DRAW fix)", async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem("sb.student.token", "qa-token"));
+  await page.route("**/functions/v1/student-api", async route => {
+    const body = route.request().postDataJSON() as Record<string, unknown>;
+    const payload = body.action === "lessonProblems"
+      ? { problems: [heightMapWithLeakyGiven], requiredComplete: false }
+      : body.action === "snapshot:get"
+        ? { snapshot: null }
+        : { problem: heightMapWithLeakyGiven, attempt: { wrongCount: 0, hintShown: false, answerRevealed: false, completed: false }, hint: null, revealedAnswer: null };
+    await route.fulfill({ json: payload });
+  });
+  await page.goto("/lesson/7/solve");
+  const renderer = page.locator('[data-answer-renderer="HeightMapInputRenderer"]');
+  await expect(renderer).toBeVisible();
+  // Every editable cell must start at 0, never pre-filled from given.heightMap's [3,0,0,0].
+  for (const value of await renderer.locator(".number-cell-value").allInnerTexts()) expect(value).toBe("0");
+  // The evidence panel must not exist at all for this problem (its only content would be the leak).
+  await expect(page.locator('[aria-label="문제에서 함께 제시한 정보"]')).toHaveCount(0);
+});
+
+test("number-map cells (.number-cell) render as true squares -- computed width equals height, not just the <td>'s CSS (a table row can still grow taller than a cell's own height/aspect-ratio when its 3-stacked content wants more room)", async ({ page }) => {
+  await openProblem(page, heightMapProblem);
+  const cells = page.locator(".number-cell");
+  const count = await cells.count();
+  expect(count).toBeGreaterThan(0);
+  for (let i = 0; i < count; i++) {
+    const box = await cells.nth(i).boundingBox();
+    expect(box).not.toBeNull();
+    expect(Math.abs((box as { width: number }).width - (box as { height: number }).height)).toBeLessThanOrEqual(1);
+  }
+});

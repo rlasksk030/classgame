@@ -4,6 +4,12 @@ import { grade } from "../shared/grading.ts";
 import { SEED_PROBLEMS } from "../shared/seedProblems.ts";
 import { validateProblemPresentation } from "../shared/problemPresentation.ts";
 
+test("L5-03 information-overexposure fix: the height map is the only way to the total, free rotation/layer view no longer lets the student just count the 3D model directly", () => {
+  const problem = SEED_PROBLEMS.find(p => p.code === "L5-03")!;
+  assert.equal(problem.given.allowRotate, false, "matches L5-01/L5-02's lock so summing the height map is genuinely the taught method, not a redundant shortcut");
+  assert.ok(problem.given.heightMap, "the height map itself must still be given -- that's the point of this problem");
+});
+
 test("품질 게이트는 격자 자료와 정답이 함께 사라진 문항을 거부한다", () => {
   const source = SEED_PROBLEMS.find(problem => problem.code === "L3-01")!;
   const broken = { ...source, given: { ...source.given, projections: undefined }, answer: { kind: "projections" as const, projections: {} } };

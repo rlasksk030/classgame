@@ -330,7 +330,13 @@ export default function LessonPage() {
     setSideMap(
       !clearProjectionAnswers && next.given?.projections?.side ? next.given.projections.side.map(row => [...row]) : emptyGridFor(next, "side"),
     );
-    setHeightMap(next.given?.heightMap ? next.given.heightMap.map(row => [...row]) : emptyGridFor(next, "heightMap").map((row) => row.map(() => 0)));
+    // HEIGHTMAP_FROM_BUILD asks the student to PRODUCE given.heightMap's value
+    // themselves (practiceGenerator.ts sets given.heightMap === answer.heightMap
+    // for lesson 4's generated set) -- seeding the editable grid from it would
+    // start the student on the finished answer, same leak class as
+    // clearProjectionAnswers above.
+    const clearHeightMapAnswer = next.problemType === "HEIGHTMAP_FROM_BUILD";
+    setHeightMap(!clearHeightMapAnswer && next.given?.heightMap ? next.given.heightMap.map(row => [...row]) : emptyGridFor(next, "heightMap").map((row) => row.map(() => 0)));
     setLayerMaps(layers.map((row) => row.map((r) => [...r])));
     setLayerFilter(null);
 
@@ -751,21 +757,23 @@ export default function LessonPage() {
   const renderEvidence = () => {
     if (!problem) return null;
     const evidence = problem.given;
-    // For PROJECTION_DRAW, generated practice problems set given.projections
-    // to the exact answer for every face the student is asked to draw (see
-    // practiceGenerator.ts: the same `views[i]`/`p` value seeds both given
-    // and answer). Showing those faces here as "given" hands over the
-    // answer directly. Only show a face that the student is NOT currently
-    // being asked to draw -- a genuine constraint, never the tested face.
+    // For PROJECTION_DRAW/HEIGHTMAP_FROM_BUILD/LAYER_DRAW, generated practice
+    // problems set given.projections/heightMap/layers to the exact answer the
+    // student is asked to produce (see practiceGenerator.ts: the same source
+    // value seeds both given and answer). Showing that here as "given" hands
+    // over the answer directly. Only show data the student is NOT currently
+    // being asked to produce -- a genuine constraint, never the tested output.
     const drawnFaces = problem.problemType === "PROJECTION_DRAW" ? new Set(projectionFacesFor(problem)) : new Set<string>();
     const faces = (["top", "front", "side"] as const).filter(face => evidence.projections?.[face] && !drawnFaces.has(face));
-    if (!faces.length && !evidence.heightMap && !evidence.layers?.length) return null;
+    const hideHeightMap = problem.problemType === "HEIGHTMAP_FROM_BUILD";
+    const hideLayers = problem.problemType === "LAYER_DRAW";
+    if (!faces.length && (!evidence.heightMap || hideHeightMap) && (!evidence.layers?.length || hideLayers)) return null;
     return <div className="panel stack" aria-label="문제에서 함께 제시한 정보">
       <strong>함께 제시된 정보</strong>
       <div className="toolbar-row" style={{ alignItems: "flex-start" }}>
         {faces.map(face => <ProjectionGrid key={face} title="제시된 조건" rows={evidence.projections![face]!} reverseRows={face !== "top"} orientation={face === "top" ? "floor" : undefined} editable={false} onChange={() => undefined} valueType="boolean" />)}
-        {evidence.heightMap && <ProjectionGrid title="표시된 숫자 지도" rows={evidence.heightMap} orientation="floor" editable={false} onChange={() => undefined} valueType="number" />}
-        {evidence.layers?.map((rows, index) => <ProjectionGrid key={`evidence-layer-${index}`} title={`${index + 1}층 모양`} rows={rows} orientation="floor" editable={false} onChange={() => undefined} valueType="boolean" />)}
+        {evidence.heightMap && !hideHeightMap && <ProjectionGrid title="표시된 숫자 지도" rows={evidence.heightMap} orientation="floor" editable={false} onChange={() => undefined} valueType="number" />}
+        {!hideLayers && evidence.layers?.map((rows, index) => <ProjectionGrid key={`evidence-layer-${index}`} title={`${index + 1}층 모양`} rows={rows} orientation="floor" editable={false} onChange={() => undefined} valueType="boolean" />)}
       </div>
     </div>;
   };

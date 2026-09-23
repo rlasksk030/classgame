@@ -643,35 +643,40 @@ button {
 }
 
 /* 숫자 지도 칸: tap-to-+1만 있으면 목표를 지나쳤을 때 되돌릴 수 없어 증가/감소를 각각 버튼으로 둔다.
-   셀은 여전히 정사각형이어야 하므로, 더 큰 한 변(--cell-size-number)을 쓰고 그 안에서
-   -/값/+ 를 3등분한 flex 열로 압축한다 (외곽 비율은 항상 1:1). */
+   table row 높이는 셀 내용(버튼 3단)이 요구하는 최소 높이만큼 자라 버려서
+   <td>에 준 aspect-ratio/height는 실제로 무시된다 (table 행 높이 알고리즘이
+   교차 축 intrinsic 크기를 이긴다) -- 그래서 <td>가 아니라 그 안의 전용
+   정사각형 wrapper(.number-cell)가 폭·높이를 둘 다 명시적인 값으로 직접
+   갖고, 3단 내용은 그 고정 박스 안에 grid 1fr씩 나눠 담는다. 내용이 넘치면
+   overflow:hidden으로 박스 크기 자체는 항상 지킨다. */
 .projection-table-number td {
   width: var(--cell-size-number);
-  height: var(--cell-size-number);
-  aspect-ratio: 1 / 1;
+  padding: 0;
+  vertical-align: top;
 }
 .number-cell {
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  justify-content: center;
-  gap: 2px;
-  width: 100%;
-  height: 100%;
-  aspect-ratio: 1 / 1;
+  display: grid;
+  grid-template-rows: 1fr 1fr 1fr;
+  gap: 1px;
+  width: var(--cell-size-number);
+  height: var(--cell-size-number);
+  overflow: hidden;
+  box-sizing: border-box;
 }
 .number-cell-step {
-  flex: 1 1 0;
-  min-height: 0;
   width: 100%;
+  height: 100%;
+  min-height: 0;
+  margin: 0;
   padding: 0;
   border: 2px solid var(--line-soft);
-  border-radius: 4px;
+  border-radius: 3px;
   background: #fff;
-  font-size: clamp(11px, 3vw, 15px);
+  font-size: clamp(9px, 2.6vw, 13px);
   font-weight: 800;
   line-height: 1;
   cursor: pointer;
+  box-sizing: border-box;
 }
 .number-cell-step:disabled {
   opacity: 0.35;
@@ -683,12 +688,13 @@ button {
   outline-offset: 1px;
 }
 .number-cell-value {
-  flex: 1.2 1 0;
   display: flex;
   align-items: center;
   justify-content: center;
   min-width: 0;
-  font-size: clamp(13px, 3.6vw, 18px);
+  min-height: 0;
+  overflow: hidden;
+  font-size: clamp(11px, 3.2vw, 16px);
   font-weight: 800;
   color: var(--ink);
   text-align: center;
