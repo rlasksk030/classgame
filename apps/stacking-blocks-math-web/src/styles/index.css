@@ -50,6 +50,10 @@
   /* 버튼 아래 두께 (눌리는 느낌) */
   --press: 5px;
 
+  /* 격자 셀 - 항상 정사각형. 숫자 지도는 +/- 버튼이 들어가 더 큰 한 변을 쓴다. */
+  --cell-size: clamp(40px, 8vw, 48px);
+  --cell-size-number: clamp(52px, 11vw, 64px);
+
   color-scheme: light;
 }
 
@@ -604,18 +608,19 @@ button {
   table-layout: fixed;
 }
 
+/* 모든 격자 셀은 항상 정사각형이다 (행/열 수가 같은 grid는 표 전체도 정사각형이 된다). */
 .projection-table td {
   border: var(--edge) solid var(--line-soft);
-  width: 48px;
-  height: 48px;
+  width: var(--cell-size);
+  height: var(--cell-size);
+  aspect-ratio: 1 / 1;
   padding: 0;
 }
 
 .cell-btn {
   display: grid;
-  width: 48px;
-  height: 48px;
-  min-height: 48px;
+  width: 100%;
+  height: 100%;
   aspect-ratio: 1 / 1;
   place-items: center;
   margin: 0;
@@ -624,7 +629,7 @@ button {
   border-radius: 3px;
   background: #fff;
   color: #fff;
-  font-size: 20px;
+  font-size: clamp(15px, 4vw, 20px);
   font-weight: 800;
 }
 .cell-btn.cell-filled {
@@ -637,26 +642,33 @@ button {
   outline-offset: 1px;
 }
 
-/* 숫자 지도 칸: tap-to-+1만 있으면 목표를 지나쳤을 때 되돌릴 수 없어 증가/감소를 각각 버튼으로 둔다. */
+/* 숫자 지도 칸: tap-to-+1만 있으면 목표를 지나쳤을 때 되돌릴 수 없어 증가/감소를 각각 버튼으로 둔다.
+   셀은 여전히 정사각형이어야 하므로, 더 큰 한 변(--cell-size-number)을 쓰고 그 안에서
+   -/값/+ 를 3등분한 flex 열로 압축한다 (외곽 비율은 항상 1:1). */
 .projection-table-number td {
-  height: 76px;
+  width: var(--cell-size-number);
+  height: var(--cell-size-number);
+  aspect-ratio: 1 / 1;
 }
 .number-cell {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: stretch;
   justify-content: center;
   gap: 2px;
+  width: 100%;
   height: 100%;
+  aspect-ratio: 1 / 1;
 }
 .number-cell-step {
-  width: 40px;
-  min-height: 26px;
+  flex: 1 1 0;
+  min-height: 0;
+  width: 100%;
   padding: 0;
   border: 2px solid var(--line-soft);
   border-radius: 4px;
   background: #fff;
-  font-size: 15px;
+  font-size: clamp(11px, 3vw, 15px);
   font-weight: 800;
   line-height: 1;
   cursor: pointer;
@@ -671,8 +683,12 @@ button {
   outline-offset: 1px;
 }
 .number-cell-value {
-  min-width: 20px;
-  font-size: 18px;
+  flex: 1.2 1 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  font-size: clamp(13px, 3.6vw, 18px);
   font-weight: 800;
   color: var(--ink);
   text-align: center;

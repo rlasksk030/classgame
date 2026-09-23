@@ -80,3 +80,40 @@ test("the answer-choice buttons render from the shared DIRECTIONS list and selec
   assert.match(buttonBlock!, /directionValue === dir \? "btn-primary" : ""/);
   assert.match(buttonBlock!, /onClick=\{\(\) => setDirectionValue\(normalizeDirection\(dir\)\)\}/);
 });
+
+// Full-audit finding (CHOICE type, used across many lessons): choiceIndex
+// defaulted to 0, so option 1's button always rendered as btn-primary
+// ("selected") on a fresh problem, and CHOICE's submission branch had no
+// null-guard, so clicking 정답 확인 with nothing picked silently submitted
+// index 0 instead of blocking with "답안을 완성해 주세요.". Same class of
+// bug as the CAMERA_DIRECTION fix above, now fixed the same way.
+test("choiceIndex starts unanswered (null), never defaults to option 0 as pre-selected", async () => {
+  const source = await readLessonPageSource();
+  assert.match(source, /const \[choiceIndex, setChoiceIndex\] = useState<number \| null>\(null\);/);
+  const applyProblemBody = source.match(/const applyProblem = \(next: StudentProblem\) => \{[\s\S]*?\n {2}\};/)?.[0];
+  assert.ok(applyProblemBody, "applyProblem must exist");
+  assert.match(applyProblemBody!, /setChoiceIndex\(null\);/);
+  assert.doesNotMatch(applyProblemBody!, /setChoiceIndex\(0\);/, "must not reset to a default selected option");
+});
+
+test("CHOICE submission is blocked until the student actually picks an option", async () => {
+  const source = await readLessonPageSource();
+  const branch = source.match(/if \(current\.problemType === "CHOICE"\) \{[\s\S]{0,150}/)?.[0];
+  assert.ok(branch, "the CHOICE submission branch must exist");
+  assert.match(branch!, /if \(choiceIndex === null\) return null;/);
+});
+
+test("BLOCK_POSITION submission still requires both a picked block and a resolved choice index", async () => {
+  const source = await readLessonPageSource();
+  const branch = source.match(/if \(current\.problemType === "BLOCK_POSITION"\) \{[\s\S]{0,150}/)?.[0];
+  assert.ok(branch, "the BLOCK_POSITION submission branch must exist");
+  assert.match(branch!, /if \(!blockPositionPicked \|\| choiceIndex === null\) return null;/);
+});
+
+test("the CHOICE answer buttons only highlight the exact clicked option, never a default", async () => {
+  const source = await readLessonPageSource();
+  const buttonBlock = source.match(/problem\.choices\.map\(\(choice, index\) => \([\s\S]{0,300}/)?.[0];
+  assert.ok(buttonBlock, "the CHOICE answer buttons must exist");
+  assert.match(buttonBlock!, /choiceIndex === index \? "btn-primary" : ""/);
+  assert.match(buttonBlock!, /onClick=\{\(\) => setChoiceIndex\(index\)\}/);
+});

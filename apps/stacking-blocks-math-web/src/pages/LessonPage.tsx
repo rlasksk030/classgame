@@ -104,7 +104,7 @@ const DEFAULT_ATTEMPT_STATE: ProblemAttempt = {
 type AnswerDraft = {
   countInput?: string;
   directionValue?: Direction | null;
-  choiceIndex?: number;
+  choiceIndex?: number | null;
   topMap?: Grid2D;
   frontMap?: Grid2D;
   sideMap?: Grid2D;
@@ -183,7 +183,11 @@ export default function LessonPage() {
   // null means "not answered yet" -- must never be seeded from the correct
   // answer (see applyProblem below, and the CAMERA_DIRECTION submission guard).
   const [directionValue, setDirectionValue] = useState<Direction | null>(null);
-  const [choiceIndex, setChoiceIndex] = useState(0);
+  // Same rule as directionValue: null until the student actually picks a
+  // choice. Defaulting this to 0 pre-highlighted option 1 as "selected"
+  // (see the CHOICE button className below) and let submit() send index 0
+  // for a problem the student never touched.
+  const [choiceIndex, setChoiceIndex] = useState<number | null>(null);
   const [blockPositionPicked, setBlockPositionPicked] = useState(false);
 
   const [topMap, setTopMap] = useState<Grid2D>(createBoolGrid(4, 4));
@@ -246,11 +250,12 @@ export default function LessonPage() {
     }
 
     if (current.problemType === "CHOICE") {
+      if (choiceIndex === null) return null;
       return { kind: "choice", index: choiceIndex };
     }
 
     if (current.problemType === "BLOCK_POSITION") {
-      if (!blockPositionPicked) return null;
+      if (!blockPositionPicked || choiceIndex === null) return null;
       return { kind: "choice", index: choiceIndex };
     }
 
@@ -299,7 +304,7 @@ export default function LessonPage() {
     setMessage(null);
     setResult(null);
     setCountInput("");
-    setChoiceIndex(0);
+    setChoiceIndex(null);
     setBlockPositionPicked(false);
     // next.given.shownFrom IS the correct answer for CAMERA_DIRECTION (see
     // practiceGenerator.ts/seedProblems.ts, where shownFrom and answer.value
@@ -592,7 +597,11 @@ export default function LessonPage() {
     void navigateSaved(next, stage);
   };
 
-  const canNavigate = Boolean(!busy && !restoring && !moving && problem && visibleProblems.length > 0 && (problemIndex < visibleProblems.length - 1 || attempt.completed));
+  // "다음 문제"는 학생이 현재 문항에서 정답 확인을 최소 한 번 눌러야 활성화된다 (result is
+  // reset to null per-problem in applyProblem). 그렇지 않으면 아무 입력도 없이 문제를
+  // 계속 건너뛸 수 있었다.
+  const hasCheckedCurrent = result !== null || attempt.completed;
+  const canNavigate = Boolean(!busy && !restoring && !moving && problem && visibleProblems.length > 0 && hasCheckedCurrent && (problemIndex < visibleProblems.length - 1 || attempt.completed));
   const nextStage = currentStage === "concept" ? "check" : currentStage === "check" && requiredComplete && problems.some(p => p.stage === "more") ? "more" : null;
   const nextActionLabel = problemIndex < visibleProblems.length - 1 ? "다음 문제" : nextStage ? "다음 단계" : "학습 완료";
   const goNext = () => {
@@ -637,7 +646,7 @@ export default function LessonPage() {
       return (
         <div className="answer-box">
           <p className="muted">왼쪽 3D 화면에서 빨간 블록을 기준으로 정답 블록을 짚어(탭) 보세요.</p>
-          {blockPositionPicked ? <p>선택한 블록: {problem.choices[choiceIndex]}</p> : <p className="muted">아직 블록을 선택하지 않았어요.</p>}
+          {blockPositionPicked && choiceIndex !== null ? <p>선택한 블록: {problem.choices[choiceIndex]}</p> : <p className="muted">아직 블록을 선택하지 않았어요.</p>}
         </div>
       );
     }
