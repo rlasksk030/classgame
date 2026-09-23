@@ -99,6 +99,12 @@ export default function SetupPage() {
   const [oauthProjects, setOauthProjects] = useState<InstallerAccessibleProject[] | null>(null);
   const [selectedProjectRef, setSelectedProjectRef] = useState("");
   const [boundProjectLabel, setBoundProjectLabel] = useState("");
+  /** True from mount until the OAuth grant this page just received has been
+   * used to rediscover/rebind a project (or has failed to). While true, the
+   * ordinary status-check effect must not run: it would otherwise fire
+   * against whatever stale projectRef is still sitting in localStorage from
+   * a previous connection and misreport a fresh grant as "session expired". */
+  const [oauthCallbackPending, setOauthCallbackPending] = useState(() => typeof window !== "undefined" && new URLSearchParams(window.location.search).get("oauth") === "granted");
   const [teacherAccountMode, setTeacherAccountMode] = useState<"choose" | "create" | "login">("choose");
   const [teacherAccountBusy, setTeacherAccountBusy] = useState(false);
   const [installerDetails, setInstallerDetails] = useState<InstallerStatusResponse | null>(null);
@@ -123,7 +129,18 @@ export default function SetupPage() {
     if (!installerClient) return;
     const params = new URLSearchParams(window.location.search);
     const justGranted = params.get("oauth") === "granted";
-    if (justGranted) { window.history.replaceState(null, "", window.location.pathname); persistStep(3); }
+    if (justGranted) {
+      console.log("OAUTH_CALLBACK_RETURNED");
+      window.history.replaceState(null, "", window.location.pathname);
+      persistStep(3);
+      console.log("OAUTH_GRANT_AVAILABLE");
+      // A fresh grant always supersedes any stale "connected" flag left over
+      // from a previous project/session in localStorage -- rediscovering
+      // through THIS grant must run regardless of what connectionVerified
+      // says, or a fresh OAuth round trip silently does nothing.
+      void loadOAuthProjects(true).finally(() => setOauthCallbackPending(false));
+      return;
+    }
     if (connectionVerified || useTemporaryPat) return;
     void loadOAuthProjects(true);
     // Runs once on mount: covers both the redirect back from Supabase's
@@ -157,11 +174,17 @@ export default function SetupPage() {
     // says nothing about whether today's installer session still exists --
     // only the server does. Re-checking here (not just on step 4) is what
     // lets step 3 stop showing a stale "연결 완료" once that session is gone.
-    if ((step !== 3 && step !== 4) || !connectionVerified || !installerClient) return;
+    //
+    // Suppressed while oauthCallbackPending: a status call against whatever
+    // stale projectRef is still in localStorage would otherwise race the
+    // grant -> project discovery -> bind flow above and misreport a brand
+    // new OAuth grant as an expired session before binding ever gets a
+    // chance to run.
+    if (oauthCallbackPending || (step !== 3 && step !== 4) || !connectionVerified || !installerClient) return;
     let active = true;
     void checkInstallerConnection(() => active);
     return () => { active = false; };
-  }, [connectionVerified, installerClient, runtimeConfig?.supabasePublishableKey, step, supabaseUrl, vite.environment]);
+  }, [oauthCallbackPending, connectionVerified, installerClient, runtimeConfig?.supabasePublishableKey, step, supabaseUrl, vite.environment]);
 
   const connect = async (event: FormEvent) => {
     event.preventDefault(); setError(null); setMessage(null);
@@ -186,6 +209,7 @@ export default function SetupPage() {
     try {
       const result = await installerClient.getStatus({ projectRef, projectUrl: supabaseUrl.trim(), publishableKey: runtimeConfig?.supabasePublishableKey, release: "spatial-math-v1" });
       if (!isActive()) return;
+      console.log("STATUS_AFTER_BIND");
       setInstallerStatus(result.status); setInstallerDetails(result); setOauthAuthorized(true);
     } catch (reason) {
       if (!isActive()) return;
@@ -257,8 +281,9 @@ export default function SetupPage() {
   /** OAuth grant list is re-fetched on every mount (not just the one-time
    * redirect back) so a plain reload while the grant cookie is still live
    * restores the picker instead of stranding the teacher on a dead screen. */
-  const loadOAuthProjects = async (autoBindSingle: boolean) => {
+  const loadOAuthProjects = async (autoBind: boolean) => {
     if (!installerClient) return;
+    console.log("PROJECTS_LOAD_STARTED");
     setBusy(true); setError(null);
     try {
       const result = await installerClient.listAccessibleProjects();
@@ -267,9 +292,19 @@ export default function SetupPage() {
         setError("선택할 수 있는 프로젝트가 없어요. Supabase에서 먼저 프로젝트를 만든 뒤 다시 연결해 주세요.");
         return;
       }
+      console.log("PROJECTS_LOAD_SUCCESS");
       setOauthProjects(result.projects);
-      setSelectedProjectRef(result.projects[0].ref);
-      if (autoBindSingle && result.projects.length === 1) await bindOAuthProject(result.projects[0]);
+      // If the project this browser was previously connected to is still in
+      // this grant's accessible list, rebind it automatically instead of
+      // making the teacher re-pick something they already chose once.
+      const previousRef = projectRefFromUrl(supabaseUrl);
+      const previousMatch = previousRef ? result.projects.find((project) => project.ref === previousRef) : undefined;
+      const defaultProject = previousMatch ?? result.projects[0];
+      setSelectedProjectRef(defaultProject.ref);
+      if (autoBind && (previousMatch || result.projects.length === 1)) {
+        console.log("PROJECT_AUTO_BIND_STARTED");
+        await bindOAuthProject(defaultProject);
+      }
     } catch (reason) {
       // A 401 here just means no OAuth grant is active yet (or it expired) --
       // that is the normal state before connecting, not an error to surface.
@@ -284,10 +319,12 @@ export default function SetupPage() {
     try {
       const projectUrl = `https://${project.ref}.supabase.co`;
       const result = await installerClient.createSession({ projectRef: project.ref, projectUrl, release: "spatial-math-v1" });
+      console.log("INSTALLER_SESSION_READY");
       const config: RuntimeSupabaseConfig = { installationId: installationId.trim(), supabaseUrl: projectUrl, supabasePublishableKey: result.publishableKey ?? "" };
       saveRuntimeSupabaseConfig(config);
       setSupabaseUrl(projectUrl); setConnectionVerified(true); setOauthAuthorized(true); setOauthProjects(null);
       setBoundProjectLabel(project.name ?? project.ref);
+      console.log("PROJECT_AUTO_BIND_SUCCESS");
       setMessage(result.publishableKey ? "선택한 프로젝트에 연결하고 설치 권한도 받았어요." : "선택한 프로젝트에 연결했지만 공개 키는 자동으로 받지 못했어요. 학생 접속에 필요하니 연결 화면에서 직접 입력해 주세요.");
       persistStep(4);
     } catch (reason) { installerFailure(reason); }
