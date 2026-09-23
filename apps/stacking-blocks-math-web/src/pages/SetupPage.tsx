@@ -233,14 +233,20 @@ export default function SetupPage() {
     finally { setAuthorizing(false); }
   };
   const startOAuthConnect = async () => {
-    if (!installerClient || authorizing) return;
+    if (authorizing) return;
+    if (!installerClient) { setError("설치 서버 연결 정보를 찾을 수 없어요. 페이지를 새로고침한 뒤 다시 시도해 주세요."); return; }
     setAuthorizing(true); setError(null); setMessage(null);
     try {
       const { authorizeUrl } = await installerClient.beginAuthorization();
-      window.location.href = authorizeUrl;
+      window.location.assign(authorizeUrl);
     } catch (reason) {
       if (reason instanceof InstallerClientError && reason.status === 501) { setUseTemporaryPat(true); persistStep(3); }
-      else setError("Supabase 연결을 시작하지 못했습니다. 잠시 후 다시 시도해 주세요.");
+      else setError("Supabase 연결을 시작하지 못했습니다. 다시 시도해 주세요.");
+    } finally {
+      // Always clears, even on the success path: if navigation is ever
+      // blocked or delayed by the browser, this must not leave the button
+      // permanently disabled by a stale authorizing=true for the rest of
+      // this page's lifetime.
       setAuthorizing(false);
     }
   };
