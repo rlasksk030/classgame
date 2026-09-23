@@ -77,3 +77,30 @@ test("loadOAuthProjects rebinds the previously-connected project automatically w
   assert.match(fnBody!, /previousMatch/);
   assert.match(fnBody!, /result\.projects\.find\(\(project\) => project\.ref === previousRef\)/);
 });
+
+// Live: an installer_session cookie that still resolves server-side, but
+// whose bound OAuth credential was revoked at Supabase, made inspectProject
+// (stage "target") fail with a real upstream 401. That was being classified
+// as a generic "network" blip -- offering only a useless "다시 확인" retry
+// that would 401 forever, since only a fresh OAuth authorize actually
+// replaces the dead credential.
+
+test("checkInstallerConnection classifies an upstream 401 as revoked, not a generic network error", async () => {
+  const source = await readSetupPageSource();
+  const fnBody = source.match(/const checkInstallerConnection = async[\s\S]*?\n {2}\};/)?.[0];
+  assert.ok(fnBody, "checkInstallerConnection must exist");
+  const revokedBranch = fnBody!.match(/reason\.upstreamStatus === 401[\s\S]{0,500}/)?.[0];
+  assert.ok(revokedBranch, "an upstreamStatus === 401 branch must exist");
+  assert.match(revokedBranch!, /setConnectionIssue\("revoked"\)/);
+  assert.match(revokedBranch!, /setOauthAuthorized\(false\)/);
+});
+
+test("the revoked-OAuth branch calls startOAuthConnect directly, never routes to the manual PAT fallback", async () => {
+  const source = await readSetupPageSource();
+  const revokedBlock = source.match(/Supabase 연결 권한이 만료되었거나 해제되었습니다[\s\S]{0,400}/)?.[0];
+  assert.ok(revokedBlock, "the revoked-OAuth UI branch must exist on step 3");
+  assert.match(revokedBlock!, /type="button"/);
+  assert.match(revokedBlock!, /onClick=\{startOAuthConnect\}/);
+  assert.doesNotMatch(revokedBlock!, /setUseTemporaryPat/);
+  assert.doesNotMatch(revokedBlock!, /persistStep\(3\)/, "must not just navigate to step 3 -- it must restart the OAuth authorize flow directly");
+});

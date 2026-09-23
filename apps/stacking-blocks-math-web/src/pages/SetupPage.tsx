@@ -90,7 +90,7 @@ export default function SetupPage() {
   const [studentSmokeVerified, setStudentSmokeVerified] = useState(false);
   const [installerStatus, setInstallerStatus] = useState<InstallerRemoteStatus | null>(null);
   const [installerStatusError, setInstallerStatusError] = useState(false);
-  const [connectionIssue, setConnectionIssue] = useState<"session" | "mismatch" | "network" | null>(null);
+  const [connectionIssue, setConnectionIssue] = useState<"session" | "mismatch" | "revoked" | "network" | null>(null);
   /** Non-secret failing-stage/code/upstream-status text for the "network"
    * branch, shown directly on screen so a 502 can be reported back without
    * anyone needing to open the browser's DevTools Network tab. */
@@ -222,6 +222,13 @@ export default function SetupPage() {
         setOauthAuthorized(false); setConnectionIssue("session");
       } else if (reason instanceof InstallerClientError && reason.code === "INSTALLER_TARGET_MISMATCH") {
         setConnectionIssue("mismatch");
+      } else if (reason instanceof InstallerClientError && reason.upstreamStatus === 401) {
+        // The installer session cookie itself is still valid, but the OAuth
+        // access token it holds was rejected by Supabase (expired or the
+        // teacher revoked the app) -- this is not a transient network blip,
+        // and "다시 확인" would just get 401 again forever. Only a fresh
+        // OAuth authorize actually fixes it.
+        setOauthAuthorized(false); setConnectionIssue("revoked");
       } else {
         setConnectionIssue("network");
         if (reason instanceof InstallerClientError) {
@@ -471,6 +478,10 @@ export default function SetupPage() {
               <p className="notice">설치 연결이 만료되었습니다. Supabase에 다시 연결하면 완료된 설치 내용은 그대로 유지됩니다.</p>
               <button type="button" className="btn btn-primary" disabled={authorizing} onClick={startOAuthConnect}>Supabase 다시 연결</button>
               {authorizing && <p className="muted" role="status">Supabase 연결을 시작하는 중...</p>}
+            </> : connectionIssue === "revoked" ? <>
+              <p className="notice">Supabase 연결 권한이 만료되었거나 해제되었습니다. 다시 연결하면 기존 설치 내용은 그대로 유지됩니다.</p>
+              <button type="button" className="btn btn-primary" disabled={authorizing} onClick={startOAuthConnect}>Supabase 다시 연결</button>
+              {authorizing && <p className="muted" role="status">Supabase 연결을 시작하는 중...</p>}
             </> : connectionIssue === "network" ? <>
               <p className="notice">설치 서버에 연결하지 못했어요. 네트워크 상태를 확인한 뒤 다시 시도해 주세요.</p>
               {connectionIssueDetail && <p className="muted">{connectionIssueDetail}</p>}
@@ -509,6 +520,7 @@ export default function SetupPage() {
           {installerClient ? <>
             {oauthAuthorized ? <p className="success" role="status">설치 준비가 완료되었습니다. 별도 토큰 입력이 필요 없어요.</p> : connectionVerified && <p className="notice">
               {connectionIssue === "session" ? "설치 세션을 확인하지 못했어요. 아래 \"연결 다시 확인\"으로 재시도하고, 계속 안 되면 3단계에서 Supabase 연결을 다시 진행해 주세요."
+                : connectionIssue === "revoked" ? "Supabase 연결 권한이 만료되었거나 해제되었습니다. 3단계에서 다시 연결하면 기존 설치 내용은 그대로 유지됩니다."
                 : connectionIssue === "mismatch" ? "선택한 프로젝트 정보가 서버와 일치하지 않아요. 3단계에서 프로젝트를 다시 선택해 주세요."
                 : connectionIssue === "network" ? "설치 서버에 연결하지 못했어요. 네트워크 상태를 확인한 뒤 아래 \"연결 다시 확인\"으로 재시도해 주세요."
                 : "설치 권한을 확인하는 중이에요…"}
