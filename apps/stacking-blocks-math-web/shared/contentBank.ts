@@ -72,7 +72,7 @@ export function contentProblem(lesson:number,index:number,seed:number):Generated
   if(mode===3){p.given={heightMap:heights,projections:{front:projections.front},allowRotate:false,reasoning:'height-sum'};numeric(blocks.length,'앞모습에 더해 모든 자리의 높이를 공개했어요. 이제 전체는 몇 개인가요?');p.explanation=`높이 지도 ${heights.flat().join(' + ')} = ${blocks.length}개예요.`;}
   if(mode===4){p.given={projections:{...projections},allowRotate:false,reasoning:'sufficient'};const all=useViews();choice(['알 수 있어요','알 수 없어요'],all.isCountDeterminable?0:1,'이번에는 세 방향을 모두 공개했어요. 전체 개수가 하나로 정해지나요?');}
   if(mode===5){p.given={allowRotate:true,allowLayerView:true};p.givenBlocks=blocks;numeric(blocks.length,'회전과 층별 보기가 가능해졌어요. 실제 모형은 모두 몇 개인가요?');p.explanation=`자리별 높이 ${heights.flat().join(' + ')} = ${blocks.length}개예요.`;}
-  if(mode===7){p.given={projections:{front:projections.front},heightMap:toHeightMap(r.representativeSolutions.at(-1)!,grid),allowRotate:false,reasoning:'height-sum'};numeric(r.maxCubeCount!,'앞면의 칸 수가 전체 개수라는 주장에 대해, 이 높이 지도의 반례는 모두 몇 개인지 구하세요.');p.explanation='앞모습은 같아도 뒤쪽에 블록을 더 놓으면 전체 개수는 커져요.';}
+  if(mode===7){p.given={projections:{front:projections.front},heightMap:toHeightMap(r.representativeSolutions.at(-1)!,grid),allowRotate:false,reasoning:'height-sum'};numeric(r.maxCubeCount!,'앞에서 본 모양의 칸 수만 보고 전체 개수라고 생각하면 안 돼요. 이 숫자 지도를 보고 실제 전체 개수를 구해 보세요.');p.explanation='앞모습은 같아도 뒤쪽에 블록을 더 놓으면 전체 개수는 커져요.';}
  }else if(lesson===6){
   const r=useViews();
   if(mode===0||mode===1)build();
