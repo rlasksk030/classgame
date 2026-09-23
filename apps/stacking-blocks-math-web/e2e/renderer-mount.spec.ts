@@ -190,7 +190,7 @@ test("HEIGHTMAP_FROM_BUILD never seeds the editable grid or the evidence card fr
   // Every editable cell must start at 0, never pre-filled from given.heightMap's [3,0,0,0].
   for (const value of await renderer.locator(".number-cell-value").allInnerTexts()) expect(value).toBe("0");
   // The evidence panel must not exist at all for this problem (its only content would be the leak).
-  await expect(page.locator('[aria-label="문제에서 함께 제시한 정보"]')).toHaveCount(0);
+  await expect(page.locator('[aria-label="문제에서 제시한 정보"]')).toHaveCount(0);
 });
 
 test("number-map cells (.number-cell) render as true squares -- computed width equals height, not just the <td>'s CSS (a table row can still grow taller than a cell's own height/aspect-ratio when its 3-stacked content wants more room)", async ({ page }) => {
@@ -203,4 +203,59 @@ test("number-map cells (.number-cell) render as true squares -- computed width e
     expect(box).not.toBeNull();
     expect(Math.abs((box as { width: number }).width - (box as { height: number }).height)).toBeLessThanOrEqual(1);
   }
+});
+
+// Regression (live Render TEST /lesson/6/solve): BUILD_FROM_VIEWS ("세 방향
+// 보고 쌓기") gives the student top/front/side as conditions to build from --
+// direction identity there is required information, not the answer, so the
+// evidence card must name each face, not show three identical "제시된 조건".
+const threeViewBuildProblem = {
+  ...tripleProblem, id: "qa-build-from-views", lesson: 6, problemType: "BUILD_FROM_VIEWS", title: "세 방향을 보고 똑같이 쌓기",
+  prompt: "위, 앞, 옆에서 본 모양이 아래와 같습니다.\n조건에 맞게 쌓기나무를 쌓아 보세요.",
+  given: { projections: { top: [[true, false], [false, true]], front: [[true, false], [false, true]], side: [[true, true], [false, false]] }, allowRotate: true },
+  presentation: { visibleRepresentations: ["MODEL_3D"], cameraPolicy: { mode: "FREE" }, answerInput: "BLOCK_BUILD", gridSpecs: {}, instructions: [] },
+};
+
+test("BUILD_FROM_VIEWS (lesson 6 'three views build') names each given face -- 위에서 본 모양/앞에서 본 모양/옆에서 본 모양, not a neutralized 제시된 조건, so the student can tell the three grids apart", async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem("sb.student.token", "qa-token"));
+  await page.route("**/functions/v1/student-api", async route => {
+    const body = route.request().postDataJSON() as Record<string, unknown>;
+    const payload = body.action === "lessonProblems"
+      ? { problems: [threeViewBuildProblem], requiredComplete: false }
+      : body.action === "snapshot:get"
+        ? { snapshot: null }
+        : { problem: threeViewBuildProblem, attempt: { wrongCount: 0, hintShown: false, answerRevealed: false, completed: false }, hint: null, revealedAnswer: null };
+    await route.fulfill({ json: payload });
+  });
+  await page.goto("/lesson/6/solve");
+  const evidence = page.locator('[aria-label="문제에서 제시한 정보"]');
+  await expect(evidence).toBeVisible();
+  await expect(evidence.locator('table[aria-label="위에서 본 모양"]')).toBeVisible();
+  await expect(evidence.locator('table[aria-label="앞에서 본 모양"]')).toBeVisible();
+  await expect(evidence.locator('table[aria-label="옆에서 본 모양"]')).toBeVisible();
+  await expect(evidence.getByText("제시된 조건")).toHaveCount(0);
+});
+
+test("CAMERA_DIRECTION (lesson 2) still neutralizes its evidence caption -- the earlier BUILD_FROM_VIEWS fix must not resurrect the direction-answer leak", async ({ page }) => {
+  const cameraDirectionProblem = {
+    ...tripleProblem, id: "qa-camera-direction", lesson: 2, problemType: "CAMERA_DIRECTION", title: "이 사진은 어디에서 찍었을까",
+    prompt: "아래 격자는 이 모양을 어느 방향에서 본 모습입니다.\n어느 방향에서 본 것인지 고르세요.",
+    given: { projections: { front: [[true, false], [false, true]] }, shownFrom: "front", allowRotate: true },
+    presentation: { visibleRepresentations: ["MODEL_3D"], cameraPolicy: { mode: "FREE" }, answerInput: "MULTIPLE_CHOICE", gridSpecs: {}, instructions: [] },
+  };
+  await page.addInitScript(() => localStorage.setItem("sb.student.token", "qa-token"));
+  await page.route("**/functions/v1/student-api", async route => {
+    const body = route.request().postDataJSON() as Record<string, unknown>;
+    const payload = body.action === "lessonProblems"
+      ? { problems: [cameraDirectionProblem], requiredComplete: false }
+      : body.action === "snapshot:get"
+        ? { snapshot: null }
+        : { problem: cameraDirectionProblem, attempt: { wrongCount: 0, hintShown: false, answerRevealed: false, completed: false }, hint: null, revealedAnswer: null };
+    await route.fulfill({ json: payload });
+  });
+  await page.goto("/lesson/2/solve");
+  const evidence = page.locator('[aria-label="문제에서 제시한 정보"]');
+  await expect(evidence).toBeVisible();
+  await expect(evidence.locator('table[aria-label="제시된 조건"]')).toBeVisible();
+  await expect(evidence.getByText("앞에서 본 모양")).toHaveCount(0);
 });

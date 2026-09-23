@@ -86,7 +86,7 @@ export default function StudentWorld() {
           <div className="panel reward-summary">
             <div className="summary-label">학습 성취</div>
             <strong className="summary-number">⭐ {home?.rewards.totalStars ?? 0}</strong>
-            <p className="muted">별은 ① 개념 배우기·② 문제 풀기·③ 더 풀어보기를 완성하면 모아요.</p>
+            <p className="muted">별은 ① 개념 배우기·② 문제 풀기·③ 선택 연습을 풀면 모아요.</p>
             <div className="lesson-progress" aria-label={`전체 진행률 ${progressPercent}%`}><span style={{ width: `${progressPercent}%` }} /></div>
             <p className="muted">전체 진행률 {progressPercent}% · 완료 {completedLessons}/{LESSON_COUNT}차시</p>
           </div>

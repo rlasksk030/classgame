@@ -92,6 +92,22 @@ function normalizeDirection(raw: string): Direction {
   return raw === "left" || raw === "right" || raw === "top" || raw === "front" || raw === "back" ? raw : "front";
 }
 
+/** CAMERA_DIRECTION is the only type where "which direction is this?" is the
+ * thing being graded -- naming the direction in a caption hands over the
+ * answer. Every other type that shows given.projections (e.g. BUILD_FROM_VIEWS'
+ * "세 방향 보고 쌓기": 위/앞/옆 are the given conditions to build from, not a
+ * guess) needs the direction named, or the student can't tell which grid is
+ * which. Do not neutralize captions by a blanket rule -- branch on this. */
+function isDirectionAnswerProblem(problemType: ProblemType) {
+  return problemType === "CAMERA_DIRECTION";
+}
+
+const GIVEN_FACE_LABELS: Record<"top" | "front" | "side", string> = {
+  top: "위에서 본 모양",
+  front: "앞에서 본 모양",
+  side: "옆에서 본 모양",
+};
+
 const DEFAULT_ATTEMPT_STATE: ProblemAttempt = {
   wrongCount: 0,
   hintShown: false,
@@ -199,7 +215,13 @@ export default function LessonPage() {
   const currentStage = problem?.stage ?? stageFilter;
   const stageProblems = useMemo(() => problems.filter(item => item.stage === currentStage), [problems, currentStage]);
   const stageIndex = problem ? stageProblems.findIndex(item => item.id === problem.id) : -1;
-  const stageLabel = currentStage === "concept" ? "① 개념 배우기" : currentStage === "check" ? "② 문제 풀기" : "③ 더 풀어보기";
+  const stageLabel = currentStage === "concept" ? "① 개념 배우기" : currentStage === "check" ? "② 문제 풀기" : "③ 선택 연습";
+  // "선택 연습"(stage 'more') is an optional pool the student can dip into
+  // repeatedly, not a fixed n/n a student must finish -- showing the raw pool
+  // size (which can be 15-24) made it look like a required denominator. Chunk
+  // the *display* into groups of 5 instead; this only changes what number is
+  // shown, not which problems load, how submission works, or the pool itself.
+  const PRACTICE_BATCH_SIZE = 5;
 
   const [attempt, setAttempt] = useState<ProblemAttempt>(DEFAULT_ATTEMPT_STATE);
   const attemptRef = useRef(attempt);
@@ -461,7 +483,7 @@ export default function LessonPage() {
         setProblems(parsed);
         setRequiredComplete(Boolean(list.requiredComplete));
         if (routeStage === "more" && !list.requiredComplete) {
-          setMessage("③ 더 풀어보기는 ② 문제 풀기를 완료한 뒤 열려요.");
+          setMessage("③ 선택 연습은 ② 문제 풀기를 완료한 뒤 열려요.");
           navigate(`/lesson/${lessonNum}/solve`, { replace: true });
           return;
         }
@@ -594,7 +616,7 @@ export default function LessonPage() {
 
   const moveToStage = (stage: "concept" | "check" | "more") => {
     if (stage === "more" && !requiredComplete) {
-      setMessage("③ 더 풀어보기는 ② 문제 풀기를 완료한 뒤 열려요.");
+      setMessage("③ 선택 연습은 ② 문제 풀기를 완료한 뒤 열려요.");
       return;
     }
     const candidates = problems.filter(item => item.stage === stage);
@@ -768,11 +790,16 @@ export default function LessonPage() {
     const hideHeightMap = problem.problemType === "HEIGHTMAP_FROM_BUILD";
     const hideLayers = problem.problemType === "LAYER_DRAW";
     if (!faces.length && (!evidence.heightMap || hideHeightMap) && (!evidence.layers?.length || hideLayers)) return null;
-    return <div className="panel stack" aria-label="문제에서 함께 제시한 정보">
-      <strong>함께 제시된 정보</strong>
+    // CAMERA_DIRECTION's single given face IS the answer being asked for --
+    // "제시된 조건" for every face. Every other type (BUILD_FROM_VIEWS' three
+    // given projections, etc.) needs the real direction named, or the student
+    // can't tell which grid is top/front/side.
+    const neutralizeCaptions = isDirectionAnswerProblem(problem.problemType);
+    return <div className="panel stack" aria-label="문제에서 제시한 정보">
+      <strong>제시된 정보</strong>
       <div className="toolbar-row" style={{ alignItems: "flex-start" }}>
-        {faces.map(face => <ProjectionGrid key={face} title="제시된 조건" rows={evidence.projections![face]!} reverseRows={face !== "top"} orientation={face === "top" ? "floor" : undefined} editable={false} onChange={() => undefined} valueType="boolean" />)}
-        {evidence.heightMap && !hideHeightMap && <ProjectionGrid title="표시된 숫자 지도" rows={evidence.heightMap} orientation="floor" editable={false} onChange={() => undefined} valueType="number" />}
+        {faces.map(face => <ProjectionGrid key={face} title={neutralizeCaptions ? "제시된 조건" : GIVEN_FACE_LABELS[face]} rows={evidence.projections![face]!} reverseRows={face !== "top"} orientation={face === "top" ? "floor" : undefined} editable={false} onChange={() => undefined} valueType="boolean" />)}
+        {evidence.heightMap && !hideHeightMap && <ProjectionGrid title="숫자 지도" rows={evidence.heightMap} orientation="floor" editable={false} onChange={() => undefined} valueType="number" />}
         {!hideLayers && evidence.layers?.map((rows, index) => <ProjectionGrid key={`evidence-layer-${index}`} title={`${index + 1}층 모양`} rows={rows} orientation="floor" editable={false} onChange={() => undefined} valueType="boolean" />)}
       </div>
     </div>;
@@ -817,9 +844,12 @@ export default function LessonPage() {
         <section className="panel stack" aria-label="차시 학습 단계">
           <strong>학습 단계</strong>
           <div className="toolbar-row">
-            {([['concept','① 개념 배우기'],['check','② 문제 풀기'],['more','③ 더 풀어보기']] as const).map(([value,label])=><button key={value} className={`btn btn-sm ${currentStage===value?'btn-primary':''}`} aria-current={currentStage===value?'step':undefined} disabled={moving || busy || restoring || (value==='more'&&!requiredComplete)} onClick={()=>moveToStage(value)}>{label}{value==='check'&&requiredComplete?' · 완료':''} {value==='more'&&!requiredComplete?'(필수 학습 후 열림)':''}</button>)}
+            {([['concept','① 개념 배우기'],['check','② 문제 풀기'],['more','③ 선택 연습']] as const).map(([value,label])=><button key={value} className={`btn btn-sm ${currentStage===value?'btn-primary':''}`} aria-current={currentStage===value?'step':undefined} disabled={moving || busy || restoring || (value==='more'&&!requiredComplete)} onClick={()=>moveToStage(value)}>{label}{value==='check'&&requiredComplete?' · 완료':''} {value==='more'&&!requiredComplete?'(필수 학습 후 열림)':''}</button>)}
           </div>
-          <p className="muted">① {problems.filter(item=>item.stage==='concept').length}문제 · ② {problems.filter(item=>item.stage==='check').length}문제 · ③ {problems.filter(item=>item.stage==='more').length}문제{requiredComplete?' · 필수 학습 완료':' · ② 문제 풀기를 먼저 완료해 주세요.'}</p>
+          {/* ③'s pool can hold 15-24 problems depending on teacher settings --
+              showing that raw count here made 선택 연습 look like a required
+              n/n target instead of an optional pool. */}
+          <p className="muted">① {problems.filter(item=>item.stage==='concept').length}문제 · ② {problems.filter(item=>item.stage==='check').length}문제 · ③ 선택 연습{requiredComplete?' · 이용 가능':''}{requiredComplete?'':' · ② 문제 풀기를 먼저 완료해 주세요.'}</p>
           {requiredComplete && problems.some(item => item.stage === 'more') && (
             <div className="toolbar-row">
               <button className="btn btn-sm" disabled={!wrongProblemIds.length} onClick={() => {
@@ -851,12 +881,13 @@ export default function LessonPage() {
                   if (!first.id.startsWith('seed:')) void saveProblemPosition(first.id, lessonNum);
                 }
               }}>유사 문제 풀기</button>
-              {practiceSet && <p>기본 추가활동 {practiceSet.supplementalCount}개 · 배정 연습 {practiceSet.targetCount}개 · 현재 연습 {practiceSet.generatedCount}개</p>}
-              {practiceSet?.awaitingReplacement && <p>이전에 요청한 새 묶음이 아직 준비되지 않아 이전 묶음을 유지하고 있어요. ‘새 문제 더 풀기’를 선택하면 기록을 보존하고 새 묶음으로 옮겨요.</p>}
+              {/* 학생 화면에는 배정/생성 개수 같은 전체 bank 크기를 노출하지 않는다 -- 선택 연습은 필수 진도가 아니다. */}
+              {practiceSet && <p className="muted">선택 연습은 원하는 만큼 반복해서 풀 수 있어요.</p>}
+              {practiceSet?.awaitingReplacement && <p>이전에 요청한 새 묶음이 아직 준비되지 않아 이전 묶음을 유지하고 있어요. ‘5문제 더 풀기’를 선택하면 기록을 보존하고 새 묶음으로 옮겨요.</p>}
               {!practiceSet && <p>새 문제 묶음을 복원할 수 있는 서버인지 확인되지 않아 전환을 멈췄어요. 선생님께 문제 서버 업데이트를 요청해 주세요. 현재 답안과 기록은 보존돼요.</p>}
-              {(practiceSet?.requiresRepair || duplicateTaskCount(problems.filter(item=>item.stage==='more'))>0) && <p role="status">이 문제 묶음에 반복 과제가 있거나 새 묶음 전환이 끝나지 않았어요. 기존 답안·XP는 보존됩니다. {practiceSet?.contractVersion===2 ? '‘새 문제 더 풀기’로 수정된 묶음을 시작할 수 있어요.' : '수정된 문제 서버가 아직 연결되지 않았어요. 선생님께 서버 업데이트를 요청해 주세요.'}</p>}
+              {(practiceSet?.requiresRepair || duplicateTaskCount(problems.filter(item=>item.stage==='more'))>0) && <p role="status">이 문제 묶음에 반복 과제가 있거나 새 묶음 전환이 끝나지 않았어요. 기존 답안·XP는 보존됩니다. {practiceSet?.contractVersion===2 ? '‘5문제 더 풀기’로 수정된 묶음을 시작할 수 있어요.' : '수정된 문제 서버가 아직 연결되지 않았어요. 선생님께 서버 업데이트를 요청해 주세요.'}</p>}
               <button className="btn btn-sm" disabled={busy || practiceSet?.contractVersion!==2} onClick={async () => {
-                if (!window.confirm('기존 답안·진도·XP는 보존됩니다. 새 문제 묶음은 1번부터 시작해요. 새 묶음으로 옮길까요?')) return;
+                if (!window.confirm('기존 답안·진도·XP는 보존됩니다. 새 문제 5개로 다시 시작해요. 새 묶음으로 옮길까요?')) return;
                 setBusy(true);
                 try {
                   if(!practiceSet) return;
@@ -882,7 +913,7 @@ export default function LessonPage() {
                 } finally {
                   setBusy(false);
                 }
-              }}>새 문제 더 풀기</button>
+              }}>5문제 더 풀기</button>
             </div>
           )}
         </section>
@@ -955,7 +986,7 @@ export default function LessonPage() {
 
           <div className="stack" style={{ minWidth: 320, gap: 12 }}>
             <div className="panel">
-              <h3>{stageLabel} {Math.max(1, stageIndex + 1)} / {Math.max(1, stageProblems.length)}</h3>
+              <h3>{stageLabel} {currentStage === "more" ? `${(Math.max(0, stageIndex) % PRACTICE_BATCH_SIZE) + 1} / ${PRACTICE_BATCH_SIZE}` : `${Math.max(1, stageIndex + 1)} / ${Math.max(1, stageProblems.length)}`}</h3>
               <p className="muted">{PROBLEM_TYPE_LABELS[problem.problemType]}</p>
               <p>{problem.prompt}</p>
               {problemImage&&<img src={problemImage} alt="선생님이 등록한 문제 그림" style={{maxWidth:"100%"}}/>}

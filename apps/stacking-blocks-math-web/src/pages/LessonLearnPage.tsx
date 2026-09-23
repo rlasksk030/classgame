@@ -25,6 +25,6 @@ export default function LessonLearnPage() {
     {guide.kind==='peer'?<PeerChallengePage/>:project?<ArchitecturePage key={lessonNumber}/>:<GuidedExploration key={lessonNumber} kind={guide.kind}/>}
    </Suspense>
   </section>
-  <div className="toolbar-row"><button className="btn btn-primary" onClick={()=>navigate(lessonNumber===9?'/lesson/9':project?`/lesson/${lessonNumber}/project`:`/lesson/${lessonNumber}/solve`)}>{project?'작품 활동 계속하기':'② 문제 풀기 시작'}</button>{!project&&lessonNumber!==9&&<button className="btn" onClick={()=>navigate(`/lesson/${lessonNumber}/practice`)}>③ 더 풀어보기로 이동</button>}</div>
+  <div className="toolbar-row"><button className="btn btn-primary" onClick={()=>navigate(lessonNumber===9?'/lesson/9':project?`/lesson/${lessonNumber}/project`:`/lesson/${lessonNumber}/solve`)}>{project?'작품 활동 계속하기':'② 문제 풀기 시작'}</button>{!project&&lessonNumber!==9&&<button className="btn" onClick={()=>navigate(`/lesson/${lessonNumber}/practice`)}>③ 선택 연습으로 이동</button>}</div>
  </div>;
 }

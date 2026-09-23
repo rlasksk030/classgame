@@ -574,7 +574,7 @@ async function main() {
             else if(p.answer.kind==='count') await page.locator('input[inputmode="numeric"]').fill(String(p.answer.value));
             if(index===2 && p.answer.kind==='count') {
               await page.getByRole('button',{name:'① 개념 배우기',exact:true}).click();
-              await page.getByRole('button',{name:'③ 더 풀어보기로 이동',exact:true}).click();
+              await page.getByRole('button',{name:'③ 선택 연습으로 이동',exact:true}).click();
               await expect(page.getByText(p.title,{exact:true})).toBeVisible();
               await expect(page.locator('input[inputmode="numeric"]')).toHaveValue(String(p.answer.value));
               await page.reload();
@@ -634,22 +634,22 @@ async function main() {
         state.replacement={seed:603756,displayedSeed:595837,starts:0,records:structuredClone(oldProblems)};
       },run:async(page,state)=>{
         await page.goto(`${baseUrl}/lesson/5/practice`);
-        await expect(page.getByRole('heading',{name:'③ 더 풀어보기 11 / 35',exact:true})).toBeVisible();
+        await expect(page.getByRole('heading',{name:'③ 선택 연습 1 / 5',exact:true})).toBeVisible();
         await expect(page.getByText('오답 수: 2',{exact:true})).toBeVisible();
         await expect(page.getByText('이전에 요청한 새 묶음이 아직 준비되지 않아',{exact:false})).toBeVisible();
         await page.reload();
-        await expect(page.getByRole('heading',{name:'③ 더 풀어보기 11 / 35',exact:true})).toBeVisible();
+        await expect(page.getByRole('heading',{name:'③ 선택 연습 1 / 5',exact:true})).toBeVisible();
         const oldRecord=JSON.stringify(state.outcomes),oldIds=state.replacement!.records.map(p=>p.id);
         page.on('dialog',dialog=>dialog.accept());
-        await page.getByRole('button',{name:'새 문제 더 풀기',exact:true}).dblclick();
-        await expect(page.getByRole('heading',{name:'③ 더 풀어보기 1 / 20',exact:true})).toBeVisible();
+        await page.getByRole('button',{name:'5문제 더 풀기',exact:true}).dblclick();
+        await expect(page.getByRole('heading',{name:'③ 선택 연습 1 / 5',exact:true})).toBeVisible();
         assertCondition(state.replacement?.starts===1,'이중 클릭이 새 묶음을 두 번 만듦');
         assertCondition(state.replacement.seed===611675,'기대 seed에서 전환되지 않음');
         assertCondition(JSON.stringify(state.outcomes)===oldRecord,'이전 시도 기록 변경');
         assertCondition(JSON.stringify(state.replacement.records.map(p=>p.id))===JSON.stringify(oldIds),'이전 문항 삭제');
         const nextIds=state.problems.map(p=>p.id);
         await page.reload();
-        await expect(page.getByRole('heading',{name:'③ 더 풀어보기 1 / 20',exact:true})).toBeVisible();
+        await expect(page.getByRole('heading',{name:'③ 선택 연습 1 / 5',exact:true})).toBeVisible();
         assertCondition(JSON.stringify(state.problems.map(p=>p.id))===JSON.stringify(nextIds),'새 세트 재조회 ID 변경');
       }}));
       initial.push(await run({ id: "T13-learn-stage-page", title: "개념 배우기 독립 페이지와 문제 풀기 전환", problems: [projectionFixture], run: async (page) => {

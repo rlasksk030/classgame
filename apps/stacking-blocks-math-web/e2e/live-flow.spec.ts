@@ -137,7 +137,7 @@ test('P1 progression: completed solve unlocks practice after reload and relogin 
  await expect(page.getByText('위치 저장 실패',{exact:true})).toBeVisible();await expect(page).toHaveURL(/\/solve$/);
  await page.getByRole('button',{name:'다음 단계',exact:true}).click();
  await expect(page).toHaveURL(/\/lesson\/5\/practice$/);
- await expect(page.getByRole('button',{name:'③ 더 풀어보기',exact:true})).toHaveAttribute('aria-current','step');
+ await expect(page.getByRole('button',{name:'③ 선택 연습',exact:true})).toHaveAttribute('aria-current','step');
  await page.goto('/world');await page.getByRole('button',{name:'나가기',exact:true}).click();await login(page);
  await page.goto('/lesson/5/solve');await expect(page.getByRole('button',{name:'다음 단계',exact:true})).toBeEnabled();
  await page.getByRole('button',{name:'다음 단계',exact:true}).click();await expect(page).toHaveURL(/\/practice$/);

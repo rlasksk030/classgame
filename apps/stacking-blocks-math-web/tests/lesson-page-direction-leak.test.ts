@@ -55,12 +55,27 @@ test("renderEvidence never shows a PROJECTION_DRAW face the student is simultane
   assert.match(fnBody!, /evidence\.projections\?\.\[face\] && !drawnFaces\.has\(face\)/);
 });
 
-test("renderEvidence's '함께 제시된 정보' card never names the answer direction (CAMERA_DIRECTION uses the same shared card)", async () => {
+// Regression (live Render TEST /lesson/6/solve): the first version of this fix
+// neutralized the per-face caption for EVERY problem type, which broke
+// BUILD_FROM_VIEWS ("세 방향 보고 쌓기") -- there, 위/앞/옆 are given conditions
+// to build from, not a guessable answer, and the student cannot tell the three
+// grids apart without the real direction name. Only CAMERA_DIRECTION (where
+// "which direction is this?" IS the graded answer) may neutralize.
+test("renderEvidence neutralizes the per-face caption only for CAMERA_DIRECTION -- every other type (BUILD_FROM_VIEWS' given conditions, etc.) names the real direction so the student can tell top/front/side apart", async () => {
+  const source = await readLessonPageSource();
+  assert.match(source, /function isDirectionAnswerProblem\(problemType: ProblemType\) \{\s*return problemType === "CAMERA_DIRECTION";\s*\}/, "the answer-vs-given distinction must be a named, type-based helper, not a blanket rule");
+  assert.match(source, /const GIVEN_FACE_LABELS: Record<"top" \| "front" \| "side", string> = \{\s*top: "위에서 본 모양",\s*front: "앞에서 본 모양",\s*side: "옆에서 본 모양",\s*\};/);
+  const fnBody = source.match(/const renderEvidence = \(\) => \{[\s\S]*?\n {2}\};/)?.[0];
+  assert.ok(fnBody, "renderEvidence must exist");
+  assert.match(fnBody!, /const neutralizeCaptions = isDirectionAnswerProblem\(problem\.problemType\);/);
+  assert.match(fnBody!, /title=\{neutralizeCaptions \? "제시된 조건" : GIVEN_FACE_LABELS\[face\]\}/, "the caption must branch on problem type, not always neutralize");
+});
+
+test("CAMERA_DIRECTION's evidence caption is still neutral (제시된 조건), never a direction name", async () => {
   const source = await readLessonPageSource();
   const fnBody = source.match(/const renderEvidence = \(\) => \{[\s\S]*?\n {2}\};/)?.[0];
   assert.ok(fnBody, "renderEvidence must exist");
-  assert.doesNotMatch(fnBody!, /위에서 본 조건|앞에서 본 조건|옆에서 본 조건|뒤에서 본 조건|왼쪽에서 본 조건|오른쪽에서 본 조건/, "no direction-named condition caption may leak the answer");
-  assert.match(fnBody!, /faces\.map\(face => <ProjectionGrid key=\{face\} title="제시된 조건"/, "the per-face condition caption must be neutralized to 제시된 조건");
+  assert.match(fnBody!, /isDirectionAnswerProblem\(problem\.problemType\)/, "CAMERA_DIRECTION must route through the answer-type check, and it's the only type that returns true for it");
 });
 
 test("the legitimate post-attempt answer-reveal panel is untouched and still names the direction/faces", async () => {
