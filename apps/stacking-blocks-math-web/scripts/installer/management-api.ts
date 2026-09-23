@@ -179,7 +179,7 @@ export class SupabaseManagementBackend implements InstallerBackend {
     if (!response.ok) {
       const safe = redactInstallerObject(parsed);
       const code = safe && typeof safe === "object" && typeof (safe as { code?: unknown }).code === "string" ? (safe as { code: string }).code : `HTTP_${response.status}`;
-      throw new InstallerError(`INSTALLER_MANAGEMENT_${code}`, stage, `관리 API 요청이 거부되었습니다 (${response.status}).`);
+      throw new InstallerError(`INSTALLER_MANAGEMENT_${code}`, stage, `관리 API 요청이 거부되었습니다 (${response.status}).`, response.status);
     }
     if (!raw) return undefined as T;
     if (parsed !== undefined) return parsed as T;

@@ -91,6 +91,10 @@ export default function SetupPage() {
   const [installerStatus, setInstallerStatus] = useState<InstallerRemoteStatus | null>(null);
   const [installerStatusError, setInstallerStatusError] = useState(false);
   const [connectionIssue, setConnectionIssue] = useState<"session" | "mismatch" | "network" | null>(null);
+  /** Non-secret failing-stage/code/upstream-status text for the "network"
+   * branch, shown directly on screen so a 502 can be reported back without
+   * anyone needing to open the browser's DevTools Network tab. */
+  const [connectionIssueDetail, setConnectionIssueDetail] = useState("");
   const [checkingConnection, setCheckingConnection] = useState(false);
   const [authorizing, setAuthorizing] = useState(false);
   const [temporaryPat, setTemporaryPat] = useState("");
@@ -205,7 +209,7 @@ export default function SetupPage() {
     if (!installerClient) return;
     const projectRef = projectRefFromUrl(supabaseUrl);
     if (!projectRef) return;
-    setInstallerStatusError(false); setConnectionIssue(null);
+    setInstallerStatusError(false); setConnectionIssue(null); setConnectionIssueDetail("");
     try {
       const result = await installerClient.getStatus({ projectRef, projectUrl: supabaseUrl.trim(), publishableKey: runtimeConfig?.supabasePublishableKey, release: "spatial-math-v1" });
       if (!isActive()) return;
@@ -220,6 +224,10 @@ export default function SetupPage() {
         setConnectionIssue("mismatch");
       } else {
         setConnectionIssue("network");
+        if (reason instanceof InstallerClientError) {
+          const parts = [reason.stage ? `단계: ${reason.stage}` : null, reason.upstreamStatus ? `업스트림 상태: ${reason.upstreamStatus}` : null, `코드: ${reason.code}`].filter(Boolean);
+          setConnectionIssueDetail(parts.join(" · "));
+        }
       }
     }
   };
@@ -465,6 +473,7 @@ export default function SetupPage() {
               {authorizing && <p className="muted" role="status">Supabase 연결을 시작하는 중...</p>}
             </> : connectionIssue === "network" ? <>
               <p className="notice">설치 서버에 연결하지 못했어요. 네트워크 상태를 확인한 뒤 다시 시도해 주세요.</p>
+              {connectionIssueDetail && <p className="muted">{connectionIssueDetail}</p>}
               <button type="button" className="btn" disabled={checkingConnection} onClick={() => void recheckInstallerConnection()}>{checkingConnection ? "확인 중…" : "다시 확인"}</button>
             </> : connectionIssue === "mismatch" ? <>
               <p className="notice">선택한 프로젝트 정보가 서버와 일치하지 않아요. Supabase를 다시 연결해 주세요.</p>
@@ -504,6 +513,7 @@ export default function SetupPage() {
                 : connectionIssue === "network" ? "설치 서버에 연결하지 못했어요. 네트워크 상태를 확인한 뒤 아래 \"연결 다시 확인\"으로 재시도해 주세요."
                 : "설치 권한을 확인하는 중이에요…"}
             </p>}
+            {connectionIssue === "network" && connectionIssueDetail && <p className="muted">{connectionIssueDetail}</p>}
             {connectionVerified && <details className="installer-advanced" open={useTemporaryPat && !oauthAuthorized}>
               <summary>개발자용 수동 연결</summary>
               <form className="stack" onSubmit={connectInstallerAuthorization}>

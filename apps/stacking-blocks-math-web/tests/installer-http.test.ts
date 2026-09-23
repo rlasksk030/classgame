@@ -64,6 +64,29 @@ test("installer HTTP install uses the same orchestration and supports status unt
   } finally { await new Promise<void>((resolve, reject) => running.server.close((error) => error ? reject(error) : resolve())); }
 });
 
+test("a management API failure surfaces which stage failed instead of a single opaque 502", async (t) => {
+  // Regression for a live 502 that gave no way to tell inspectProject,
+  // migrations, secrets and functions apart without a browser's Network
+  // tab: the response body itself must now carry the failing stage.
+  const backend = createFakeInstallerBackend({ rejectStage: "functions" });
+  const server = createInstallerServer({ plan, productionRef: plan.productionRef, createBackend: () => backend, allowedOrigins: ["http://localhost:5173"] });
+  await new Promise<void>((resolve, reject) => { server.once("error", reject); server.listen(0, "127.0.0.1", resolve); });
+  const address = server.address();
+  if (!address || typeof address === "string") { t.skip("server address missing"); return; }
+  const base = `http://127.0.0.1:${address.port}`;
+  try {
+    const created = await fetch(`${base}/api/installer/session`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(target) });
+    const cookie = created.headers.get("set-cookie")?.split(";")[0];
+    if (!cookie) throw new Error("session cookie missing");
+    await fetch(`${base}/api/installer/credential`, { method: "POST", headers: { "content-type": "application/json", cookie }, body: JSON.stringify({ pat: "pat-test-only" }) });
+    const status = await fetch(`${base}/api/installer/status`, { headers: { cookie } });
+    assert.equal(status.status, 502);
+    const body = await status.json();
+    assert.equal(body.stage, "functions");
+    assert.equal(body.code, "FAKE_FUNCTIONS_FAILED");
+  } finally { await new Promise<void>((resolve, reject) => server.close((error) => error ? reject(error) : resolve())); }
+});
+
 test("installer HTTP blocks a disallowed browser origin and expires sessions", () => {
   const now = { value: 0 };
   const store = new InstallerSessionStore(100, () => now.value);

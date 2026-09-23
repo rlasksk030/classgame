@@ -2,7 +2,7 @@ import { createServer, type IncomingMessage, type Server, type ServerResponse } 
 import { createHmac, randomBytes, timingSafeEqual } from "node:crypto";
 
 import { runInstaller, type InstallerPlan } from "./orchestrator.ts";
-import { InstallerError, type InstallState, type InstallerBackend, type InstallerTarget, type RemoteProject } from "./contract.ts";
+import { InstallerError, type FunctionDeployment, type InstallState, type InstallerBackend, type InstallerTarget, type RemoteProject } from "./contract.ts";
 import { assertSafeTarget, assertTargetBinding, EphemeralCredential } from "./security.ts";
 import { OAuthGrantStore, OAuthSessionStore, exchangeOAuthCode } from "./oauth.ts";
 import type { TeacherAccountResult } from "./teacher-account.ts";
@@ -304,14 +304,55 @@ async function handleRequest(request: IncomingMessage, response: ServerResponse,
   } catch (error) {
     const detail = error instanceof InstallerError ? error : new InstallerError("INSTALLER_SERVER_ERROR", "target", "설치 실행부에서 오류가 발생했습니다.");
     const status = detail.code.includes("SESSION") || detail.code.includes("AUTH") ? 401 : detail.code === "PRODUCTION_TARGET_BLOCKED" || detail.code === "INSTALLER_TARGET_MISMATCH" ? 403 : 502;
-    sendError(response, status, detail.code, detail.message);
+    sendError(response, status, detail.code, detail.message, detail.stage, detail.upstreamStatus);
   }
 }
 
+/** Non-secret: only the stage name, safe error code, and the real upstream
+ * HTTP status (never a token/cookie/key/secret value or body). Lets a live
+ * 502 be root-caused from Render's log stream alone, without needing
+ * anyone to find the response body in a browser's Network tab. */
+function logStatusStage(event: string, session: InstallerSession, error?: unknown): void {
+  const fields: Record<string, string | number | boolean> = { projectRefPrefix: session.target.projectRef.slice(0, 6) };
+  if (error instanceof InstallerError) {
+    fields.code = error.code;
+    fields.stage = error.stage;
+    if (error.upstreamStatus !== undefined) fields.upstreamStatus = error.upstreamStatus;
+  }
+  logInstallerDiagnostic(event, fields);
+}
+
 async function statusFor(session: InstallerSession, backend: InstallerBackend, plan: InstallerPlan): Promise<Record<string, unknown>> {
-  const project = await backend.inspectProject(session.target);
+  logStatusStage("STATUS_INSPECT_PROJECT_START", session);
+  let project: RemoteProject;
+  try {
+    project = await backend.inspectProject(session.target);
+    logStatusStage("STATUS_INSPECT_PROJECT_OK", session);
+  } catch (error) {
+    logStatusStage("STATUS_INSPECT_PROJECT_FAIL", session, error);
+    throw error;
+  }
   if (project.ref !== session.target.projectRef) throw new InstallerError("INSTALLER_TARGET_MISMATCH", "target", "설치 대상 프로젝트가 일치하지 않습니다.");
-  const [migrations, secrets, functions] = await Promise.all([backend.listAppliedMigrations(session.target), backend.listSecrets(session.target), backend.listFunctions(session.target)]);
+  logStatusStage("STATUS_MIGRATIONS_START", session);
+  logStatusStage("STATUS_SECRETS_START", session);
+  logStatusStage("STATUS_FUNCTIONS_START", session);
+  const [migrationsResult, secretsResult, functionsResult] = await Promise.allSettled([
+    backend.listAppliedMigrations(session.target),
+    backend.listSecrets(session.target),
+    backend.listFunctions(session.target),
+  ]);
+  logStatusStage(migrationsResult.status === "fulfilled" ? "STATUS_MIGRATIONS_OK" : "STATUS_MIGRATIONS_FAIL", session, migrationsResult.status === "rejected" ? migrationsResult.reason : undefined);
+  logStatusStage(secretsResult.status === "fulfilled" ? "STATUS_SECRETS_OK" : "STATUS_SECRETS_FAIL", session, secretsResult.status === "rejected" ? secretsResult.reason : undefined);
+  logStatusStage(functionsResult.status === "fulfilled" ? "STATUS_FUNCTIONS_OK" : "STATUS_FUNCTIONS_FAIL", session, functionsResult.status === "rejected" ? functionsResult.reason : undefined);
+  // Promise.allSettled keeps the original three calls running in parallel
+  // (same as the Promise.all this replaces) but lets every stage's outcome
+  // be logged before failing -- Promise.all would only ever surface the
+  // first rejection, hiding whether the other two also failed.
+  const firstRejected = [migrationsResult, secretsResult, functionsResult].find((result): result is PromiseRejectedResult => result.status === "rejected");
+  if (firstRejected) throw firstRejected.reason;
+  const migrations = (migrationsResult as PromiseFulfilledResult<string[]>).value;
+  const secrets = (secretsResult as PromiseFulfilledResult<string[]>).value;
+  const functions = (functionsResult as PromiseFulfilledResult<FunctionDeployment[]>).value;
   const missingMigrations = plan.migrations.filter((item) => !migrations.includes(item.name));
   const missingFunctions = plan.functions.filter((bundle) => !functions.some((item) => item.slug === bundle.slug && item.hash === bundle.hash));
   const probes = await Promise.all(plan.functions.map(async (bundle) => {
@@ -407,6 +448,6 @@ function sendJson(response: ServerResponse, status: number, value: unknown): voi
   response.statusCode = status; response.setHeader("content-type", "application/json; charset=utf-8"); response.end(JSON.stringify(value));
 }
 
-function sendError(response: ServerResponse, status: number, code: string, message: string): void {
-  sendJson(response, status, { code, message });
+function sendError(response: ServerResponse, status: number, code: string, message: string, stage?: string, upstreamStatus?: number): void {
+  sendJson(response, status, { code, message, ...(stage ? { stage } : {}), ...(upstreamStatus !== undefined ? { upstreamStatus } : {}) });
 }

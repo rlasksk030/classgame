@@ -65,12 +65,20 @@ type FetchLike = (input: string | URL, init?: RequestInit) => Promise<Response>;
 export class InstallerClientError extends Error {
   readonly code: string;
   readonly status: number;
+  /** Which stage (target/migrations/secret/functions) failed, and the real
+   * upstream (Supabase Management API) HTTP status behind a 502, when the
+   * server's error body carried them. Lets the UI show enough to diagnose a
+   * failure without anyone needing to open the browser's Network tab. */
+  readonly stage?: string;
+  readonly upstreamStatus?: number;
 
-  constructor(code: string, status: number, message: string) {
+  constructor(code: string, status: number, message: string, stage?: string, upstreamStatus?: number) {
     super(message);
     this.name = "InstallerClientError";
     this.code = code;
     this.status = status;
+    this.stage = stage;
+    this.upstreamStatus = upstreamStatus;
   }
 }
 
@@ -172,10 +180,11 @@ export class InstallerClient {
       try { payload = JSON.parse(raw); } catch { payload = undefined; }
     }
     if (!response.ok) {
-      const code = payload && typeof payload === "object" && typeof (payload as { code?: unknown }).code === "string"
-        ? (payload as { code: string }).code
-        : `HTTP_${response.status}`;
-      throw new InstallerClientError(code, response.status, "설치 실행부 요청을 처리하지 못했습니다.");
+      const body = payload && typeof payload === "object" ? payload as { code?: unknown; stage?: unknown; upstreamStatus?: unknown } : undefined;
+      const code = typeof body?.code === "string" ? body.code : `HTTP_${response.status}`;
+      const stage = typeof body?.stage === "string" ? body.stage : undefined;
+      const upstreamStatus = typeof body?.upstreamStatus === "number" ? body.upstreamStatus : undefined;
+      throw new InstallerClientError(code, response.status, "설치 실행부 요청을 처리하지 못했습니다.", stage, upstreamStatus);
     }
     if (!payload || typeof payload !== "object") throw new InstallerClientError("INSTALLER_RESPONSE_INVALID", response.status, "설치 실행부 응답을 해석하지 못했습니다.");
     return payload as T;

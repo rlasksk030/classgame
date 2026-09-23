@@ -77,6 +77,11 @@ test("installer client maps safe backend error codes without exposing response b
   await assert.rejects(() => client.repair(target), (error: unknown) => error instanceof InstallerClientError && error.code === "PROJECT_MISMATCH" && error.status === 409 && !error.message.includes("hidden"));
 });
 
+test("installer client surfaces stage and upstreamStatus from the error body for on-screen diagnosis, without needing DevTools", async () => {
+  const client = new InstallerClient("https://installer.example", async () => new Response(JSON.stringify({ code: "INSTALLER_MANAGEMENT_HTTP_403", message: "관리 API 요청이 거부되었습니다 (403).", stage: "functions", upstreamStatus: 403 }), { status: 502, headers: { "content-type": "application/json" } }));
+  await assert.rejects(() => client.getStatus(target), (error: unknown) => error instanceof InstallerClientError && error.status === 502 && error.stage === "functions" && error.upstreamStatus === 403);
+});
+
 test("installer client rejects non-HTTPS production endpoints", () => {
   assert.throws(() => new InstallerClient("http://installer.example"), (error: unknown) => error instanceof InstallerClientError && error.code === "INSTALLER_ENDPOINT_INVALID");
 });

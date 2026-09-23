@@ -103,11 +103,17 @@ export interface InstallerBackend {
 export class InstallerError extends Error {
   readonly code: string;
   readonly stage: InstallerStage;
+  /** The real upstream (Supabase Management API) HTTP status, when this
+   * error wraps a rejected management-api call -- lets diagnostics and the
+   * client tell a 403 (missing OAuth scope) apart from a 429 (rate limit)
+   * or 500 (upstream outage) without parsing the message string. */
+  readonly upstreamStatus?: number;
 
-  constructor(code: string, stage: InstallerStage, message: string) {
+  constructor(code: string, stage: InstallerStage, message: string, upstreamStatus?: number) {
     super(message);
     this.code = code;
     this.stage = stage;
+    this.upstreamStatus = upstreamStatus;
     this.name = "InstallerError";
   }
 }

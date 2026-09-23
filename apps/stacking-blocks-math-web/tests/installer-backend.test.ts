@@ -11,7 +11,7 @@ import { readMathManifest } from "../scripts/installer/math-manifest.ts";
 import { readMathInstallerPlan } from "../scripts/installer/math-plan.ts";
 import { readInstallerRuntimeConfig } from "../scripts/installer/runtime.ts";
 import { maintenanceAction, resolveSessionCookieSameSite } from "../scripts/installer/http-server.ts";
-import type { FunctionBundle } from "../scripts/installer/contract.ts";
+import { InstallerError, type FunctionBundle } from "../scripts/installer/contract.ts";
 import { fileURLToPath } from "node:url";
 
 const target = { environment: "TEST" as const, projectRef: "test-project-ref", projectUrl: "https://test-project-ref.supabase.co", publishableKey: "test-publishable-key", release: "v1" };
@@ -167,6 +167,21 @@ test("B22 management adapter never parses secret values into state", async () =>
 test("B23 project mismatch from management API fails closed", async () => {
   const backend = createFakeInstallerBackend({ project: { ref: "other-ref" } });
   await assert.rejects(() => runInstaller({ target, plan, backend }), (error: unknown) => error instanceof Error && "code" in error && (error as { code?: unknown }).code === "INSTALLER_TARGET_MISMATCH");
+});
+
+test("B49 management adapter carries the real upstream HTTP status on InstallerError, not just an embedded string", async () => {
+  // A live 502 collapses every non-2xx upstream response into one generic
+  // code unless the actual status (401/403/429/500...) survives as a
+  // structured field -- this is what lets a real failure be root-caused
+  // from server logs alone instead of guessing at the message text.
+  for (const upstreamStatus of [401, 403, 429, 500]) {
+    const fetchImpl = async (): Promise<Response> => new Response(JSON.stringify({ code: `UPSTREAM_${upstreamStatus}` }), { status: upstreamStatus, headers: { "content-type": "application/json" } });
+    const backend = new SupabaseManagementBackend({ accessToken: new EphemeralCredential("temporary-token"), fetchImpl, baseUrl: "https://management.invalid" });
+    await assert.rejects(
+      () => backend.listSecrets(target),
+      (error: unknown) => error instanceof InstallerError && error.upstreamStatus === upstreamStatus && error.stage === "secret" && error.code === `INSTALLER_MANAGEMENT_UPSTREAM_${upstreamStatus}`,
+    );
+  }
 });
 
 test("B24 target guard rejects production before credential use", () => {
