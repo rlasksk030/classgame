@@ -233,6 +233,10 @@ export default function SetupPage() {
     finally { setAuthorizing(false); }
   };
   const startOAuthConnect = async () => {
+    // TEMP diagnostic (no secrets): proves whether a real browser click ever
+    // reaches this function at all, independent of whether the authorize
+    // network request shows up -- remove once live reconnect is confirmed.
+    console.log("RECONNECT_CLICK_HANDLER_ENTERED");
     if (authorizing) return;
     if (!installerClient) { setError("설치 서버 연결 정보를 찾을 수 없어요. 페이지를 새로고침한 뒤 다시 시도해 주세요."); return; }
     setAuthorizing(true); setError(null); setMessage(null);
@@ -420,18 +424,21 @@ export default function SetupPage() {
               <button className="btn btn-primary" onClick={() => persistStep(4)}>자동 설치로 계속</button>
             </> : connectionIssue === "session" ? <>
               <p className="notice">설치 연결이 만료되었습니다. Supabase에 다시 연결하면 완료된 설치 내용은 그대로 유지됩니다.</p>
-              <button className="btn btn-primary" disabled={authorizing || busy} onClick={() => void startOAuthConnect()}>{authorizing ? "연결 이동 중…" : "Supabase 다시 연결"}</button>
+              <button type="button" className="btn btn-primary" disabled={authorizing} onClick={startOAuthConnect}>Supabase 다시 연결</button>
+              {authorizing && <p className="muted" role="status">Supabase 연결을 시작하는 중...</p>}
             </> : connectionIssue === "network" ? <>
               <p className="notice">설치 서버에 연결하지 못했어요. 네트워크 상태를 확인한 뒤 다시 시도해 주세요.</p>
-              <button className="btn" disabled={checkingConnection} onClick={() => void recheckInstallerConnection()}>{checkingConnection ? "확인 중…" : "다시 확인"}</button>
+              <button type="button" className="btn" disabled={checkingConnection} onClick={() => void recheckInstallerConnection()}>{checkingConnection ? "확인 중…" : "다시 확인"}</button>
             </> : connectionIssue === "mismatch" ? <>
               <p className="notice">선택한 프로젝트 정보가 서버와 일치하지 않아요. Supabase를 다시 연결해 주세요.</p>
-              <button className="btn btn-primary" disabled={authorizing || busy} onClick={() => void startOAuthConnect()}>{authorizing ? "연결 이동 중…" : "Supabase 다시 연결"}</button>
+              <button type="button" className="btn btn-primary" disabled={authorizing} onClick={startOAuthConnect}>Supabase 다시 연결</button>
+              {authorizing && <p className="muted" role="status">Supabase 연결을 시작하는 중...</p>}
             </> : <p className="muted">설치 연결 상태를 확인하는 중이에요…</p>
           ) : <>
             <p>버튼 한 번으로 선생님의 Supabase 계정에 연결합니다. Project URL이나 키를 직접 입력하지 않아도 됩니다.</p>
             {installerClient ? <div className="stack">
-              <button className="btn btn-primary" disabled={authorizing || busy} onClick={() => void startOAuthConnect()}>{authorizing ? "연결 이동 중…" : "Supabase 연결"}</button>
+              <button type="button" className="btn btn-primary" disabled={authorizing} onClick={startOAuthConnect}>Supabase 연결</button>
+              {authorizing && <p className="muted" role="status">Supabase 연결을 시작하는 중...</p>}
               <p className="muted">버튼을 누르면 Supabase 로그인 화면으로 이동합니다. 이 앱은 토큰을 직접 보거나 저장하지 않습니다.</p>
             </div> : <p className="notice">이 화면에 설치 서버가 연결되지 않았습니다. 아래 개발자용 수동 연결을 사용해 주세요.</p>}
           </>}
