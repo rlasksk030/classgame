@@ -202,7 +202,32 @@ async function handleRequest(request: IncomingMessage, response: ServerResponse,
         if (bound) store.setCredentialFromEphemeral(session.id, bound);
         response.setHeader("set-cookie", [cookieHeader("installer_session", options.sessionSecret ? `${session.id}.${signSession(session.id, options.sessionSecret)}` : session.id, session.expiresAt, options), clearedCookieHeader("installer_oauth_grant", options)]);
         if (bound && options.createManagementExtras) {
-          try { publishableKey = await options.createManagementExtras(bound).getPublishableKey(target); } catch { /* Non-fatal: the teacher can still enter it manually. */ }
+          logInstallerDiagnostic("PUBLIC_KEY_FETCH_START", { idPrefix: session.id.slice(0, 8) });
+          try {
+            publishableKey = await options.createManagementExtras(bound).getPublishableKey(target);
+            if (publishableKey) {
+              // Non-fatal even here, but this is the fix for the actual bug:
+              // the fetched key was previously only ever put in the JSON
+              // response, never written back onto session.target, so
+              // probeFunction() (which reads session.target.publishableKey)
+              // always saw it as missing regardless of whether this call
+              // succeeded -- INSTALLER_PUBLIC_CONFIG_MISSING on every OAuth
+              // bind, independent of the key-detection logic itself.
+              session.target = { ...session.target, publishableKey };
+              logInstallerDiagnostic("PUBLIC_KEY_FETCH_SUCCESS", { idPrefix: session.id.slice(0, 8) });
+            } else {
+              logInstallerDiagnostic("PUBLIC_KEY_FETCH_FAIL", { idPrefix: session.id.slice(0, 8), reason: "no_publishable_key_in_response" });
+            }
+          } catch (error) {
+            // Non-fatal: the teacher can still enter it manually. Never log
+            // the key itself -- only stage/code/upstream status.
+            const fields: Record<string, string | number> = { idPrefix: session.id.slice(0, 8) };
+            if (error instanceof InstallerError) {
+              fields.code = error.code;
+              if (error.upstreamStatus !== undefined) fields.upstreamStatus = error.upstreamStatus;
+            }
+            logInstallerDiagnostic("PUBLIC_KEY_FETCH_FAIL", fields);
+          }
         }
       } else {
         response.setHeader("set-cookie", cookieHeader("installer_session", options.sessionSecret ? `${session.id}.${signSession(session.id, options.sessionSecret)}` : session.id, session.expiresAt, options));

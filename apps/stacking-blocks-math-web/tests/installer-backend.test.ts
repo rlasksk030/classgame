@@ -370,15 +370,37 @@ test("B40 listAccessibleProjects maps the real Management API project shape (id 
   assert.deepEqual(projects, [{ ref: "abc123", name: "6-1 math", region: "ap-northeast-2", status: "ACTIVE_HEALTHY" }]);
 });
 
-test("B41 getPublishableKey returns only the public key, never the secret/service_role entry", async () => {
-  const fetchImpl = async (): Promise<Response> => new Response(JSON.stringify([{ name: "publishable", api_key: "sb_publishable_visible" }, { name: "secret", api_key: "sb_secret_must_not_leak" }]), { status: 200, headers: { "content-type": "application/json" } });
+// The Management API's own OpenAPI spec (ApiKeyResponse.type) is the real
+// discriminator: "legacy" | "publishable" | "secret" | null. `name` is
+// free-text and required but otherwise unconstrained -- for a new-style key
+// it's commonly "default", not "publishable"/"secret". A project migrated
+// to the new key system has no name === "publishable" entry at all, which
+// is exactly what caused a live INSTALLER_PUBLIC_CONFIG_MISSING on every
+// OAuth bind regardless of this function's own success.
+
+test("B41 getPublishableKey selects the new-style key by type, per the real Management API response shape", async () => {
+  const fetchImpl = async (): Promise<Response> => new Response(JSON.stringify([{ type: "publishable", name: "default", api_key: "sb_publishable_visible" }, { type: "secret", name: "default", api_key: "sb_secret_must_not_leak" }]), { status: 200, headers: { "content-type": "application/json" } });
   const backend = new SupabaseManagementBackend({ accessToken: new EphemeralCredential("temporary-token"), fetchImpl, baseUrl: "https://management.invalid" });
   const publishable = await backend.getPublishableKey(target);
   assert.equal(publishable, "sb_publishable_visible");
 });
 
-test("B42 getServiceRoleCredential wraps the secret key as an EphemeralCredential, never a plain string", async () => {
-  const fetchImpl = async (): Promise<Response> => new Response(JSON.stringify([{ name: "publishable", api_key: "sb_publishable_visible" }, { name: "secret", api_key: "sb_secret_real_value" }]), { status: 200, headers: { "content-type": "application/json" } });
+test("B41b getPublishableKey falls back to the legacy anon key when no new-style publishable key exists", async () => {
+  const fetchImpl = async (): Promise<Response> => new Response(JSON.stringify([{ type: "legacy", name: "anon", api_key: "legacy-anon-jwt" }, { type: "legacy", name: "service_role", api_key: "legacy-service-role-jwt" }]), { status: 200, headers: { "content-type": "application/json" } });
+  const backend = new SupabaseManagementBackend({ accessToken: new EphemeralCredential("temporary-token"), fetchImpl, baseUrl: "https://management.invalid" });
+  const publishable = await backend.getPublishableKey(target);
+  assert.equal(publishable, "legacy-anon-jwt");
+});
+
+test("B41c getPublishableKey never selects a secret/service_role key, by type or by legacy name, even if it appears first", async () => {
+  const fetchImpl = async (): Promise<Response> => new Response(JSON.stringify([{ type: "secret", name: "default", api_key: "sb_secret_must_not_leak" }, { type: "legacy", name: "service_role", api_key: "legacy-service-role-jwt" }]), { status: 200, headers: { "content-type": "application/json" } });
+  const backend = new SupabaseManagementBackend({ accessToken: new EphemeralCredential("temporary-token"), fetchImpl, baseUrl: "https://management.invalid" });
+  const publishable = await backend.getPublishableKey(target);
+  assert.equal(publishable, undefined);
+});
+
+test("B42 getServiceRoleCredential wraps the secret key (by type) as an EphemeralCredential, never a plain string", async () => {
+  const fetchImpl = async (): Promise<Response> => new Response(JSON.stringify([{ type: "publishable", name: "default", api_key: "sb_publishable_visible" }, { type: "secret", name: "default", api_key: "sb_secret_real_value" }]), { status: 200, headers: { "content-type": "application/json" } });
   const backend = new SupabaseManagementBackend({ accessToken: new EphemeralCredential("temporary-token"), fetchImpl, baseUrl: "https://management.invalid" });
   const serviceRole = await backend.getServiceRoleCredential(target);
   assert.ok(serviceRole instanceof EphemeralCredential);
@@ -389,7 +411,7 @@ test("B42 getServiceRoleCredential wraps the secret key as an EphemeralCredentia
 
 test("B43 teacher account provisioner creates an Auth admin user using service_role server-side only and disposes it after one use", async () => {
   const { ManagementTeacherAccountProvisioner } = await import("../scripts/installer/teacher-account.ts");
-  const managementFetch = async (): Promise<Response> => new Response(JSON.stringify([{ name: "secret", api_key: "sb_secret_temp" }]), { status: 200, headers: { "content-type": "application/json" } });
+  const managementFetch = async (): Promise<Response> => new Response(JSON.stringify([{ type: "secret", name: "default", api_key: "sb_secret_temp" }]), { status: 200, headers: { "content-type": "application/json" } });
   const backend = new SupabaseManagementBackend({ accessToken: new EphemeralCredential("temporary-token"), fetchImpl: managementFetch, baseUrl: "https://management.invalid" });
   const adminRequests: Array<{ url: string; headers: Headers; body: string }> = [];
   const goTrueFetch = async (input: string | URL, init?: RequestInit): Promise<Response> => {
@@ -410,7 +432,7 @@ test("B43 teacher account provisioner creates an Auth admin user using service_r
 
 test("B44 teacher account provisioner reports a duplicate email as alreadyExists, not an error, and never leaks it in the message", async () => {
   const { ManagementTeacherAccountProvisioner } = await import("../scripts/installer/teacher-account.ts");
-  const managementFetch = async (): Promise<Response> => new Response(JSON.stringify([{ name: "secret", api_key: "sb_secret_temp" }]), { status: 200, headers: { "content-type": "application/json" } });
+  const managementFetch = async (): Promise<Response> => new Response(JSON.stringify([{ type: "secret", name: "default", api_key: "sb_secret_temp" }]), { status: 200, headers: { "content-type": "application/json" } });
   const backend = new SupabaseManagementBackend({ accessToken: new EphemeralCredential("temporary-token"), fetchImpl: managementFetch, baseUrl: "https://management.invalid" });
   const goTrueFetch = async (): Promise<Response> => new Response(JSON.stringify({ msg: "A user with this email address has already been registered" }), { status: 422, headers: { "content-type": "application/json" } });
   const provisioner = new ManagementTeacherAccountProvisioner(backend, goTrueFetch);

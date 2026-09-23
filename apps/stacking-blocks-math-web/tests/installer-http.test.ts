@@ -237,7 +237,13 @@ test("OAuth authorize -> callback -> project list -> session binds the OAuth cre
     const unauthorized = await fetch(`${running2.base}/api/installer/session`, { method: "POST", headers: { cookie: grantCookie!, origin: "http://localhost:5173", "content-type": "application/json" }, body: JSON.stringify({ ...target, projectRef: "someone-elses-project", projectUrl: "https://someone-elses-project.supabase.co" }) });
     assert.notEqual(unauthorized.status, 201);
 
-    const created = await fetch(`${running2.base}/api/installer/session`, { method: "POST", headers: { cookie: grantCookie!, origin: "http://localhost:5173", "content-type": "application/json" }, body: JSON.stringify(oauthTarget) });
+    // The real frontend (bindOAuthProject) never sends a publishableKey for
+    // an OAuth bind -- it's discovered server-side. Sending one here would
+    // mask the actual bug this regression guards: the fetched key must be
+    // written onto session.target itself, not just echoed in this response,
+    // or every later probeFunction() call sees it as missing regardless of
+    // whether this fetch succeeded.
+    const created = await fetch(`${running2.base}/api/installer/session`, { method: "POST", headers: { cookie: grantCookie!, origin: "http://localhost:5173", "content-type": "application/json" }, body: JSON.stringify({ environment: oauthTarget.environment, projectRef: oauthTarget.projectRef, projectUrl: oauthTarget.projectUrl, release: oauthTarget.release }) });
     assert.equal(created.status, 201);
     const createdBody = await created.json();
     assert.equal(createdBody.status, "AUTHORIZED"); // Already authorized from the OAuth grant -- no /credential call needed.

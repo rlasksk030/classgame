@@ -51,10 +51,18 @@ export class SupabaseManagementBackend implements InstallerBackend {
     });
   }
 
-  /** Public anon/publishable key only; never touches service_role. Safe to send to the browser. */
+  /** Public anon/publishable key only; never touches service_role. Safe to send to the browser.
+   *
+   * The Management API's own OpenAPI spec (ApiKeyResponse.type) is the real
+   * discriminator: "legacy" | "publishable" | "secret" | null. `name` is a
+   * free-text label (required, but not constrained) -- for a legacy key it
+   * happens to be "anon"/"service_role", but for a new-style key it can be
+   * anything (commonly "default"), so name === "publishable" never matches
+   * anything real. Try the new type first, then the legacy name, so a
+   * project that has migrated to the new key system is still detected. */
   async getPublishableKey(target: InstallerTarget): Promise<string | undefined> {
     const keys = await this.#listApiKeys(target);
-    const match = keys.find((key) => key.name === "publishable" || key.name === "anon");
+    const match = keys.find((key) => key.type === "publishable") ?? keys.find((key) => key.type === "legacy" && key.name === "anon") ?? keys.find((key) => key.type === undefined && key.name === "anon");
     return match?.apiKey;
   }
 
@@ -65,18 +73,19 @@ export class SupabaseManagementBackend implements InstallerBackend {
    */
   async getServiceRoleCredential(target: InstallerTarget): Promise<EphemeralCredential | undefined> {
     const keys = await this.#listApiKeys(target);
-    const match = keys.find((key) => key.name === "secret" || key.name === "service_role");
+    const match = keys.find((key) => key.type === "secret") ?? keys.find((key) => key.type === "legacy" && key.name === "service_role") ?? keys.find((key) => key.type === undefined && key.name === "service_role");
     return match ? new EphemeralCredential(match.apiKey) : undefined;
   }
 
-  async #listApiKeys(target: InstallerTarget): Promise<Array<{ name: string; apiKey: string }>> {
+  async #listApiKeys(target: InstallerTarget): Promise<Array<{ name: string; type?: string; apiKey: string }>> {
     const response = await this.request<unknown>("target", `/v1/projects/${encodeURIComponent(target.projectRef)}/api-keys?reveal=true`);
     if (!Array.isArray(response)) throw new InstallerError("INSTALLER_KEY_RESPONSE_INVALID", "target", "Supabase API 키 응답을 해석할 수 없습니다.");
     return response.flatMap((item) => {
       if (!item || typeof item !== "object") return [];
       const name = (item as { name?: unknown }).name;
+      const type = (item as { type?: unknown }).type;
       const apiKey = (item as { api_key?: unknown }).api_key;
-      return typeof name === "string" && typeof apiKey === "string" ? [{ name, apiKey }] : [];
+      return typeof name === "string" && typeof apiKey === "string" ? [{ name, type: typeof type === "string" ? type : undefined, apiKey }] : [];
     });
   }
 

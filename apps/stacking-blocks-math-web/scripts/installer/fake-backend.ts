@@ -30,7 +30,16 @@ export function createFakeInstallerBackend(seed: FakeInstallerSeed = {}): Instal
     async setSecrets(_target, values) { calls.push("setSecrets"); maybeFail("secret"); for (const [name, value] of Object.entries(values)) { secrets.add(name); secretValues[name] = value; } },
     async listFunctions() { calls.push("listFunctions"); maybeFail("functions"); return [...functions]; },
     async deployFunction(_target, bundle: FunctionBundle) { calls.push(`deployFunction:${bundle.slug}`); maybeFail("functions"); const result = { slug: bundle.slug, version: 1, hash: bundle.hash, status: "ACTIVE" } as FunctionDeployment; const index = functions.findIndex((item) => item.slug === bundle.slug); if (index >= 0) functions[index] = result; else functions.push(result); return result; },
-    async probeFunction(_target, slug: FunctionDeployment["slug"]) { calls.push(`probeFunction:${slug}`); maybeFail("probe"); },
+    async probeFunction(target, slug: FunctionDeployment["slug"]) {
+      calls.push(`probeFunction:${slug}`);
+      maybeFail("probe");
+      // Mirrors the real SupabaseManagementBackend's guard: without this,
+      // a test target's publishableKey never actually gets exercised, and a
+      // regression that stops session.target from being updated with an
+      // OAuth-fetched key (INSTALLER_PUBLIC_CONFIG_MISSING in production)
+      // would pass here silently.
+      if (!target.publishableKey) throw new InstallerError("INSTALLER_PUBLIC_CONFIG_MISSING", "probe", "함수 확인에 필요한 공개 연결 설정이 없습니다.");
+    },
   };
 }
 
