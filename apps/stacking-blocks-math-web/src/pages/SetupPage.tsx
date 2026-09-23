@@ -153,7 +153,11 @@ export default function SetupPage() {
   }, [classId, teacherSignedIn]);
 
   useEffect(() => {
-    if (step !== 4 || !connectionVerified || !installerClient) return;
+    // Also runs on step 3: a persisted "connected" config from a past visit
+    // says nothing about whether today's installer session still exists --
+    // only the server does. Re-checking here (not just on step 4) is what
+    // lets step 3 stop showing a stale "연결 완료" once that session is gone.
+    if ((step !== 3 && step !== 4) || !connectionVerified || !installerClient) return;
     let active = true;
     void checkInstallerConnection(() => active);
     return () => { active = false; };
@@ -394,16 +398,31 @@ export default function SetupPage() {
 
         {step === 3 && <div className="installer-card stack">
           <h2>Supabase 연결</h2>
-          {connectionVerified ? <>
-            <p className="success" role="status">Supabase 연결 완료{boundProjectLabel ? ` · ${boundProjectLabel}` : ""}</p>
-            <button className="btn btn-primary" onClick={() => persistStep(4)}>자동 설치로 계속</button>
-          </> : oauthProjects ? <>
+          {oauthProjects ? <>
             <p>설치할 Supabase 프로젝트를 선택하세요.</p>
             {oauthProjects.length ? <>
               <label className="label" htmlFor="installer-project-select">내 Supabase 프로젝트<select id="installer-project-select" className="field" value={selectedProjectRef} onChange={event => setSelectedProjectRef(event.target.value)}>{oauthProjects.map(project => <option value={project.ref} key={project.ref}>{project.name ?? project.ref}{project.region ? ` · ${project.region}` : ""}</option>)}</select></label>
               <button className="btn btn-primary" disabled={busy || !selectedProjectRef} onClick={() => selectOAuthProject()}>{busy ? "연결 중…" : "이 프로젝트 사용"}</button>
             </> : <p className="notice">선택할 수 있는 프로젝트가 없어요. Supabase에서 먼저 프로젝트를 만든 뒤 다시 연결해 주세요.</p>}
-          </> : <>
+          </> : connectionVerified ? (
+            // A persisted "connected" config says nothing about whether
+            // today's installer session still exists on the server -- only
+            // checkInstallerConnection's live result does. Never show
+            // "완료" from local state alone.
+            oauthAuthorized ? <>
+              <p className="success" role="status">Supabase 연결 완료{boundProjectLabel ? ` · ${boundProjectLabel}` : ""}</p>
+              <button className="btn btn-primary" onClick={() => persistStep(4)}>자동 설치로 계속</button>
+            </> : connectionIssue === "session" ? <>
+              <p className="notice">설치 연결이 만료되었습니다. Supabase에 다시 연결하면 완료된 설치 내용은 그대로 유지됩니다.</p>
+              <button className="btn btn-primary" disabled={authorizing || busy} onClick={() => void startOAuthConnect()}>{authorizing ? "연결 이동 중…" : "Supabase 다시 연결"}</button>
+            </> : connectionIssue === "network" ? <>
+              <p className="notice">설치 서버에 연결하지 못했어요. 네트워크 상태를 확인한 뒤 다시 시도해 주세요.</p>
+              <button className="btn" disabled={checkingConnection} onClick={() => void recheckInstallerConnection()}>{checkingConnection ? "확인 중…" : "다시 확인"}</button>
+            </> : connectionIssue === "mismatch" ? <>
+              <p className="notice">선택한 프로젝트 정보가 서버와 일치하지 않아요. Supabase를 다시 연결해 주세요.</p>
+              <button className="btn btn-primary" disabled={authorizing || busy} onClick={() => void startOAuthConnect()}>{authorizing ? "연결 이동 중…" : "Supabase 다시 연결"}</button>
+            </> : <p className="muted">설치 연결 상태를 확인하는 중이에요…</p>
+          ) : <>
             <p>버튼 한 번으로 선생님의 Supabase 계정에 연결합니다. Project URL이나 키를 직접 입력하지 않아도 됩니다.</p>
             {installerClient ? <div className="stack">
               <button className="btn btn-primary" disabled={authorizing || busy} onClick={() => void startOAuthConnect()}>{authorizing ? "연결 이동 중…" : "Supabase 연결"}</button>
