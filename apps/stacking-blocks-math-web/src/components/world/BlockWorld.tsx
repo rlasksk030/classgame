@@ -24,6 +24,7 @@ interface WorldProps extends SceneState {
 export default function BlockWorld(props: WorldProps) {
   const canvas = useRef<HTMLCanvasElement>(null);
   const frontLabel = useRef<HTMLDivElement>(null);
+  const sideLabel = useRef<HTMLDivElement>(null);
   const referenceLabel = useRef<HTMLDivElement>(null);
   const scene = useRef<BlockScene | null>(null);
   const latest = useRef(props);
@@ -73,6 +74,11 @@ export default function BlockWorld(props: WorldProps) {
           label.style.visibility=position?'visible':'hidden';
           if(position){label.style.left=`${position.x}px`;label.style.top=`${position.y}px`;}
         },
+        sidePosition: position => {
+          const label=sideLabel.current;if(!label)return;
+          label.style.visibility=position?'visible':'hidden';
+          if(position){label.style.left=`${position.x}px`;label.style.top=`${position.y}px`;}
+        },
         referencePosition: position => {
           const label=referenceLabel.current;if(!label)return;
           label.style.visibility=position?'visible':'hidden';
@@ -114,6 +120,7 @@ export default function BlockWorld(props: WorldProps) {
     <div className="world-canvas-shell">
       <canvas ref={canvas} className="world-canvas" aria-label="쌓기나무 3D 작업판" tabIndex={0} style={{ width: '100%', height: 'clamp(360px, 55vh, 560px)', display: 'block', touchAction: 'none' }} />
       <div ref={frontLabel} className="front-direction-label" aria-label="작업판 앞" style={{bottom:'auto',transform:'translate(-50%, -50%)',pointerEvents:'none'}}>앞</div>
+      <div ref={sideLabel} className="front-direction-label" aria-label="작업판 옆" style={{bottom:'auto',transform:'translate(-50%, -50%)',pointerEvents:'none'}}>옆</div>
       {props.referenceBlocks?.length ? (
         <div
           ref={referenceLabel}

@@ -103,7 +103,7 @@ const DEFAULT_ATTEMPT_STATE: ProblemAttempt = {
 
 type AnswerDraft = {
   countInput?: string;
-  directionValue?: Direction;
+  directionValue?: Direction | null;
   choiceIndex?: number;
   topMap?: Grid2D;
   frontMap?: Grid2D;
@@ -180,7 +180,9 @@ export default function LessonPage() {
   const [layerFilter, setLayerFilter] = useState<number | null>(null);
 
   const [countInput, setCountInput] = useState("");
-  const [directionValue, setDirectionValue] = useState<Direction>("front");
+  // null means "not answered yet" -- must never be seeded from the correct
+  // answer (see applyProblem below, and the CAMERA_DIRECTION submission guard).
+  const [directionValue, setDirectionValue] = useState<Direction | null>(null);
   const [choiceIndex, setChoiceIndex] = useState(0);
   const [blockPositionPicked, setBlockPositionPicked] = useState(false);
 
@@ -239,6 +241,7 @@ export default function LessonPage() {
     }
 
     if (current.problemType === "CAMERA_DIRECTION") {
+      if (!directionValue) return null;
       return { kind: "direction", direction: directionValue };
     }
 
@@ -298,7 +301,11 @@ export default function LessonPage() {
     setCountInput("");
     setChoiceIndex(0);
     setBlockPositionPicked(false);
-    setDirectionValue((next.given?.shownFrom ?? "front") as Direction);
+    // next.given.shownFrom IS the correct answer for CAMERA_DIRECTION (see
+    // practiceGenerator.ts/seedProblems.ts, where shownFrom and answer.value
+    // are always set from the same source value) -- seeding the student's
+    // selection from it pre-selects the correct choice before they answer.
+    setDirectionValue(null);
     setAttempt(DEFAULT_ATTEMPT_STATE);
 
     const sourceLayers = next.given?.layers;
@@ -735,7 +742,14 @@ export default function LessonPage() {
   const renderEvidence = () => {
     if (!problem) return null;
     const evidence = problem.given;
-    const faces = (["top", "front", "side"] as const).filter(face => evidence.projections?.[face]);
+    // For PROJECTION_DRAW, generated practice problems set given.projections
+    // to the exact answer for every face the student is asked to draw (see
+    // practiceGenerator.ts: the same `views[i]`/`p` value seeds both given
+    // and answer). Showing those faces here as "given" hands over the
+    // answer directly. Only show a face that the student is NOT currently
+    // being asked to draw -- a genuine constraint, never the tested face.
+    const drawnFaces = problem.problemType === "PROJECTION_DRAW" ? new Set(projectionFacesFor(problem)) : new Set<string>();
+    const faces = (["top", "front", "side"] as const).filter(face => evidence.projections?.[face] && !drawnFaces.has(face));
     if (!faces.length && !evidence.heightMap && !evidence.layers?.length) return null;
     return <div className="panel stack" aria-label="문제에서 함께 제시한 정보">
       <strong>함께 제시된 정보</strong>
@@ -934,10 +948,14 @@ export default function LessonPage() {
                 <button className="btn" disabled={!result && !attempt.wrongCount && !attempt.completed} onClick={()=>setExtraInformation(true)}>추가 정보 확인</button>
               </div>}
               {problem.problemType === "CAMERA_DIRECTION" && problem.given.projections && (() => {
+                // problem.given.shownFrom IS the answer to this quiz (which
+                // direction is this picture from?) -- the caption must never
+                // name it before the student answers. The image itself is
+                // the legitimate "보기 자료"; only the label was the leak.
                 const direction = normalizeDirection(problem.given.shownFrom ?? "front");
                 const face = direction === "top" ? "top" : direction === "front" || direction === "back" ? "front" : "side";
                 const projection = problem.given.projections[face];
-                return projection ? <ProjectionGrid title={`${DIRECTION_LABELS[direction]}에서 본 모양`} rows={projection} reverseRows={face !== "top"} orientation={face === "top" ? "floor" : undefined} editable={false} onChange={() => undefined} valueType="boolean" /> : null;
+                return projection ? <ProjectionGrid title="제시된 모양" rows={projection} reverseRows={face !== "top"} orientation={face === "top" ? "floor" : undefined} editable={false} onChange={() => undefined} valueType="boolean" /> : null;
               })()}
               <div
                 className="answer-box"

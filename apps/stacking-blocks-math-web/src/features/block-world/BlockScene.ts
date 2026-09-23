@@ -33,6 +33,10 @@ export interface SceneState {
 export interface SceneCallbacks {
   view?: (view: ObservedView) => void;
   frontPosition?: (point:{x:number;y:number}|null)=>void;
+  /** Screen-space position of the "옆" (side = +x / right-facing, matching
+   * the "side" view preset and the 2D projection's right-side convention)
+   * reference marker, mirroring frontPosition. */
+  sidePosition?: (point:{x:number;y:number}|null)=>void;
   /**
    * Screen-space position of the first referenceBlock, or null when off-screen/behind camera.
    * An HTML overlay (not a WebGL material) so the "기준 블록" marker never depends on whether
@@ -47,6 +51,7 @@ export interface SceneCallbacks {
 /** Owns GPU resources and pointer listeners. Network and persistence stay outside the engine. */
 export class BlockScene {
   private previousFrontPosition = "";
+  private previousSidePosition = "";
   private previousReferencePosition = "";
   private previousView: ObservedView | null = null;
   private engine: Engine;
@@ -55,6 +60,7 @@ export class BlockScene {
   private cubes = new Map<string, Mesh>();
   private answers: Mesh[] = [];
   private frontMarker: Mesh[] = [];
+  private sideMarker: Mesh[] = [];
   private material: StandardMaterial;
   private blockMaterials = new Map<RewardMaterial, StandardMaterial>();
   private selectedMaterial: StandardMaterial;
@@ -128,6 +134,11 @@ export class BlockScene {
     // Mark the actual z=0 edge; the text tracks this same world-space edge.
     const frontEdge=CreateLines('front-edge',{points:[new Vector3(0,0.04,-0.03),new Vector3(grid.gridWidth,0.04,-0.03)]},this.scene);
     frontEdge.color=Color3.FromHexString('#4b6680');frontEdge.isPickable=false;this.frontMarker.push(frontEdge);
+    // Mark the actual x=gridWidth edge (the "옆"/side-view edge, +x = right,
+    // matching the 'side' view preset and the 2D projection's right-side
+    // convention) so the "옆" label tracks this same world-space edge.
+    const sideEdge=CreateLines('side-edge',{points:[new Vector3(grid.gridWidth+0.03,0.04,0),new Vector3(grid.gridWidth+0.03,0.04,grid.gridDepth)]},this.scene);
+    sideEdge.color=Color3.FromHexString('#4b6680');sideEdge.isPickable=false;this.sideMarker.push(sideEdge);
     this.ghost = CreateBox('placement-preview', { size: 0.96 }, this.scene);
     this.ghost.material = this.ghostMaterial;
     this.ghost.isPickable = false;
@@ -151,6 +162,10 @@ export class BlockScene {
       const point=marker.z>=0&&marker.z<=1&&marker.x>=0&&marker.x<=rect.width&&marker.y>=0&&marker.y<=rect.height?{x:Math.round(marker.x*10)/10,y:Math.round(marker.y*10)/10}:null;
       const positionKey=point?`${point.x},${point.y}`:'hidden';
       if(positionKey!==this.previousFrontPosition){this.previousFrontPosition=positionKey;this.callbacks.frontPosition?.(point);}
+      const sideMarkerPoint=Vector3.Project(new Vector3(this.grid.gridWidth+0.22,0.08,this.grid.gridDepth/2),Matrix.Identity(),this.scene.getTransformMatrix(),this.camera.viewport.toGlobal(rect.width,rect.height));
+      const sidePoint=sideMarkerPoint.z>=0&&sideMarkerPoint.z<=1&&sideMarkerPoint.x>=0&&sideMarkerPoint.x<=rect.width&&sideMarkerPoint.y>=0&&sideMarkerPoint.y<=rect.height?{x:Math.round(sideMarkerPoint.x*10)/10,y:Math.round(sideMarkerPoint.y*10)/10}:null;
+      const sidePositionKey=sidePoint?`${sidePoint.x},${sidePoint.y}`:'hidden';
+      if(sidePositionKey!==this.previousSidePosition){this.previousSidePosition=sidePositionKey;this.callbacks.sidePosition?.(sidePoint);}
       if(this.callbacks.referencePosition){
         const refBlock=this.state.referenceBlocks?.[0];
         let refPoint:{x:number;y:number}|null=null;
