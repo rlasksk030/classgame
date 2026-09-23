@@ -55,6 +55,14 @@ test("renderEvidence never shows a PROJECTION_DRAW face the student is simultane
   assert.match(fnBody!, /evidence\.projections\?\.\[face\] && !drawnFaces\.has\(face\)/);
 });
 
+test("renderEvidence's '함께 제시된 정보' card never names the answer direction (CAMERA_DIRECTION uses the same shared card)", async () => {
+  const source = await readLessonPageSource();
+  const fnBody = source.match(/const renderEvidence = \(\) => \{[\s\S]*?\n {2}\};/)?.[0];
+  assert.ok(fnBody, "renderEvidence must exist");
+  assert.doesNotMatch(fnBody!, /위에서 본 조건|앞에서 본 조건|옆에서 본 조건|뒤에서 본 조건|왼쪽에서 본 조건|오른쪽에서 본 조건/, "no direction-named condition caption may leak the answer");
+  assert.match(fnBody!, /faces\.map\(face => <ProjectionGrid key=\{face\} title="제시된 조건"/, "the per-face condition caption must be neutralized to 제시된 조건");
+});
+
 test("the legitimate post-attempt answer-reveal panel is untouched and still names the direction/faces", async () => {
   const source = await readLessonPageSource();
   const revealBlock = source.match(/\{attempt\.answerRevealed[\s\S]{0,1400}/)?.[0];

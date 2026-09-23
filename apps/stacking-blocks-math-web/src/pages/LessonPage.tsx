@@ -754,7 +754,7 @@ export default function LessonPage() {
     return <div className="panel stack" aria-label="문제에서 함께 제시한 정보">
       <strong>함께 제시된 정보</strong>
       <div className="toolbar-row" style={{ alignItems: "flex-start" }}>
-        {faces.map(face => <ProjectionGrid key={face} title={{ top: "위에서 본 조건", front: "앞에서 본 조건", side: "옆에서 본 조건(오른쪽)" }[face]} rows={evidence.projections![face]!} reverseRows={face !== "top"} orientation={face === "top" ? "floor" : undefined} editable={false} onChange={() => undefined} valueType="boolean" />)}
+        {faces.map(face => <ProjectionGrid key={face} title="제시된 조건" rows={evidence.projections![face]!} reverseRows={face !== "top"} orientation={face === "top" ? "floor" : undefined} editable={false} onChange={() => undefined} valueType="boolean" />)}
         {evidence.heightMap && <ProjectionGrid title="표시된 숫자 지도" rows={evidence.heightMap} orientation="floor" editable={false} onChange={() => undefined} valueType="number" />}
         {evidence.layers?.map((rows, index) => <ProjectionGrid key={`evidence-layer-${index}`} title={`${index + 1}층 모양`} rows={rows} orientation="floor" editable={false} onChange={() => undefined} valueType="boolean" />)}
       </div>
