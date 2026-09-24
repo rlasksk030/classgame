@@ -1652,7 +1652,19 @@ Deno.serve(async (req: Request) => {
         .eq("class_id", classId)
         .order("lesson", { ascending: true });
       if (listErr) { console.error("[student-api] teacher:lessons:list failed", { code: listErr.code }); return fail(500, "LESSON_SETTINGS_LOAD_FAILED", "차시 설정을 불러오지 못했습니다."); }
-      return ok({ lessons: (data ?? []).sort((a, b) => a.lesson - b.lesson) });
+      const storedByLesson = new Map((data ?? []).map((row) => [row.lesson, row]));
+      const lessons = Array.from({ length: 12 }, (_, i) => {
+        const lesson = i + 1;
+        const stored = storedByLesson.get(lesson);
+        return {
+          lesson,
+          locked: stored?.locked ?? false,
+          practice_count: stored?.practice_count ?? null,
+          allow_similar: stored?.allow_similar ?? true,
+          allow_retry: stored?.allow_retry ?? true,
+        };
+      });
+      return ok({ lessons });
     }
 
     if (action === "teacher:lessons:set-lock") {
