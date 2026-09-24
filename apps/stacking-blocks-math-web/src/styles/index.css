@@ -491,6 +491,8 @@ button {
 .live-dot { font-size: 14px; }
 .live-dot[data-state="on"] { color: var(--grass); }
 .live-dot[data-state="off"] { color: var(--ink-soft); }
+.help-drawer { position: fixed; inset: 0; background: rgba(43, 42, 38, 0.35); display: flex; justify-content: flex-end; z-index: 50; }
+.help-drawer-panel { width: min(420px, 92vw); height: 100%; overflow-y: auto; border-radius: 0; background: #fff; }
 .teacher-nav a { padding: 8px 12px; border-radius: 7px; color: var(--ink-soft); font-weight: 700; text-decoration: none; }
 .teacher-nav a:hover, .teacher-nav a:focus-visible { background: #e8f2ff; color: var(--sky-dark); }
 .reward-summary { min-height: 150px; border: 1px solid var(--line-soft); box-shadow: 0 3px 10px rgba(43,42,38,.08); }

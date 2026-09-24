@@ -76,6 +76,7 @@ type Action =
   | "teacher:students:update"
   | "teacher:students:pin-reset"
   | "teacher:students:toggle"
+  | "teacher:students:move-class"
   | "teacher:lessons:list"
   | "teacher:lessons:set-lock"
   | "teacher:problems:list"
@@ -1369,6 +1370,49 @@ Deno.serve(async (req: Request) => {
       }
       await db.from("sb_students").update({ status: disabled ? "disabled" : "active" }).eq("id", studentId);
       return ok({ ok: true });
+    }
+
+    if (action === "teacher:students:move-class") {
+      const studentId = text(body.studentId, 80);
+      const targetClassId = text(body.targetClassId, 80);
+      if (!studentId || !targetClassId) return fail(400, "BAD_PARAM", "studentId, targetClassId가 필요합니다.");
+
+      const { data: student } = await db
+        .from("sb_students")
+        .select("id,class_id,name,student_no")
+        .eq("id", studentId)
+        .maybeSingle();
+      if (!student) return fail(404, "STUDENT_NOT_FOUND", "학생을 찾을 수 없습니다.");
+      // 이동 대상 학급과 원래 학급 모두 이 교사 소유여야 한다.
+      const [ownsSource, ownsTarget] = await Promise.all([
+        teacherOwnsClass(db, teacherId, student.class_id),
+        teacherOwnsClass(db, teacherId, targetClassId),
+      ]);
+      if (!ownsSource || !ownsTarget) return fail(403, "FORBIDDEN_CLASS", "해당 학급에 접근할 수 없습니다.");
+      if (student.class_id === targetClassId) return fail(400, "SAME_CLASS", "이미 같은 학급입니다.");
+
+      // sb_students에는 (class_id,name,student_no) unique 제약이 있다 --
+      // 대상 학급에 이미 같은 이름/번호 학생이 있으면 이동 전에 막는다.
+      const { data: collision } = await db
+        .from("sb_students")
+        .select("id")
+        .eq("class_id", targetClassId)
+        .eq("name", student.name)
+        .eq("student_no", student.student_no)
+        .maybeSingle();
+      if (collision) return fail(409, "STUDENT_NAME_CONFLICT", "대상 학급에 같은 이름·번호의 학생이 이미 있습니다.");
+
+      // 학생 ID는 그대로 유지하고 class_id만 바꾼다 -- 진도/시도/보상은
+      // sb_owns_student() 기반 RLS라 학생의 현재 class_id를 따라 자동으로
+      // 새 학급 교사에게 보인다. PIN 금고·프로젝트는 class_id로 직접
+      // 스코프되어 있어 함께 옮겨야 한다. 그 외 데이터는 삭제/재생성하지
+      // 않는다.
+      const { error: moveErr } = await db.from("sb_students").update({ class_id: targetClassId }).eq("id", studentId);
+      if (moveErr) { console.error("[student-api] move-class failed", { code: moveErr.code }); return fail(500, "MOVE_FAILED", "학급 이동에 실패했습니다."); }
+      await db.from("sb_student_pin_vault").update({ class_id: targetClassId }).eq("student_id", studentId);
+      await db.from("sb_projects").update({ class_id: targetClassId }).eq("student_id", studentId);
+
+      return ok({ ok: true, studentId, fromClassId: student.class_id, toClassId: targetClassId });
     }
 
     if (action === "teacher:progress:summary") {

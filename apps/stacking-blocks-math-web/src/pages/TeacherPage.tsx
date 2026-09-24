@@ -15,6 +15,7 @@ import {
   teacherListLessonSettings,
   teacherListProblems,
   teacherListStudents,
+  teacherMoveStudent,
   teacherProgressSummary,
   teacherResetClassProgress,
   teacherResetStudentPin,
@@ -47,6 +48,20 @@ const LIVE_STATUS_LABEL: Record<LiveStatus, string> = {
 };
 
 const STALE_ACTIVITY_MIN = 15;
+
+const HELP_ITEMS: Array<{ title: string; body: string }> = [
+  { title: "처음 시작", body: "'반 선택'에서 [새 학급 만들기]를 누르고, [학생 링크 복사]로 받은 링크를 학생들에게 전달하세요." },
+  { title: "학생 접속", body: "학생은 전달받은 링크(또는 학급 코드)로 접속해 이름과 4자리 PIN을 입력하면 바로 시작할 수 있어요." },
+  { title: "진도표 보기", body: "'학생 진도'에서 학생별 1~12차시 상태를 한눈에 확인하고, 이름을 누르면 학생 상세로 이동해요." },
+  { title: "차시 잠금", body: "'차시 설정'에서 차시별로 잠금/해제하고, 추가 문제 수와 유사 문제·재도전 허용 여부도 정할 수 있어요." },
+  { title: "PIN 재발급", body: "'학생 PIN 관리' 표에서 학생 옆 [PIN 재발급]을 누르면 새 PIN이 바로 발급돼요." },
+  { title: "진도 초기화", body: "학생 1명만 초기화하려면 학생 상세 페이지에서, 학급 전체는 '학생 진도'의 [학급 전체 초기화]에서 진행하세요." },
+  { title: "문제은행", body: "'문제은행 관리'에서 직접 만든 문제를 목록에서 켜고 끌 수 있어요. 기본 제공 문제는 항상 사용돼요." },
+  { title: "친구 문제", body: "'놀이·친구 문제'의 '친구 문제 관리'에서 학생이 만든 문제를 숨기거나 다시 보이게 할 수 있어요." },
+  { title: "수업 결과", body: "'수업 결과'에서 차시를 선택하면 참여·완료율·평균 오답·많이 어려워한 유형을 볼 수 있어요." },
+  { title: "서버/저장 상태", body: "'수업 현황'에서 서버 연결 상태와 학생들의 최근 활동을 확인할 수 있어요. [상태 새로고침]으로 즉시 갱신돼요." },
+  { title: "업데이트", body: "화면에 '업데이트가 있습니다'가 보이면 안내를 따라 [업데이트하기]를 누르세요. 학급·학생·학습 기록은 그대로 유지돼요." },
+];
 
 /** 학생 1명의 전체 진행 상태를 3단계로 요약한다 (12차시 완료 = 전체 과정 완료로 간주). */
 function studentOverallStatus(row: TeacherProgressStudentRow): LessonProgressState {
@@ -104,6 +119,13 @@ export default function TeacherPage() {
   const [resultsSummary, setResultsSummary] = useState<LessonResultSummary | null>(null);
   const [resultsLoading, setResultsLoading] = useState(false);
   const [resultsError, setResultsError] = useState<string | null>(null);
+  const [studentSearch, setStudentSearch] = useState("");
+  const [studentActiveFilter, setStudentActiveFilter] = useState<"all" | "active" | "disabled">("all");
+  const [studentLessonFilter, setStudentLessonFilter] = useState<number | "all">("all");
+  const [studentStatusFilter, setStudentStatusFilter] = useState<"all" | LessonProgressState>("all");
+  const [moveTargetClassId, setMoveTargetClassId] = useState("");
+  const [moveBusy, setMoveBusy] = useState(false);
+  const [helpOpen, setHelpOpen] = useState(false);
 
   const selectedClass = useMemo(() => classes.find((row) => row.id === classId) ?? null, [classes, classId]);
   const filteredProblems = useMemo(() => {
@@ -155,6 +177,21 @@ export default function TeacherPage() {
       return a.name.localeCompare(b.name, "ko");
     });
   }, [progressStudents, progressSearch, progressLessonFilter, progressStatusFilter, progressSort]);
+
+  // 학생 관리 검색/필터 -- 현재 차시/상태는 이미 학생 진도표(Phase 2)가 계산한
+  // progressStudents를 그대로 재사용한다 (별도 계산/중복 로직 없음).
+  const progressById = useMemo(() => new Map(progressStudents.map((row) => [row.studentId, row])), [progressStudents]);
+  const filteredStudents = useMemo(() => {
+    const search = studentSearch.trim().toLowerCase();
+    return students.filter((student) => {
+      if (search && !student.name.toLowerCase().includes(search)) return false;
+      if (studentActiveFilter !== "all" && student.status !== studentActiveFilter) return false;
+      const progress = progressById.get(student.id);
+      if (studentLessonFilter !== "all" && progress?.currentLesson !== studentLessonFilter) return false;
+      if (studentStatusFilter !== "all" && (!progress || studentOverallStatus(progress) !== studentStatusFilter)) return false;
+      return true;
+    });
+  }, [students, studentSearch, studentActiveFilter, studentLessonFilter, studentStatusFilter, progressById]);
 
   const liveStatusById = useMemo(() => new Map(sessionsStudents.map((row) => [row.studentId, row])), [sessionsStudents]);
   const liveStatusSummary = useMemo(() => summarizeClassLiveStatus(sessionsStudents), [sessionsStudents]);
@@ -261,6 +298,23 @@ export default function TeacherPage() {
       setStudents(studentsPayload.students);
     } catch (err) {
       setError(err instanceof Error ? err.message : "상태 변경 실패");
+    }
+  };
+
+  const moveStudent = async (student: TeacherStudentRow) => {
+    if (!moveTargetClassId) return;
+    const targetClass = classes.find((c) => c.id === moveTargetClassId);
+    if (!window.confirm(`${student.name} 학생을 ${targetClass?.name ?? "선택한 학급"}(으)로 이동할까요?\n학생 ID·PIN·진도·문제 풀이 기록은 그대로 유지됩니다.`)) return;
+    setMoveBusy(true);
+    setError(null);
+    try {
+      await teacherMoveStudent(student.id, moveTargetClassId);
+      setMessage(`${student.name} 학생을 ${targetClass?.name ?? "선택한 학급"}(으)로 이동했습니다.`);
+      setStudents((await teacherListStudents(classId)).students);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "학급 이동에 실패했습니다.");
+    } finally {
+      setMoveBusy(false);
     }
   };
 
@@ -442,7 +496,24 @@ export default function TeacherPage() {
     <div className="screen app-max">
       <div className="stack" style={{ gap: 16 }}>
         <div className="student-world-heading"><div><p className="eyebrow">TEACHER CONSOLE</p><h1>교사 관리</h1><p className="muted">학급의 학습 흐름과 활동을 한곳에서 관리합니다.</p></div><div className="toolbar-row"><Link className="btn btn-sm" to="/teacher/problems/new">3D 문제 만들기</Link></div></div>
-        <nav className="teacher-nav" aria-label="교사 메뉴"><a href="#classes">대시보드</a><a href="#students">학생 관리</a><a href="#live-status">수업 현황</a><a href="#progress">학생 진도</a><a href="#results">수업 결과</a><a href="#lessons">차시 관리</a><a href="#problem-bank">문제은행 관리</a><a href="/teacher/problems/new">문제은행</a><a href="/teacher/problem-preview">문제 미리보기</a><a href="#activities">놀이·친구 문제</a></nav>
+        <nav className="teacher-nav" aria-label="교사 메뉴"><a href="#classes">대시보드</a><a href="#live-status">수업 현황</a><a href="#progress">학생 진도</a><a href="#students">학생 관리</a><a href="#lessons">차시 관리</a><a href="#problem-bank">문제은행 관리</a><a href="/teacher/problems/new">문제은행</a><a href="/teacher/problem-preview">문제 미리보기</a><a href="#results">수업 결과</a><a href="#activities">놀이·친구 문제</a><button type="button" className="btn btn-sm" onClick={() => setHelpOpen(true)}>도움말</button></nav>
+
+        {helpOpen && (
+          <div role="dialog" aria-label="교사 도움말" className="help-drawer">
+            <div className="help-drawer-panel panel stack">
+              <div className="toolbar-row" style={{ justifyContent: "space-between" }}>
+                <h3>도움말</h3>
+                <button className="btn btn-sm" type="button" onClick={() => setHelpOpen(false)}>닫기</button>
+              </div>
+              {HELP_ITEMS.map((item) => (
+                <div key={item.title}>
+                  <strong>{item.title}</strong>
+                  <p className="muted">{item.body}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         <section className="teacher-summary-grid" aria-label="학급 요약">
           <div className="panel"><span className="summary-label">학생 수</span><strong className="summary-number">{students.length}명</strong><p className="muted">선택한 학급</p></div>
@@ -526,6 +597,34 @@ export default function TeacherPage() {
             </button>
           </form>
 
+          <div className="toolbar-row" style={{ flexWrap: "wrap" }}>
+            <input className="field" placeholder="이름 검색" value={studentSearch} onChange={(e) => setStudentSearch(e.target.value)} />
+            <select className="field" aria-label="활성 상태 필터" value={studentActiveFilter} onChange={(e) => setStudentActiveFilter(e.target.value as "all" | "active" | "disabled")}>
+              <option value="all">전체 상태</option>
+              <option value="active">사용 중</option>
+              <option value="disabled">사용 중지</option>
+            </select>
+            <select className="field" aria-label="현재 차시 필터" value={studentLessonFilter} onChange={(e) => setStudentLessonFilter(e.target.value === "all" ? "all" : Number(e.target.value))}>
+              <option value="all">전체 차시</option>
+              {Array.from({ length: 12 }, (_, i) => i + 1).map((lesson) => <option key={lesson} value={lesson}>{lesson}차시</option>)}
+            </select>
+            <select className="field" aria-label="진도 상태 필터" value={studentStatusFilter} onChange={(e) => setStudentStatusFilter(e.target.value as "all" | LessonProgressState)}>
+              <option value="all">전체 진도</option>
+              <option value="not_started">미시작</option>
+              <option value="in_progress">진행 중</option>
+              <option value="complete">완료</option>
+            </select>
+          </div>
+
+          {classes.length > 1 && (
+            <label className="muted">학급 이동 대상
+              <select className="field" aria-label="학급 이동 대상 선택" value={moveTargetClassId} onChange={(e) => setMoveTargetClassId(e.target.value)}>
+                <option value="">이동할 학급 선택</option>
+                {classes.filter((c) => c.id !== classId).map((c) => <option key={c.id} value={c.id}>{c.name} ({c.class_code})</option>)}
+              </select>
+            </label>
+          )}
+
           <div className="teacher-table-wrap">
             <table className="teacher-table">
               <thead>
@@ -537,7 +636,7 @@ export default function TeacherPage() {
                 </tr>
               </thead>
               <tbody>
-                {students.map((student) => (
+                {filteredStudents.map((student) => (
                   <tr key={student.id}>
                     <td><Link to={`/teacher/students/${student.id}`}>{student.name} · 기록 보기</Link></td>
                     <td>
@@ -560,9 +659,17 @@ export default function TeacherPage() {
                       >
                         {student.status === "active" ? "비활성" : "활성"}
                       </button>
+                      {classes.length > 1 && (
+                        <button className="btn btn-sm" type="button" disabled={moveBusy || !moveTargetClassId} onClick={() => void moveStudent(student)}>
+                          학급 이동
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ))}
+                {filteredStudents.length === 0 && students.length > 0 && (
+                  <tr><td colSpan={4} className="muted">필터에 맞는 학생이 없습니다.</td></tr>
+                )}
               </tbody>
             </table>
           </div>
@@ -719,6 +826,7 @@ export default function TeacherPage() {
                 <button className="btn btn-sm" type="button" aria-pressed={row.allow_retry ?? true} onClick={() => void togglePracticeControl(row.lesson, "allow_retry")}>
                   틀린 문제 다시 풀기 {row.allow_retry ?? true ? "허용" : "비허용"}
                 </button>
+                <a className="btn btn-sm" href={`/teacher/lesson-preview/${row.lesson}`} target="_blank" rel="noreferrer">학생 화면 미리보기</a>
               </span>
             ))}
           </div>

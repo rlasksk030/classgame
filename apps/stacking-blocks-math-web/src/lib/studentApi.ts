@@ -378,6 +378,14 @@ export function teacherToggleStudent(classId: string, studentId: string, disable
   );
 }
 
+export function teacherMoveStudent(studentId: string, targetClassId: string) {
+  return callFunction<{ ok: boolean; studentId: string; fromClassId: string; toClassId: string }>(
+    "student-api",
+    { action: "teacher:students:move-class", studentId, targetClassId },
+    true,
+  );
+}
+
 export function teacherListLessonSettings(classId: string) {
   return callFunction<{ lessons: LessonSettingRow[] }>(
     "student-api",
