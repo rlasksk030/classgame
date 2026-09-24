@@ -95,6 +95,17 @@ export default function TeacherPage() {
   const [message, setMessage] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // 학급 데이터 4종(학생/차시/문제은행/진도)을 하나의 Promise.all로 묶으면
+  // 그중 하나만 실패해도 나머지 성공한 데이터까지 전부 버려져(catch로 빠지며
+  // setStudents 등이 전혀 호출되지 않음) 화면 전체가 0명/빈 상태로 보이는
+  // 구조적 버그가 있었다. 이제 각 섹션을 독립적으로 로드하고 실패 상태도
+  // 섹션별로 따로 갖는다 -- 한 섹션의 실패가 다른 섹션의 실제 데이터를
+  // 가리거나 "0명"으로 위장하지 않는다.
+  const [studentsError, setStudentsError] = useState<TeacherErrorInfo | null>(null);
+  const [lessonsError, setLessonsError] = useState<TeacherErrorInfo | null>(null);
+  const [problemsError, setProblemsError] = useState<TeacherErrorInfo | null>(null);
+  const [progressSummaryError, setProgressSummaryError] = useState<TeacherErrorInfo | null>(null);
+  const [classDataLoading, setClassDataLoading] = useState(false);
   const [classCreateError, setClassCreateError] = useState<{ code: string; message: string } | null>(null);
   const [bulkNames, setBulkNames] = useState("");
   const [bulkPreview, setBulkPreview] = useState<string[]>([]);
@@ -232,27 +243,38 @@ export default function TeacherPage() {
 
     let cancelled = false;
 
+    // 학급을 바꾸는 순간 이전 학급의 데이터/오류 상태를 먼저 비운다 --
+    // 그래야 새 학급 로딩 중에 이전 학급 숫자가 잠깐이라도 남아 보이지 않는다.
+    setStudents([]); setLessons([]); setProblems([]); setBuiltinCount(0); setProgressStudents([]);
+    setStudentsError(null); setLessonsError(null); setProblemsError(null); setProgressSummaryError(null);
+    setClassDataLoading(true);
+    setProgressLoading(true);
+
     const loadClassData = async () => {
-      try {
-        setBusy(true);
-        setProgressLoading(true);
-        const [studentsPayload, lessonPayload, problemPayload, progressPayload] = await Promise.all([
-          teacherListStudents(classId),
-          teacherListLessonSettings(classId),
-          teacherListProblems(classId),
-          teacherProgressSummary(classId),
-        ]);
-        if (cancelled) return;
-        setStudents(studentsPayload.students);
-        setLessons(lessonPayload.lessons);
-        setProblems(problemPayload.customProblems);
-        setBuiltinCount(problemPayload.builtinCount);
-        setProgressStudents(progressPayload.students);
-      } catch (err) {
-        if (!cancelled) { const info = classifyTeacherError(err); setError(`${info.code}: ${info.message}`); }
-      } finally {
-        if (!cancelled) { setBusy(false); setProgressLoading(false); }
-      }
+      const [studentsResult, lessonsResult, problemsResult, progressResult] = await Promise.allSettled([
+        teacherListStudents(classId),
+        teacherListLessonSettings(classId),
+        teacherListProblems(classId),
+        teacherProgressSummary(classId),
+      ]);
+      if (cancelled) return;
+
+      if (studentsResult.status === "fulfilled") setStudents(studentsResult.value.students);
+      else setStudentsError(classifyTeacherError(studentsResult.reason));
+
+      if (lessonsResult.status === "fulfilled") setLessons(lessonsResult.value.lessons);
+      else setLessonsError(classifyTeacherError(lessonsResult.reason));
+
+      if (problemsResult.status === "fulfilled") {
+        setProblems(problemsResult.value.customProblems);
+        setBuiltinCount(problemsResult.value.builtinCount);
+      } else setProblemsError(classifyTeacherError(problemsResult.reason));
+
+      if (progressResult.status === "fulfilled") setProgressStudents(progressResult.value.students);
+      else setProgressSummaryError(classifyTeacherError(progressResult.reason));
+
+      setClassDataLoading(false);
+      setProgressLoading(false);
     };
 
     loadClassData();
@@ -528,14 +550,14 @@ export default function TeacherPage() {
         )}
 
         <section className="teacher-summary-grid" aria-label="학급 요약">
-          <div className="panel"><span className="summary-label">학생 수</span><strong className="summary-number">{students.length}명</strong><p className="muted">선택한 학급</p></div>
-          <div className="panel"><span className="summary-label">차시 잠금</span><strong className="summary-number">{lessons.filter((row) => row.locked).length}/12</strong><p className="muted">잠긴 차시</p></div>
+          <div className="panel"><span className="summary-label">학생 수</span><strong className="summary-number">{studentsError ? "확인 실패" : classDataLoading ? "불러오는 중…" : `${students.length}명`}</strong><p className="muted">{studentsError ? studentsError.message : "선택한 학급"}</p></div>
+          <div className="panel"><span className="summary-label">차시 잠금</span><strong className="summary-number">{lessonsError ? "확인 실패" : classDataLoading ? "불러오는 중…" : `${lessons.filter((row) => row.locked).length}/12`}</strong><p className="muted">{lessonsError ? lessonsError.message : "잠긴 차시"}</p></div>
           <div className="panel"><span className="summary-label">현재 학급</span><strong className="summary-number">{selectedClass?.name ?? "선택 전"}</strong><p className="muted">{selectedClass?.class_code ?? "학급을 만들어 주세요."}</p></div>
-          <div className="panel"><span className="summary-label">미시작</span><strong className="summary-number">{progressSummary.notStarted}명</strong><p className="muted">아직 시작 전</p></div>
-          <div className="panel"><span className="summary-label">진행 중</span><strong className="summary-number">{progressSummary.inProgress}명</strong><p className="muted">학습 진행 중</p></div>
-          <div className="panel"><span className="summary-label">완료</span><strong className="summary-number">{progressSummary.completed}명</strong><p className="muted">12차시까지 완료</p></div>
-          <div className="panel"><span className="summary-label">가장 많이 학습 중인 차시</span><strong className="summary-number">{progressSummary.mostCommonLesson ? `${progressSummary.mostCommonLesson}차시` : "—"}</strong><p className="muted">학생 수 기준</p></div>
-          <div className="panel"><span className="summary-label">최근 활동</span><strong className="summary-number">{progressSummary.recentActivity}명</strong><p className="muted">최근 10분 이내 학습 기록{progressSummary.lastActivityAt ? ` · 마지막 ${formatLastActivity(progressSummary.lastActivityAt)}` : ""}</p></div>
+          <div className="panel"><span className="summary-label">미시작</span><strong className="summary-number">{progressSummaryError ? "확인 실패" : classDataLoading ? "불러오는 중…" : `${progressSummary.notStarted}명`}</strong><p className="muted">{progressSummaryError ? progressSummaryError.message : "아직 시작 전"}</p></div>
+          <div className="panel"><span className="summary-label">진행 중</span><strong className="summary-number">{progressSummaryError ? "확인 실패" : classDataLoading ? "불러오는 중…" : `${progressSummary.inProgress}명`}</strong><p className="muted">{progressSummaryError ? progressSummaryError.message : "학습 진행 중"}</p></div>
+          <div className="panel"><span className="summary-label">완료</span><strong className="summary-number">{progressSummaryError ? "확인 실패" : classDataLoading ? "불러오는 중…" : `${progressSummary.completed}명`}</strong><p className="muted">{progressSummaryError ? progressSummaryError.message : "12차시까지 완료"}</p></div>
+          <div className="panel"><span className="summary-label">가장 많이 학습 중인 차시</span><strong className="summary-number">{progressSummaryError ? "확인 실패" : classDataLoading ? "불러오는 중…" : progressSummary.mostCommonLesson ? `${progressSummary.mostCommonLesson}차시` : "—"}</strong><p className="muted">학생 수 기준</p></div>
+          <div className="panel"><span className="summary-label">최근 활동</span><strong className="summary-number">{progressSummaryError ? "확인 실패" : classDataLoading ? "불러오는 중…" : `${progressSummary.recentActivity}명`}</strong><p className="muted">최근 10분 이내 학습 기록{progressSummary.lastActivityAt ? ` · 마지막 ${formatLastActivity(progressSummary.lastActivityAt)}` : ""}</p></div>
         </section>
 
         <div className="toolbar-row"><a className="btn btn-sm" href="#live-status">수업 현황 보기</a><a className="btn btn-sm" href="#progress">학생 진도 보기</a><a className="btn btn-sm" href="#results">수업 결과 보기</a><a className="btn btn-sm" href="#lessons">차시 설정</a><a className="btn btn-sm" href="#students">학생 관리</a></div>
@@ -606,6 +628,7 @@ export default function TeacherPage() {
 
         <section className="panel stack" id="students">
           <h3>학생 PIN 관리</h3>
+          {studentsError && <p className="error" role="alert">학생 목록을 불러오지 못했습니다: {studentsError.message}</p>}
           <div className="toolbar-row"><button className="btn" disabled={!students.length} onClick={()=>void copyText(students.map(s=>`${s.name}\t${s.pinPlain}`).join("\n"))}>전체 PIN 복사</button><button className="btn btn-sm" type="button" disabled={!students.length} onClick={() => window.print()}>학생 로그인표 인쇄</button></div>
           <form className="toolbar-row" onSubmit={createStudent}>
             <input
@@ -707,6 +730,7 @@ export default function TeacherPage() {
 
         <section className="panel stack" id="progress">
           <h3>학생 진도</h3>
+          {progressSummaryError && <p className="error" role="alert">진도 정보를 불러오지 못했습니다: {progressSummaryError.message}</p>}
           <p className="muted">한 화면에서 학생별 1~12차시 상태를 확인합니다. 오답/문제 기록 등 세부 내용은 학생 이름을 눌러 기존 학생 상세에서 확인하세요.</p>
           <div className="toolbar-row" style={{ flexWrap: "wrap" }}>
             <input className="field" placeholder="이름 검색" value={progressSearch} onChange={(e) => setProgressSearch(e.target.value)} />
@@ -832,7 +856,9 @@ export default function TeacherPage() {
         </section>
 
         <section className="panel stack" id="lessons">
-          <h3>차시 잠금</h3><div className="toolbar-row">{[true,false].map(locked=><button className="btn" key={String(locked)} disabled={!classId||busy} onClick={async()=>{setBusy(true);try{for(let lesson=1;lesson<=12;lesson++)await teacherSetLessonLock(classId,lesson,locked);setLessons((await teacherListLessonSettings(classId)).lessons);}catch{setError("일부 차시 설정에 실패했습니다. 새로고침해 확인해 주세요.");}finally{setBusy(false);}}}>{locked?"전체 잠금":"전체 해제"}</button>)}</div>
+          <h3>차시 잠금</h3>
+          {lessonsError && <p className="error" role="alert">차시 설정을 불러오지 못했습니다: {lessonsError.message}</p>}
+          <div className="toolbar-row">{[true,false].map(locked=><button className="btn" key={String(locked)} disabled={!classId||busy} onClick={async()=>{setBusy(true);try{for(let lesson=1;lesson<=12;lesson++)await teacherSetLessonLock(classId,lesson,locked);setLessons((await teacherListLessonSettings(classId)).lessons);}catch{setError("일부 차시 설정에 실패했습니다. 새로고침해 확인해 주세요.");}finally{setBusy(false);}}}>{locked?"전체 잠금":"전체 해제"}</button>)}</div>
           <div className="toolbar-row" style={{ flexWrap: "wrap" }}>
             {lessons.map((row) => (
               <span key={`${row.lesson}`} className="toolbar-row">
@@ -857,6 +883,7 @@ export default function TeacherPage() {
 
         <section className="panel stack" id="problem-bank">
           <h3>문제은행 관리</h3>
+          {problemsError && <p className="error" role="alert">문제은행 정보를 불러오지 못했습니다: {problemsError.message}</p>}
           <p className="muted">직접 만든 문제를 켜고 끌 수 있어요. 기본 제공 문제 {builtinCount}개는 여기서 관리하지 않습니다.</p>
           <div className="toolbar-row" style={{ flexWrap: "wrap" }}>
             <select className="field" aria-label="차시 필터" value={problemLessonFilter} onChange={(e) => setProblemLessonFilter(e.target.value === "all" ? "all" : Number(e.target.value))}>
