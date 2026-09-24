@@ -91,6 +91,13 @@ test("I. all Phase 1 client calls go through actions prefixed teacher: (server-s
   assert.match(teacherActivitiesSource, /\.eq\('class_id',classId\)/);
 });
 
+test("teacher:problems:list includes the real `active` flag per row (found via live TEST verification: sanitizeToStudentProblem silently dropped it, so the new toggle always read active as undefined/false)", async () => {
+  const edgeSource = await readSource("../supabase/functions/student-api/index.ts");
+  const listBody = edgeSource.match(/if \(action === "teacher:problems:list"\) \{[\s\S]*?\n {4}\}/)?.[0];
+  assert.ok(listBody, "teacher:problems:list handler must exist");
+  assert.match(listBody!, /\{ \.\.\.sanitizeToStudentProblem\(row\), active: row\.active \}/);
+});
+
 test("the peer-problem status field is now included in the teacher list response, so the UI can distinguish hidden vs published rows", async () => {
   const edgeSource = await readSource("../supabase/functions/student-api/index.ts");
   const fnBody = edgeSource.match(/function publicPeerRow\(row: Record<string, unknown>, attempt\?: Record<string, unknown> \| null\) \{[\s\S]*?\n\}/)?.[0];

@@ -1408,8 +1408,14 @@ Deno.serve(async (req: Request) => {
       const custom = (classProblems ?? []).map((row) => parseProblemRow(row as DbProblemRow)).filter(Boolean);
       const seed = SEED_PROBLEMS.map((seed) => parseSeedProblem(seed));
 
+      // sanitizeToStudentProblem() is shared with the student-facing problem
+      // envelope, which never needs `active` -- teacher:problems:list is the
+      // only caller that does (to render the active/inactive toggle), so add
+      // it back in here rather than widening the student-facing shape.
       return ok({
-        customProblems: custom.map((row) => sanitizeToStudentProblem(row)).filter(Boolean),
+        customProblems: custom
+          .map((row) => (row ? { ...sanitizeToStudentProblem(row), active: row.active } : null))
+          .filter(Boolean),
         builtinCount: seed.length,
       });
     }
