@@ -18,6 +18,7 @@ import { conceptTagsForProblemType } from "../../../shared/problemMetadata.ts";
 import { deriveProblemPresentation } from "../../../shared/problemPresentation.ts";
 import { REWARD_CATALOG, rewardUnlocked, sanitizeMaterial, sanitizeTheme, type RewardMaterial, type RewardTheme } from "../../../shared/rewards.ts";
 import { grade as gradeShared } from "../../../shared/grading.ts";
+import { summarizeStudentProgress, type AttemptSourceRow, type ProgressSourceRow } from "../../../shared/teacherProgress.ts";
 import { serviceClient, requireTeacher, teacherOwnsClass } from "../_shared/db.ts";
 import {
   fail,
@@ -75,7 +76,9 @@ type Action =
   | "teacher:lessons:list"
   | "teacher:lessons:set-lock"
   | "teacher:problems:list"
-  | "teacher:problems:set-active";
+  | "teacher:problems:set-active"
+  | "teacher:progress:summary"
+  | "teacher:progress:reset-class";
 
 interface BaseBody {
   action?: string;
@@ -1365,6 +1368,146 @@ Deno.serve(async (req: Request) => {
       }
       await db.from("sb_students").update({ status: disabled ? "disabled" : "active" }).eq("id", studentId);
       return ok({ ok: true });
+    }
+
+    if (action === "teacher:progress:summary") {
+      const classId = text(body.classId, 80);
+      const owns = await teacherOwnsClass(db, teacherId, classId);
+      if (!owns) return fail(403, "FORBIDDEN_CLASS", "해당 반에 접근할 수 없습니다.");
+
+      const { data: studentRows, error: studentsErr } = await db
+        .from("sb_students")
+        .select("id,name,student_no")
+        .eq("class_id", classId)
+        .order("name", { ascending: true });
+      if (studentsErr) return fail(500, "PROGRESS_LOAD_FAILED", "학생 목록을 불러오지 못했습니다.");
+
+      const studentIds = (studentRows ?? []).map((row) => String(row.id));
+      if (studentIds.length === 0) return ok({ students: [] });
+
+      // 학생마다 개별 요청하지 않는다 -- 학급 전체를 테이블당 1회 쿼리로
+      // 가져온 뒤 메모리에서 집계한다 (N+1 금지).
+      const [progressRes, attemptsRes] = await Promise.all([
+        db.from("sb_student_progress").select("student_id,lesson,completed,updated_at").in("student_id", studentIds),
+        db.from("sb_problem_attempts").select("student_id,lesson,wrong_count,completed,updated_at").in("student_id", studentIds),
+      ]);
+      if (progressRes.error || attemptsRes.error) return fail(500, "PROGRESS_LOAD_FAILED", "진도 정보를 불러오지 못했습니다.");
+
+      const progressByStudent = new Map<string, ProgressSourceRow[]>();
+      for (const row of progressRes.data ?? []) {
+        const sid = String(row.student_id);
+        if (!progressByStudent.has(sid)) progressByStudent.set(sid, []);
+        progressByStudent.get(sid)!.push({ lesson: Number(row.lesson), completed: Boolean(row.completed), updated_at: String(row.updated_at) });
+      }
+
+      const attemptsByStudent = new Map<string, AttemptSourceRow[]>();
+      for (const row of attemptsRes.data ?? []) {
+        const sid = String(row.student_id);
+        if (!attemptsByStudent.has(sid)) attemptsByStudent.set(sid, []);
+        attemptsByStudent.get(sid)!.push({
+          lesson: Number(row.lesson),
+          wrong_count: Number(row.wrong_count ?? 0),
+          completed: Boolean(row.completed),
+          updated_at: String(row.updated_at),
+        });
+      }
+
+      const students = (studentRows ?? []).map((student) =>
+        summarizeStudentProgress(
+          String(student.id),
+          String(student.name ?? ""),
+          (student as { student_no?: number | null }).student_no ?? null,
+          progressByStudent.get(String(student.id)) ?? [],
+          attemptsByStudent.get(String(student.id)) ?? [],
+        ),
+      );
+
+      return ok({ students });
+    }
+
+    if (action === "teacher:progress:reset-class") {
+      const classId = text(body.classId, 80);
+      const owns = await teacherOwnsClass(db, teacherId, classId);
+      if (!owns) return fail(403, "FORBIDDEN_CLASS", "해당 반에 접근할 수 없습니다.");
+
+      const lesson = toInt(body.lesson); // null = 전체 차시 초기화
+      if (lesson !== null && lesson > 12) return fail(400, "BAD_LESSON", "lesson 값은 1~12 사이여야 합니다.");
+
+      // 클라이언트가 studentId 배열을 보내 임의 대상을 고르게 하지 않는다:
+      // 서버가 classId 소유권을 확인한 뒤 이 학급 소속 학생을 직접 조회한다.
+      const { data: studentRows, error: studentsErr } = await db.from("sb_students").select("id").eq("class_id", classId);
+      if (studentsErr) return fail(500, "RESET_FAILED", "학생 목록을 불러오지 못했습니다.");
+      const studentIds = (studentRows ?? []).map((row) => String(row.id));
+      if (studentIds.length === 0) return ok({ ok: true, targetedCount: 0, lesson });
+
+      // 아래는 202609110007_teacher_reset.sql 의 sb_reset_progress() 와 같은
+      // 삭제 규칙을 그대로 반영한다. 그 함수는 auth.uid() 기반
+      // sb_owns_student 검사를 내부에 갖고 있어 service-role 컨텍스트
+      // (교사 JWT 없이 호출되는 이 edge function 안)에서는 항상
+      // FORBIDDEN_STUDENT로 실패하므로 재사용할 수 없다. 그래서 같은 삭제
+      // 규칙을 학급 전체에 대해 테이블당 1회 배치 쿼리로 재구현한다
+      // (학생별 반복 호출 아님 -- N+1 금지).
+      let attemptsQuery = db.from("sb_problem_attempts").delete().in("student_id", studentIds);
+      let snapshotsQuery = db.from("sb_block_snapshots").delete().in("student_id", studentIds);
+      let progressQuery = db.from("sb_student_progress").delete().in("student_id", studentIds);
+      if (lesson !== null) {
+        attemptsQuery = attemptsQuery.eq("lesson", lesson);
+        snapshotsQuery = snapshotsQuery.eq("lesson", lesson);
+        progressQuery = (lesson === 10 || lesson === 11)
+          ? progressQuery.in("lesson", [10, 11])
+          : progressQuery.eq("lesson", lesson);
+      }
+
+      const steps: Array<{ name: string; error: { code?: string } | null }> = [];
+      steps.push({ name: "attempts", error: (await attemptsQuery).error });
+      steps.push({ name: "snapshots", error: (await snapshotsQuery).error });
+      steps.push({ name: "progress", error: (await progressQuery).error });
+      if (lesson === null || lesson === 9) {
+        steps.push({ name: "challenge_solves", error: (await db.from("sb_challenge_solves").delete().in("student_id", studentIds)).error });
+      }
+      if (lesson === null || lesson === 10 || lesson === 11) {
+        steps.push({ name: "projects", error: (await db.from("sb_projects").delete().in("student_id", studentIds)).error });
+      }
+      if (lesson === null || lesson === 12) {
+        steps.push({ name: "self_evaluations", error: (await db.from("sb_self_evaluations").delete().in("student_id", studentIds)).error });
+      }
+
+      const failedStep = steps.find((step) => step.error);
+      if (failedStep) {
+        console.error("[student-api] class reset failed", { step: failedStep.name, code: failedStep.error?.code });
+        return fail(500, "RESET_PARTIAL_FAILED", `초기화 중 일부 단계(${failedStep.name})가 실패했습니다. 새로고침 후 다시 시도해 주세요.`);
+      }
+
+      // 남은 attempts로 보상 재계산 -- 학생별 upsert 대신 배치 upsert 1회.
+      const { data: remainingAttempts, error: remErr } = await db
+        .from("sb_problem_attempts")
+        .select("student_id,xp_earned,stars")
+        .in("student_id", studentIds);
+      if (remErr) return fail(500, "RESET_PARTIAL_FAILED", "진도는 초기화됐지만 보상 재계산에 실패했습니다. 새로고침 후 다시 확인해 주세요.");
+
+      const rewardTotals = new Map<string, { xp: number; stars: number }>();
+      for (const id of studentIds) rewardTotals.set(id, { xp: 0, stars: 0 });
+      for (const row of remainingAttempts ?? []) {
+        const sid = String(row.student_id);
+        const current = rewardTotals.get(sid) ?? { xp: 0, stars: 0 };
+        current.xp += Number(row.xp_earned ?? 0);
+        current.stars += Number(row.stars ?? 0);
+        rewardTotals.set(sid, current);
+      }
+      const rewardRows = Array.from(rewardTotals.entries()).map(([studentId, totals]) => ({
+        student_id: studentId,
+        total_xp: totals.xp,
+        total_stars: totals.stars,
+        badges: [],
+        streak: 0,
+      }));
+      const rewardUpsert = await db.from("sb_student_rewards").upsert(rewardRows, { onConflict: "student_id" });
+      if (rewardUpsert.error) {
+        console.error("[student-api] class reset reward recompute failed", { code: rewardUpsert.error.code });
+        return fail(500, "RESET_PARTIAL_FAILED", "진도는 초기화됐지만 보상 재계산에 실패했습니다. 새로고침 후 다시 확인해 주세요.");
+      }
+
+      return ok({ ok: true, targetedCount: studentIds.length, lesson });
     }
 
     if (action === "teacher:lessons:list") {

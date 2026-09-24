@@ -414,6 +414,25 @@ export function teacherSetProblemActive(problemId: string, active: boolean) {
   return callFunction<{ ok: boolean }>("student-api", { action: "teacher:problems:set-active", problemId, active }, true);
 }
 
+export type { LessonProgressState, StudentProgressSummary as TeacherProgressStudentRow } from "../../shared/teacherProgress.ts";
+import type { StudentProgressSummary } from "../../shared/teacherProgress.ts";
+
+export function teacherProgressSummary(classId: string) {
+  return callFunction<{ students: StudentProgressSummary[] }>(
+    "student-api",
+    { action: "teacher:progress:summary", classId },
+    true,
+  );
+}
+
+export function teacherResetClassProgress(classId: string, lesson?: number) {
+  return callFunction<{ ok: boolean; targetedCount: number; lesson: number | null }>(
+    "student-api",
+    { action: "teacher:progress:reset-class", classId, ...(lesson ? { lesson } : {}) },
+    true,
+  );
+}
+
 export interface TeacherPeerProblemRow {
   problemId: string;
   version: number;

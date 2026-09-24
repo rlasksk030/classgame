@@ -14,15 +14,44 @@ import {
   teacherListLessonSettings,
   teacherListProblems,
   teacherListStudents,
+  teacherProgressSummary,
+  teacherResetClassProgress,
   teacherResetStudentPin,
   teacherSetLessonLock,
   teacherSetProblemActive,
   teacherToggleStudent,
   type ClassData,
+  type LessonProgressState,
   type LessonSettingRow,
   type TeacherProblem,
+  type TeacherProgressStudentRow,
   type TeacherStudentRow,
 } from "../lib/studentApi";
+
+const LESSON_STATE_LABEL: Record<LessonProgressState, string> = {
+  not_started: "미시작",
+  in_progress: "진행 중",
+  complete: "완료",
+};
+
+/** 학생 1명의 전체 진행 상태를 3단계로 요약한다 (12차시 완료 = 전체 과정 완료로 간주). */
+function studentOverallStatus(row: TeacherProgressStudentRow): LessonProgressState {
+  const anyProgress = row.lessonStates.some((s) => s !== "not_started");
+  if (!anyProgress) return "not_started";
+  if (row.lessonStates[11] === "complete") return "complete";
+  return "in_progress";
+}
+
+function formatLastActivity(iso: string | null): string {
+  if (!iso) return "기록 없음";
+  const diffMin = Math.floor((Date.now() - new Date(iso).getTime()) / 60000);
+  if (diffMin < 1) return "방금 전";
+  if (diffMin < 60) return `${diffMin}분 전`;
+  const diffHour = Math.floor(diffMin / 60);
+  if (diffHour < 24) return `${diffHour}시간 전`;
+  const d = new Date(iso);
+  return `${d.getMonth() + 1}/${d.getDate()}`;
+}
 
 /**
  * 교사용 관리자 최소 화면(핵심 기능): 반 조회 + 반별 학생/차시 잠금 관리.
@@ -45,6 +74,14 @@ export default function TeacherPage() {
   const [problemLessonFilter, setProblemLessonFilter] = useState<number | "all">("all");
   const [problemStatusFilter, setProblemStatusFilter] = useState<"all" | "active" | "inactive">("all");
   const [problemSearch, setProblemSearch] = useState("");
+  const [progressStudents, setProgressStudents] = useState<TeacherProgressStudentRow[]>([]);
+  const [progressLoading, setProgressLoading] = useState(false);
+  const [progressSearch, setProgressSearch] = useState("");
+  const [progressLessonFilter, setProgressLessonFilter] = useState<number | "all">("all");
+  const [progressStatusFilter, setProgressStatusFilter] = useState<"all" | LessonProgressState>("all");
+  const [progressSort, setProgressSort] = useState<"name" | "currentLesson" | "recentActivity">("name");
+  const [resetLessonScope, setResetLessonScope] = useState<"all" | number>("all");
+  const [resetBusy, setResetBusy] = useState(false);
 
   const selectedClass = useMemo(() => classes.find((row) => row.id === classId) ?? null, [classes, classId]);
   const filteredProblems = useMemo(() => {
@@ -57,6 +94,45 @@ export default function TeacherPage() {
       return true;
     });
   }, [problems, problemLessonFilter, problemStatusFilter, problemSearch]);
+
+  const progressSummary = useMemo(() => {
+    let notStarted = 0, inProgress = 0, completed = 0;
+    const lessonCounts = new Map<number, number>();
+    let recentActivity = 0;
+    let lastActivityAt: string | null = null;
+    const now = Date.now();
+    for (const row of progressStudents) {
+      const status = studentOverallStatus(row);
+      if (status === "not_started") notStarted++;
+      else if (status === "complete") completed++;
+      else inProgress++;
+      lessonCounts.set(row.currentLesson, (lessonCounts.get(row.currentLesson) ?? 0) + 1);
+      if (row.lastActivityAt) {
+        if (now - new Date(row.lastActivityAt).getTime() <= 10 * 60 * 1000) recentActivity++;
+        if (!lastActivityAt || row.lastActivityAt > lastActivityAt) lastActivityAt = row.lastActivityAt;
+      }
+    }
+    let mostCommonLesson: number | null = null, mostCommonCount = 0;
+    for (const [lesson, count] of lessonCounts) {
+      if (count > mostCommonCount) { mostCommonCount = count; mostCommonLesson = lesson; }
+    }
+    return { total: progressStudents.length, notStarted, inProgress, completed, mostCommonLesson, recentActivity, lastActivityAt };
+  }, [progressStudents]);
+
+  const filteredProgressStudents = useMemo(() => {
+    const search = progressSearch.trim().toLowerCase();
+    const rows = progressStudents.filter((row) => {
+      if (search && !row.name.toLowerCase().includes(search)) return false;
+      if (progressLessonFilter !== "all" && row.currentLesson !== progressLessonFilter) return false;
+      if (progressStatusFilter !== "all" && studentOverallStatus(row) !== progressStatusFilter) return false;
+      return true;
+    });
+    return [...rows].sort((a, b) => {
+      if (progressSort === "currentLesson") return b.currentLesson - a.currentLesson;
+      if (progressSort === "recentActivity") return (b.lastActivityAt ?? "").localeCompare(a.lastActivityAt ?? "");
+      return a.name.localeCompare(b.name, "ko");
+    });
+  }, [progressStudents, progressSearch, progressLessonFilter, progressStatusFilter, progressSort]);
 
   const load = async () => {
     try {
@@ -84,18 +160,23 @@ export default function TeacherPage() {
     const loadClassData = async () => {
       try {
         setBusy(true);
-        const studentsPayload = await teacherListStudents(classId);
-        const lessonPayload = await teacherListLessonSettings(classId);
-        const problemPayload = await teacherListProblems(classId);
+        setProgressLoading(true);
+        const [studentsPayload, lessonPayload, problemPayload, progressPayload] = await Promise.all([
+          teacherListStudents(classId),
+          teacherListLessonSettings(classId),
+          teacherListProblems(classId),
+          teacherProgressSummary(classId),
+        ]);
         if (cancelled) return;
         setStudents(studentsPayload.students);
         setLessons(lessonPayload.lessons);
         setProblems(problemPayload.customProblems);
         setBuiltinCount(problemPayload.builtinCount);
+        setProgressStudents(progressPayload.students);
       } catch (err) {
         if (!cancelled) { const info = classifyTeacherError(err); setError(`${info.code}: ${info.message}`); }
       } finally {
-        if (!cancelled) setBusy(false);
+        if (!cancelled) { setBusy(false); setProgressLoading(false); }
       }
     };
 
@@ -151,6 +232,39 @@ export default function TeacherPage() {
       setProblems((await teacherListProblems(classId)).customProblems);
     } catch (err) {
       setError(err instanceof Error ? err.message : "문제 상태를 변경하지 못했습니다.");
+    }
+  };
+
+  const loadProgress = async () => {
+    if (!classId) return;
+    setProgressLoading(true);
+    try {
+      const payload = await teacherProgressSummary(classId);
+      setProgressStudents(payload.students);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "진도 정보를 불러오지 못했습니다.");
+    } finally {
+      setProgressLoading(false);
+    }
+  };
+
+  const resetClassProgress = async () => {
+    if (!classId || !progressStudents.length) return;
+    const lesson = resetLessonScope === "all" ? undefined : resetLessonScope;
+    const scopeWarning = lesson ? `${lesson}차시 진도만 초기화됩니다.` : "모든 차시 진도와 관련 학습 기록이 초기화됩니다.";
+    if (!window.confirm(`이 학급의 모든 학생 진도를 초기화할까요?\n${scopeWarning}`)) return;
+    const typed = window.prompt(`학생 ${progressStudents.length}명의 학습 기록이 초기화됩니다.\n계속하려면 '초기화'를 입력하세요.`);
+    if (typed !== "초기화") return;
+    setResetBusy(true);
+    setError(null);
+    try {
+      const result = await teacherResetClassProgress(classId, lesson);
+      setMessage(`학생 ${result.targetedCount}명의 ${lesson ? `${lesson}차시` : "전체"} 진도를 초기화했습니다.`);
+      await loadProgress();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "학급 진도 초기화에 실패했습니다. 진도표를 새로고침해 확인해 주세요.");
+    } finally {
+      setResetBusy(false);
     }
   };
 
@@ -222,13 +336,20 @@ export default function TeacherPage() {
     <div className="screen app-max">
       <div className="stack" style={{ gap: 16 }}>
         <div className="student-world-heading"><div><p className="eyebrow">TEACHER CONSOLE</p><h1>교사 관리</h1><p className="muted">학급의 학습 흐름과 활동을 한곳에서 관리합니다.</p></div><div className="toolbar-row"><Link className="btn btn-sm" to="/teacher/problems/new">3D 문제 만들기</Link><Link className="btn btn-sm" to="/teacher/worksheet-import">학습지로 문제 만들기</Link></div></div>
-        <nav className="teacher-nav" aria-label="교사 메뉴"><a href="#classes">대시보드</a><a href="#students">학생 관리</a><a href="#lessons">차시 관리</a><a href="#problem-bank">문제은행 관리</a><a href="/teacher/problems/new">문제은행</a><a href="/teacher/problem-preview">문제 미리보기</a><a href="/teacher/worksheet-import">학습지</a><a href="#activities">놀이·친구 문제</a></nav>
+        <nav className="teacher-nav" aria-label="교사 메뉴"><a href="#classes">대시보드</a><a href="#students">학생 관리</a><a href="#progress">학생 진도</a><a href="#lessons">차시 관리</a><a href="#problem-bank">문제은행 관리</a><a href="/teacher/problems/new">문제은행</a><a href="/teacher/problem-preview">문제 미리보기</a><a href="/teacher/worksheet-import">학습지</a><a href="#activities">놀이·친구 문제</a></nav>
 
         <section className="teacher-summary-grid" aria-label="학급 요약">
           <div className="panel"><span className="summary-label">학생 수</span><strong className="summary-number">{students.length}명</strong><p className="muted">선택한 학급</p></div>
           <div className="panel"><span className="summary-label">차시 잠금</span><strong className="summary-number">{lessons.filter((row) => row.locked).length}/12</strong><p className="muted">잠긴 차시</p></div>
           <div className="panel"><span className="summary-label">현재 학급</span><strong className="summary-number">{selectedClass?.name ?? "선택 전"}</strong><p className="muted">{selectedClass?.class_code ?? "학급을 만들어 주세요."}</p></div>
+          <div className="panel"><span className="summary-label">미시작</span><strong className="summary-number">{progressSummary.notStarted}명</strong><p className="muted">아직 시작 전</p></div>
+          <div className="panel"><span className="summary-label">진행 중</span><strong className="summary-number">{progressSummary.inProgress}명</strong><p className="muted">학습 진행 중</p></div>
+          <div className="panel"><span className="summary-label">완료</span><strong className="summary-number">{progressSummary.completed}명</strong><p className="muted">12차시까지 완료</p></div>
+          <div className="panel"><span className="summary-label">가장 많이 학습 중인 차시</span><strong className="summary-number">{progressSummary.mostCommonLesson ? `${progressSummary.mostCommonLesson}차시` : "—"}</strong><p className="muted">학생 수 기준</p></div>
+          <div className="panel"><span className="summary-label">최근 활동</span><strong className="summary-number">{progressSummary.recentActivity}명</strong><p className="muted">최근 10분 이내 학습 기록{progressSummary.lastActivityAt ? ` · 마지막 ${formatLastActivity(progressSummary.lastActivityAt)}` : ""}</p></div>
         </section>
+
+        <div className="toolbar-row"><a className="btn btn-sm" href="#progress">학생 진도 보기</a><a className="btn btn-sm" href="#lessons">차시 설정</a><a className="btn btn-sm" href="#students">학생 관리</a></div>
 
         <section className="panel stack" id="classes">
           <h3>반 선택</h3>
@@ -324,6 +445,86 @@ export default function TeacherPage() {
             <div className="toolbar-row"><button className="btn btn-sm" type="button" onClick={previewBulkStudents} disabled={!bulkNames.trim()}>명단 미리보기</button>{bulkPreview.length ? <button className="btn btn-sm btn-primary" type="button" onClick={() => void createBulkStudents()} disabled={busy}>{bulkPreview.length}명 생성</button> : null}</div>
             {bulkPreview.length ? <p className="muted">추가할 학생: {bulkPreview.join(", ")}</p> : null}
           </details>
+        </section>
+
+        <section className="panel stack" id="progress">
+          <h3>학생 진도</h3>
+          <p className="muted">한 화면에서 학생별 1~12차시 상태를 확인합니다. 오답/문제 기록 등 세부 내용은 학생 이름을 눌러 기존 학생 상세에서 확인하세요.</p>
+          <div className="toolbar-row" style={{ flexWrap: "wrap" }}>
+            <input className="field" placeholder="이름 검색" value={progressSearch} onChange={(e) => setProgressSearch(e.target.value)} />
+            <select className="field" aria-label="현재 차시 필터" value={progressLessonFilter} onChange={(e) => setProgressLessonFilter(e.target.value === "all" ? "all" : Number(e.target.value))}>
+              <option value="all">전체 차시</option>
+              {Array.from({ length: 12 }, (_, i) => i + 1).map((lesson) => <option key={lesson} value={lesson}>{lesson}차시</option>)}
+            </select>
+            <select className="field" aria-label="상태 필터" value={progressStatusFilter} onChange={(e) => setProgressStatusFilter(e.target.value as "all" | LessonProgressState)}>
+              <option value="all">전체 상태</option>
+              <option value="not_started">미시작</option>
+              <option value="in_progress">진행 중</option>
+              <option value="complete">완료</option>
+            </select>
+            <select className="field" aria-label="정렬" value={progressSort} onChange={(e) => setProgressSort(e.target.value as "name" | "currentLesson" | "recentActivity")}>
+              <option value="name">이름순</option>
+              <option value="currentLesson">현재 차시순</option>
+              <option value="recentActivity">최근 활동순</option>
+            </select>
+          </div>
+
+          {progressLoading ? (
+            <p className="muted">불러오는 중…</p>
+          ) : filteredProgressStudents.length === 0 ? (
+            <p className="muted">{progressStudents.length === 0 ? "학생이 없습니다." : "필터에 맞는 학생이 없습니다."}</p>
+          ) : (
+            <div className="teacher-table-wrap">
+              <table className="teacher-table">
+                <thead>
+                  <tr>
+                    <th className="sticky-col">이름</th>
+                    <th className="sticky-col">현재 차시</th>
+                    <th>1~12차시</th>
+                    <th>필수 진행</th>
+                    <th>오답 수</th>
+                    <th>선택 연습</th>
+                    <th>최근 활동</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredProgressStudents.map((row) => (
+                    <tr key={row.studentId}>
+                      <td className="sticky-col"><Link to={`/teacher/students/${row.studentId}`}>{row.name}</Link></td>
+                      <td className="sticky-col">{row.currentLesson}차시</td>
+                      <td>
+                        <div className="lesson-state-row">
+                          {row.lessonStates.map((state, index) => (
+                            <span key={index} className="lesson-state-cell" data-state={state} title={`${index + 1}차시 · ${LESSON_STATE_LABEL[state]}`}>
+                              {index + 1}
+                            </span>
+                          ))}
+                        </div>
+                      </td>
+                      <td>{row.requiredProgress.completedLessons}/{row.requiredProgress.totalLessons}</td>
+                      <td>{row.wrongCount}</td>
+                      <td>{row.optionalPracticeCount}</td>
+                      <td>{formatLastActivity(row.lastActivityAt)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          <div className="stack" style={{ marginTop: 12, borderTop: "1px solid var(--line-soft)", paddingTop: 12 }}>
+            <h4>학급 전체 진도 초기화</h4>
+            <p className="muted">이 학급 학생 전원의 진도를 한 번에 초기화합니다. 되돌릴 수 없으니 운영 중인 실제 학급에서는 신중하게 사용하세요.</p>
+            <div className="toolbar-row">
+              <select className="field" aria-label="초기화 범위" value={resetLessonScope} onChange={(e) => setResetLessonScope(e.target.value === "all" ? "all" : Number(e.target.value))}>
+                <option value="all">전체 차시</option>
+                {Array.from({ length: 12 }, (_, i) => i + 1).map((lesson) => <option key={lesson} value={lesson}>{lesson}차시만</option>)}
+              </select>
+              <button className="btn btn-danger" disabled={resetBusy || !progressStudents.length} onClick={() => void resetClassProgress()}>
+                {resetBusy ? "초기화 중…" : "학급 전체 초기화"}
+              </button>
+            </div>
+          </div>
         </section>
 
         <section className="panel stack" id="lessons">

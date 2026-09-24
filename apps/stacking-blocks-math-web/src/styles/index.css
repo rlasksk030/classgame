@@ -480,6 +480,11 @@ button {
 .student-summary-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
 .teacher-summary-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
 .teacher-nav { display: flex; gap: 6px; flex-wrap: wrap; padding: 6px; border: 1px solid var(--line-soft); border-radius: 10px; background: #f8fbff; }
+.lesson-state-row { display: flex; gap: 3px; flex-wrap: nowrap; }
+.lesson-state-cell { width: 20px; height: 20px; border-radius: 4px; display: inline-flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 800; background: var(--line-soft); color: var(--ink-soft); }
+.lesson-state-cell[data-state="in_progress"] { background: var(--sky); color: #fff; }
+.lesson-state-cell[data-state="complete"] { background: var(--grass); color: #fff; }
+.sticky-col { position: sticky; left: 0; background: #fff; }
 .teacher-nav a { padding: 8px 12px; border-radius: 7px; color: var(--ink-soft); font-weight: 700; text-decoration: none; }
 .teacher-nav a:hover, .teacher-nav a:focus-visible { background: #e8f2ff; color: var(--sky-dark); }
 .reward-summary { min-height: 150px; border: 1px solid var(--line-soft); box-shadow: 0 3px 10px rgba(43,42,38,.08); }
