@@ -57,7 +57,16 @@ testUnit("edge: teacher:lessons:set-lock only changes allow_similar/allow_retry 
   assertUnit.ok(body);
   assertUnit.match(body!, /typeof body\.allowSimilar === "boolean" \? body\.allowSimilar : undefined/);
   assertUnit.match(body!, /typeof body\.allowRetry === "boolean" \? body\.allowRetry : undefined/);
-  assertUnit.match(body!, /allow_similar: allowSimilar \?\? existing\?\.allow_similar \?\? true/);
+  assertUnit.match(body!, /const finalAllowSimilar = allowSimilar \?\? existing\?\.allow_similar \?\? true;/);
+  assertUnit.match(body!, /allow_similar: finalAllowSimilar/);
+  assertUnit.match(body!, /if \(upsertErr\) \{[\s\S]*?return fail\(500, "LESSON_SETTING_SAVE_FAILED"/, "upsert errors must not be swallowed");
+});
+
+testUnit("edge: teacher:lessons:list checks its select() error instead of silently returning an empty list on failure (regression found live on TEST: missing columns made every class's lesson-lock list render blank with no error)", async () => {
+  const edge = await readSource("../supabase/functions/student-api/index.ts");
+  const body = edge.match(/if \(action === "teacher:lessons:list"\) \{[\s\S]*?\n {4}\}/)?.[0];
+  assertUnit.ok(body);
+  assertUnit.match(body!, /if \(listErr\) \{[\s\S]*?return fail\(500, "LESSON_SETTINGS_LOAD_FAILED"/, "select errors must not be swallowed into an empty array");
 });
 
 testUnit("edge: lessonProblems returns allowSimilar/allowRetry sourced from sb_lesson_settings, defaulting to true when no row exists", async () => {

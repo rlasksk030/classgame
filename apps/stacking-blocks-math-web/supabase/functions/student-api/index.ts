@@ -1625,11 +1625,12 @@ Deno.serve(async (req: Request) => {
       const classId = text(body.classId, 80);
       const owns = await teacherOwnsClass(db, teacherId, classId);
       if (!owns) return fail(403, "FORBIDDEN_CLASS", "해당 반에 접근할 수 없습니다.");
-      const { data } = await db
+      const { data, error: listErr } = await db
         .from("sb_lesson_settings")
         .select("lesson, locked, practice_count, allow_similar, allow_retry")
         .eq("class_id", classId)
         .order("lesson", { ascending: true });
+      if (listErr) { console.error("[student-api] teacher:lessons:list failed", { code: listErr.code }); return fail(500, "LESSON_SETTINGS_LOAD_FAILED", "차시 설정을 불러오지 못했습니다."); }
       return ok({ lessons: (data ?? []).sort((a, b) => a.lesson - b.lesson) });
     }
 
@@ -1645,14 +1646,18 @@ Deno.serve(async (req: Request) => {
       if (!lesson) return fail(400, "BAD_PARAM", "lesson 값이 필요합니다.");
       const owns = await teacherOwnsClass(db, teacherId, classId);
       if (!owns) return fail(403, "FORBIDDEN_CLASS", "해당 반에 접근할 수 없습니다.");
-      const { data: existing } = await db.from("sb_lesson_settings").select("allow_similar,allow_retry").eq("class_id", classId).eq("lesson", lesson).maybeSingle();
-      await db.from("sb_lesson_settings").upsert({
+      const { data: existing, error: existingErr } = await db.from("sb_lesson_settings").select("allow_similar,allow_retry").eq("class_id", classId).eq("lesson", lesson).maybeSingle();
+      if (existingErr) { console.error("[student-api] teacher:lessons:set-lock existing-read failed", { code: existingErr.code }); return fail(500, "LESSON_SETTING_SAVE_FAILED", "차시 설정을 저장하지 못했습니다."); }
+      const finalAllowSimilar = allowSimilar ?? existing?.allow_similar ?? true;
+      const finalAllowRetry = allowRetry ?? existing?.allow_retry ?? true;
+      const { error: upsertErr } = await db.from("sb_lesson_settings").upsert({
         class_id: classId, lesson, locked,
         ...(practiceCount ? { practice_count: practiceCount } : {}),
-        allow_similar: allowSimilar ?? existing?.allow_similar ?? true,
-        allow_retry: allowRetry ?? existing?.allow_retry ?? true,
+        allow_similar: finalAllowSimilar,
+        allow_retry: finalAllowRetry,
       }, { onConflict: "class_id,lesson" });
-      return ok({ ok: true, lesson, locked, practiceCount, allowSimilar: allowSimilar ?? existing?.allow_similar ?? true, allowRetry: allowRetry ?? existing?.allow_retry ?? true });
+      if (upsertErr) { console.error("[student-api] teacher:lessons:set-lock upsert failed", { code: upsertErr.code }); return fail(500, "LESSON_SETTING_SAVE_FAILED", "차시 설정을 저장하지 못했습니다."); }
+      return ok({ ok: true, lesson, locked, practiceCount, allowSimilar: finalAllowSimilar, allowRetry: finalAllowRetry });
     }
 
     if (action === "teacher:problems:list") {
