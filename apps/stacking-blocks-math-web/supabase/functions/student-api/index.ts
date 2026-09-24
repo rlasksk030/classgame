@@ -804,7 +804,7 @@ Deno.serve(async (req: Request) => {
 
       if(problemLoadError) return fail(500,"PRACTICE_LOAD_FAILED","기존 문제 묶음을 확인하지 못했어요. 잠시 후 다시 시도해 주세요.");
 
-      const { data: lessonSetting, error: settingError } = await db.from("sb_lesson_settings").select("practice_count").eq("class_id", studentSession.classId).eq("lesson", lesson).maybeSingle();
+      const { data: lessonSetting, error: settingError } = await db.from("sb_lesson_settings").select("practice_count,allow_similar,allow_retry").eq("class_id", studentSession.classId).eq("lesson", lesson).maybeSingle();
       if(settingError) return fail(500,"PRACTICE_LOAD_FAILED","선생님의 문제 배정량을 확인하지 못했어요.");
       const targetCount = [5,10,15,20].includes(Number(lessonSetting?.practice_count)) ? Number(lessonSetting?.practice_count) : recommendedPracticeCount(lesson);
       const {data: savedPractice, error: seedError}=await db.from("sb_student_progress").select("practice_seed").eq("student_id",studentSession.studentId).eq("lesson",lesson).maybeSingle();
@@ -860,6 +860,8 @@ Deno.serve(async (req: Request) => {
         currentProblemId: progressPosition?.last_problem_id ?? null,
         practiceSet: practiceSetStatus((problemRows as DbProblemRow[]|null)??[],lesson,seed,targetCount,displayedSeed),
         stages,
+        allowSimilar: lessonSetting?.allow_similar ?? true,
+        allowRetry: lessonSetting?.allow_retry ?? true,
       });
     }
 
@@ -1607,7 +1609,7 @@ Deno.serve(async (req: Request) => {
       if (!owns) return fail(403, "FORBIDDEN_CLASS", "해당 반에 접근할 수 없습니다.");
       const { data } = await db
         .from("sb_lesson_settings")
-        .select("lesson, locked, practice_count")
+        .select("lesson, locked, practice_count, allow_similar, allow_retry")
         .eq("class_id", classId)
         .order("lesson", { ascending: true });
       return ok({ lessons: (data ?? []).sort((a, b) => a.lesson - b.lesson) });
@@ -1618,11 +1620,21 @@ Deno.serve(async (req: Request) => {
       const lesson = toInt(body.lesson);
       const locked = Boolean(body.locked);
       const practiceCount = [5,10,15,20].includes(Number(body.practiceCount)) ? Number(body.practiceCount) : undefined;
+      // allowSimilar/allowRetry는 명시적으로 boolean이 온 경우에만 바꾼다 --
+      // 기존 practiceCount 필드처럼 undefined면 현재 값을 건드리지 않는다.
+      const allowSimilar = typeof body.allowSimilar === "boolean" ? body.allowSimilar : undefined;
+      const allowRetry = typeof body.allowRetry === "boolean" ? body.allowRetry : undefined;
       if (!lesson) return fail(400, "BAD_PARAM", "lesson 값이 필요합니다.");
       const owns = await teacherOwnsClass(db, teacherId, classId);
       if (!owns) return fail(403, "FORBIDDEN_CLASS", "해당 반에 접근할 수 없습니다.");
-      await db.from("sb_lesson_settings").upsert({ class_id: classId, lesson, locked, ...(practiceCount ? { practice_count: practiceCount } : {}) }, { onConflict: "class_id,lesson" });
-      return ok({ ok: true, lesson, locked, practiceCount });
+      const { data: existing } = await db.from("sb_lesson_settings").select("allow_similar,allow_retry").eq("class_id", classId).eq("lesson", lesson).maybeSingle();
+      await db.from("sb_lesson_settings").upsert({
+        class_id: classId, lesson, locked,
+        ...(practiceCount ? { practice_count: practiceCount } : {}),
+        allow_similar: allowSimilar ?? existing?.allow_similar ?? true,
+        allow_retry: allowRetry ?? existing?.allow_retry ?? true,
+      }, { onConflict: "class_id,lesson" });
+      return ok({ ok: true, lesson, locked, practiceCount, allowSimilar: allowSimilar ?? existing?.allow_similar ?? true, allowRetry: allowRetry ?? existing?.allow_retry ?? true });
     }
 
     if (action === "teacher:problems:list") {

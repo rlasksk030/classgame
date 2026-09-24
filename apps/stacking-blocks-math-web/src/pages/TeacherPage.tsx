@@ -390,6 +390,22 @@ export default function TeacherPage() {
     catch (err) { setError(err instanceof Error ? err.message : "추가 문제 수를 저장하지 못했습니다."); }
   };
 
+  const togglePracticeControl = async (lesson: number, field: "allow_similar" | "allow_retry") => {
+    const row = lessons.find((item) => item.lesson === lesson);
+    if (!row) return;
+    const nextValue = !(row[field] ?? true);
+    try {
+      await teacherSetLessonLock(
+        classId, lesson, row.locked, undefined,
+        field === "allow_similar" ? nextValue : undefined,
+        field === "allow_retry" ? nextValue : undefined,
+      );
+      setLessons((await teacherListLessonSettings(classId)).lessons);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "연습 설정을 저장하지 못했습니다.");
+    }
+  };
+
   const copyText = async (value: string) => {
     try {
       await navigator.clipboard.writeText(value);
@@ -425,8 +441,8 @@ export default function TeacherPage() {
   return (
     <div className="screen app-max">
       <div className="stack" style={{ gap: 16 }}>
-        <div className="student-world-heading"><div><p className="eyebrow">TEACHER CONSOLE</p><h1>교사 관리</h1><p className="muted">학급의 학습 흐름과 활동을 한곳에서 관리합니다.</p></div><div className="toolbar-row"><Link className="btn btn-sm" to="/teacher/problems/new">3D 문제 만들기</Link><Link className="btn btn-sm" to="/teacher/worksheet-import">학습지로 문제 만들기</Link></div></div>
-        <nav className="teacher-nav" aria-label="교사 메뉴"><a href="#classes">대시보드</a><a href="#students">학생 관리</a><a href="#live-status">수업 현황</a><a href="#progress">학생 진도</a><a href="#results">수업 결과</a><a href="#lessons">차시 관리</a><a href="#problem-bank">문제은행 관리</a><a href="/teacher/problems/new">문제은행</a><a href="/teacher/problem-preview">문제 미리보기</a><a href="/teacher/worksheet-import">학습지</a><a href="#activities">놀이·친구 문제</a></nav>
+        <div className="student-world-heading"><div><p className="eyebrow">TEACHER CONSOLE</p><h1>교사 관리</h1><p className="muted">학급의 학습 흐름과 활동을 한곳에서 관리합니다.</p></div><div className="toolbar-row"><Link className="btn btn-sm" to="/teacher/problems/new">3D 문제 만들기</Link></div></div>
+        <nav className="teacher-nav" aria-label="교사 메뉴"><a href="#classes">대시보드</a><a href="#students">학생 관리</a><a href="#live-status">수업 현황</a><a href="#progress">학생 진도</a><a href="#results">수업 결과</a><a href="#lessons">차시 관리</a><a href="#problem-bank">문제은행 관리</a><a href="/teacher/problems/new">문제은행</a><a href="/teacher/problem-preview">문제 미리보기</a><a href="#activities">놀이·친구 문제</a></nav>
 
         <section className="teacher-summary-grid" aria-label="학급 요약">
           <div className="panel"><span className="summary-label">학생 수</span><strong className="summary-number">{students.length}명</strong><p className="muted">선택한 학급</p></div>
@@ -697,6 +713,12 @@ export default function TeacherPage() {
                 {row.lesson}차시 {row.locked ? "잠금" : "해제"}
                 </button>
                 <label className="muted">추가 문제 <select className="field" aria-label={`${row.lesson}차시 추가 문제 수`} value={row.practice_count??''} onChange={e=>{const value=Number(e.target.value);if([5,10,15,20].includes(value))void setPracticeCount(row.lesson,value as 5|10|15|20);}}><option value="">권장</option>{[5,10,15,20].map(n=><option key={n} value={n}>{n}문제</option>)}</select></label>
+                <button className="btn btn-sm" type="button" aria-pressed={row.allow_similar ?? true} onClick={() => void togglePracticeControl(row.lesson, "allow_similar")}>
+                  유사 문제 풀기 {row.allow_similar ?? true ? "허용" : "비허용"}
+                </button>
+                <button className="btn btn-sm" type="button" aria-pressed={row.allow_retry ?? true} onClick={() => void togglePracticeControl(row.lesson, "allow_retry")}>
+                  틀린 문제 다시 풀기 {row.allow_retry ?? true ? "허용" : "비허용"}
+                </button>
               </span>
             ))}
           </div>

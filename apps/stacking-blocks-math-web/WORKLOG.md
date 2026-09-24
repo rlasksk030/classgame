@@ -519,4 +519,8 @@ Start 3454fd7, branch feature/spatial-math-redesign-v1. Pre-existing work backed
 - `http-server.ts`는 서명된 HttpOnly·SameSite=Strict cookie와 `NO_CHANGES`/`UP_TO_DATE` read-only maintenance 결과를 지원한다. 설치가 필요한 상태에서만 기존 오케스트레이터가 실행된다.
 - `scripts/installer/qa-remote.ts` 및 `npm run qa:installer:remote`는 TEST 환경변수의 PAT로 health→session→status→plan→repair→update→revoke를 검사하고, ref hash·안전한 상태 요약만 gitignored artifact에 저장한다. 원격 실행은 하지 않았다.
 - `.env.installer.example`을 추가했고 production secret/PAT는 포함하지 않았다. QR encoder는 이번에도 구현하지 않아 NOT_IMPLEMENTED로 유지한다.
+
+## 2026-09-24 — 학습지로 문제 만들기 UI 제거 + Teacher Page Expansion Phase 4
+
+- worksheet import UI removed: `WorksheetImportPage.tsx`, `src/features/worksheet/`, `App.tsx`의 lazy import·`/teacher/worksheet-import` route, `TeacherPage.tsx`의 관련 버튼/nav 링크를 제거했다. `sb_worksheet_imports` 테이블, RLS 정책, `sb-worksheets`/`sb-problem-images` Storage 버킷, 관련 migration은 전혀 건드리지 않았다(데이터 보존/롤백 가능성 유지). `sb-problem-images`는 student-api의 일반 문제 이미지 표시에도 쓰이므로 별도로 확인 후 유지했다.
 - 현재 로컬 검사: `npm test` 207개 중 205 PASS, 2 SKIPPED(localhost listen EPERM), typecheck/lint/build/Edge/security/audit/mock PASS. 실제 HTTPS backend, TEST status/plan/repair/update, SetupPage remote, QR, 신규 설치 E2E는 NOT_RUN/BLOCKED. 교사 외부 수동 작업 감소 0개.

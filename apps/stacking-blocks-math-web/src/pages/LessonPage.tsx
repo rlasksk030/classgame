@@ -188,6 +188,8 @@ export default function LessonPage() {
   const [problem, setProblem] = useState<StudentProblem | null>(null);
   const [seedMode, setSeedMode] = useState(false);
   const [practiceSet, setPracticeSet] = useState<LessonProblemListData['practiceSet']>();
+  const [allowSimilar, setAllowSimilar] = useState(true);
+  const [allowRetry, setAllowRetry] = useState(true);
 
   const [blocks, setBlocks] = useState<StudentProblem["givenBlocks"]>([]);
   const [selection, setSelection] = useState<StudentProblem["givenBlocks"][number] | null>(null);
@@ -494,6 +496,8 @@ export default function LessonPage() {
         setPracticeSet(list.practiceSet);
         setProblems(parsed);
         setRequiredComplete(Boolean(list.requiredComplete));
+        setAllowSimilar(list.allowSimilar ?? true);
+        setAllowRetry(list.allowRetry ?? true);
         if (routeStage === "more" && !list.requiredComplete) {
           setMessage("③ 선택 연습은 ② 문제 풀기를 완료한 뒤 열려요.");
           navigate(`/lesson/${lessonNum}/solve`, { replace: true });
@@ -902,7 +906,7 @@ export default function LessonPage() {
           <p className="muted">① {problems.filter(item=>item.stage==='concept').length}문제 · ② {problems.filter(item=>item.stage==='check').length}문제 · ③ 선택 연습{requiredComplete?' · 이용 가능':''}{requiredComplete?'':' · ② 문제 풀기를 먼저 완료해 주세요.'}</p>
           {requiredComplete && problems.some(item => item.stage === 'more') && (
             <div className="toolbar-row">
-              <button className="btn btn-sm" disabled={!wrongProblemIds.length} onClick={() => {
+              {allowRetry && <button className="btn btn-sm" disabled={!wrongProblemIds.length} onClick={() => {
                 const more = problems.filter(item => item.stage === 'more');
                 const index = more.findIndex(item => wrongProblemIds.includes(item.id));
                 setStageFilter('more');
@@ -918,8 +922,8 @@ export default function LessonPage() {
                 }
               }}>
                 틀린 문제 다시 풀기{wrongProblemIds.length ? ` (${wrongProblemIds.length})` : ''}
-              </button>
-              <button className="btn btn-sm" onClick={() => {
+              </button>}
+              {allowSimilar && <button className="btn btn-sm" onClick={() => {
                 const more = problems.filter(item => item.stage === 'more');
                 const first = more[0];
                 setStageFilter('more');
@@ -930,7 +934,7 @@ export default function LessonPage() {
                   applyProblem(first);
                   if (!first.id.startsWith('seed:')) void saveProblemPosition(first.id, lessonNum);
                 }
-              }}>유사 문제 풀기</button>
+              }}>유사 문제 풀기</button>}
               {/* 학생 화면에는 배정/생성 개수 같은 전체 bank 크기를 노출하지 않는다 -- 선택 연습은 필수 진도가 아니다. */}
               {practiceSet && <p className="muted">선택 연습은 원하는 만큼 반복해서 풀 수 있어요.</p>}
               {practiceSet?.awaitingReplacement && <p>이전에 요청한 새 묶음이 아직 준비되지 않아 이전 묶음을 유지하고 있어요. ‘5문제 더 풀기’를 선택하면 기록을 보존하고 새 묶음으로 옮겨요.</p>}

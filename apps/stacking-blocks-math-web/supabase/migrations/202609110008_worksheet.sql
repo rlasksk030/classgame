@@ -1,3 +1,9 @@
+-- 2026-09-24: worksheet import UI removed from the teacher page
+-- (WorksheetImportPage.tsx / /teacher/worksheet-import deleted). This
+-- table, its RLS policy, and the sb-worksheets/sb-problem-images
+-- storage buckets below are left untouched for data preservation and
+-- rollback; sb-problem-images also backs unrelated problem-image
+-- display in student-api, so it stays in use regardless.
 alter table public.sb_problems add column if not exists image_path text;
 create table public.sb_worksheet_imports (
  id uuid primary key default gen_random_uuid(),teacher_id uuid not null references auth.users(id),class_id uuid not null references public.sb_classes(id),

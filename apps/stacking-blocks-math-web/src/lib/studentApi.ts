@@ -118,6 +118,8 @@ export interface LessonProblemListData {
   requiredComplete?: boolean;
   currentProblemId?: string | null;
   stages?: { concept: number; check: number; more: number };
+  allowSimilar?: boolean;
+  allowRetry?: boolean;
 }
 
 export interface AttemptState {
@@ -160,6 +162,8 @@ export interface LessonSettingRow {
   lesson: number;
   locked: boolean;
   practice_count?: 5 | 10 | 15 | 20 | null;
+  allow_similar?: boolean;
+  allow_retry?: boolean;
 }
 
 async function callFunction<T>(name: string, body: JsonPayload, withToken: boolean): Promise<T> {
@@ -382,10 +386,17 @@ export function teacherListLessonSettings(classId: string) {
   );
 }
 
-export function teacherSetLessonLock(classId: string, lesson: number, locked: boolean, practiceCount?: 5 | 10 | 15 | 20) {
-  return callFunction<{ ok: boolean }>(
+export function teacherSetLessonLock(
+  classId: string,
+  lesson: number,
+  locked: boolean,
+  practiceCount?: 5 | 10 | 15 | 20,
+  allowSimilar?: boolean,
+  allowRetry?: boolean,
+) {
+  return callFunction<{ ok: boolean; allowSimilar: boolean; allowRetry: boolean }>(
     "student-api",
-    { action: "teacher:lessons:set-lock", classId, lesson, locked, practiceCount },
+    { action: "teacher:lessons:set-lock", classId, lesson, locked, practiceCount, allowSimilar, allowRetry },
     true,
   );
 }

@@ -20,7 +20,6 @@ const TeacherProblemPreview = lazy(() => import('./pages/TeacherProblemPreview')
 const TeacherStudentRecord = lazy(() => import('./pages/TeacherStudentRecord'));
 const PeerChallengePage = lazy(() => import('./pages/PeerChallengePage'));
 const ArchitecturePage = lazy(() => import('./pages/ArchitecturePage'));
-const WorksheetImportPage = lazy(() => import('./pages/WorksheetImportPage'));
 function LessonRoute(){const {lesson}=useParams();return lesson==="10"||lesson==="11"?<ArchitecturePage/>:<LessonPage/>;}
 function InstallationSwitchPrompt(){
   const location=useLocation();
@@ -51,7 +50,6 @@ export default function App() {
     <Route path="/lesson/:lesson/practice" element={<LessonPage />} />
     <Route path="/lesson/:lesson" element={<LessonRoute />} />
     <Route path="/teacher" element={<TeacherGate><TeacherPage /></TeacherGate>} />
-    <Route path="/teacher/worksheet-import" element={<TeacherGate><WorksheetImportPage /></TeacherGate>} />
     <Route path="/teacher/problems/new" element={<TeacherGate><TeacherProblemEditor /></TeacherGate>} />
     <Route path="/teacher/problem-preview" element={<TeacherGate><TeacherProblemPreview /></TeacherGate>} />
     <Route path="/teacher/students/:studentId" element={<TeacherGate><TeacherStudentRecord /></TeacherGate>} />

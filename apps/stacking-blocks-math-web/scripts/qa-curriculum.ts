@@ -8,7 +8,7 @@ const failures: string[] = [];
 const fail = (message: string) => failures.push(message);
 const routes = new Set([
   "/", "/world", "/world/rewards", "/lesson/:lesson", "/lesson/:lesson/project", "/lesson/9",
-  "/teacher", "/teacher/worksheet-import", "/teacher/problems/new", "/teacher/problem-preview",
+  "/teacher", "/teacher/problems/new", "/teacher/problem-preview",
 ]);
 
 for (const lesson of LESSONS) {
