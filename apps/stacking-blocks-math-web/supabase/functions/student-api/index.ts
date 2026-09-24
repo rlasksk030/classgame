@@ -20,6 +20,7 @@ import { REWARD_CATALOG, rewardUnlocked, sanitizeMaterial, sanitizeTheme, type R
 import { grade as gradeShared } from "../../../shared/grading.ts";
 import { summarizeStudentProgress, type AttemptSourceRow, type ProgressSourceRow } from "../../../shared/teacherProgress.ts";
 import { summarizeStudentLiveStatus, type SessionSourceRow } from "../../../shared/teacherSessions.ts";
+import { synthesizeBuildFromViewsGhost } from "../../../shared/buildAnswerReveal.ts";
 import { summarizeLessonResults, type ResultAttemptRow, type ResultProgressRow, type ResultProblemRow } from "../../../shared/teacherResults.ts";
 import { serviceClient, requireTeacher, teacherOwnsClass } from "../_shared/db.ts";
 import {
@@ -285,10 +286,27 @@ function buildRevealedAnswer(row: ReturnType<typeof parseProblemRow>): RevealedA
   }
 
   if (row.answer.kind === "projections") {
-    return {
-      projections: row.answer.projections ?? {},
-      explanation: row.explanation ?? null,
-    };
+    const projections = row.answer.projections ?? {};
+    const revealed: RevealedAnswer = { projections, explanation: row.explanation ?? null };
+    // BUILD_FROM_VIEWS ("세 방향 보고 쌓기") is a build type -- the student
+    // is constructing in 3D, not drawing 2D grids -- but its curriculum
+    // answer is stored as the three given projections (constraint-graded:
+    // many shapes satisfy the same silhouettes, so there is no single
+    // canonical block answer). To still show a 3D ghost on reveal, we
+    // synthesize ONE witness structure that satisfies the given
+    // projections, reusing the same constraint solver the curriculum
+    // itself is validated with (oracle/dfs.ts -- never duplicate this
+    // search here). PROJECTION_DRAW also has answer.kind==="projections"
+    // but is not a build type, so it's deliberately excluded and keeps
+    // showing only the 2D grids.
+    if (row.problemType === "BUILD_FROM_VIEWS") {
+      const ghost = synthesizeBuildFromViewsGhost(
+        { top: projections.top, front: projections.front, side: projections.side },
+        row.grid,
+      );
+      if (ghost) revealed.blocks = ghost;
+    }
+    return revealed;
   }
 
   if (row.answer.kind === "heightMap") {

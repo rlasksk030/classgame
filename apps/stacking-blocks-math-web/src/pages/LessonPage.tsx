@@ -877,6 +877,13 @@ export default function LessonPage() {
     );
   }
 
+  // Global 3D answer reveal (every build type, not per-lesson): while the
+  // answer ghost is showing, freeze the student's own construction so they
+  // compare rather than edit over it. Camera rotate/view presets stay free
+  // -- only editing is blocked (BlockWorld's disabled prop already keeps
+  // those two independent).
+  const answerLocked = isBuildType(problem.problemType) && attempt.answerRevealed && answerVisible;
+
   return (
     <div className="screen app-max">
       <div className="stack" style={{ gap: 16 }}>
@@ -975,18 +982,19 @@ export default function LessonPage() {
         <div className="world-layout">
           <div className="stack" style={{ gap: 8, minHeight: 560 }}>
             <div className="toolbar-row">
-              <button className="btn btn-sm" onClick={doUndo} disabled={!canUndo}>
+              <button className="btn btn-sm" onClick={doUndo} disabled={!canUndo || answerLocked}>
                 ↶ 되돌리기
               </button>
-              <button className="btn btn-sm" onClick={doRedo} disabled={!canRedo}>
+              <button className="btn btn-sm" onClick={doRedo} disabled={!canRedo || answerLocked}>
                 ↷ 다시하기
               </button>
-              <button className="btn btn-sm" onClick={doReset}>
+              <button className="btn btn-sm" onClick={doReset} disabled={answerLocked}>
                 전체 초기화
               </button>
-              <button className="btn btn-sm" onClick={() => void flushSnapshot()} disabled={restoring}>저장</button>
+              <button className="btn btn-sm" onClick={() => void flushSnapshot()} disabled={restoring || answerLocked}>저장</button>
               <span role="status">{saveStatus}</span>
               {isBuildType(problem.problemType) && !restrictedView && <span className="muted">블록 수: {blocks.length}</span>}
+              {answerLocked && <span className="muted" role="status">정답 보기 중 · 편집이 잠겼어요</span>}
             </div>
 
             {allowLayer ? (
@@ -1033,7 +1041,7 @@ export default function LessonPage() {
               answerGhost={answerVisible ? (attempt.revealedAnswer?.blocks ?? result?.revealedAnswer?.blocks) : undefined}
               referenceBlocks={problem.given.referenceBlock ? [problem.given.referenceBlock] : undefined}
               inspectable={problem.problemType === "BLOCK_POSITION" && !attempt.completed}
-              disabled={restoring || attempt.completed || !isBuildType(problem.problemType)}
+              disabled={restoring || attempt.completed || !isBuildType(problem.problemType) || answerLocked}
               onSnapshotChange={() => undefined}
             />
           </div>
