@@ -498,6 +498,10 @@ function publicPeerRow(row: Record<string, unknown>, attempt?: Record<string, un
     title: String(row.title ?? ""), authorDisplayName: String(row.author_display_name ?? "학생").slice(0, 40),
     publicProblemData: publicData, publishedAt: String(row.published_at ?? row.created_at ?? ""),
     solveCount: Number(row.solve_count ?? 0),
+    // teacher:peer-problem:list is the only caller that needs this (to decide
+    // 숨기기 vs 복원); the student-facing caller already filters to
+    // status='published' so this is always "published" there -- harmless.
+    status: String(row.status ?? "published"),
     myAttempt: attempt ? { completed: Boolean(attempt.completed_at), score: Number(attempt.score_awarded ?? 0), usedHint: Boolean(attempt.used_hint) } : null,
   };
 }

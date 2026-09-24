@@ -414,6 +414,35 @@ export function teacherSetProblemActive(problemId: string, active: boolean) {
   return callFunction<{ ok: boolean }>("student-api", { action: "teacher:problems:set-active", problemId, active }, true);
 }
 
+export interface TeacherPeerProblemRow {
+  problemId: string;
+  version: number;
+  classId: string;
+  title: string;
+  authorDisplayName: string;
+  publicProblemData: { card?: unknown; grid?: unknown; totalBlocks?: unknown };
+  publishedAt: string;
+  solveCount: number;
+  status: "draft" | "published" | "hidden";
+  myAttempt: { completed: boolean; score: number; usedHint: boolean } | null;
+}
+
+export function teacherListPeerProblems(classId: string, installationId: string) {
+  return callFunction<{ problems: TeacherPeerProblemRow[] }>(
+    "student-api",
+    { action: "teacher:peer-problem:list", classId, installationId },
+    true,
+  );
+}
+
+export function teacherHidePeerProblem(classId: string, installationId: string, problemId: string, version: number) {
+  return callFunction<{ problem: { problem_id: string; version: number; status: string } }>(
+    "student-api",
+    { action: "teacher:peer-problem:hide", classId, installationId, problemId, version },
+    true,
+  );
+}
+
 export function activityApi<T>(action: string, payload: JsonPayload = {}) { return callFunction<T>("student-api", { ...payload, action: `activity:${action}` }, true); }
 
 export function getProblemImage(problemId: string) { return callFunction<{url:string}>("student-api", {action:"asset",problemId}, true); }

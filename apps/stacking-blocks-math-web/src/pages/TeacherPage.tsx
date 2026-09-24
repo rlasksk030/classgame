@@ -12,12 +12,15 @@ import {
   teacherUpdateStudent,
   teacherListClasses,
   teacherListLessonSettings,
+  teacherListProblems,
   teacherListStudents,
   teacherResetStudentPin,
   teacherSetLessonLock,
+  teacherSetProblemActive,
   teacherToggleStudent,
   type ClassData,
   type LessonSettingRow,
+  type TeacherProblem,
   type TeacherStudentRow,
 } from "../lib/studentApi";
 
@@ -37,8 +40,23 @@ export default function TeacherPage() {
   const [classCreateError, setClassCreateError] = useState<{ code: string; message: string } | null>(null);
   const [bulkNames, setBulkNames] = useState("");
   const [bulkPreview, setBulkPreview] = useState<string[]>([]);
+  const [problems, setProblems] = useState<TeacherProblem[]>([]);
+  const [builtinCount, setBuiltinCount] = useState(0);
+  const [problemLessonFilter, setProblemLessonFilter] = useState<number | "all">("all");
+  const [problemStatusFilter, setProblemStatusFilter] = useState<"all" | "active" | "inactive">("all");
+  const [problemSearch, setProblemSearch] = useState("");
 
   const selectedClass = useMemo(() => classes.find((row) => row.id === classId) ?? null, [classes, classId]);
+  const filteredProblems = useMemo(() => {
+    const search = problemSearch.trim().toLowerCase();
+    return problems.filter((problem) => {
+      if (problemLessonFilter !== "all" && problem.lesson !== problemLessonFilter) return false;
+      if (problemStatusFilter === "active" && !problem.active) return false;
+      if (problemStatusFilter === "inactive" && problem.active) return false;
+      if (search && !problem.title.toLowerCase().includes(search) && !problem.prompt.toLowerCase().includes(search)) return false;
+      return true;
+    });
+  }, [problems, problemLessonFilter, problemStatusFilter, problemSearch]);
 
   const load = async () => {
     try {
@@ -68,9 +86,12 @@ export default function TeacherPage() {
         setBusy(true);
         const studentsPayload = await teacherListStudents(classId);
         const lessonPayload = await teacherListLessonSettings(classId);
+        const problemPayload = await teacherListProblems(classId);
         if (cancelled) return;
         setStudents(studentsPayload.students);
         setLessons(lessonPayload.lessons);
+        setProblems(problemPayload.customProblems);
+        setBuiltinCount(problemPayload.builtinCount);
       } catch (err) {
         if (!cancelled) { const info = classifyTeacherError(err); setError(`${info.code}: ${info.message}`); }
       } finally {
@@ -121,6 +142,15 @@ export default function TeacherPage() {
       setStudents(studentsPayload.students);
     } catch (err) {
       setError(err instanceof Error ? err.message : "상태 변경 실패");
+    }
+  };
+
+  const toggleProblemActive = async (problem: TeacherProblem) => {
+    try {
+      await teacherSetProblemActive(problem.id, !problem.active);
+      setProblems((await teacherListProblems(classId)).customProblems);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "문제 상태를 변경하지 못했습니다.");
     }
   };
 
@@ -192,7 +222,7 @@ export default function TeacherPage() {
     <div className="screen app-max">
       <div className="stack" style={{ gap: 16 }}>
         <div className="student-world-heading"><div><p className="eyebrow">TEACHER CONSOLE</p><h1>교사 관리</h1><p className="muted">학급의 학습 흐름과 활동을 한곳에서 관리합니다.</p></div><div className="toolbar-row"><Link className="btn btn-sm" to="/teacher/problems/new">3D 문제 만들기</Link><Link className="btn btn-sm" to="/teacher/worksheet-import">학습지로 문제 만들기</Link></div></div>
-        <nav className="teacher-nav" aria-label="교사 메뉴"><a href="#classes">대시보드</a><a href="#students">학생 관리</a><a href="#lessons">차시 관리</a><a href="/teacher/problems/new">문제은행</a><a href="/teacher/problem-preview">문제 미리보기</a><a href="/teacher/worksheet-import">학습지</a></nav>
+        <nav className="teacher-nav" aria-label="교사 메뉴"><a href="#classes">대시보드</a><a href="#students">학생 관리</a><a href="#lessons">차시 관리</a><a href="#problem-bank">문제은행 관리</a><a href="/teacher/problems/new">문제은행</a><a href="/teacher/problem-preview">문제 미리보기</a><a href="/teacher/worksheet-import">학습지</a><a href="#activities">놀이·친구 문제</a></nav>
 
         <section className="teacher-summary-grid" aria-label="학급 요약">
           <div className="panel"><span className="summary-label">학생 수</span><strong className="summary-number">{students.length}명</strong><p className="muted">선택한 학급</p></div>
@@ -269,7 +299,7 @@ export default function TeacherPage() {
             <td>{student.status === "active" ? "사용 중" : "사용 중지"}</td>
                     <td className="toolbar-row">
                       <button className="btn btn-sm" onClick={async()=>{const name=window.prompt("학생 이름",student.name);if(!name?.trim())return;try{await teacherUpdateStudent(classId,student.id,{name:name.trim()});setStudents((await teacherListStudents(classId)).students);}catch{setError("이름을 수정하지 못했습니다.");}}}>이름 수정</button>
-                      <button className="btn btn-sm" onClick={async()=>{if(!window.confirm(`${student.name} 학생과 학습 기록을 삭제할까요?`))return;const {error}=await getSupabase().from("sb_students").delete().eq("id",student.id).eq("class_id",classId);if(error){setError("삭제하지 못했습니다.");return;}setStudents(students.filter(s=>s.id!==student.id));}}>삭제</button>
+                      <button className="btn btn-sm" onClick={async()=>{if(!window.confirm(`${student.name} 학생을 삭제할까요?\n학생을 삭제하면 이 학생의 진도, 문제 풀이 기록, 저장된 활동 기록도 함께 삭제됩니다.`))return;const {error}=await getSupabase().from("sb_students").delete().eq("id",student.id).eq("class_id",classId);if(error){setError("삭제하지 못했습니다.");return;}setStudents(students.filter(s=>s.id!==student.id));}}>삭제</button>
                       <button className="btn btn-sm" type="button" onClick={() => resetPin(student.id)}>
                         PIN 재발급
                       </button>
@@ -311,6 +341,48 @@ export default function TeacherPage() {
               </span>
             ))}
           </div>
+        </section>
+
+        <section className="panel stack" id="problem-bank">
+          <h3>문제은행 관리</h3>
+          <p className="muted">직접 만든 문제를 켜고 끌 수 있어요. 기본 제공 문제 {builtinCount}개는 여기서 관리하지 않습니다.</p>
+          <div className="toolbar-row" style={{ flexWrap: "wrap" }}>
+            <select className="field" aria-label="차시 필터" value={problemLessonFilter} onChange={(e) => setProblemLessonFilter(e.target.value === "all" ? "all" : Number(e.target.value))}>
+              <option value="all">전체 차시</option>
+              {Array.from({ length: 12 }, (_, i) => i + 1).map((lesson) => <option key={lesson} value={lesson}>{lesson}차시</option>)}
+            </select>
+            <select className="field" aria-label="상태 필터" value={problemStatusFilter} onChange={(e) => setProblemStatusFilter(e.target.value as "all" | "active" | "inactive")}>
+              <option value="all">전체 상태</option>
+              <option value="active">사용 중</option>
+              <option value="inactive">사용 안 함</option>
+            </select>
+            <input className="field" placeholder="제목/내용 검색" value={problemSearch} onChange={(e) => setProblemSearch(e.target.value)} />
+          </div>
+          {problems.length === 0 ? (
+            <p className="muted">아직 직접 만든 문제가 없습니다. "문제은행" 메뉴에서 새 문제를 만들 수 있어요.</p>
+          ) : (
+            <div className="teacher-table-wrap">
+              <table className="teacher-table">
+                <thead><tr><th>제목</th><th>차시</th><th>유형</th><th>상태</th><th>작업</th></tr></thead>
+                <tbody>
+                  {filteredProblems.map((problem) => (
+                    <tr key={problem.id}>
+                      <td>{problem.title || "(제목 없음)"}</td>
+                      <td>{problem.lesson}차시</td>
+                      <td>{problem.problemType}</td>
+                      <td>{problem.active ? "사용 중" : "사용 안 함"}</td>
+                      <td>
+                        <button className="btn btn-sm" type="button" onClick={() => void toggleProblemActive(problem)}>
+                          {problem.active ? "비활성으로 전환" : "활성으로 전환"}
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              {filteredProblems.length === 0 ? <p className="muted">필터에 맞는 문제가 없습니다.</p> : null}
+            </div>
+          )}
         </section>
 
         <TeacherActivities classId={classId} students={students}/>
