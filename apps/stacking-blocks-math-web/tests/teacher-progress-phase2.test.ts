@@ -124,14 +124,14 @@ test("M. existing teacher features (PIN management, lesson lock, problem bank) a
 
 test("N. the progress table is fetched once per class load (Promise.allSettled alongside students/lessons/problems), not once per row/student -- and renders inside the existing horizontal-scroll wrapper", async () => {
   const page = await readSource("../src/pages/TeacherPage.tsx");
-  const loadEffectBody = page.match(/const loadClassData = async \(\) => \{[\s\S]*?\n {4}\};/)?.[0];
+  const loadEffectBody = page.match(/const loadClassData = useCallback\(async \(targetClassId: string\) => \{[\s\S]*?\n {2}\}, \[\]\);/)?.[0];
   assert.ok(loadEffectBody);
   // Promise.allSettled (not Promise.all) since 2026-09-25: one section's
   // rejection must not discard another section's already-fetched data.
   // See tests/teacher-dashboard-section-isolation.test.ts for the full
   // regression coverage of that fix; this test only re-confirms progress
   // is still a single per-class-load fetch, not per-row.
-  assert.match(loadEffectBody!, /Promise\.allSettled\(\[[\s\S]*?teacherProgressSummary\(classId\),[\s\S]*?\]\)/);
+  assert.match(loadEffectBody!, /Promise\.allSettled\(\[[\s\S]*?teacherProgressSummary\(targetClassId\),[\s\S]*?\]\)/);
   const progressSection = page.match(/<section className="panel stack" id="progress">[\s\S]*?<\/section>/)?.[0];
   assert.match(progressSection!, /className="teacher-table-wrap"/);
   assert.match(progressSection!, /className="sticky-col"/);

@@ -135,6 +135,20 @@ export function clearRuntimeSupabaseConfig(): void {
   localStorage.removeItem(INSTALLATION_CONFIG_KEY);
 }
 
+/** Extracted from a `https://<ref>.supabase.co` URL. Shared by the /setup
+ * installer wizard and any other installer-client consumer (e.g. the
+ * teacher-page update widget) so both agree on the same project ref for
+ * whatever project is actually connected right now -- never hardcoded. */
+export function projectRefFromUrl(value: string): string | null {
+  try {
+    const url = new URL(value);
+    const match = url.hostname.match(/^([a-z0-9-]+)\.supabase\.co$/i);
+    return match?.[1] ?? null;
+  } catch {
+    return null;
+  }
+}
+
 export function getResolvedSupabaseConfig(): RuntimeSupabaseConfig | null {
   const runtime = getRuntimeSupabaseConfig();
   if (runtime) return runtime;

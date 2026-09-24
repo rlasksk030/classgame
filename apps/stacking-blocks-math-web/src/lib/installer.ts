@@ -2,6 +2,29 @@ import { INSTALLATION_CONFIG_KEY } from "./config.ts";
 
 export const INSTALLER_PROGRESS_KEY = "stacking-installer-progress";
 const INSTALLER_PENDING_ID_KEY = "stacking-installer-pending-id";
+const INSTALLER_RESUME_UPDATE_KEY = "stacking-installer-resume-update";
+
+/** Set right before navigating away to the OAuth authorize screen from the
+ * teacher-page update widget (never from the /setup wizard itself, which
+ * has its own step flow). Read once by /setup after a successful OAuth
+ * round trip auto-rebinds the same project, so it can finish the update and
+ * send the teacher straight back to /teacher instead of stranding them in
+ * the install wizard. sessionStorage (not localStorage): must not survive
+ * past this one browser tab's round trip. */
+export function markInstallerResumeUpdate(): void {
+  if (typeof window === "undefined") return;
+  try { sessionStorage.setItem(INSTALLER_RESUME_UPDATE_KEY, "1"); } catch { /* 저장 불가 환경은 그냥 무시 */ }
+}
+
+/** Reads and clears in one step -- must only ever fire once per OAuth round trip. */
+export function consumeInstallerResumeUpdate(): boolean {
+  if (typeof window === "undefined") return false;
+  try {
+    const present = sessionStorage.getItem(INSTALLER_RESUME_UPDATE_KEY) === "1";
+    if (present) sessionStorage.removeItem(INSTALLER_RESUME_UPDATE_KEY);
+    return present;
+  } catch { return false; }
+}
 
 export type InstallerStep = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
 

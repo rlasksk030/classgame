@@ -18,9 +18,18 @@ async function readSource(): Promise<string> {
   return readFile(new URL("../src/pages/TeacherPage.tsx", import.meta.url), "utf8");
 }
 
+// loadClassData is a standalone useCallback (not inlined in the boot
+// effect) so both the classId-change effect AND the one-click update
+// widget's post-update refresh can call the exact same function.
 function loadClassDataEffect(source: string): string {
-  const m = source.match(/useEffect\(\(\) => \{\s*if \(!classId\) return;[\s\S]*?\n {2}\}, \[classId\]\);/);
-  assert.ok(m, "class-data boot effect not found");
+  const m = source.match(/const loadClassData = useCallback\(async \(targetClassId: string\) => \{[\s\S]*?\n {2}\}, \[\]\);/);
+  assert.ok(m, "loadClassData callback not found");
+  return m![0];
+}
+
+function classIdEffect(source: string): string {
+  const m = source.match(/useEffect\(\(\) => \{\s*if \(!classId\) return;[\s\S]*?\n {2}\}, \[classId, loadClassData\]\);/);
+  assert.ok(m, "classId-change boot effect not found");
   return m![0];
 }
 
@@ -32,13 +41,13 @@ test("A/B/C. the four class-data fetches (students/lessons/problems/progress) ar
 
 test("A/B/C. each of the 4 results is checked independently (fulfilled -> set data, rejected -> set that section's own error only)", async () => {
   const effect = loadClassDataEffect(await readSource());
-  assert.match(effect, /if \(studentsResult\.status === "fulfilled"\) setStudents\(studentsResult\.value\.students\);/);
+  assert.match(effect, /if \(studentsResult\.status === "fulfilled"\) \{ setStudents\(studentsResult\.value\.students\); setStudentsError\(null\); \}/);
   assert.match(effect, /else setStudentsError\(classifyTeacherError\(studentsResult\.reason\)\);/);
-  assert.match(effect, /if \(lessonsResult\.status === "fulfilled"\) setLessons\(lessonsResult\.value\.lessons\);/);
+  assert.match(effect, /if \(lessonsResult\.status === "fulfilled"\) \{ setLessons\(lessonsResult\.value\.lessons\); setLessonsError\(null\); \}/);
   assert.match(effect, /else setLessonsError\(classifyTeacherError\(lessonsResult\.reason\)\);/);
   assert.match(effect, /setProblems\(problemsResult\.value\.customProblems\);/);
   assert.match(effect, /else setProblemsError\(classifyTeacherError\(problemsResult\.reason\)\);/);
-  assert.match(effect, /if \(progressResult\.status === "fulfilled"\) setProgressStudents\(progressResult\.value\.students\);/);
+  assert.match(effect, /if \(progressResult\.status === "fulfilled"\) \{ setProgressStudents\(progressResult\.value\.students\); setProgressSummaryError\(null\); \}/);
   assert.match(effect, /else setProgressSummaryError\(classifyTeacherError\(progressResult\.reason\)\);/);
 });
 
@@ -69,9 +78,15 @@ test("G. while the class-data load is in flight (classDataLoading), the summary 
 });
 
 test("H. selecting a class resets all 4 sections' data AND error state synchronously before the new fetch starts, so a previous class's numbers (or a previous failure) never bleed into the newly selected class's view", async () => {
-  const effect = loadClassDataEffect(await readSource());
+  const effect = classIdEffect(await readSource());
   assert.match(effect, /setStudents\(\[\]\); setLessons\(\[\]\); setProblems\(\[\]\); setBuiltinCount\(0\); setProgressStudents\(\[\]\);/);
   assert.match(effect, /setStudentsError\(null\); setLessonsError\(null\); setProblemsError\(null\); setProgressSummaryError\(null\);/);
+});
+
+test("a generation counter guards against a stale response overwriting a newer one's data -- rapid class switching, or an out-of-band refresh (the update widget's post-update reload) racing an in-flight fetch, can never mix data from two different loads", async () => {
+  const effect = loadClassDataEffect(await readSource());
+  assert.match(effect, /const generation = \+\+classDataGenerationRef\.current;/);
+  assert.match(effect, /if \(classDataGenerationRef\.current !== generation\) return;/);
 });
 
 test("each section's error is also surfaced inline in that section (학생 관리/학생 진도/차시 잠금/문제은행), not only in the summary cards", async () => {

@@ -1,7 +1,8 @@
 import TeacherActivities from "../features/activities/TeacherActivities";
+import UpdateStatusWidget from "../features/teacher/UpdateStatusWidget";
 import { getSupabase } from "../lib/supabase";
 import { Link } from "react-router-dom";
-import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
+import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { classifyTeacherError, type TeacherErrorInfo } from "../lib/teacherErrors";
 import { classifyClassCreateError } from "../lib/classCreateErrors";
 import { encodeInstallationConfig, getResolvedSupabaseConfig } from "../lib/config";
@@ -238,51 +239,51 @@ export default function TeacherPage() {
     setResultsSummary(null);
   }, [classId]);
 
+  // Stable generation counter (not React state -- a plain ref is enough
+  // since it only ever guards which async response is allowed to write
+  // state, never something the UI itself renders) so a rapid class switch,
+  // or the update widget triggering a manual refresh mid-flight, can never
+  // let a stale response overwrite a newer one's data.
+  const classDataGenerationRef = useRef(0);
+  const loadClassData = useCallback(async (targetClassId: string) => {
+    const generation = ++classDataGenerationRef.current;
+    setClassDataLoading(true);
+    setProgressLoading(true);
+    const [studentsResult, lessonsResult, problemsResult, progressResult] = await Promise.allSettled([
+      teacherListStudents(targetClassId),
+      teacherListLessonSettings(targetClassId),
+      teacherListProblems(targetClassId),
+      teacherProgressSummary(targetClassId),
+    ]);
+    if (classDataGenerationRef.current !== generation) return;
+
+    if (studentsResult.status === "fulfilled") { setStudents(studentsResult.value.students); setStudentsError(null); }
+    else setStudentsError(classifyTeacherError(studentsResult.reason));
+
+    if (lessonsResult.status === "fulfilled") { setLessons(lessonsResult.value.lessons); setLessonsError(null); }
+    else setLessonsError(classifyTeacherError(lessonsResult.reason));
+
+    if (problemsResult.status === "fulfilled") {
+      setProblems(problemsResult.value.customProblems);
+      setBuiltinCount(problemsResult.value.builtinCount);
+      setProblemsError(null);
+    } else setProblemsError(classifyTeacherError(problemsResult.reason));
+
+    if (progressResult.status === "fulfilled") { setProgressStudents(progressResult.value.students); setProgressSummaryError(null); }
+    else setProgressSummaryError(classifyTeacherError(progressResult.reason));
+
+    setClassDataLoading(false);
+    setProgressLoading(false);
+  }, []);
+
   useEffect(() => {
     if (!classId) return;
-
-    let cancelled = false;
-
     // 학급을 바꾸는 순간 이전 학급의 데이터/오류 상태를 먼저 비운다 --
     // 그래야 새 학급 로딩 중에 이전 학급 숫자가 잠깐이라도 남아 보이지 않는다.
     setStudents([]); setLessons([]); setProblems([]); setBuiltinCount(0); setProgressStudents([]);
     setStudentsError(null); setLessonsError(null); setProblemsError(null); setProgressSummaryError(null);
-    setClassDataLoading(true);
-    setProgressLoading(true);
-
-    const loadClassData = async () => {
-      const [studentsResult, lessonsResult, problemsResult, progressResult] = await Promise.allSettled([
-        teacherListStudents(classId),
-        teacherListLessonSettings(classId),
-        teacherListProblems(classId),
-        teacherProgressSummary(classId),
-      ]);
-      if (cancelled) return;
-
-      if (studentsResult.status === "fulfilled") setStudents(studentsResult.value.students);
-      else setStudentsError(classifyTeacherError(studentsResult.reason));
-
-      if (lessonsResult.status === "fulfilled") setLessons(lessonsResult.value.lessons);
-      else setLessonsError(classifyTeacherError(lessonsResult.reason));
-
-      if (problemsResult.status === "fulfilled") {
-        setProblems(problemsResult.value.customProblems);
-        setBuiltinCount(problemsResult.value.builtinCount);
-      } else setProblemsError(classifyTeacherError(problemsResult.reason));
-
-      if (progressResult.status === "fulfilled") setProgressStudents(progressResult.value.students);
-      else setProgressSummaryError(classifyTeacherError(progressResult.reason));
-
-      setClassDataLoading(false);
-      setProgressLoading(false);
-    };
-
-    loadClassData();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [classId]);
+    void loadClassData(classId);
+  }, [classId, loadClassData]);
 
   const createStudent = async (event: FormEvent) => {
     event.preventDefault();
@@ -531,6 +532,7 @@ export default function TeacherPage() {
       <div className="stack" style={{ gap: 16 }}>
         <div className="student-world-heading"><div><p className="eyebrow">TEACHER CONSOLE</p><h1>교사 관리</h1><p className="muted">학급의 학습 흐름과 활동을 한곳에서 관리합니다.</p></div><div className="toolbar-row"><Link className="btn btn-sm" to="/teacher/problems/new">3D 문제 만들기</Link></div></div>
         <nav className="teacher-nav" aria-label="교사 메뉴"><a href="#classes">대시보드</a><a href="#live-status">수업 현황</a><a href="#progress">학생 진도</a><a href="#students">학생 관리</a><a href="#lessons">차시 관리</a><a href="#problem-bank">문제은행 관리</a><a href="/teacher/problems/new">문제은행</a><a href="/teacher/problem-preview">문제 미리보기</a><a href="#results">수업 결과</a><a href="#activities">놀이·친구 문제</a><button type="button" className="btn btn-sm" onClick={() => setHelpOpen(true)}>도움말</button></nav>
+        <UpdateStatusWidget onUpdated={() => { if (classId) { void loadClassData(classId); void loadSessions(classId); } }} />
 
         {helpOpen && (
           <div role="dialog" aria-label="교사 도움말" className="help-drawer">

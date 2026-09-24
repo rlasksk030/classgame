@@ -6,11 +6,12 @@ import {
   getRuntimeSupabaseConfig,
   hasInvalidInstallationConfigHash,
   encodeInstallationConfig,
+  projectRefFromUrl,
   saveRuntimeSupabaseConfig,
   validateRuntimeSupabaseConfig,
   type RuntimeSupabaseConfig,
 } from "../lib/config";
-import { clearInstallerProgress, getOrCreatePendingInstallationId, readInstallerProgress, saveInstallerProgress, type InstallerStep } from "../lib/installer";
+import { clearInstallerProgress, consumeInstallerResumeUpdate, getOrCreatePendingInstallationId, readInstallerProgress, saveInstallerProgress, type InstallerStep } from "../lib/installer";
 import { getConfiguredInstallerClient, InstallerClientError, type InstallerAccessibleProject, type InstallerRemoteStatus, type InstallerStatusResponse } from "../lib/installerClient";
 import { getSupabase } from "../lib/supabase";
 import {
@@ -46,16 +47,6 @@ function friendlyAuthError(error: unknown): string {
   if (code === "invalid_credentials") return "이메일 또는 비밀번호를 확인해 주세요.";
   if (code === "email_not_confirmed") return "교사 이메일 확인이 아직 필요합니다.";
   return "교사 로그인을 확인하지 못했습니다. 잠시 뒤 다시 시도해 주세요.";
-}
-
-function projectRefFromUrl(value: string): string | null {
-  try {
-    const url = new URL(value);
-    const match = url.hostname.match(/^([a-z0-9-]+)\.supabase\.co$/i);
-    return match?.[1] ?? null;
-  } catch {
-    return null;
-  }
 }
 
 function installerStatusLabel(status: InstallerRemoteStatus): string {
@@ -189,6 +180,23 @@ export default function SetupPage() {
     void checkInstallerConnection(() => active);
     return () => { active = false; };
   }, [oauthCallbackPending, connectionVerified, installerClient, runtimeConfig?.supabasePublishableKey, step, supabaseUrl, vite.environment]);
+
+  // Reconnect started from the teacher-page update widget (not this wizard):
+  // once the OAuth round trip above has finished rebinding the same project
+  // (oauthCallbackPending false, connectionVerified true), finish the update
+  // that was interrupted and send the teacher straight back to /teacher --
+  // never make them walk this step-by-step wizard for a routine reconnect.
+  useEffect(() => {
+    if (oauthCallbackPending || !connectionVerified || !installerClient) return;
+    if (!consumeInstallerResumeUpdate()) return;
+    let active = true;
+    void (async () => {
+      try { await installerClient.update(installerTarget()); }
+      catch { /* best effort -- the teacher page re-checks status itself and will show its own error */ }
+      finally { if (active) navigate("/teacher"); }
+    })();
+    return () => { active = false; };
+  }, [oauthCallbackPending, connectionVerified, installerClient]);
 
   const connect = async (event: FormEvent) => {
     event.preventDefault(); setError(null); setMessage(null);
