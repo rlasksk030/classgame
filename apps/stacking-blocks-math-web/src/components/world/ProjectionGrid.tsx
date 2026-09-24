@@ -45,21 +45,21 @@ export function ProjectionGrid({ title, rows, editable, onChange, valueType, rev
                         <button
                           type="button"
                           className="number-cell-step"
-                          onClick={() => stepNumber(r, c, -1)}
-                          aria-label={`${title} ${r + 1}행 ${c + 1}열 감소`}
-                          disabled={!editable || value <= 0}
-                        >
-                          －
-                        </button>
-                        <span className="number-cell-value" aria-live="polite">{value}</span>
-                        <button
-                          type="button"
-                          className="number-cell-step"
                           onClick={() => stepNumber(r, c, 1)}
                           aria-label={`${title} ${r + 1}행 ${c + 1}열 증가`}
                           disabled={!editable || value >= 9}
                         >
                           ＋
+                        </button>
+                        <span className="number-cell-value" aria-live="polite">{value}</span>
+                        <button
+                          type="button"
+                          className="number-cell-step"
+                          onClick={() => stepNumber(r, c, -1)}
+                          aria-label={`${title} ${r + 1}행 ${c + 1}열 감소`}
+                          disabled={!editable || value <= 0}
+                        >
+                          －
                         </button>
                       </div>
                     </td>
