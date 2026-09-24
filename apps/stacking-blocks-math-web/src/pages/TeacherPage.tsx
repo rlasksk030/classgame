@@ -1,10 +1,11 @@
 import TeacherActivities from "../features/activities/TeacherActivities";
 import { getSupabase } from "../lib/supabase";
 import { Link } from "react-router-dom";
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import { classifyTeacherError } from "../lib/teacherErrors";
 import { classifyClassCreateError } from "../lib/classCreateErrors";
 import { encodeInstallationConfig, getResolvedSupabaseConfig } from "../lib/config";
+import { summarizeClassLiveStatus, type LiveStatus } from "../../shared/teacherSessions.ts";
 
 import {
   teacherCreateStudent,
@@ -17,12 +18,16 @@ import {
   teacherProgressSummary,
   teacherResetClassProgress,
   teacherResetStudentPin,
+  teacherResultsSummary,
+  teacherSessionsList,
   teacherSetLessonLock,
   teacherSetProblemActive,
   teacherToggleStudent,
   type ClassData,
   type LessonProgressState,
+  type LessonResultSummary,
   type LessonSettingRow,
+  type StudentLiveStatus,
   type TeacherProblem,
   type TeacherProgressStudentRow,
   type TeacherStudentRow,
@@ -33,6 +38,15 @@ const LESSON_STATE_LABEL: Record<LessonProgressState, string> = {
   in_progress: "진행 중",
   complete: "완료",
 };
+
+const LIVE_STATUS_LABEL: Record<LiveStatus, string> = {
+  active: "접속 중 추정",
+  recent: "최근 활동",
+  session_only: "로그인 세션 있음",
+  offline: "로그인 세션 없음",
+};
+
+const STALE_ACTIVITY_MIN = 15;
 
 /** 학생 1명의 전체 진행 상태를 3단계로 요약한다 (12차시 완료 = 전체 과정 완료로 간주). */
 function studentOverallStatus(row: TeacherProgressStudentRow): LessonProgressState {
@@ -82,6 +96,14 @@ export default function TeacherPage() {
   const [progressSort, setProgressSort] = useState<"name" | "currentLesson" | "recentActivity">("name");
   const [resetLessonScope, setResetLessonScope] = useState<"all" | number>("all");
   const [resetBusy, setResetBusy] = useState(false);
+  const [sessionsStudents, setSessionsStudents] = useState<StudentLiveStatus[]>([]);
+  const [sessionsError, setSessionsError] = useState<string | null>(null);
+  const [lastSyncAt, setLastSyncAt] = useState<number | null>(null);
+  const [serverHealthy, setServerHealthy] = useState<boolean | null>(null);
+  const [resultsLesson, setResultsLesson] = useState<number | null>(null);
+  const [resultsSummary, setResultsSummary] = useState<LessonResultSummary | null>(null);
+  const [resultsLoading, setResultsLoading] = useState(false);
+  const [resultsError, setResultsError] = useState<string | null>(null);
 
   const selectedClass = useMemo(() => classes.find((row) => row.id === classId) ?? null, [classes, classId]);
   const filteredProblems = useMemo(() => {
@@ -134,6 +156,17 @@ export default function TeacherPage() {
     });
   }, [progressStudents, progressSearch, progressLessonFilter, progressStatusFilter, progressSort]);
 
+  const liveStatusById = useMemo(() => new Map(sessionsStudents.map((row) => [row.studentId, row])), [sessionsStudents]);
+  const liveStatusSummary = useMemo(() => summarizeClassLiveStatus(sessionsStudents), [sessionsStudents]);
+  const staleActivityStudents = useMemo(() => {
+    const now = Date.now();
+    return sessionsStudents.filter((row) => {
+      if (!row.hasActiveSession) return false;
+      if (!row.lastActivityAt) return true;
+      return (now - new Date(row.lastActivityAt).getTime()) / 60000 > STALE_ACTIVITY_MIN;
+    }).map((row) => students.find((s) => s.id === row.studentId)?.name ?? row.studentId);
+  }, [sessionsStudents, students]);
+
   const load = async () => {
     try {
       setError(null);
@@ -151,6 +184,11 @@ export default function TeacherPage() {
   useEffect(() => {
     load();
   }, []);
+
+  useEffect(() => {
+    setResultsLesson(null);
+    setResultsSummary(null);
+  }, [classId]);
 
   useEffect(() => {
     if (!classId) return;
@@ -268,6 +306,58 @@ export default function TeacherPage() {
     }
   };
 
+  // 수업 현황(Phase 3A) 전용 오류/헬스 상태 -- 이 fetch 가 실패해도 기존
+  // 진도표(progressStudents)는 별도 상태이므로 함께 깨지지 않는다.
+  const loadSessions = useCallback(async (targetClassId: string) => {
+    try {
+      const payload = await teacherSessionsList(targetClassId);
+      setSessionsStudents(payload.students);
+      setSessionsError(null);
+      setServerHealthy(true);
+      setLastSyncAt(Date.now());
+    } catch (err) {
+      setSessionsError(err instanceof Error ? err.message : "수업 현황을 불러오지 못했습니다.");
+      setServerHealthy(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!classId) { setSessionsStudents([]); return; }
+    let cancelled = false;
+    const poll = async () => {
+      if (document.hidden) return; // 백그라운드 탭에서는 polling을 쉰다.
+      if (!cancelled) await loadSessions(classId);
+    };
+    void poll();
+    const intervalId = setInterval(poll, 10000);
+    return () => { cancelled = true; clearInterval(intervalId); };
+  }, [classId, loadSessions]);
+
+  // 수업 결과(Phase 3C)는 polling하지 않는다 -- 학급/차시 변경 또는 수동
+  // 새로고침 때만 가져온다.
+  const loadResults = useCallback(async (targetClassId: string, lesson: number) => {
+    setResultsLoading(true);
+    try {
+      const payload = await teacherResultsSummary(targetClassId, lesson);
+      setResultsSummary(payload.summary);
+      setResultsError(null);
+    } catch (err) {
+      setResultsError(err instanceof Error ? err.message : "수업 결과를 불러오지 못했습니다.");
+    } finally {
+      setResultsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!classId || !progressStudents.length) return;
+    if (resultsLesson === null) setResultsLesson(progressSummary.mostCommonLesson ?? 1);
+  }, [classId, progressStudents.length, progressSummary.mostCommonLesson, resultsLesson]);
+
+  useEffect(() => {
+    if (!classId || resultsLesson === null) return;
+    void loadResults(classId, resultsLesson);
+  }, [classId, resultsLesson, loadResults]);
+
   const toggleLessonLock = async (lesson: number, locked: boolean) => {
     try {
       await teacherSetLessonLock(classId, lesson, locked);
@@ -336,7 +426,7 @@ export default function TeacherPage() {
     <div className="screen app-max">
       <div className="stack" style={{ gap: 16 }}>
         <div className="student-world-heading"><div><p className="eyebrow">TEACHER CONSOLE</p><h1>교사 관리</h1><p className="muted">학급의 학습 흐름과 활동을 한곳에서 관리합니다.</p></div><div className="toolbar-row"><Link className="btn btn-sm" to="/teacher/problems/new">3D 문제 만들기</Link><Link className="btn btn-sm" to="/teacher/worksheet-import">학습지로 문제 만들기</Link></div></div>
-        <nav className="teacher-nav" aria-label="교사 메뉴"><a href="#classes">대시보드</a><a href="#students">학생 관리</a><a href="#progress">학생 진도</a><a href="#lessons">차시 관리</a><a href="#problem-bank">문제은행 관리</a><a href="/teacher/problems/new">문제은행</a><a href="/teacher/problem-preview">문제 미리보기</a><a href="/teacher/worksheet-import">학습지</a><a href="#activities">놀이·친구 문제</a></nav>
+        <nav className="teacher-nav" aria-label="교사 메뉴"><a href="#classes">대시보드</a><a href="#students">학생 관리</a><a href="#live-status">수업 현황</a><a href="#progress">학생 진도</a><a href="#results">수업 결과</a><a href="#lessons">차시 관리</a><a href="#problem-bank">문제은행 관리</a><a href="/teacher/problems/new">문제은행</a><a href="/teacher/problem-preview">문제 미리보기</a><a href="/teacher/worksheet-import">학습지</a><a href="#activities">놀이·친구 문제</a></nav>
 
         <section className="teacher-summary-grid" aria-label="학급 요약">
           <div className="panel"><span className="summary-label">학생 수</span><strong className="summary-number">{students.length}명</strong><p className="muted">선택한 학급</p></div>
@@ -349,7 +439,29 @@ export default function TeacherPage() {
           <div className="panel"><span className="summary-label">최근 활동</span><strong className="summary-number">{progressSummary.recentActivity}명</strong><p className="muted">최근 10분 이내 학습 기록{progressSummary.lastActivityAt ? ` · 마지막 ${formatLastActivity(progressSummary.lastActivityAt)}` : ""}</p></div>
         </section>
 
-        <div className="toolbar-row"><a className="btn btn-sm" href="#progress">학생 진도 보기</a><a className="btn btn-sm" href="#lessons">차시 설정</a><a className="btn btn-sm" href="#students">학생 관리</a></div>
+        <div className="toolbar-row"><a className="btn btn-sm" href="#live-status">수업 현황 보기</a><a className="btn btn-sm" href="#progress">학생 진도 보기</a><a className="btn btn-sm" href="#results">수업 결과 보기</a><a className="btn btn-sm" href="#lessons">차시 설정</a><a className="btn btn-sm" href="#students">학생 관리</a></div>
+
+        <section className="panel stack" id="live-status">
+          <h3>수업 현황</h3>
+          <div className="toolbar-row" style={{ alignItems: "center", flexWrap: "wrap" }}>
+            <span className={`server-health-dot ${serverHealthy === false ? "bad" : serverHealthy === true ? "ok" : ""}`}>
+              {serverHealthy === false ? "상태 확인 실패" : serverHealthy === true ? "서버 연결 정상" : "확인 중…"}
+            </span>
+            <span className="muted">{lastSyncAt ? `마지막 갱신 ${formatLastActivity(new Date(lastSyncAt).toISOString())}` : "아직 갱신 전"}</span>
+            <button className="btn btn-sm" type="button" onClick={() => classId && void loadSessions(classId)}>상태 새로고침</button>
+          </div>
+          {sessionsError ? <p className="error" role="alert">수업 현황을 불러오지 못했습니다.</p> : (
+            <div className="teacher-summary-grid" aria-label="수업 현황 요약">
+              <div className="panel"><span className="summary-label">접속 중 추정</span><strong className="summary-number">{liveStatusSummary.estimatedActive}명</strong><p className="muted">세션 + 최근 5분 활동</p></div>
+              <div className="panel"><span className="summary-label">최근 5분 활동</span><strong className="summary-number">{liveStatusSummary.activeWithin5Min}명</strong><p className="muted">최근 학습 기록 기준</p></div>
+              <div className="panel"><span className="summary-label">최근 10분 활동</span><strong className="summary-number">{liveStatusSummary.activeWithin10Min}명</strong><p className="muted">최근 학습 기록 기준</p></div>
+              <div className="panel"><span className="summary-label">로그인 세션 없음</span><strong className="summary-number">{liveStatusSummary.noSession}명</strong><p className="muted">로그아웃 또는 세션 만료</p></div>
+            </div>
+          )}
+          {staleActivityStudents.length > 0 ? (
+            <p className="muted">상태 확인이 필요한 학생: {staleActivityStudents.join(", ")} — 최근 저장 기록이 없습니다.</p>
+          ) : null}
+        </section>
 
         <section className="panel stack" id="classes">
           <h3>반 선택</h3>
@@ -479,6 +591,7 @@ export default function TeacherPage() {
                 <thead>
                   <tr>
                     <th className="sticky-col">이름</th>
+                    <th>상태</th>
                     <th className="sticky-col">현재 차시</th>
                     <th>1~12차시</th>
                     <th>필수 진행</th>
@@ -488,9 +601,16 @@ export default function TeacherPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredProgressStudents.map((row) => (
+                  {filteredProgressStudents.map((row) => {
+                    const live = liveStatusById.get(row.studentId);
+                    return (
                     <tr key={row.studentId}>
                       <td className="sticky-col"><Link to={`/teacher/students/${row.studentId}`}>{row.name}</Link></td>
+                      <td>
+                        <span className="live-dot" data-state={live?.indicator ?? "off"} title={live ? LIVE_STATUS_LABEL[live.status] : "확인 중"}>
+                          {live?.indicator === "on" ? "●" : "○"}
+                        </span>
+                      </td>
                       <td className="sticky-col">{row.currentLesson}차시</td>
                       <td>
                         <div className="lesson-state-row">
@@ -506,7 +626,8 @@ export default function TeacherPage() {
                       <td>{row.optionalPracticeCount}</td>
                       <td>{formatLastActivity(row.lastActivityAt)}</td>
                     </tr>
-                  ))}
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
@@ -525,6 +646,43 @@ export default function TeacherPage() {
               </button>
             </div>
           </div>
+        </section>
+
+        <section className="panel stack" id="results">
+          <h3>수업 결과</h3>
+          <div className="toolbar-row" style={{ alignItems: "center" }}>
+            <label className="muted">차시 선택
+              <select className="field" aria-label="결과 차시 선택" value={resultsLesson ?? ""} onChange={(e) => setResultsLesson(Number(e.target.value))}>
+                {Array.from({ length: 12 }, (_, i) => i + 1).map((lesson) => <option key={lesson} value={lesson}>{lesson}차시</option>)}
+              </select>
+            </label>
+            <button className="btn btn-sm" type="button" disabled={resultsLoading || resultsLesson === null} onClick={() => classId && resultsLesson !== null && void loadResults(classId, resultsLesson)}>
+              결과 새로고침
+            </button>
+          </div>
+
+          {resultsError ? <p className="error" role="alert">수업 결과를 불러오지 못했습니다.</p> : resultsLoading ? (
+            <p className="muted">불러오는 중…</p>
+          ) : resultsSummary ? (
+            <div className="stack">
+              <div className="teacher-summary-grid" aria-label="수업 결과 요약">
+                <div className="panel"><span className="summary-label">참여 학생</span><strong className="summary-number">{resultsSummary.participatedStudents}/{resultsSummary.totalStudents}</strong><p className="muted">이 차시를 시도한 학생</p></div>
+                <div className="panel"><span className="summary-label">완료</span><strong className="summary-number">{resultsSummary.completedStudents}명</strong><p className="muted">완료율 {resultsSummary.completionRate}%</p></div>
+                <div className="panel"><span className="summary-label">평균 오답</span><strong className="summary-number">{resultsSummary.averageWrongCount}회</strong><p className="muted">참여 학생 기준</p></div>
+                <div className="panel"><span className="summary-label">선택 연습 참여</span><strong className="summary-number">{resultsSummary.optionalPracticeParticipants}명</strong><p className="muted">{resultsSummary.optionalPracticeAttempts}회 시도</p></div>
+              </div>
+              {resultsSummary.problemTypeStats.length > 0 ? (
+                <div className="stack">
+                  <h4>많이 어려워한 유형</h4>
+                  <ol>
+                    {resultsSummary.problemTypeStats.slice(0, 3).map((stat) => (
+                      <li key={stat.problemType}>{stat.label} — 오답률 {stat.wrongRate}% ({stat.wrongAttempts}/{stat.attempts}회)</li>
+                    ))}
+                  </ol>
+                </div>
+              ) : <p className="muted">아직 이 차시를 시도한 기록이 없습니다.</p>}
+            </div>
+          ) : <p className="muted">차시를 선택하면 결과가 표시됩니다.</p>}
         </section>
 
         <section className="panel stack" id="lessons">

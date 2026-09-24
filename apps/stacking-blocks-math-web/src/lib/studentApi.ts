@@ -433,6 +433,28 @@ export function teacherResetClassProgress(classId: string, lesson?: number) {
   );
 }
 
+export type { StudentLiveStatus } from "../../shared/teacherSessions.ts";
+import type { StudentLiveStatus } from "../../shared/teacherSessions.ts";
+
+export function teacherSessionsList(classId: string) {
+  return callFunction<{ students: StudentLiveStatus[] }>(
+    "student-api",
+    { action: "teacher:sessions:list", classId },
+    true,
+  );
+}
+
+export type { LessonResultSummary, ProblemTypeStat } from "../../shared/teacherResults.ts";
+import type { LessonResultSummary } from "../../shared/teacherResults.ts";
+
+export function teacherResultsSummary(classId: string, lesson: number) {
+  return callFunction<{ summary: LessonResultSummary }>(
+    "student-api",
+    { action: "teacher:results:summary", classId, lesson },
+    true,
+  );
+}
+
 export interface TeacherPeerProblemRow {
   problemId: string;
   version: number;

@@ -19,6 +19,8 @@ import { deriveProblemPresentation } from "../../../shared/problemPresentation.t
 import { REWARD_CATALOG, rewardUnlocked, sanitizeMaterial, sanitizeTheme, type RewardMaterial, type RewardTheme } from "../../../shared/rewards.ts";
 import { grade as gradeShared } from "../../../shared/grading.ts";
 import { summarizeStudentProgress, type AttemptSourceRow, type ProgressSourceRow } from "../../../shared/teacherProgress.ts";
+import { summarizeStudentLiveStatus, type SessionSourceRow } from "../../../shared/teacherSessions.ts";
+import { summarizeLessonResults, type ResultAttemptRow, type ResultProgressRow, type ResultProblemRow } from "../../../shared/teacherResults.ts";
 import { serviceClient, requireTeacher, teacherOwnsClass } from "../_shared/db.ts";
 import {
   fail,
@@ -78,7 +80,9 @@ type Action =
   | "teacher:problems:list"
   | "teacher:problems:set-active"
   | "teacher:progress:summary"
-  | "teacher:progress:reset-class";
+  | "teacher:progress:reset-class"
+  | "teacher:sessions:list"
+  | "teacher:results:summary";
 
 interface BaseBody {
   action?: string;
@@ -1508,6 +1512,93 @@ Deno.serve(async (req: Request) => {
       }
 
       return ok({ ok: true, targetedCount: studentIds.length, lesson });
+    }
+
+    if (action === "teacher:sessions:list") {
+      const classId = text(body.classId, 80);
+      const owns = await teacherOwnsClass(db, teacherId, classId);
+      if (!owns) return fail(403, "FORBIDDEN_CLASS", "해당 반에 접근할 수 없습니다.");
+
+      const { data: studentRows, error: studentsErr } = await db.from("sb_students").select("id").eq("class_id", classId);
+      if (studentsErr) return fail(500, "SESSIONS_LOAD_FAILED", "학생 목록을 불러오지 못했습니다.");
+      const studentIds = (studentRows ?? []).map((row) => String(row.id));
+      if (studentIds.length === 0) return ok({ students: [] });
+
+      // sb_student_sessions는 RLS 정책이 없어 service-role 경로로만 읽는다
+      // (교사 클라이언트가 직접 조회할 수 없는 경계를 유지). token_hash 등
+      // 민감한 컬럼은 아예 select 하지 않는다.
+      const [sessionsRes, attemptsRes, progressRes] = await Promise.all([
+        db.from("sb_student_sessions").select("student_id,issued_at,expires_at,revoked").in("student_id", studentIds),
+        db.from("sb_problem_attempts").select("student_id,updated_at").in("student_id", studentIds),
+        db.from("sb_student_progress").select("student_id,updated_at").in("student_id", studentIds),
+      ]);
+      if (sessionsRes.error || attemptsRes.error || progressRes.error) return fail(500, "SESSIONS_LOAD_FAILED", "접속 정보를 불러오지 못했습니다.");
+
+      const sessionsByStudent = new Map<string, SessionSourceRow[]>();
+      for (const row of sessionsRes.data ?? []) {
+        const sid = String(row.student_id);
+        if (!sessionsByStudent.has(sid)) sessionsByStudent.set(sid, []);
+        sessionsByStudent.get(sid)!.push({ issued_at: String(row.issued_at), expires_at: String(row.expires_at), revoked: Boolean(row.revoked) });
+      }
+      const lastActivityByStudent = new Map<string, string>();
+      for (const row of [...(attemptsRes.data ?? []), ...(progressRes.data ?? [])]) {
+        const sid = String(row.student_id);
+        const ts = String(row.updated_at);
+        const prev = lastActivityByStudent.get(sid);
+        if (!prev || ts > prev) lastActivityByStudent.set(sid, ts);
+      }
+
+      const students = studentIds.map((sid) =>
+        summarizeStudentLiveStatus(sid, sessionsByStudent.get(sid) ?? [], lastActivityByStudent.get(sid) ?? null),
+      );
+      return ok({ students });
+    }
+
+    if (action === "teacher:results:summary") {
+      const classId = text(body.classId, 80);
+      const owns = await teacherOwnsClass(db, teacherId, classId);
+      if (!owns) return fail(403, "FORBIDDEN_CLASS", "해당 반에 접근할 수 없습니다.");
+      const lesson = toInt(body.lesson);
+      if (lesson !== null && lesson > 12) return fail(400, "BAD_LESSON", "lesson 값은 1~12 사이여야 합니다.");
+
+      const { data: studentRows, error: studentsErr } = await db.from("sb_students").select("id").eq("class_id", classId);
+      if (studentsErr) return fail(500, "RESULTS_LOAD_FAILED", "학생 목록을 불러오지 못했습니다.");
+      const studentIds = (studentRows ?? []).map((row) => String(row.id));
+      const totalStudents = studentIds.length;
+
+      if (totalStudents === 0 || lesson === null) {
+        return ok({ summary: summarizeLessonResults(lesson ?? 0, totalStudents, [], [], []) });
+      }
+
+      const [attemptsRes, progressRes] = await Promise.all([
+        db.from("sb_problem_attempts").select("student_id,problem_id,wrong_count").in("student_id", studentIds).eq("lesson", lesson),
+        db.from("sb_student_progress").select("student_id,completed").in("student_id", studentIds).eq("lesson", lesson),
+      ]);
+      if (attemptsRes.error || progressRes.error) return fail(500, "RESULTS_LOAD_FAILED", "결과 정보를 불러오지 못했습니다.");
+
+      const attemptRows: ResultAttemptRow[] = (attemptsRes.data ?? []).map((a) => ({
+        student_id: String(a.student_id),
+        problem_id: String(a.problem_id),
+        wrong_count: Number(a.wrong_count ?? 0),
+      }));
+      const progressRows: ResultProgressRow[] = (progressRes.data ?? []).map((p) => ({
+        student_id: String(p.student_id),
+        completed: Boolean(p.completed),
+      }));
+
+      const problemIds = [...new Set(attemptRows.map((a) => a.problem_id))];
+      const problemsRes = problemIds.length
+        ? await db.from("sb_problems").select("id,problem_type,code").in("id", problemIds)
+        : { data: [] as Array<{ id: string; problem_type: string; code: string | null }>, error: null };
+      if (problemsRes.error) return fail(500, "RESULTS_LOAD_FAILED", "문제 정보를 불러오지 못했습니다.");
+      const problemRows: ResultProblemRow[] = (problemsRes.data ?? []).map((p) => ({
+        id: String(p.id),
+        problem_type: parseProblemType(p.problem_type),
+        code: p.code ?? null,
+      }));
+
+      const summary = summarizeLessonResults(lesson, totalStudents, attemptRows, progressRows, problemRows);
+      return ok({ summary });
     }
 
     if (action === "teacher:lessons:list") {

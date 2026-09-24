@@ -485,6 +485,12 @@ button {
 .lesson-state-cell[data-state="in_progress"] { background: var(--sky); color: #fff; }
 .lesson-state-cell[data-state="complete"] { background: var(--grass); color: #fff; }
 .sticky-col { position: sticky; left: 0; background: #fff; }
+.server-health-dot { font-weight: 800; font-size: 13px; padding: 4px 10px; border-radius: 999px; background: var(--line-soft); color: var(--ink-soft); }
+.server-health-dot.ok { background: var(--grass); color: #fff; }
+.server-health-dot.bad { background: #c0392b; color: #fff; }
+.live-dot { font-size: 14px; }
+.live-dot[data-state="on"] { color: var(--grass); }
+.live-dot[data-state="off"] { color: var(--ink-soft); }
 .teacher-nav a { padding: 8px 12px; border-radius: 7px; color: var(--ink-soft); font-weight: 700; text-decoration: none; }
 .teacher-nav a:hover, .teacher-nav a:focus-visible { background: #e8f2ff; color: var(--sky-dark); }
 .reward-summary { min-height: 150px; border: 1px solid var(--line-soft); box-shadow: 0 3px 10px rgba(43,42,38,.08); }
