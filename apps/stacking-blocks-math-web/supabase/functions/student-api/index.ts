@@ -856,8 +856,14 @@ Deno.serve(async (req: Request) => {
       const parsed=(problemRows as DbProblemRow[]|null)?.map(row=>parseProblemRow(row)).filter(Boolean)??[];
       const merged = [...parsed];
       const requiredIds=requiredSolveIds(parsed.filter((p): p is NonNullable<typeof p> => p !== null));
-      const {data:requiredAttempts}=requiredIds.length?await db.from("sb_problem_attempts").select("problem_id,completed").eq("student_id",studentSession.studentId).in("problem_id",requiredIds):{data:[] as {problem_id:string;completed:boolean}[]};
-      const requiredComplete=requiredIds.length>0&&requiredIds.every(id=>requiredAttempts?.some(row=>row.problem_id===id&&row.completed));
+      // 필수 학습 흐름(개념+문제 풀기, stage!=='more') 전체의 완료 여부를 한 번에 조회한다 --
+      // 이어풀기 계산과 requiredComplete가 같은 완료 판정(서버의 sb_problem_attempts.completed)을
+      // 공유하므로, "완료로 보는 기준"이 두 값 사이에서 어긋날 수 없다.
+      const nonMoreProblems=parsed.filter((p): p is NonNullable<typeof p> => p !== null && p.stage!=='more');
+      const nonMoreIds=nonMoreProblems.map(p=>p.id);
+      const {data:nonMoreAttempts}=nonMoreIds.length?await db.from("sb_problem_attempts").select("problem_id,completed").eq("student_id",studentSession.studentId).in("problem_id",nonMoreIds):{data:[] as {problem_id:string;completed:boolean}[]};
+      const completedIds=new Set((nonMoreAttempts??[]).filter(row=>row.completed).map(row=>row.problem_id));
+      const requiredComplete=requiredIds.length>0&&requiredIds.every(id=>completedIds.has(id));
       const stages={concept:parsed.filter(p=>p?.stage==='concept').length,check:parsed.filter(p=>p?.stage==='check').length,more:parsed.filter(p=>p?.stage==='more').length};
 
       const problems = merged
@@ -872,11 +878,29 @@ Deno.serve(async (req: Request) => {
         .eq("lesson", lesson)
         .maybeSingle();
 
+      // 이어풀기: 클라이언트가 마지막으로 "본" 문제(last_problem_id)가 아니라,
+      // 서버에 기록된 실제 완료 여부를 기준으로 첫 번째 미완료 문제를 계산한다.
+      // 다른 기기 접속/브라우저 저장소 삭제/새로고침/재로그인 어디서든 동일하게
+      // 복원되어야 하기 때문이다 (명세: global lesson resume). 필수(개념+문제 풀기)를
+      // 먼저 보고, 다 마쳤다면 현재 배정된 선택 연습(③) 묶음(stage==='more', 이미 위에서
+      // 이번 seed로 필터링된 parsed 기준이라 이전 세트/비활성 문제는 섞이지 않는다) 안에서도
+      // 같은 방식으로 첫 미완료 문제를 찾는다 -- "1~4번 완료 후 5번부터" 시나리오는 실제로는
+      // 이 선택 연습 묶음 쪽에서 벌어진다 (차시당 정식 필수 문제는 1개뿐). 어느 쪽도 남지
+      // 않았을 때만 기존 last_problem_id로 폴백한다. nonMoreProblems/moreProblems 모두 이미
+      // order_index 순·활성 문제만 포함하므로 비활성화된 문제 때문에 진행이 막히지 않는다.
+      const moreProblems=parsed.filter((p): p is NonNullable<typeof p> => p !== null && p.stage==='more');
+      const moreIds=moreProblems.map(p=>p.id);
+      const {data:moreAttempts}=moreIds.length?await db.from("sb_problem_attempts").select("problem_id,completed").eq("student_id",studentSession.studentId).in("problem_id",moreIds):{data:[] as {problem_id:string;completed:boolean}[]};
+      const moreCompletedIds=new Set((moreAttempts??[]).filter(row=>row.completed).map(row=>row.problem_id));
+      const firstUnfinishedRequired=nonMoreProblems.find(p=>!completedIds.has(p.id));
+      const firstUnfinishedMore=moreProblems.find(p=>!moreCompletedIds.has(p.id));
+      const resumeProblemId=firstUnfinishedRequired?.id ?? firstUnfinishedMore?.id ?? progressPosition?.last_problem_id ?? null;
+
       return ok({
         problems,
         seedFallback: false,
         requiredComplete,
-        currentProblemId: progressPosition?.last_problem_id ?? null,
+        currentProblemId: resumeProblemId,
         practiceSet: practiceSetStatus((problemRows as DbProblemRow[]|null)??[],lesson,seed,targetCount,displayedSeed),
         stages,
         allowSimilar: lessonSetting?.allow_similar ?? true,
