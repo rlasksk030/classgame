@@ -2,7 +2,7 @@ import TeacherActivities from "../features/activities/TeacherActivities";
 import { getSupabase } from "../lib/supabase";
 import { Link } from "react-router-dom";
 import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
-import { classifyTeacherError } from "../lib/teacherErrors";
+import { classifyTeacherError, type TeacherErrorInfo } from "../lib/teacherErrors";
 import { classifyClassCreateError } from "../lib/classCreateErrors";
 import { encodeInstallationConfig, getResolvedSupabaseConfig } from "../lib/config";
 import { summarizeClassLiveStatus, type LiveStatus } from "../../shared/teacherSessions.ts";
@@ -112,7 +112,7 @@ export default function TeacherPage() {
   const [resetLessonScope, setResetLessonScope] = useState<"all" | number>("all");
   const [resetBusy, setResetBusy] = useState(false);
   const [sessionsStudents, setSessionsStudents] = useState<StudentLiveStatus[]>([]);
-  const [sessionsError, setSessionsError] = useState<string | null>(null);
+  const [sessionsError, setSessionsError] = useState<TeacherErrorInfo | null>(null);
   const [lastSyncAt, setLastSyncAt] = useState<number | null>(null);
   const [serverHealthy, setServerHealthy] = useState<boolean | null>(null);
   const [resultsLesson, setResultsLesson] = useState<number | null>(null);
@@ -362,7 +362,7 @@ export default function TeacherPage() {
 
   // 수업 현황(Phase 3A) 전용 오류/헬스 상태 -- 이 fetch 가 실패해도 기존
   // 진도표(progressStudents)는 별도 상태이므로 함께 깨지지 않는다.
-  const loadSessions = useCallback(async (targetClassId: string) => {
+  const loadSessions = useCallback(async (targetClassId: string, retryAfterAuthRefresh = true) => {
     try {
       const payload = await teacherSessionsList(targetClassId);
       setSessionsStudents(payload.students);
@@ -370,7 +370,19 @@ export default function TeacherPage() {
       setServerHealthy(true);
       setLastSyncAt(Date.now());
     } catch (err) {
-      setSessionsError(err instanceof Error ? err.message : "수업 현황을 불러오지 못했습니다.");
+      const info = classifyTeacherError(err);
+      // A long-open tab's Auth session can go stale (background-tab timer
+      // throttling, token rotation) well before the user notices -- one
+      // silent refresh-and-retry recovers most of those without ever
+      // surfacing an error, instead of forcing a manual page reload.
+      if (info.code === "TEACHER_AUTH" && retryAfterAuthRefresh) {
+        const { error: refreshErr } = await getSupabase().auth.refreshSession();
+        if (!refreshErr) {
+          await loadSessions(targetClassId, false);
+          return;
+        }
+      }
+      setSessionsError(info);
       setServerHealthy(false);
     }
   }, []);
@@ -537,7 +549,18 @@ export default function TeacherPage() {
             <span className="muted">{lastSyncAt ? `마지막 갱신 ${formatLastActivity(new Date(lastSyncAt).toISOString())}` : "아직 갱신 전"}</span>
             <button className="btn btn-sm" type="button" onClick={() => classId && void loadSessions(classId)}>상태 새로고침</button>
           </div>
-          {sessionsError ? <p className="error" role="alert">수업 현황을 불러오지 못했습니다.</p> : (
+          {sessionsError ? (
+            <p className="error" role="alert">
+              {sessionsError.code === "TEACHER_AUTH"
+                ? "로그인이 만료되었어요. 다시 로그인해 주세요."
+                : sessionsError.code === "SUPABASE_NETWORK_ERROR"
+                ? "서버에 연결하지 못했어요. 인터넷 연결을 확인한 뒤 다시 시도해 주세요."
+                : "수업 현황을 불러오지 못했습니다."}
+              {sessionsError.code === "TEACHER_AUTH" && (
+                <> <button type="button" className="btn btn-sm" onClick={() => void getSupabase().auth.signOut().then(() => window.location.reload())}>다시 로그인</button></>
+              )}
+            </p>
+          ) : (
             <div className="teacher-summary-grid" aria-label="수업 현황 요약">
               <div className="panel"><span className="summary-label">접속 중 추정</span><strong className="summary-number">{liveStatusSummary.estimatedActive}명</strong><p className="muted">세션 + 최근 5분 활동</p></div>
               <div className="panel"><span className="summary-label">최근 5분 활동</span><strong className="summary-number">{liveStatusSummary.activeWithin5Min}명</strong><p className="muted">최근 학습 기록 기준</p></div>

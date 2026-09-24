@@ -45,12 +45,22 @@ test("E. the sessions polling effect returns a cleanup that clears the interval 
 
 test("F. a compact server-connection indicator is derived from the sessions poll's own success/failure -- no separate new health endpoint", async () => {
   const page = await readSource("../src/pages/TeacherPage.tsx");
-  const loadSessionsBody = page.match(/const loadSessions = useCallback\(async \(targetClassId: string\) => \{[\s\S]*?\n {2}\}, \[\]\);/)?.[0];
+  const loadSessionsBody = page.match(/const loadSessions = useCallback\(async \(targetClassId: string[\s\S]*?\n {2}\}, \[\]\);/)?.[0];
   assert.ok(loadSessionsBody);
   assert.match(loadSessionsBody!, /setServerHealthy\(true\);/);
   assert.match(loadSessionsBody!, /setServerHealthy\(false\);/);
   const edge = await readSource("../supabase/functions/student-api/index.ts");
   assert.doesNotMatch(edge, /"teacher:health"|"teacher:ping"/, "no separate new health/ping action was added");
+});
+
+test("F2. a stale teacher Auth session (TEACHER_AUTH) triggers one silent refreshSession+retry before ever surfacing an error to the teacher", async () => {
+  const page = await readSource("../src/pages/TeacherPage.tsx");
+  const loadSessionsBody = page.match(/const loadSessions = useCallback\(async \(targetClassId: string[\s\S]*?\n {2}\}, \[\]\);/)?.[0];
+  assert.ok(loadSessionsBody);
+  assert.match(loadSessionsBody!, /const info = classifyTeacherError\(err\);/);
+  assert.match(loadSessionsBody!, /info\.code === "TEACHER_AUTH" && retryAfterAuthRefresh/);
+  assert.match(loadSessionsBody!, /getSupabase\(\)\.auth\.refreshSession\(\)/);
+  assert.match(loadSessionsBody!, /await loadSessions\(targetClassId, false\);/, "retry must pass false to avoid an infinite retry loop on a persistently invalid session");
 });
 
 test("G. a manual 상태 새로고침 button re-triggers the sessions fetch immediately (not just waiting for the next 10s tick)", async () => {
@@ -70,11 +80,24 @@ test("H. stale-activity wording is conservative -- '저장 실패' is never asse
 
 test("sessions failures render inside the live-status section only, via their own error state -- never the shared page-level error", async () => {
   const page = await readSource("../src/pages/TeacherPage.tsx");
-  assert.match(page, /const \[sessionsError, setSessionsError\]/);
+  assert.match(page, /const \[sessionsError, setSessionsError\] = useState<TeacherErrorInfo \| null>/);
   const liveStatusSection = page.match(/<section className="panel stack" id="live-status">[\s\S]*?<\/section>/)?.[0];
-  assert.match(liveStatusSection!, /\{sessionsError \? <p className="error" role="alert">/);
-  const loadSessionsBody = page.match(/const loadSessions = useCallback\(async \(targetClassId: string\) => \{[\s\S]*?\n {2}\}, \[\]\);/)?.[0];
+  assert.match(liveStatusSection!, /\{sessionsError \? \(/);
+  const loadSessionsBody = page.match(/const loadSessions = useCallback\(async \(targetClassId: string[\s\S]*?\n {2}\}, \[\]\);/)?.[0];
   assert.doesNotMatch(loadSessionsBody!, /setError\(/);
+});
+
+test("live-status error message is differentiated by real cause (classifyTeacherError code), not one hardcoded string for every failure -- catches the live bug where TEACHER_AUTH/network/unknown errors all rendered the identical unhelpful generic text", async () => {
+  const page = await readSource("../src/pages/TeacherPage.tsx");
+  const liveStatusSection = page.match(/<section className="panel stack" id="live-status">[\s\S]*?<\/section>/)?.[0];
+  assert.ok(liveStatusSection);
+  assert.match(liveStatusSection!, /sessionsError\.code === "TEACHER_AUTH"/);
+  assert.match(liveStatusSection!, /로그인이 만료되었어요/);
+  assert.match(liveStatusSection!, /sessionsError\.code === "SUPABASE_NETWORK_ERROR"/);
+  assert.match(liveStatusSection!, /서버에 연결하지 못했어요/);
+  // A TEACHER_AUTH failure gets an actionable relogin path, not a dead end.
+  assert.match(liveStatusSection!, /다시 로그인<\/button>/);
+  assert.match(liveStatusSection!, /getSupabase\(\)\.auth\.signOut\(\)\.then\(\(\) => window\.location\.reload\(\)\)/);
 });
 
 test("R. Phase 1/2 features remain present and untouched: problem bank toggle, peer moderation, progress table, class-wide reset", async () => {
