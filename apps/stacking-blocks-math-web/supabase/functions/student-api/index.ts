@@ -1061,36 +1061,13 @@ Deno.serve(async (req: Request) => {
           wrongCount: state.wrongCount,
           message: nextAttempt.message,
           hint: nextAttempt.sendHint ? (parsed.hint ?? "") : null,
-          revealedAnswer: nextAttempt.sendAnswer
-            ? {
-                blocks:
-                  parsed.answer.kind === "blocks"
-                    ? (state.answerRevealed ? canonicalize(parsed.answer.blocks) : undefined)
-                    : parsed.problemType === "BUILD_FROM_VIEWS" && state.answerRevealed && parsed.givenBlocks.length
-                      ? canonicalize(parsed.givenBlocks)
-                      : undefined,
-                count: parsed.answer.kind === "count" ? (state.answerRevealed ? parsed.answer.value : undefined) : undefined,
-                direction:
-                  parsed.answer.kind === "direction"
-                    ? (state.answerRevealed ? (parsed.answer.value as string | undefined) : undefined)
-                    : undefined,
-                choiceIndex:
-                  parsed.answer.kind === "choice" && state.answerRevealed ? parsed.answer.index : undefined,
-                projections:
-                  parsed.answer.kind === "projections" && state.answerRevealed
-                    ? safeJson(parsed.answer.projections, {})
-                    : undefined,
-                heightMap:
-                  parsed.answer.kind === "heightMap" && state.answerRevealed
-                    ? safeJson(parsed.answer.heightMap, [])
-                    : undefined,
-                layers:
-                  parsed.answer.kind === "layers" && state.answerRevealed
-                    ? safeJson(parsed.answer.layers, [])
-                    : undefined,
-                explanation: parsed.explanation ?? null,
-              }
-            : null,
+          // Reuse buildRevealedAnswer() rather than hand-duplicating this
+          // per-kind construction a second time -- the two implementations
+          // had already drifted (this inline copy's BUILD_FROM_VIEWS branch
+          // checked parsed.givenBlocks.length, which is always 0 for that
+          // type, so it never actually populated a 3D ghost here even after
+          // buildRevealedAnswer() was fixed to synthesize one).
+          revealedAnswer: nextAttempt.sendAnswer ? buildRevealedAnswer(parsed) : null,
           needsRebuild: nextAttempt.needsRebuild,
           completed: state.completed,
           xpEarned: nextAttempt.xpEarned,

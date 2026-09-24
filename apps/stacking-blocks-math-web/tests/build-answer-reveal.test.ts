@@ -42,6 +42,14 @@ async function readSource(path: string): Promise<string> {
   return readFile(new URL(path, import.meta.url), "utf8");
 }
 
+test("edge: the 'attempt' action (real-time grading, hit on every submission) reuses buildRevealedAnswer() instead of a separate hand-duplicated reveal construction -- catches the actual live bug where a duplicate copy's BUILD_FROM_VIEWS branch checked parsed.givenBlocks.length (always 0) and never populated a ghost even after buildRevealedAnswer() itself was fixed", async () => {
+  const edge = await readSource("../supabase/functions/student-api/index.ts");
+  const attemptBody = edge.match(/if \(action === "attempt"\) \{[\s\S]*?\n {4}\}\n\n {4}if \(action === "snapshot"/)?.[0];
+  assert.ok(attemptBody, "attempt handler must exist");
+  assert.match(attemptBody!, /revealedAnswer: nextAttempt\.sendAnswer \? buildRevealedAnswer\(parsed\) : null,/);
+  assert.doesNotMatch(attemptBody!, /: canonicalize\(parsed\.givenBlocks\)/, "the old dead duplicate branch must be gone");
+});
+
 test("edge: buildRevealedAnswer synthesizes a blocks ghost for BUILD_FROM_VIEWS specifically, and only that type -- PROJECTION_DRAW (same answer.kind) keeps its existing 2D-only reveal", async () => {
   const edge = await readSource("../supabase/functions/student-api/index.ts");
   const branch = edge.match(/if \(row\.answer\.kind === "projections"\) \{[\s\S]*?\n {2}\}/)?.[0];
