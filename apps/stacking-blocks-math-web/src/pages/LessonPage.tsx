@@ -224,6 +224,13 @@ export default function LessonPage() {
   const PRACTICE_BATCH_SIZE = 5;
 
   const [attempt, setAttempt] = useState<ProblemAttempt>(DEFAULT_ATTEMPT_STATE);
+  // Separate from attempt.answerRevealed on purpose (3-try support spec):
+  // answerRevealed/wrongCount/hintShown are the student's persisted
+  // eligibility (never reset except on a new problem); answerVisible is a
+  // purely local "is the reveal panel showing right now" toggle so
+  // [다시 풀어 보기] can hide it without touching eligibility -- the very
+  // next wrong submission (still wrongCount>=3) re-reveals immediately.
+  const [answerVisible, setAnswerVisible] = useState(true);
   const attemptRef = useRef(attempt);
   const restoreToken = useRef(0);
 
@@ -334,6 +341,7 @@ export default function LessonPage() {
     // selection from it pre-selects the correct choice before they answer.
     setDirectionValue(null);
     setAttempt(DEFAULT_ATTEMPT_STATE);
+    setAnswerVisible(true);
 
     const sourceLayers = next.given?.layers;
     const layerCount = sourceLayers?.length ?? next.grid.maxHeight;
@@ -410,6 +418,10 @@ export default function LessonPage() {
           hint: envelope.hint,
           revealedAnswer: envelope.revealedAnswer ?? null,
         });
+        // A reload/relogin must show an already-eligible reveal immediately,
+        // not hidden -- persistence lives on wrongCount/answerRevealed
+        // (server), this just makes sure the local visibility toggle agrees.
+        setAnswerVisible(true);
 
         if (envelope.attempt.completed) {
           setMessage("이 문제는 이미 완료했습니다.");
@@ -582,6 +594,10 @@ export default function LessonPage() {
         hint: response.grade.hint ?? prev.hint,
         revealedAnswer: response.grade.revealedAnswer ?? prev.revealedAnswer,
       }));
+      // 3-try support spec: any wrong submission from wrongCount>=3 re-sends
+      // revealedAnswer (see shared/attempts.ts) -- make sure a hidden panel
+      // (from a prior [다시 풀어 보기] click) reappears immediately.
+      if (response.grade.revealedAnswer != null) setAnswerVisible(true);
       setMessage(response.grade.message);
       if (!response.grade.correct) setWrongProblemIds(current => current.includes(problem.id) ? current : [...current, problem.id]);
       if (response.grade.completed && problem.stage !== "more") {
@@ -665,6 +681,40 @@ export default function LessonPage() {
     setSelection(null);
     setResult(null);
     setMessage("초기화되었습니다.");
+  };
+
+  // [다시 풀어 보기]: hide the reveal panel and clear the student's input so
+  // they can attempt again -- wrongCount/hintShown/answerRevealed (the
+  // student's persisted eligibility) are deliberately left untouched. The
+  // very next wrong submission (still wrongCount>=3) re-reveals immediately
+  // via shared/attempts.ts, never re-earning eligibility from scratch.
+  const retryAfterReveal = () => {
+    if (!problem) return;
+    setAnswerVisible(false);
+    if (isBuildType(problem.problemType)) {
+      setBlocksWithHistory(problem.startBlocks);
+      setSelection(null);
+    } else if (problem.problemType === "CHOICE") {
+      setChoiceIndex(null);
+    } else if (problem.problemType === "CAMERA_DIRECTION") {
+      setDirectionValue(null);
+    } else if (problem.problemType === "BLOCK_POSITION") {
+      setChoiceIndex(null);
+      setBlockPositionPicked(false);
+      setSelection(null);
+    } else if (problem.problemType === "COUNT" || problem.problemType === "COUNT_AMBIGUOUS") {
+      setCountInput("");
+    } else if (problem.problemType === "PROJECTION_DRAW") {
+      const faces = projectionFacesFor(problem);
+      if (faces.includes("top")) setTopMap(emptyGridFor(problem, "top"));
+      if (faces.includes("front")) setFrontMap(emptyGridFor(problem, "front"));
+      if (faces.includes("side")) setSideMap(emptyGridFor(problem, "side"));
+    } else if (problem.problemType === "HEIGHTMAP_FROM_BUILD") {
+      setHeightMap(emptyGridFor(problem, "heightMap").map((row) => row.map(() => 0)));
+    } else if (problem.problemType === "LAYER_DRAW") {
+      setLayerMaps((prev) => prev.map((layer) => createBoolGrid(layer.length, layer[0]?.length ?? 0)));
+    }
+    setMessage(isBuildType(problem.problemType) ? "정답 모양을 살펴보고 직접 다시 쌓아 보세요." : "직접 다시 입력해 보세요.");
   };
 
   const renderEditor = () => {
@@ -976,7 +1026,7 @@ export default function LessonPage() {
                 }
               }}
               onMessage={setMessage}
-              answerGhost={attempt.revealedAnswer?.blocks ?? result?.revealedAnswer?.blocks}
+              answerGhost={answerVisible ? (attempt.revealedAnswer?.blocks ?? result?.revealedAnswer?.blocks) : undefined}
               referenceBlocks={problem.given.referenceBlock ? [problem.given.referenceBlock] : undefined}
               inspectable={problem.problemType === "BLOCK_POSITION" && !attempt.completed}
               disabled={restoring || attempt.completed || !isBuildType(problem.problemType)}
@@ -1041,7 +1091,7 @@ export default function LessonPage() {
 
               {attempt.hintShown && attempt.hint ? <p className="muted">힌트: {attempt.hint}</p> : null}
 
-              {attempt.answerRevealed && <div className="panel">
+              {attempt.answerRevealed && answerVisible && <div className="panel">
                 {attempt.revealedAnswer?.count != null && <p>정답: {attempt.revealedAnswer.count}개</p>}
                 {attempt.revealedAnswer?.direction && <p>정답 방향: {DIRECTION_LABELS[normalizeDirection(attempt.revealedAnswer.direction)]}</p>}
                 {attempt.revealedAnswer?.choiceIndex != null && <p>정답: {problem.choices[attempt.revealedAnswer.choiceIndex]}</p>}
@@ -1050,8 +1100,8 @@ export default function LessonPage() {
                 {attempt.revealedAnswer?.projections?.side && <ProjectionGrid title="정답 · 옆에서 본 모양(오른쪽)" rows={attempt.revealedAnswer.projections.side} reverseRows editable={false} onChange={() => undefined} valueType="boolean" />}
                 {attempt.revealedAnswer?.heightMap && <ProjectionGrid title="정답 · 숫자 지도" rows={attempt.revealedAnswer.heightMap} orientation="floor" editable={false} onChange={() => undefined} valueType="number" />}
                 {attempt.revealedAnswer?.layers?.map((rows, index) => <ProjectionGrid key={`revealed-layer-${index}`} title={`정답 · ${index + 1}층`} rows={rows} orientation="floor" editable={false} onChange={() => undefined} valueType="boolean" />)}
-                {attempt.revealedAnswer?.blocks && <button className="btn" onClick={()=>{setBlocksWithHistory(problem.startBlocks);setSelection(null);setMessage("정답 모양을 살펴보고 직접 다시 쌓아 보세요.");}}>정답 모양대로 다시 쌓기</button>}
                 <p>{attempt.revealedAnswer?.explanation}</p>
+                <button className="btn" onClick={retryAfterReveal}>{isBuildType(problem.problemType) ? "정답 모양대로 다시 쌓기" : "다시 풀어 보기"}</button>
               </div>}
 
               {message ? <p className="muted">{message}</p> : null}

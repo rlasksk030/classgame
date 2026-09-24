@@ -1,13 +1,30 @@
 /**
- * 오답 처리 규칙 (명세 17) - 이 앱에서 가장 중요한 규칙.
+ * 오답 처리 규칙 (명세 17, 2026-09 개정) - 이 앱에서 가장 중요한 규칙.
  *
- *   1회 오답            → "다시 살펴보세요."      (힌트 X, 정답 X)
- *   2회 오답            → "조금만 더 생각해 볼까요?" (힌트 X, 정답 X)
- *   3회 오답            → 힌트 제공                (정답 X)
- *   힌트를 본 뒤 또 오답 → 그때 정답 공개
+ *   1회 오답 (wrongCount===1)  → "다시 한 번 풀어 보세요." (힌트 X, 정답 X)
+ *   2회 오답 (wrongCount===2)  → 힌트 제공                 (정답 X)
+ *   3회 이상 오답 (wrongCount>=3) → 정답 공개, 계속 공개 유지
  *
- * 3번 틀렸다고 바로 정답을 보여 주지 않는다.
- * 정답을 본 뒤에는 스스로 다시 쌓아야 완료된다 (명세 18).
+ * 정답 공개 여부는 wrongCount에서 직접 계산한다 ("wrongCount >= 3" 그
+ * 자체가 조건이다). 이전 버전은 "힌트를 본 뒤에도 또 틀렸는가"라는 체인
+ * (prev.hintShown 확인 후에만 정답 공개)으로 판단했는데, 이 체인이
+ * hintShown과 wrongCount 사이에서 조금이라도 어긋나면(예: 어떤 경로로
+ * hintShown 없이 wrongCount만 올라간 경우) 정답이 영영 공개되지 않는
+ * 구조적 취약점이 있었다 ("5번 이상 틀려도 정답이 안 나오는" 라이브 버그).
+ * wrongCount 임계값에서 직접 계산하면 이전 상태가 무엇이었든 상관없이
+ * wrongCount>=3인 한 항상 정답을 공개한다.
+ *
+ * 정답을 본 뒤에도 wrongCount/hintShown/answerRevealed는 절대 초기화하지
+ * 않는다(같은 문제를 다시 시도하는 동안 계속 유지). 오직 "새 문제로 이동"
+ * 할 때만 초기화된다 (LessonPage.tsx의 applyProblem 참고).
+ *
+ * "정답 화면을 보여줄지"(answerVisible, UI에서 관리)와 "정답을 볼 자격이
+ * 있는지"(answerRevealed, 여기서 관리)는 서로 다른 상태다. 학생이
+ * [다시 풀어 보기]를 눌러 정답 화면을 잠깐 숨겨도 answerRevealed/wrongCount
+ * 는 그대로이며, 다음 오답 제출에서 이 함수가 다시 sendAnswer:true 를
+ * 돌려주면 UI가 즉시 다시 공개한다.
+ *
+ * 정답을 본 뒤에는 스스로 다시 풀어야 완료된다 (명세 18).
  */
 
 export interface AttemptState {
@@ -66,11 +83,6 @@ export interface AttemptOutcome {
   stars: number;
 }
 
-const WRONG_MESSAGES = [
-  "다시 살펴보세요.",
-  "조금만 더 생각해 볼까요?",
-] as const;
-
 /**
  * 한 번의 제출 결과를 상태 기계에 통과시킨다.
  * 서버(Edge Function)에서 호출해 그 결과만 학생에게 내려보낸다.
@@ -127,27 +139,24 @@ export function applyAttempt(prev: AttemptState, correct: boolean, requiresRebui
 
   const wrongCount = prev.wrongCount + 1;
 
-  // 정답을 이미 본 상태 - 스스로 다시 쌓을 때까지 기다린다.
-  if (prev.answerRevealed && requiresRebuild) {
+  // wrongCount >= 3: 정답을 공개한다. 이 조건은 wrongCount 값에서 직접
+  // 계산하며, prev.hintShown/prev.answerRevealed의 이전 체인 상태와
+  // 무관하게 항상 참이면 공개한다 (라이브 버그였던 구조적 취약점 제거).
+  if (wrongCount >= 3) {
+    const alreadyRevealed = prev.answerRevealed;
+    // Build 타입은 "정답을 보고 스스로 다시 쌓아야" 완료되므로(명세 18),
+    // 이미 한 번 공개한 뒤에는 힌트 텍스트를 다시 보내지 않고 "다시
+    // 쌓아 보세요" 안내로 구분한다. Build가 아닌 타입은 매번 힌트+정답을
+    // 함께 보낸다(기존 동작 유지).
+    const sendHintNow = requiresRebuild ? !alreadyRevealed : true;
+    const message = requiresRebuild
+      ? (alreadyRevealed ? "정답 모양을 한 번 더 살펴보고, 똑같이 다시 쌓아 보세요." : "정답 모양을 보여 줄게요. 잘 살펴보고 똑같이 다시 쌓아 보세요.")
+      : "정답을 확인하고 다시 풀어 보세요.";
     return {
-      state: { ...prev, wrongCount },
-      action: "rebuild_required",
-      message: "정답 모양을 한 번 더 살펴보고, 똑같이 다시 쌓아 보세요.",
-      sendHint: false,
-      sendAnswer: true,
-      needsRebuild: true,
-      xpEarned: 0,
-      stars: 0,
-    };
-  }
-
-  // 힌트를 본 뒤에도 틀렸다 - 이제 정답을 공개한다.
-  if (prev.hintShown) {
-    return {
-      state: { ...prev, wrongCount, answerRevealed: true },
-      action: "reveal_answer",
-      message: requiresRebuild ? "정답 모양을 보여 줄게요. 잘 살펴보고 똑같이 다시 쌓아 보세요." : "정답을 보여 줄게요. 풀이 방법을 확인하고 다시 답해 보세요.",
-      sendHint: true,
+      state: { ...prev, wrongCount, hintShown: true, answerRevealed: true },
+      action: alreadyRevealed && requiresRebuild ? "rebuild_required" : "reveal_answer",
+      message,
+      sendHint: sendHintNow,
       sendAnswer: true,
       needsRebuild: requiresRebuild,
       xpEarned: 0,
@@ -155,12 +164,12 @@ export function applyAttempt(prev: AttemptState, correct: boolean, requiresRebui
     };
   }
 
-  // 3회째 오답 - 힌트를 준다. 정답은 아직 보여 주지 않는다.
-  if (wrongCount >= 3) {
+  // 2회째 오답 - 힌트를 준다. 정답은 아직 보여 주지 않는다.
+  if (wrongCount === 2) {
     return {
       state: { ...prev, wrongCount, hintShown: true },
       action: "show_hint",
-      message: "힌트를 볼까요? 힌트를 보고 다시 해 보세요.",
+      message: "힌트를 보고 다시 풀어 보세요.",
       sendHint: true,
       sendAnswer: false,
       needsRebuild: false,
@@ -169,11 +178,11 @@ export function applyAttempt(prev: AttemptState, correct: boolean, requiresRebui
     };
   }
 
-  // 1~2회 오답 - 안내만 한다.
+  // 1회째 오답 - 안내만 한다.
   return {
     state: { ...prev, wrongCount },
     action: "retry",
-    message: WRONG_MESSAGES[wrongCount - 1],
+    message: "다시 한 번 풀어 보세요.",
     sendHint: false,
     sendAnswer: false,
     needsRebuild: false,

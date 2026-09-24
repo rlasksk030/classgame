@@ -38,12 +38,15 @@ test('constraint accepts distinct physically valid models with same projections'
   assert.notDeepEqual(a,b);
   assert.equal(grade({problemType:'BUILD_FROM_VIEWS',gradingMode:'constraint',answer:{kind:'blocks',blocks:a},given:{projections:project(a,g)},grid:g,submission:{kind:'blocks',blocks:b}}).correct,true);
 });
-test('third wrong answer reveals only hint; fourth reveals answer; reconstruction completes once', () => {
+test('second wrong answer reveals only hint; third reveals answer; reconstruction completes once (2026-09 3-try spec)', () => {
   let state={...INITIAL_ATTEMPT};
   for(let i=1;i<=4;i++) {
     const result=applyAttempt(state,false); state=result.state;
-    assert.equal(result.sendHint,i>=3);
-    assert.equal(result.sendAnswer,i>=4);
+    // Build type (default requiresRebuild=true): hint text accompanies the
+    // hint step (2) and the FIRST reveal (3); a repeat rebuild_required (4+)
+    // shows the answer again but doesn't resend the hint text.
+    assert.equal(result.sendHint,i===2||i===3, `wrong #${i} sendHint`);
+    assert.equal(result.sendAnswer,i>=3, `wrong #${i} sendAnswer`);
     assert.equal(state.completed,false);
   }
   const completed=applyAttempt(state,true);
@@ -57,13 +60,13 @@ test('feedback reflects prior mistakes instead of claiming a first-try success',
   const solved = applyAttempt(firstWrong.state, true);
   assert.equal(solved.message, '다시 도전해서 해결했어요!');
 });
-test('non-building answers reveal their answer without forcing a rebuild', () => {
+test('non-building answers reveal their answer without forcing a rebuild, from the third wrong attempt onward', () => {
   let state={...INITIAL_ATTEMPT};
-  for(let i=0;i<4;i++) state=applyAttempt(state,false,false).state;
+  for(let i=0;i<3;i++) state=applyAttempt(state,false,false).state;
   const revealed=applyAttempt(state,false,false);
   assert.equal(revealed.state.answerRevealed,true);
   assert.equal(revealed.needsRebuild,false);
-  assert.match(revealed.message, /다시 답해/);
+  assert.match(revealed.message, /정답을 확인하고 다시 풀어 보세요/);
 });
 test('cannot bypass construction by submitting only a numeric block count', () => {
   assert.equal(grade({problemType:'BUILD_FROM_VIEWS',gradingMode:'exact',answer:{kind:'blocks',blocks},given:{},grid,submission:{kind:'count',value:blocks.length}}).correct,false);

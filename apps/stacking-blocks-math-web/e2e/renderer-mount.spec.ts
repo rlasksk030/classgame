@@ -1,5 +1,6 @@
 import {type Page} from "@playwright/test";
 import {test,expect} from "./live-fixture";
+import {applyAttempt, INITIAL_ATTEMPT, type AttemptState} from "../shared/attempts.ts";
 
 const projection = [[true, false], [true, true]];
 const tripleProblem = {
@@ -258,4 +259,94 @@ test("CAMERA_DIRECTION (lesson 2) still neutralizes its evidence caption -- the 
   await expect(evidence).toBeVisible();
   await expect(evidence.locator('table[aria-label="제시된 조건"]')).toBeVisible();
   await expect(evidence.getByText("앞에서 본 모양")).toHaveCount(0);
+});
+
+// Live bug: "학생이 5번 이상 틀려도 정답이 나오지 않는 경우가 있다." This
+// clicks through the real UI against a stateful mock whose server-side logic
+// is the actual shared applyAttempt (so the mock is authoritative, not a
+// guess), driving 1st/2nd/3rd/4th/5th wrong submissions plus a
+// [다시 풀어 보기] cycle, and asserts what the student actually sees on
+// screen at every step.
+const threeTryChoiceProblem = {
+  ...tripleProblem, id: "qa-three-try", lesson: 1, orderIndex: 2, stage: "check", problemType: "CHOICE", title: "정답을 골라 보세요",
+  prompt: "다음 중 정답을 고르세요.", given: { allowRotate: true },
+  choices: ["오답", "정답"],
+  presentation: { visibleRepresentations: [], cameraPolicy: { mode: "FREE" }, answerInput: "MULTIPLE_CHOICE", gridSpecs: {}, instructions: [] },
+};
+
+test("3-try support: 1st wrong=재시도만, 2nd wrong=힌트만, 3rd wrong=정답 공개, [다시 풀어 보기]=입력만 초기화(오답 수 유지), 4th/5th wrong=정답 즉시 재공개", async ({ page }) => {
+  let state: AttemptState = INITIAL_ATTEMPT;
+  await page.addInitScript(() => localStorage.setItem("sb.student.token", "qa-token"));
+  await page.route("**/functions/v1/student-api", async route => {
+    const body = route.request().postDataJSON() as Record<string, unknown>;
+    if (body.action === "lessonProblems") return route.fulfill({ json: { problems: [threeTryChoiceProblem], requiredComplete: false } });
+    if (body.action === "snapshot:get") return route.fulfill({ json: { snapshot: null } });
+    if (body.action === "attempt") {
+      const submission = (body as { submission: { kind: string; index: number } }).submission;
+      const correct = submission.kind === "choice" && submission.index === 1;
+      const outcome = applyAttempt(state, correct, false); // CHOICE is not a build type
+      state = outcome.state;
+      return route.fulfill({
+        json: {
+          grade: {
+            correct, wrongCount: state.wrongCount, message: outcome.message,
+            hint: outcome.sendHint ? "정답은 두 번째 보기예요." : null,
+            revealedAnswer: outcome.sendAnswer ? { choiceIndex: 1, explanation: "두 번째가 정답이었어요." } : null,
+            needsRebuild: outcome.needsRebuild, completed: state.completed, xpEarned: outcome.xpEarned, stars: outcome.stars, detail: null,
+          },
+        },
+      });
+    }
+    return route.fulfill({ json: { problem: threeTryChoiceProblem, attempt: { wrongCount: 0, hintShown: false, answerRevealed: false, completed: false }, hint: null, revealedAnswer: null } });
+  });
+
+  await page.goto("/lesson/1/solve");
+  const wrongChoice = page.getByRole("button", { name: "1. 오답", exact: true });
+  const submit = page.getByRole("button", { name: "정답 확인", exact: true });
+  const revealPanel = page.locator(".panel .panel");
+
+  // 1st wrong: retry only.
+  await wrongChoice.click();
+  await submit.click();
+  await expect(page.getByText("다시 한 번 풀어 보세요.")).toBeVisible();
+  await expect(page.getByText("힌트:")).toHaveCount(0);
+  await expect(revealPanel).toHaveCount(0);
+
+  // 2nd wrong: hint, still no answer.
+  await wrongChoice.click();
+  await submit.click();
+  await expect(page.getByText("힌트: 정답은 두 번째 보기예요.")).toBeVisible();
+  await expect(revealPanel).toHaveCount(0);
+
+  // 3rd wrong: answer revealed.
+  await wrongChoice.click();
+  await submit.click();
+  await expect(revealPanel).toBeVisible();
+  await expect(revealPanel.getByText("정답: 정답")).toBeVisible();
+
+  // [다시 풀어 보기]: hides the panel, resets the choice selection, wrongCount stays (server-side state unaffected -- no request sent).
+  await page.getByRole("button", { name: "다시 풀어 보기", exact: true }).click();
+  await expect(revealPanel).toHaveCount(0);
+  await expect(wrongChoice).not.toHaveClass(/btn-primary/);
+
+  // 4th wrong: answer reappears immediately (no extra hint/retry step needed).
+  await wrongChoice.click();
+  await submit.click();
+  await expect(revealPanel).toBeVisible();
+  await expect(revealPanel.getByText("정답: 정답")).toBeVisible();
+
+  await page.getByRole("button", { name: "다시 풀어 보기", exact: true }).click();
+  await expect(revealPanel).toHaveCount(0);
+
+  // 5th wrong: still reappears.
+  await wrongChoice.click();
+  await submit.click();
+  await expect(revealPanel).toBeVisible();
+  await expect(revealPanel.getByText("정답: 정답")).toBeVisible();
+
+  // Directly submitting the correct answer completes the problem.
+  await page.getByRole("button", { name: "다시 풀어 보기", exact: true }).click();
+  await page.getByRole("button", { name: "2. 정답", exact: true }).click();
+  await submit.click();
+  await expect(page.getByText(/완료 \+ XP/)).toBeVisible();
 });
