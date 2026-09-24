@@ -775,7 +775,7 @@ export default function LessonPage() {
             value={countInput}
             onChange={(e) => setCountInput(e.target.value.replace(/[^0-9]/g, ""))}
             inputMode="numeric"
-            placeholder="정답을 입력"
+            placeholder="전체 개수"
           />
         </div>
       );
