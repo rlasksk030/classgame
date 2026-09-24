@@ -22,6 +22,27 @@ services:
     # defaults to this site's own origin, which is what the rewrite above
     # depends on. Only set it to override with a different (non-proxied)
     # installer host for local dev or a special-case deployment.
+    #
+    # Without this, Render's platform default (public, max-age=0, s-maxage=300)
+    # applied uniformly to index.html AND every hashed asset -- a CDN edge can
+    # cache the (unhashed, always-same-URL) index.html for up to 5 minutes,
+    # and once a browser has cached a body against a given ETag, an edge that
+    # keeps re-validating the SAME stale ETag lets that browser keep serving
+    # an old bundle reference indefinitely (never actually re-fetching), which
+    # is exactly the "fix deployed but a real user's browser still shows the
+    # old UI" failure mode this fixes. content-hashed files under /assets/*
+    # are safe to cache forever -- a content change always produces a new
+    # filename, so there is no staleness risk to trade away.
+    headers:
+      - path: /assets/*
+        name: Cache-Control
+        value: public, max-age=31536000, immutable
+      - path: /index.html
+        name: Cache-Control
+        value: no-cache, no-store, must-revalidate
+      - path: /*
+        name: Cache-Control
+        value: no-cache, no-store, must-revalidate
   - type: web
     name: stacking-blocks-math-installer-test
     runtime: node
