@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { EXPLORATIONS, START_BLOCKS, explorationDisplayProjections, INFORMATION_MODELS, EXPLORATION_GRID, CONSTRAINT_EXAMPLES, CONSTRAINT_TARGET, CONSTRAINT_GRID, editExplorationLayer, matchesExplorationConditions } from '../src/features/activities/explorationActivities.ts';
+import { EXPLORATIONS, START_BLOCKS, INFORMATION_MODELS, EXPLORATION_GRID, CONSTRAINT_EXAMPLES, CONSTRAINT_TARGET, CONSTRAINT_GRID, editExplorationLayer, matchesExplorationConditions } from '../src/features/activities/explorationActivities.ts';
 import { project, toLayers, fromLayers, validStructure } from '../shared/blocks.ts';
 
 test('every live lesson has an explicit, concept-specific exploration instead of a free-build default',()=>{
@@ -36,8 +36,15 @@ test('lesson8 editing a layer rejects unsupported additions and removal under an
 });
 
 test('right-side exploration presentation matches +X camera without changing stored projections',()=>{
+ // GuidedExploration no longer pre-mirrors side data itself (that duplicated,
+ // and risked drifting from, the single fix now owned by ProjectionGrid's
+ // mirrorColumns prop -- see src/components/world/ProjectionGrid.tsx). This
+ // mirrors the exact same column-reversal ProjectionGrid applies at display
+ // time, to confirm the raw stored projection GuidedExploration now passes
+ // straight through is still the same "back-to-front" data it always was --
+ // only the display layer, not this data, does the mirroring.
  const stored=project(START_BLOCKS,{...EXPLORATION_GRID,maxHeight:2});const before=JSON.stringify(stored);
- const shown=explorationDisplayProjections(stored);
+ const shown={...stored,side:stored.side.map(row=>[...row].reverse())};
  assert.deepEqual(shown.side,[[true,true,true],[true,false,false]]);
  assert.equal(JSON.stringify(stored),before);assert.deepEqual(shown.front,stored.front);assert.deepEqual(shown.top,stored.top);
 });

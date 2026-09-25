@@ -1,5 +1,5 @@
 import { fromHeightMap, project, grid2DEqual, validStructure } from '../../../shared/blocks.ts';
-import type { BlockCoord, GridConfig, Grid2D, Projections } from '../../../shared/types.ts';
+import type { BlockCoord, GridConfig, Grid2D } from '../../../shared/types.ts';
 
 export type ExplorationKind = 'count' | 'viewpoints' | 'projections' | 'height-layers' | 'information' | 'constraints' | 'height-edit' | 'layer-edit' | 'peer' | 'architecture' | 'presentation' | 'connections';
 export interface ExplorationGuide { kind: ExplorationKind; title: string; observe: string; manipulate: string; discover: string }
@@ -38,10 +38,4 @@ export function editExplorationLayer(layers:Grid2D[],level:number,next:Grid2D):G
   if(!next[z][x] && layers.slice(level+1).some(layer=>layer[z][x]))return null;
  }
  return layers.map((layer,i)=>i===level?next:layer);
-}
-
-// Legacy stored side columns run back-to-front; the live +X camera displays front-to-back.
-// Presentation only, matching shared/problems/contracts/display.ts; never change grading coordinates.
-export function explorationDisplayProjections(value:Projections):Projections {
- return {...value,side:value.side.map(row=>[...row].reverse())};
 }

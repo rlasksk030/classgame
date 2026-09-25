@@ -38,7 +38,10 @@ export function buildBrochureSvg(snapshot: ArchitectureExportSnapshot): string {
   let out = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}"><rect width="100%" height="100%" fill="#f6f8fa"/>`;
   out += text(40, 54, snapshot.title || '나만의 건축물', 30, '700'); out += text(40, 82, `학생 ${snapshot.studentName || '이름 없음'} · 작품 ${snapshot.projectId} · 버전 ${snapshot.projectVersion}`, 13);
   out += '<rect x="32" y="104" width="730" height="280" rx="14" fill="#fff" stroke="#d1dce6"/>'; out += text(52, 136, '대표 3D 모습', 18, '700'); out += isoSvg(snapshot.blocks, 350, 270);
-  out += text(40, 422, '관찰 방향', 18, '700'); out += text(80, 452, '위', 14, '700'); out += gridSvg(snapshot.top, 60, 466, 16); out += text(310, 452, '앞', 14, '700'); out += gridSvg(snapshot.front, 290, 466, 16); out += text(540, 452, '옆(오른쪽)', 14, '700'); out += gridSvg(snapshot.side, 520, 466, 16);
+  // snapshot.side is stored back-to-front (shared/blocks.ts project()); mirror columns
+  // here only, so the SVG shows the real +X/right-side view without touching the
+  // stored grading coordinates -- same fix as ProjectionGrid's mirrorColumns.
+  out += text(40, 422, '관찰 방향', 18, '700'); out += text(80, 452, '위', 14, '700'); out += gridSvg(snapshot.top, 60, 466, 16); out += text(310, 452, '앞', 14, '700'); out += gridSvg(snapshot.front, 290, 466, 16); out += text(540, 452, '옆(오른쪽)', 14, '700'); out += gridSvg(snapshot.side.map(row => [...row].reverse()), 520, 466, 16);
   out += '<rect x="32" y="690" width="730" height="390" rx="14" fill="#fff" stroke="#d1dce6"/>'; out += text(52, 724, '층별 모습과 공간 설명', 18, '700'); let y = 754;
   for (const layer of grouped.slice(0, 8)) { out += text(52, y + 16, layer.label, 14, '700'); out += gridSvg(layer.cells, 120, y, 11); out += text(420, y + 16, layer.note || '공간 설명 없음', 13); y += 38; }
   if (grouped.length > 8) out += text(52, 1050, `전체 ${snapshot.layers.length}층 · 대표 층 ${grouped.slice(0, 8).map(layer => layer.label).join(', ')}`, 12);

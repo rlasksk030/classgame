@@ -101,7 +101,13 @@ test("F/G. front/side direction labels stay in their own reserved padding and ne
 
 test("H. grading/coordinate logic in ProjectionGrid is untouched by the CSS-only fix", async () => {
   const source = await readProjectionGridSource();
-  assert.match(source, /const handleToggle = \(r: number, c: number\) => \{/);
-  assert.match(source, /const stepNumber = \(r: number, c: number, delta: 1 \| -1\) => \{/);
+  assert.match(source, /const handleToggle = \(r: number, displayCol: number\) => \{/);
+  assert.match(source, /const stepNumber = \(r: number, displayCol: number, delta: 1 \| -1\) => \{/);
   assert.match(source, /next\[r\]\[c\] = Math\.max\(0, Math\.min\(9, value \+ delta\)\);/);
+  // The right-side mirrorColumns fix (see ProjectionGrid.tsx) only changes which
+  // stored column is shown at a given screen position -- it must never touch the
+  // underlying grading/coordinate math itself, so both handlers still resolve a
+  // real data column `c` from the display column before mutating `rows`/`next`.
+  assert.match(source, /const dataCol = \(displayCol: number\) => \(mirrorColumns \? colCount - 1 - displayCol : displayCol\);/);
+  assert.match(source, /const c = dataCol\(displayCol\);/g);
 });

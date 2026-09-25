@@ -44,11 +44,11 @@ test("2. the value sits between the two buttons in DOM order", async () => {
   assert.ok(plusIndex < valueIndex && valueIndex < minusIndex, "order must be +, value, - top to bottom");
 });
 
-test("4/5. clicking + still calls stepNumber(r, c, 1) and clicking - still calls stepNumber(r, c, -1) -- only order changed, not the delta wiring", async () => {
+test("4/5. clicking + still calls stepNumber(r, displayCol, 1) and clicking - still calls stepNumber(r, displayCol, -1) -- only order changed, not the delta wiring", async () => {
   const block = numberCellBlock(await readSource());
   const buttons = [...block.matchAll(/<button[\s\S]*?<\/button>/g)].map((m) => m[0]);
-  assert.match(buttons[0], /onClick=\{\(\) => stepNumber\(r, c, 1\)\}/, "top (+) button still increments");
-  assert.match(buttons[1], /onClick=\{\(\) => stepNumber\(r, c, -1\)\}/, "bottom (-) button still decrements");
+  assert.match(buttons[0], /onClick=\{\(\) => stepNumber\(r, displayCol, 1\)\}/, "top (+) button still increments");
+  assert.match(buttons[1], /onClick=\{\(\) => stepNumber\(r, displayCol, -1\)\}/, "bottom (-) button still decrements");
 });
 
 test("6/7. min/max bounds and disabled-state wiring are unchanged: + disables at >=9, - disables at <=0, and the underlying clamp is still 0..9", async () => {

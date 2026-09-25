@@ -788,7 +788,7 @@ export default function LessonPage() {
         <div className="answer-box">
           {faces.includes("top") && <ProjectionGrid title="위에서 본 모양" rows={topMap} orientation="floor" editable onChange={next => setTopMap(next as Grid2D)} valueType="boolean" />}
           {faces.includes("front") && <ProjectionGrid title="앞에서 본 모양" reverseRows rows={frontMap} editable onChange={next => setFrontMap(next as Grid2D)} valueType="boolean" />}
-          {faces.includes("side") && <ProjectionGrid title="옆에서 본 모양(오른쪽)" reverseRows rows={sideMap} editable onChange={next => setSideMap(next as Grid2D)} valueType="boolean" />}
+          {faces.includes("side") && <ProjectionGrid title="옆에서 본 모양(오른쪽)" reverseRows mirrorColumns rows={sideMap} editable onChange={next => setSideMap(next as Grid2D)} valueType="boolean" />}
         </div>
       );
     }
@@ -852,7 +852,7 @@ export default function LessonPage() {
     return <div className="panel stack" aria-label="문제에서 제시한 정보">
       <strong>제시된 정보</strong>
       <div className="toolbar-row" style={{ alignItems: "flex-start" }}>
-        {faces.map(face => <ProjectionGrid key={face} title={neutralizeCaptions ? "제시된 조건" : GIVEN_FACE_LABELS[face]} rows={evidence.projections![face]!} reverseRows={face !== "top"} orientation={face === "top" ? "floor" : undefined} editable={false} onChange={() => undefined} valueType="boolean" />)}
+        {faces.map(face => <ProjectionGrid key={face} title={neutralizeCaptions ? "제시된 조건" : GIVEN_FACE_LABELS[face]} rows={evidence.projections![face]!} reverseRows={face !== "top"} mirrorColumns={face === "side"} orientation={face === "top" ? "floor" : undefined} editable={false} onChange={() => undefined} valueType="boolean" />)}
         {evidence.heightMap && !hideHeightMap && <ProjectionGrid title="숫자 지도" rows={evidence.heightMap} orientation="floor" editable={false} onChange={() => undefined} valueType="number" />}
         {!hideLayers && evidence.layers?.map((rows, index) => <ProjectionGrid key={`evidence-layer-${index}`} title={`${index + 1}층 모양`} rows={rows} orientation="floor" editable={false} onChange={() => undefined} valueType="boolean" />)}
       </div>
@@ -1065,7 +1065,7 @@ export default function LessonPage() {
                 const direction = normalizeDirection(problem.given.shownFrom ?? "front");
                 const face = direction === "top" ? "top" : direction === "front" || direction === "back" ? "front" : "side";
                 const projection = problem.given.projections[face];
-                return projection ? <ProjectionGrid title="제시된 모양" rows={projection} reverseRows={face !== "top"} orientation={face === "top" ? "floor" : undefined} editable={false} onChange={() => undefined} valueType="boolean" /> : null;
+                return projection ? <ProjectionGrid title="제시된 모양" rows={projection} reverseRows={face !== "top"} mirrorColumns={face === "side"} orientation={face === "top" ? "floor" : undefined} editable={false} onChange={() => undefined} valueType="boolean" /> : null;
               })()}
               <div
                 className="answer-box"
@@ -1109,7 +1109,7 @@ export default function LessonPage() {
                 {attempt.revealedAnswer?.choiceIndex != null && <p>정답: {problem.choices[attempt.revealedAnswer.choiceIndex]}</p>}
                 {attempt.revealedAnswer?.projections?.top && <ProjectionGrid title="정답 · 위에서 본 모양" rows={attempt.revealedAnswer.projections.top} orientation="floor" editable={false} onChange={() => undefined} valueType="boolean" />}
                 {attempt.revealedAnswer?.projections?.front && <ProjectionGrid title="정답 · 앞에서 본 모양" rows={attempt.revealedAnswer.projections.front} reverseRows editable={false} onChange={() => undefined} valueType="boolean" />}
-                {attempt.revealedAnswer?.projections?.side && <ProjectionGrid title="정답 · 옆에서 본 모양(오른쪽)" rows={attempt.revealedAnswer.projections.side} reverseRows editable={false} onChange={() => undefined} valueType="boolean" />}
+                {attempt.revealedAnswer?.projections?.side && <ProjectionGrid title="정답 · 옆에서 본 모양(오른쪽)" rows={attempt.revealedAnswer.projections.side} reverseRows mirrorColumns editable={false} onChange={() => undefined} valueType="boolean" />}
                 {attempt.revealedAnswer?.heightMap && <ProjectionGrid title="정답 · 숫자 지도" rows={attempt.revealedAnswer.heightMap} orientation="floor" editable={false} onChange={() => undefined} valueType="number" />}
                 {attempt.revealedAnswer?.layers?.map((rows, index) => <ProjectionGrid key={`revealed-layer-${index}`} title={`정답 · ${index + 1}층`} rows={rows} orientation="floor" editable={false} onChange={() => undefined} valueType="boolean" />)}
                 <p>{attempt.revealedAnswer?.explanation}</p>
