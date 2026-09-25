@@ -1,7 +1,7 @@
-import { useEffect, lazy, Suspense } from 'react';
+import { useEffect, useState, lazy, Suspense } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { lessonTitle } from '@shared/lessons.ts';
-import { getStudentToken } from '../lib/studentApi';
+import { getStudentToken, getLessonProblems, stageRedirectPath } from '../lib/studentApi';
 import GuidedExploration from '../features/activities/GuidedExploration';
 import { EXPLORATIONS } from '../features/activities/explorationActivities';
 const PeerChallengePage=lazy(()=>import('./PeerChallengePage'));
@@ -12,9 +12,27 @@ export default function LessonLearnPage() {
  const lessonNumber=Number(lesson);
  const guide=EXPLORATIONS[lessonNumber];
  const navigate=useNavigate();
+ const project=guide?.kind==='architecture'||guide?.kind==='presentation';
+ // 안내된 탐구(guided)와 문제풀기(required)를 이미 끝낸 학생은 다시 보여 주지 않고
+ // 서버가 아는 진행 단계로 바로 보낸다 -- localStorage가 아니라 서버 currentStage가
+ // 유일한 근거이므로, 새 기기/새 로그인에서도 항상 같은 곳으로 돌아간다. peer(9차시)와
+ // project 계열(10/11차시)은 이 단원 흐름 밖에 있어 검사하지 않는다.
+ const [stageChecked,setStageChecked]=useState(project||guide?.kind==='peer'||!guide);
  useEffect(()=>{if(!getStudentToken())navigate('/',{replace:true});},[navigate]);
+ useEffect(()=>{
+  if(project||guide?.kind==='peer'||!guide){setStageChecked(true);return;}
+  let cancelled=false;
+  setStageChecked(false);
+  getLessonProblems(lessonNumber,{markGuidedComplete:false}).then(data=>{
+   if(cancelled)return;
+   const redirect=stageRedirectPath(lessonNumber,data.currentStage);
+   if(redirect){navigate(redirect,{replace:true});return;}
+   setStageChecked(true);
+  }).catch(()=>{if(!cancelled)setStageChecked(true);});
+  return ()=>{cancelled=true;};
+ },[lessonNumber,navigate,project,guide]);
  if(!guide)return <main className="screen app-max"><h1>차시를 찾을 수 없어요.</h1><Link to="/world">월드로</Link></main>;
- const project=guide.kind==='architecture'||guide.kind==='presentation';
+ if(!stageChecked)return <main className="screen app-max"><p role="status">이어서 할 위치를 확인하고 있어요…</p></main>;
  return <div className="screen app-max stack lesson-learn-page">
   <div className="toolbar-row" style={{justifyContent:'space-between'}}><div><p className="eyebrow">① 개념 배우기</p><h1>{lessonNumber}차시 · {lessonTitle(lessonNumber)}</h1></div><Link className="btn btn-sm" to="/world">월드로</Link></div>
   <p className="direction-note" role="note">이 단원에서 ‘옆’은 오른쪽에서 본 모양이에요.</p>

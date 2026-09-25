@@ -111,12 +111,15 @@ export interface StudentHomeData {
   lessons: StudentHomeLesson[];
 }
 
+export type LessonStage = "guided" | "required" | "optional" | "completed";
+
 export interface LessonProblemListData {
   practiceSet?: ReturnType<typeof import('../../shared/practiceSet.ts').practiceSetStatus>;
   problems: StudentProblem[];
   seedFallback: boolean;
   requiredComplete?: boolean;
   currentProblemId?: string | null;
+  currentStage?: LessonStage;
   stages?: { concept: number; check: number; more: number };
   allowSimilar?: boolean;
   allowRetry?: boolean;
@@ -251,8 +254,24 @@ export function equipReward(material: RewardMaterial, theme: RewardTheme) {
   return callFunction<RewardWorkshopData>("student-api", { action: "rewards:equip", material, theme }, true);
 }
 
-export function getLessonProblems(lesson: number) {
-  return callFunction<LessonProblemListData>("student-api", { action: "lessonProblems", lesson }, true);
+export function getLessonProblems(lesson: number, options?: { markGuidedComplete?: boolean }) {
+  return callFunction<LessonProblemListData>(
+    "student-api",
+    { action: "lessonProblems", lesson, ...(options?.markGuidedComplete === false ? { markGuidedComplete: false } : {}) },
+    true,
+  );
+}
+
+/**
+ * Where /lesson/:lesson/learn should immediately send a student, based on the
+ * server-tracked stage (never localStorage): stay on the guided-exploration
+ * page only while that stage is still "guided". Once it's done, skip straight
+ * past both the guided page and any already-finished required problems.
+ */
+export function stageRedirectPath(lessonNumber: number, stage: LessonStage | undefined): string | null {
+  if (stage === "required") return `/lesson/${lessonNumber}/solve`;
+  if (stage === "optional" || stage === "completed") return `/lesson/${lessonNumber}/practice`;
+  return null;
 }
 
 export function startNewPracticeSet(lesson: number, expectedSeed: number) {

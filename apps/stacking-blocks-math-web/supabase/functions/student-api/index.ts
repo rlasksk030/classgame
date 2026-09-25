@@ -810,6 +810,11 @@ Deno.serve(async (req: Request) => {
     if (action === "lessonProblems") {
       const lesson = toInt(body.lesson);
       if (!lesson) return fail(400, "BAD_LESSON", "lesson 는 1~12 사이의 값이어야 합니다.");
+      // /solve, /practice (실제로 필수/선택 문제를 푸는 화면)는 기본값(true)으로 호출해
+      // 이 진입 자체를 "안내된 탐구를 지나 문제 풀기 단계로 넘어갔다"는 신호로 기록한다.
+      // /learn(안내된 탐구 페이지)은 명시적으로 false를 보내 순수 조회만 하고, 학생이
+      // 아직 안내된 탐구를 보지도 않았는데 이 값을 미리 완료로 표시하지 않는다.
+      const markGuidedComplete = body.markGuidedComplete !== false;
 
       let { data: problemRows, error: problemLoadError } = await db
         .from("sb_problems")
@@ -826,11 +831,20 @@ Deno.serve(async (req: Request) => {
       const { data: lessonSetting, error: settingError } = await db.from("sb_lesson_settings").select("practice_count,allow_similar,allow_retry").eq("class_id", studentSession.classId).eq("lesson", lesson).maybeSingle();
       if(settingError) return fail(500,"PRACTICE_LOAD_FAILED","선생님의 문제 배정량을 확인하지 못했어요.");
       const targetCount = [5,10,15,20].includes(Number(lessonSetting?.practice_count)) ? Number(lessonSetting?.practice_count) : recommendedPracticeCount(lesson);
-      const {data: savedPractice, error: seedError}=await db.from("sb_student_progress").select("practice_seed").eq("student_id",studentSession.studentId).eq("lesson",lesson).maybeSingle();
+      const {data: savedPractice, error: seedError}=await db.from("sb_student_progress").select("practice_seed,guided_completed").eq("student_id",studentSession.studentId).eq("lesson",lesson).maybeSingle();
       if(seedError) return fail(500,"PRACTICE_LOAD_FAILED","문제 묶음을 불러오지 못했어요. 기존 기록은 보존돼요.");
       const seed=savedPractice?.practice_seed ?? practiceSeedForStudent(studentSession.studentId,lesson);
       const seeded=await db.from("sb_student_progress").upsert({student_id:studentSession.studentId,lesson,practice_seed:seed},{onConflict:"student_id,lesson",ignoreDuplicates:true});
       if(seeded.error) return fail(500,"PRACTICE_SAVE_FAILED","문제 묶음의 복원 정보를 저장하지 못했어요.");
+      // ignoreDuplicates 위 upsert는 이미 있는 행을 갱신하지 않으므로, guided_completed는
+      // 별도의 명시적 update로만 true로 바뀐다 -- 한 번 true가 되면 계속 true로 유지된다
+      // (여기서 false로 되돌리는 경로는 없다).
+      let guidedCompleted = savedPractice?.guided_completed ?? false;
+      if (markGuidedComplete && !guidedCompleted) {
+        const guidedUpdate = await db.from("sb_student_progress").update({guided_completed:true}).eq("student_id",studentSession.studentId).eq("lesson",lesson);
+        if (guidedUpdate.error) return fail(500,"PROGRESS_SAVE_FAILED","진도 상태를 저장하지 못했어요.");
+        guidedCompleted = true;
+      }
       const allRows=(problemRows as DbProblemRow[]|null)??[];
       const displayedSeed=practiceDisplaySeed(allRows,lesson,seed,practiceSeedForStudent(studentSession.studentId,lesson));
       const generatedPrefix=`GEN-L${lesson}-S${seed}-`;
@@ -896,11 +910,27 @@ Deno.serve(async (req: Request) => {
       const firstUnfinishedMore=moreProblems.find(p=>!moreCompletedIds.has(p.id));
       const resumeProblemId=firstUnfinishedRequired?.id ?? firstUnfinishedMore?.id ?? progressPosition?.last_problem_id ?? null;
 
+      // Stage resume (안내된 탐구 -> 문제풀기 -> 선택 문제): which SECTION a
+      // returning student should land in, on top of resumeProblemId (which
+      // problem within that section). guided_completed only ever becomes
+      // true via an explicit /solve or /practice entry (see
+      // markGuidedComplete above), never merely by visiting /learn, so a
+      // student who hasn't actually moved past guided exploration is never
+      // fast-forwarded past it. allMoreComplete requires the practice set to
+      // both exist (moreProblems.length>0 -- always true by this point for
+      // lessons 1/2/3/4/5/6/7/8/12, since generation above is unconditional)
+      // and be fully solved, so "not yet started" and "fully done" are never
+      // confused with each other.
+      const allMoreComplete = moreProblems.length > 0 && moreProblems.every(p => moreCompletedIds.has(p.id));
+      const currentStage: "guided" | "required" | "optional" | "completed" =
+        !guidedCompleted ? "guided" : !requiredComplete ? "required" : !allMoreComplete ? "optional" : "completed";
+
       return ok({
         problems,
         seedFallback: false,
         requiredComplete,
         currentProblemId: resumeProblemId,
+        currentStage,
         practiceSet: practiceSetStatus((problemRows as DbProblemRow[]|null)??[],lesson,seed,targetCount,displayedSeed),
         stages,
         allowSimilar: lessonSetting?.allow_similar ?? true,
