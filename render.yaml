@@ -76,3 +76,92 @@ services:
         sync: false
       - key: INSTALLER_OAUTH_REDIRECT_URI
         sync: false
+
+  # ============================================================
+  # PRODUCTION (public distribution). Documented here as the intended
+  # config, the same way the TEST pair above is documented -- these two
+  # services do not exist on Render yet and this file does NOT create them
+  # (Render Blueprint sync is not in use for this repo; the TEST services
+  # were created by hand from this same reference). Creating them is a
+  # human-only step in the Render Dashboard: New -> Static Site / New ->
+  # Web Service, then fill in exactly the fields below.
+  #
+  # Completely separate from TEST: own branch, own OAuth App, own secrets,
+  # own allowlist (empty -- production has no fixed set of teacher project
+  # refs to know in advance; every real install goes through OAuth). Never
+  # reuses TEST's OAuth App, session secret, or allowed origin.
+  #
+  # Also completely separate from the pre-existing `lpjpwrgzwumnikroledh`
+  # Supabase project (see SUPABASE_SETUP.md) -- that was this app's own
+  # earlier, single-tenant production deployment from before this
+  # multi-tenant/installer architecture existed. scripts/installer/security.ts's
+  # assertSafeTarget() permanently hardcodes it (and a second ref,
+  # klruqcakrpmdviyhzrpy) as blocked, independent of mode, so neither the
+  # TEST nor this PRODUCTION installer can ever bind/migrate/deploy onto it.
+  # Nothing below changes or requires that project in any way.
+  - type: static
+    name: stacking-blocks-math
+    # If this name is taken on Render, fall back to stacking-blocks-math-app
+    # and update the installer proxy destination below (and this comment)
+    # to match, before creating the installer service.
+    branch: release/production
+    rootDir: apps/stacking-blocks-math-web
+    buildCommand: npm ci && npm run build
+    staticPublishPath: dist
+    routes:
+      - type: rewrite
+        source: /api/installer/*
+        destination: https://stacking-blocks-math-installer.onrender.com/api/installer/*
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    headers:
+      - path: /assets/*
+        name: Cache-Control
+        value: public, max-age=31536000, immutable
+      - path: /index.html
+        name: Cache-Control
+        value: no-cache, no-store, must-revalidate
+      - path: /*
+        name: Cache-Control
+        value: no-cache, no-store, must-revalidate
+  - type: web
+    name: stacking-blocks-math-installer
+    runtime: node
+    branch: release/production
+    rootDir: apps/stacking-blocks-math-web
+    buildCommand: npm ci
+    startCommand: npm run installer:server
+    healthCheckPath: /health
+    envVars:
+      - key: INSTALLER_MODE
+        value: PRODUCTION
+      - key: HOST
+        value: 0.0.0.0
+      # No INSTALLER_ALLOWED_PROJECT_REFS here on purpose -- PRODUCTION with
+      # an OAuth App configured (below) needs no fixed allowlist; see
+      # runtime.ts's INSTALLER_PRODUCTION_REQUIRES_OAUTH_OR_ALLOWLIST guard.
+      - key: INSTALLER_PRODUCTION_REF
+        value: stacking-blocks-math
+      # Must equal the real production frontend origin once the Static Site
+      # above is actually created (https://stacking-blocks-math.onrender.com,
+      # or the fallback name/custom domain if that changed).
+      - key: INSTALLER_ALLOWED_ORIGIN
+        sync: false
+      - key: INSTALLER_SESSION_SECRET
+        generateValue: true
+      # A SEPARATE Supabase OAuth App from TEST's (org dashboard, one-time
+      # human step -- see step 9 of the production release checklist).
+      # Required scopes, unchanged from TEST because both share the exact
+      # same Management API call sites (scripts/installer/management-api.ts):
+      # Projects Read-only, Database Read and write, Edge Functions Read
+      # and write, Secrets Read and write. No broader scope needed.
+      # Callback URL to register with that OAuth App:
+      #   https://stacking-blocks-math.onrender.com/api/installer/oauth/callback
+      # (same-origin proxy pattern as TEST -- see the routes rewrite above).
+      - key: INSTALLER_OAUTH_CLIENT_ID
+        sync: false
+      - key: INSTALLER_OAUTH_CLIENT_SECRET
+        sync: false
+      - key: INSTALLER_OAUTH_REDIRECT_URI
+        sync: false

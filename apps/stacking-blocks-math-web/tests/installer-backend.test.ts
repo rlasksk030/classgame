@@ -284,7 +284,7 @@ test("B33 runtime rejects production project in TEST allowlist", () => {
 // advance, so it relies on the dynamic OAuth grant path instead, and must
 // never be able to boot into a state where nothing can ever be authorized.
 
-test("B48 PRODUCTION mode boots with OAuth configured and no allowlist", () => {
+test("B54 PRODUCTION mode boots with OAuth configured and no allowlist", () => {
   const config = readInstallerRuntimeConfig({
     INSTALLER_MODE: "PRODUCTION",
     INSTALLER_ALLOWED_ORIGIN: "https://math.example",
@@ -298,7 +298,7 @@ test("B48 PRODUCTION mode boots with OAuth configured and no allowlist", () => {
   assert.ok(config.oauth);
 });
 
-test("B49 PRODUCTION mode boots with a non-empty allowlist even without OAuth (PAT fallback path stays available)", () => {
+test("B55 PRODUCTION mode boots with a non-empty allowlist even without OAuth (PAT fallback path stays available)", () => {
   const config = readInstallerRuntimeConfig({
     INSTALLER_MODE: "PRODUCTION",
     INSTALLER_ALLOWED_PROJECT_REFS: "some-teacher-project-ref",
@@ -309,7 +309,7 @@ test("B49 PRODUCTION mode boots with a non-empty allowlist even without OAuth (P
   assert.equal(config.oauth, undefined);
 });
 
-test("B50 PRODUCTION mode refuses to boot with neither OAuth nor an allowlist -- would otherwise be a silent dead end where nothing could ever be authorized", () => {
+test("B56 PRODUCTION mode refuses to boot with neither OAuth nor an allowlist -- would otherwise be a silent dead end where nothing could ever be authorized", () => {
   assert.throws(() => readInstallerRuntimeConfig({
     INSTALLER_MODE: "PRODUCTION",
     INSTALLER_ALLOWED_ORIGIN: "https://math.example",
@@ -317,7 +317,7 @@ test("B50 PRODUCTION mode refuses to boot with neither OAuth nor an allowlist --
   }), /INSTALLER_PRODUCTION_REQUIRES_OAUTH_OR_ALLOWLIST/);
 });
 
-test("B51 PRODUCTION mode still rejects the production ref itself appearing in an allowlist -- same guard, mode-independent", () => {
+test("B57 PRODUCTION mode still rejects the production ref itself appearing in an allowlist -- same guard, mode-independent", () => {
   assert.throws(() => readInstallerRuntimeConfig({
     INSTALLER_MODE: "PRODUCTION",
     INSTALLER_ALLOWED_PROJECT_REFS: "stacking-blocks-math",
@@ -329,7 +329,7 @@ test("B51 PRODUCTION mode still rejects the production ref itself appearing in a
   }), /INSTALLER_PRODUCTION_REF_IN_ALLOWLIST/);
 });
 
-test("B52 an invalid/unset INSTALLER_MODE is rejected outright -- only TEST and PRODUCTION are real modes", () => {
+test("B58 an invalid/unset INSTALLER_MODE is rejected outright -- only TEST and PRODUCTION are real modes", () => {
   assert.throws(() => readInstallerRuntimeConfig({
     INSTALLER_MODE: "STAGING",
     INSTALLER_ALLOWED_PROJECT_REFS: "some-ref",
@@ -343,7 +343,7 @@ test("B52 an invalid/unset INSTALLER_MODE is rejected outright -- only TEST and 
   }), /INSTALLER_MODE_INVALID/);
 });
 
-test("B53 assertSafeTarget still permanently blocks both hardcoded protected refs and any PRODUCTION-environment target, independent of runtime mode", () => {
+test("B59 assertSafeTarget still permanently blocks both hardcoded protected refs and any PRODUCTION-environment target, independent of runtime mode", () => {
   const blocked = (fn: () => void) => { assert.throws(fn, (error: unknown) => error instanceof InstallerError && error.code === "PRODUCTION_TARGET_BLOCKED"); };
   blocked(() => assertSafeTarget({ environment: "TEST", projectRef: "lpjpwrgzwumnikroledh" }, "stacking-blocks-math"));
   blocked(() => assertSafeTarget({ environment: "TEST", projectRef: "klruqcakrpmdviyhzrpy" }, "stacking-blocks-math"));
