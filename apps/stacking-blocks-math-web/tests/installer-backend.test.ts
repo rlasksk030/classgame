@@ -274,6 +274,83 @@ test("B33 runtime rejects production project in TEST allowlist", () => {
 }), /INSTALLER_PRODUCTION_REF_IN_ALLOWLIST/);
 });
 
+// PRODUCTION mode: added so a real installer deployment can eventually exist
+// at all (the runtime previously hard-rejected any INSTALLER_MODE other than
+// "TEST" -- http-server.ts already had mode?: "TEST"|"STAGING"|"PRODUCTION"
+// and a mode==="TEST" branch gating the TEST-target-only restriction, but
+// runtime.ts, which actually reads the env and produces that mode, never let
+// anything besides "TEST" through). TEST's fixed-allowlist requirement is
+// unchanged; PRODUCTION has no fixed set of teacher project refs to know in
+// advance, so it relies on the dynamic OAuth grant path instead, and must
+// never be able to boot into a state where nothing can ever be authorized.
+
+test("B48 PRODUCTION mode boots with OAuth configured and no allowlist", () => {
+  const config = readInstallerRuntimeConfig({
+    INSTALLER_MODE: "PRODUCTION",
+    INSTALLER_ALLOWED_ORIGIN: "https://math.example",
+    INSTALLER_SESSION_SECRET: "a".repeat(32),
+    INSTALLER_OAUTH_CLIENT_ID: "client-id",
+    INSTALLER_OAUTH_CLIENT_SECRET: "client-secret",
+    INSTALLER_OAUTH_REDIRECT_URI: "https://math.example/api/installer/oauth/callback",
+  });
+  assert.equal(config.mode, "PRODUCTION");
+  assert.deepEqual(config.allowedProjectRefs, []);
+  assert.ok(config.oauth);
+});
+
+test("B49 PRODUCTION mode boots with a non-empty allowlist even without OAuth (PAT fallback path stays available)", () => {
+  const config = readInstallerRuntimeConfig({
+    INSTALLER_MODE: "PRODUCTION",
+    INSTALLER_ALLOWED_PROJECT_REFS: "some-teacher-project-ref",
+    INSTALLER_ALLOWED_ORIGIN: "https://math.example",
+    INSTALLER_SESSION_SECRET: "a".repeat(32),
+  });
+  assert.equal(config.mode, "PRODUCTION");
+  assert.equal(config.oauth, undefined);
+});
+
+test("B50 PRODUCTION mode refuses to boot with neither OAuth nor an allowlist -- would otherwise be a silent dead end where nothing could ever be authorized", () => {
+  assert.throws(() => readInstallerRuntimeConfig({
+    INSTALLER_MODE: "PRODUCTION",
+    INSTALLER_ALLOWED_ORIGIN: "https://math.example",
+    INSTALLER_SESSION_SECRET: "a".repeat(32),
+  }), /INSTALLER_PRODUCTION_REQUIRES_OAUTH_OR_ALLOWLIST/);
+});
+
+test("B51 PRODUCTION mode still rejects the production ref itself appearing in an allowlist -- same guard, mode-independent", () => {
+  assert.throws(() => readInstallerRuntimeConfig({
+    INSTALLER_MODE: "PRODUCTION",
+    INSTALLER_ALLOWED_PROJECT_REFS: "stacking-blocks-math",
+    INSTALLER_ALLOWED_ORIGIN: "https://math.example",
+    INSTALLER_SESSION_SECRET: "a".repeat(32),
+    INSTALLER_OAUTH_CLIENT_ID: "client-id",
+    INSTALLER_OAUTH_CLIENT_SECRET: "client-secret",
+    INSTALLER_OAUTH_REDIRECT_URI: "https://math.example/api/installer/oauth/callback",
+  }), /INSTALLER_PRODUCTION_REF_IN_ALLOWLIST/);
+});
+
+test("B52 an invalid/unset INSTALLER_MODE is rejected outright -- only TEST and PRODUCTION are real modes", () => {
+  assert.throws(() => readInstallerRuntimeConfig({
+    INSTALLER_MODE: "STAGING",
+    INSTALLER_ALLOWED_PROJECT_REFS: "some-ref",
+    INSTALLER_ALLOWED_ORIGIN: "https://math.example",
+    INSTALLER_SESSION_SECRET: "a".repeat(32),
+  }), /INSTALLER_MODE_INVALID/);
+  assert.throws(() => readInstallerRuntimeConfig({
+    INSTALLER_ALLOWED_PROJECT_REFS: "some-ref",
+    INSTALLER_ALLOWED_ORIGIN: "https://math.example",
+    INSTALLER_SESSION_SECRET: "a".repeat(32),
+  }), /INSTALLER_MODE_INVALID/);
+});
+
+test("B53 assertSafeTarget still permanently blocks both hardcoded protected refs and any PRODUCTION-environment target, independent of runtime mode", () => {
+  const blocked = (fn: () => void) => { assert.throws(fn, (error: unknown) => error instanceof InstallerError && error.code === "PRODUCTION_TARGET_BLOCKED"); };
+  blocked(() => assertSafeTarget({ environment: "TEST", projectRef: "lpjpwrgzwumnikroledh" }, "stacking-blocks-math"));
+  blocked(() => assertSafeTarget({ environment: "TEST", projectRef: "klruqcakrpmdviyhzrpy" }, "stacking-blocks-math"));
+  blocked(() => assertSafeTarget({ environment: "PRODUCTION", projectRef: "any-teacher-ref" }, "stacking-blocks-math"));
+  assert.doesNotThrow(() => assertSafeTarget({ environment: "TEST", projectRef: "some-other-ref" }, "stacking-blocks-math"));
+});
+
 test("B34 installed TEST maintenance actions are read-only no-ops", () => {
   assert.equal(maintenanceAction("/api/installer/repair", "INSTALLED"), "NO_CHANGES");
   assert.equal(maintenanceAction("/api/installer/update", "INSTALLED"), "UP_TO_DATE");

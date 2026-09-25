@@ -5,7 +5,7 @@ import { ManagementTeacherAccountProvisioner } from "./teacher-account.ts";
 import { EphemeralCredential } from "./security.ts";
 
 export interface InstallerRuntimeConfig {
-  mode: "TEST";
+  mode: "TEST" | "PRODUCTION";
   allowedOrigins: string[];
   allowedProjectRefs: string[];
   productionRef: string;
@@ -22,10 +22,17 @@ export interface InstallerRuntimeConfig {
 /** Reads the deployment contract without ever printing secret values. */
 export function readInstallerRuntimeConfig(env: NodeJS.ProcessEnv = process.env): InstallerRuntimeConfig {
   const mode = env.INSTALLER_MODE?.trim();
-  if (mode !== "TEST") throw new Error("INSTALLER_MODE_MUST_BE_TEST");
+  if (mode !== "TEST" && mode !== "PRODUCTION") throw new Error("INSTALLER_MODE_INVALID");
   const productionRef = env.INSTALLER_PRODUCTION_REF?.trim() || "stacking-blocks-math";
   const allowedProjectRefs = splitList(env.INSTALLER_ALLOWED_PROJECT_REFS);
-  if (allowedProjectRefs.length === 0) throw new Error("INSTALLER_ALLOWED_PROJECT_REFS_MISSING");
+  // TEST keeps its fixed allowlist mandatory (today's regression-tested contract:
+  // a small, known set of TEST projects, no OAuth required to exercise it).
+  // PRODUCTION has no such fixed set -- a teacher's own project ref can't be known
+  // in advance -- so real installs there must go through the dynamic OAuth grant
+  // path (options.oauth) instead. An empty allowlist is therefore only safe in
+  // PRODUCTION when OAuth is actually configured; otherwise nothing could ever
+  // be authorized and the deployment would be a silent dead end.
+  if (mode === "TEST" && allowedProjectRefs.length === 0) throw new Error("INSTALLER_ALLOWED_PROJECT_REFS_MISSING");
   if (allowedProjectRefs.includes(productionRef)) throw new Error("INSTALLER_PRODUCTION_REF_IN_ALLOWLIST");
   const allowedOrigins = splitList(env.INSTALLER_ALLOWED_ORIGIN);
   if (allowedOrigins.length === 0) throw new Error("INSTALLER_ALLOWED_ORIGIN_MISSING");
@@ -43,9 +50,11 @@ export function readInstallerRuntimeConfig(env: NodeJS.ProcessEnv = process.env)
   if ((oauthClientId || oauthClientSecret || oauthRedirectUri) && !(oauthClientId && oauthClientSecret && oauthRedirectUri)) {
     throw new Error("INSTALLER_OAUTH_CONFIG_INCOMPLETE");
   }
+  const oauth = oauthClientId && oauthClientSecret && oauthRedirectUri ? { clientId: oauthClientId, clientSecret: oauthClientSecret, redirectUri: oauthRedirectUri } : undefined;
+  if (mode === "PRODUCTION" && allowedProjectRefs.length === 0 && !oauth) throw new Error("INSTALLER_PRODUCTION_REQUIRES_OAUTH_OR_ALLOWLIST");
   // A hosted installer must be reachable through its platform proxy. Local
   // development can still opt into loopback explicitly with HOST=127.0.0.1.
-  return { mode: "TEST", allowedOrigins, allowedProjectRefs, productionRef, sessionSecret, port, host: env.HOST?.trim() || "0.0.0.0", managementApiUrl: env.SUPABASE_MANAGEMENT_API_URL?.trim() || undefined, oauth: oauthClientId && oauthClientSecret && oauthRedirectUri ? { clientId: oauthClientId, clientSecret: oauthClientSecret, redirectUri: oauthRedirectUri } : undefined };
+  return { mode, allowedOrigins, allowedProjectRefs, productionRef, sessionSecret, port, host: env.HOST?.trim() || "0.0.0.0", managementApiUrl: env.SUPABASE_MANAGEMENT_API_URL?.trim() || undefined, oauth };
 }
 
 function managementExtrasFor(config: InstallerRuntimeConfig, credential: EphemeralCredential): InstallerManagementExtras {
