@@ -18,6 +18,7 @@ const TeacherGate = lazy(() => import('./pages/TeacherGate'));
 const TeacherProblemEditor = lazy(() => import('./pages/TeacherProblemEditor'));
 const TeacherProblemPreview = lazy(() => import('./pages/TeacherProblemPreview'));
 const TeacherLessonPreview = lazy(() => import('./pages/TeacherLessonPreview'));
+const PrintStudentLoginSheet = lazy(() => import('./pages/PrintStudentLoginSheet'));
 const TeacherStudentRecord = lazy(() => import('./pages/TeacherStudentRecord'));
 const PeerChallengePage = lazy(() => import('./pages/PeerChallengePage'));
 const ArchitecturePage = lazy(() => import('./pages/ArchitecturePage'));
@@ -54,6 +55,7 @@ export default function App() {
     <Route path="/teacher/problems/new" element={<TeacherGate><TeacherProblemEditor /></TeacherGate>} />
     <Route path="/teacher/problem-preview" element={<TeacherGate><TeacherProblemPreview /></TeacherGate>} />
     <Route path="/teacher/lesson-preview/:lesson" element={<TeacherGate><TeacherLessonPreview /></TeacherGate>} />
+    <Route path="/teacher/print-logins" element={<TeacherGate><PrintStudentLoginSheet /></TeacherGate>} />
     <Route path="/teacher/students/:studentId" element={<TeacherGate><TeacherStudentRecord /></TeacherGate>} />
     <Route path="*" element={<Navigate to="/" replace />} />
   </Routes></Suspense>;

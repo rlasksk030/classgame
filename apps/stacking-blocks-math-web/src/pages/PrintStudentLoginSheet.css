@@ -1,0 +1,105 @@
+.print-sheet-page {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 24px;
+  font-family: -apple-system, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  color: #1f2430;
+}
+
+.print-sheet-toolbar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.print-sheet-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.print-sheet-header h1 {
+  font-size: 22px;
+  margin: 0 0 6px;
+}
+
+.print-sheet-header p {
+  margin: 0 0 10px;
+  color: #555;
+}
+
+.print-sheet-header-qr {
+  width: 96px;
+  height: 96px;
+}
+
+.print-sheet-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.print-sheet-card {
+  border: 1px solid #333;
+  border-radius: 6px;
+  padding: 12px 14px;
+}
+
+.print-sheet-name {
+  font-weight: 700;
+  margin: 0 0 4px;
+}
+
+.print-sheet-pin {
+  font-size: 18px;
+  font-weight: 800;
+  margin: 0 0 8px;
+}
+
+.print-sheet-url-label {
+  margin: 0;
+  font-size: 11px;
+  color: #667;
+}
+
+.print-sheet-url {
+  margin: 0 0 4px;
+  font-size: 11px;
+  word-break: break-all;
+}
+
+.print-sheet-code {
+  margin: 0;
+  font-size: 11px;
+  color: #667;
+}
+
+/* Isolates this page from the rest of the app when printing: the teacher
+   nav lives outside this component (rendered by TeacherGate, a sibling),
+   so it can only be reached by a body-level class this page toggles on
+   mount/unmount -- never by touching TeacherGate itself. */
+@media print {
+  @page {
+    size: A4;
+    margin: 12mm;
+  }
+
+  body.print-login-sheet-active nav.toolbar-row.app-max,
+  body.print-login-sheet-active .installation-switch {
+    display: none !important;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  .print-sheet-page {
+    max-width: none;
+    padding: 0;
+    background: none;
+  }
+
+  .print-sheet-card {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+}
