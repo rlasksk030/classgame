@@ -195,22 +195,36 @@ test("B25 project URL and ref must bind before remote work", () => {
 
 test("B26 OAuth authorization uses state and S256 PKCE without storing credentials", () => {
   const store = new OAuthSessionStore(60_000);
-  const auth = store.create("client-id", "https://installer.invalid/callback", "teacher-org");
+  const auth = store.create("client-id", "https://installer.invalid/callback", "https://installer.invalid", "teacher-org");
   const url = new URL(auth.url);
   assert.equal(url.searchParams.get("response_type"), "code");
   assert.equal(url.searchParams.get("code_challenge_method"), "S256");
   assert.equal(url.searchParams.get("state"), auth.state);
   assert.equal(store.size, 1);
-  const consumed = store.consume(auth.state, "https://installer.invalid/callback");
+  const consumed = store.consume(auth.state);
   assert.ok(consumed.codeVerifier.length >= 40);
+  assert.equal(consumed.origin, "https://installer.invalid");
   assert.equal(store.size, 0);
 });
 
-test("B27 OAuth callback state is one-time and redirect-bound", () => {
+test("B27 OAuth callback state is one-time -- a second consume of the same state always fails, valid state or not", () => {
   const store = new OAuthSessionStore();
-  const auth = store.create("client-id", "https://installer.invalid/callback");
-  assert.throws(() => store.consume(auth.state, "https://attacker.invalid/callback"), /OAUTH_STATE_INVALID/);
-  assert.throws(() => store.consume(auth.state, "https://installer.invalid/callback"), /OAUTH_STATE_INVALID/);
+  const auth = store.create("client-id", "https://installer.invalid/callback", "https://installer.invalid");
+  const first = store.consume(auth.state);
+  assert.equal(first.origin, "https://installer.invalid");
+  assert.throws(() => store.consume(auth.state), /OAUTH_STATE_INVALID/);
+  assert.throws(() => store.consume("never-issued-state"), /OAUTH_STATE_INVALID/);
+});
+
+test("B27b each create() independently binds its own origin -- two concurrent flows (e.g. TEST and production frontends sharing one backend) never cross-contaminate", () => {
+  const store = new OAuthSessionStore();
+  const testFlow = store.create("client-id", "https://stacking-blocks-math-setup-test.onrender.com/api/installer/oauth/callback", "https://stacking-blocks-math-setup-test.onrender.com");
+  const prodFlow = store.create("client-id", "https://stacking-blocks-math.onrender.com/api/installer/oauth/callback", "https://stacking-blocks-math.onrender.com");
+  assert.notEqual(testFlow.state, prodFlow.state);
+  const prodConsumed = store.consume(prodFlow.state);
+  assert.equal(prodConsumed.origin, "https://stacking-blocks-math.onrender.com");
+  const testConsumed = store.consume(testFlow.state);
+  assert.equal(testConsumed.origin, "https://stacking-blocks-math-setup-test.onrender.com");
 });
 
 test("B28 OAuth token exchange returns ephemeral credentials only", async () => {

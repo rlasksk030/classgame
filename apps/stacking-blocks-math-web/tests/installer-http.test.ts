@@ -223,9 +223,12 @@ test("OAuth authorize -> callback -> project list -> session binds the OAuth cre
     const grantCookie = findCookie(callback.headers, "installer_oauth_grant");
     assert.ok(grantCookie);
 
-    // Replaying the same state must fail: OAuth state is one-time.
+    // Replaying the same state must fail: OAuth state is one-time. A clean 400
+    // (the callback handler's own explicit catch around consume()), not a
+    // generic 502 from an uncaught throw falling through to the outer handler.
     const replay = await fetch(`${running2.base}/api/installer/oauth/callback?code=fake-code&state=${state}`, { redirect: "manual" });
-    assert.equal(replay.status, 502);
+    assert.equal(replay.status, 400);
+    assert.equal((await replay.json()).code, "INSTALLER_OAUTH_CALLBACK_INVALID");
 
     const projects = await fetch(`${running2.base}/api/installer/projects`, { headers: { cookie: grantCookie!, origin: "http://localhost:5173" } });
     assert.equal(projects.status, 200);
@@ -271,6 +274,119 @@ test("OAuth authorize -> callback -> project list -> session binds the OAuth cre
     assert.equal((await fetch(`${running2.base}/api/installer/status`, { headers: planHeaders })).status, 401);
     assert.equal((await fetch(`${running2.base}/api/installer/install`, { method: "POST", headers: planHeaders })).status, 401);
   } finally { await new Promise<void>(resolve => running2.server.close(() => resolve())); }
+});
+
+// Two distinct frontends (e.g. TEST and production) sharing ONE installer
+// backend + ONE Supabase OAuth App: the backend must send each teacher back
+// to the SAME origin they actually started from, never a hardcoded/
+// first-configured one, and never trust an Origin it didn't itself allowlist.
+async function runningMultiOriginOAuthServer() {
+  const backend = createFakeInstallerBackend();
+  const extras = createFakeManagementExtras({ accessibleProjects: [{ ref: target.projectRef }] });
+  let tokenRequests = 0;
+  const server = createInstallerServer({
+    plan,
+    productionRef: plan.productionRef,
+    createBackend: () => backend,
+    createManagementExtras: () => extras,
+    allowedOrigins: ["https://test.example", "https://production.example"],
+    oauth: {
+      clientId: "test-client-id",
+      clientSecret: new EphemeralCredential("test-client-secret"),
+      // Intentionally a THIRD, unrelated value: the callback must never fall
+      // back to this static config value now that redirectUri/returnOrigin
+      // are derived per-request from the caller's own (allowlisted) Origin.
+      redirectUri: "https://unrelated.example/api/installer/oauth/callback",
+      fetchImpl: async () => { tokenRequests += 1; return new Response(JSON.stringify({ access_token: "oauth-access-token", expires_in: 3600 }), { status: 200, headers: { "content-type": "application/json" } }); },
+    },
+  });
+  await new Promise<void>((resolve, reject) => { server.once("error", reject); server.listen(0, "127.0.0.1", resolve); });
+  const address = server.address();
+  if (!address || typeof address === "string") throw new Error("server address missing");
+  return { server, base: `http://127.0.0.1:${address.port}`, tokenRequests: () => tokenRequests };
+}
+
+async function authorizeFrom(base: string, origin: string) {
+  const response = await fetch(`${base}/api/installer/authorize`, { method: "POST", headers: { origin, "content-type": "application/json" }, body: "{}" });
+  assert.equal(response.status, 200);
+  const { authorizeUrl } = await response.json();
+  const state = new URL(authorizeUrl).searchParams.get("state");
+  assert.ok(state);
+  return state as string;
+}
+
+test("1/2. OAuth started from either allowlisted origin returns to that SAME origin, not a hardcoded/first-configured one", async (t) => {
+  let running: Awaited<ReturnType<typeof runningMultiOriginOAuthServer>>;
+  try { running = await runningMultiOriginOAuthServer(); }
+  catch (error) { if (error && typeof error === "object" && "code" in error && (error as { code?: unknown }).code === "EPERM") { t.skip("이 환경은 localhost listen을 차단함"); return; } throw error; }
+  try {
+    const testState = await authorizeFrom(running.base, "https://test.example");
+    const testCallback = await fetch(`${running.base}/api/installer/oauth/callback?code=fake&state=${testState}`, { redirect: "manual" });
+    assert.equal(testCallback.status, 302);
+    assert.equal(testCallback.headers.get("location"), "https://test.example/setup?oauth=granted");
+
+    const prodState = await authorizeFrom(running.base, "https://production.example");
+    const prodCallback = await fetch(`${running.base}/api/installer/oauth/callback?code=fake&state=${prodState}`, { redirect: "manual" });
+    assert.equal(prodCallback.status, 302);
+    assert.equal(prodCallback.headers.get("location"), "https://production.example/setup?oauth=granted");
+    assert.equal(running.tokenRequests(), 2);
+  } finally { await new Promise<void>(resolve => running.server.close(() => resolve())); }
+});
+
+test("3. two OAuth flows started interleaved (TEST second, production first to finish) never cross-contaminate origins", async (t) => {
+  let running: Awaited<ReturnType<typeof runningMultiOriginOAuthServer>>;
+  try { running = await runningMultiOriginOAuthServer(); }
+  catch (error) { if (error && typeof error === "object" && "code" in error && (error as { code?: unknown }).code === "EPERM") { t.skip("이 환경은 localhost listen을 차단함"); return; } throw error; }
+  try {
+    const prodState = await authorizeFrom(running.base, "https://production.example");
+    const testState = await authorizeFrom(running.base, "https://test.example");
+    assert.notEqual(prodState, testState);
+
+    // Finish the SECOND-started flow (TEST) FIRST -- order of completion must
+    // not matter; each state independently carries its own bound origin.
+    const testCallback = await fetch(`${running.base}/api/installer/oauth/callback?code=fake&state=${testState}`, { redirect: "manual" });
+    assert.equal(testCallback.headers.get("location"), "https://test.example/setup?oauth=granted");
+
+    const prodCallback = await fetch(`${running.base}/api/installer/oauth/callback?code=fake&state=${prodState}`, { redirect: "manual" });
+    assert.equal(prodCallback.headers.get("location"), "https://production.example/setup?oauth=granted");
+  } finally { await new Promise<void>(resolve => running.server.close(() => resolve())); }
+});
+
+test("4. /authorize from a non-allowlisted origin is rejected outright -- no state is ever created, no arbitrary Origin is trusted", async (t) => {
+  let running: Awaited<ReturnType<typeof runningMultiOriginOAuthServer>>;
+  try { running = await runningMultiOriginOAuthServer(); }
+  catch (error) { if (error && typeof error === "object" && "code" in error && (error as { code?: unknown }).code === "EPERM") { t.skip("이 환경은 localhost listen을 차단함"); return; } throw error; }
+  try {
+    const response = await fetch(`${running.base}/api/installer/authorize`, { method: "POST", headers: { origin: "https://attacker.example", "content-type": "application/json" }, body: "{}" });
+    assert.equal(response.status, 403);
+    assert.equal((await response.json()).code, "INSTALLER_ORIGIN_BLOCKED");
+    // A request with NO Origin header at all must also be rejected here (unlike
+    // the general CORS gate, which allows a missing Origin through for the
+    // callback's own top-level navigation) -- /authorize specifically requires
+    // a real, checked Origin before it will ever bind one to a new OAuth state.
+    const noOrigin = await fetch(`${running.base}/api/installer/authorize`, { method: "POST", headers: { "content-type": "application/json" }, body: "{}" });
+    assert.equal(noOrigin.status, 403);
+  } finally { await new Promise<void>(resolve => running.server.close(() => resolve())); }
+});
+
+test("5. a forged or already-consumed state is rejected, and never leaks which origin (if any) it was ever bound to", async (t) => {
+  let running: Awaited<ReturnType<typeof runningMultiOriginOAuthServer>>;
+  try { running = await runningMultiOriginOAuthServer(); }
+  catch (error) { if (error && typeof error === "object" && "code" in error && (error as { code?: unknown }).code === "EPERM") { t.skip("이 환경은 localhost listen을 차단함"); return; } throw error; }
+  try {
+    const forged = await fetch(`${running.base}/api/installer/oauth/callback?code=fake&state=never-issued-state-value`, { redirect: "manual" });
+    assert.equal(forged.status, 400);
+    const forgedBody = await forged.json();
+    assert.equal(forgedBody.code, "INSTALLER_OAUTH_CALLBACK_INVALID");
+    assert.equal(JSON.stringify(forgedBody).includes("example"), false, "error body must never reveal an origin, bound or not");
+
+    const state = await authorizeFrom(running.base, "https://test.example");
+    const first = await fetch(`${running.base}/api/installer/oauth/callback?code=fake&state=${state}`, { redirect: "manual" });
+    assert.equal(first.status, 302);
+    const reused = await fetch(`${running.base}/api/installer/oauth/callback?code=fake&state=${state}`, { redirect: "manual" });
+    assert.equal(reused.status, 400);
+    assert.equal((await reused.json()).code, "INSTALLER_OAUTH_CALLBACK_INVALID");
+  } finally { await new Promise<void>(resolve => running.server.close(() => resolve())); }
 });
 
 test("teacher account creation uses the session credential, never a client-supplied key, and handles a duplicate email", async () => {

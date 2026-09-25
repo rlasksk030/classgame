@@ -237,7 +237,19 @@ async function handleRequest(request: IncomingMessage, response: ServerResponse,
     }
     if (url.pathname === "/api/installer/authorize" && request.method === "POST") {
       if (!options.oauth) { sendError(response, 501, "INSTALLER_OAUTH_NOT_CONFIGURED", "이 TEST 실행부에는 OAuth 연결이 설정되지 않았습니다."); return; }
-      const authorization = oauthStore.create(options.oauth.clientId, options.oauth.redirectUri);
+      // This POST is always a same-origin fetch from the frontend's own JS, so the
+      // browser sets a real Origin header we cannot be spoofed into trusting for
+      // anything we wouldn't already trust it for via originAllowed() above -- but
+      // that earlier gate treats a MISSING Origin as allowed (needed for the plain
+      // top-level GET navigation the callback below arrives as), so it alone isn't
+      // enough proof this specific request is a genuine browser fetch. Re-checking
+      // it here, strictly, is what lets a shared installer backend send each teacher
+      // back to the SAME frontend (TEST or production) they actually started from,
+      // instead of one hardcoded/first-configured origin for everyone.
+      const origin = request.headers.origin;
+      if (!origin || !allowedOrigins.has(origin)) { sendError(response, 403, "INSTALLER_ORIGIN_BLOCKED", "설치 요청 출처를 확인할 수 없습니다."); return; }
+      const redirectUri = `${origin}/api/installer/oauth/callback`;
+      const authorization = oauthStore.create(options.oauth.clientId, redirectUri, origin);
       sendJson(response, 200, { authorizeUrl: authorization.url });
       return;
     }
@@ -245,14 +257,19 @@ async function handleRequest(request: IncomingMessage, response: ServerResponse,
       if (!options.oauth) { sendError(response, 501, "INSTALLER_OAUTH_NOT_CONFIGURED", "이 TEST 실행부에는 OAuth 연결이 설정되지 않았습니다."); return; }
       const code = url.searchParams.get("code");
       const state = url.searchParams.get("state");
-      const returnOrigin = [...allowedOrigins][0];
-      if (!code || !state || !returnOrigin) { sendError(response, 400, "INSTALLER_OAUTH_CALLBACK_INVALID", "OAuth 콜백 요청이 올바르지 않습니다."); return; }
-      const pending = oauthStore.consume(state, options.oauth.redirectUri);
+      if (!code || !state) { sendError(response, 400, "INSTALLER_OAUTH_CALLBACK_INVALID", "OAuth 콜백 요청이 올바르지 않습니다."); return; }
+      let pending: { codeVerifier: string; redirectUri: string; origin: string };
+      try { pending = oauthStore.consume(state); }
+      catch { sendError(response, 400, "INSTALLER_OAUTH_CALLBACK_INVALID", "OAuth 콜백 요청이 올바르지 않습니다."); return; }
+      // Defense in depth against an open redirect: re-check the bound origin is
+      // still allowlisted (not just "was allowlisted when /authorize ran"), so
+      // config changed mid-flow can never send a browser somewhere unlisted.
+      if (!allowedOrigins.has(pending.origin)) { sendError(response, 403, "INSTALLER_ORIGIN_BLOCKED", "설치 요청 출처를 확인할 수 없습니다."); return; }
       const tokens = await exchangeOAuthCode({ clientId: options.oauth.clientId, clientSecret: options.oauth.clientSecret, code, codeVerifier: pending.codeVerifier, redirectUri: pending.redirectUri, fetchImpl: options.oauth.fetchImpl });
       tokens.refreshToken?.dispose(); // Not persisted in this TEST-scope flow; each install re-authorizes.
       const grantId = grantStore.create(tokens.accessToken);
       response.setHeader("set-cookie", cookieHeader("installer_oauth_grant", options.sessionSecret ? `${grantId}.${signSession(grantId, options.sessionSecret)}` : grantId, Date.now() + 10 * 60 * 1000, options));
-      response.writeHead(302, { location: `${returnOrigin}/setup?oauth=granted` });
+      response.writeHead(302, { location: `${pending.origin}/setup?oauth=granted` });
       response.end();
       return;
     }

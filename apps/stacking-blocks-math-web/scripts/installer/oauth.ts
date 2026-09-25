@@ -8,6 +8,12 @@ interface PendingOAuth {
   state: string;
   codeVerifier: string;
   redirectUri: string;
+  /** The frontend origin that started this flow (one of the server's configured
+   * allowedOrigins at creation time) -- bound to the state so the callback, which
+   * arrives as a plain top-level GET navigation with no reliable Origin header of
+   * its own, can still send the browser back to the SAME frontend it started from,
+   * even when multiple distinct frontends share one installer backend. */
+  origin: string;
   expiresAt: number;
 }
 
@@ -31,23 +37,28 @@ export class OAuthSessionStore {
     this.#ttlMs = ttlMs;
   }
 
-  create(clientId: string, redirectUri: string, organizationSlug?: string): OAuthAuthorization {
+  create(clientId: string, redirectUri: string, origin: string, organizationSlug?: string): OAuthAuthorization {
     const now = Date.now();
     const state = randomBytes(32).toString("base64url");
     const codeVerifier = randomBytes(32).toString("base64url");
     const challenge = createHash("sha256").update(codeVerifier).digest("base64url");
     const expiresAt = now + this.#ttlMs;
-    this.#sessions.set(state, { state, codeVerifier, redirectUri, expiresAt });
+    this.#sessions.set(state, { state, codeVerifier, redirectUri, origin, expiresAt });
     const params = new URLSearchParams({ client_id: clientId, redirect_uri: redirectUri, response_type: "code", state, code_challenge: challenge, code_challenge_method: "S256" });
     if (organizationSlug) params.set("organization_slug", organizationSlug);
     return { url: `${AUTHORIZE_ENDPOINT}?${params.toString()}`, state, expiresAt };
   }
 
-  consume(state: string, redirectUri: string): { codeVerifier: string; redirectUri: string } {
+  /** Single-use: always deletes on lookup, valid or not, so a state can never be
+   * replayed. No expected-redirectUri parameter to compare against -- the stored
+   * value came from a request whose Origin was already checked against
+   * allowedOrigins at create() time, so it's trusted directly rather than compared
+   * against a second caller-supplied copy of itself. */
+  consume(state: string): { codeVerifier: string; redirectUri: string; origin: string } {
     const pending = this.#sessions.get(state);
     this.#sessions.delete(state);
-    if (!pending || pending.expiresAt < Date.now() || pending.redirectUri !== redirectUri) throw new Error("OAUTH_STATE_INVALID");
-    return { codeVerifier: pending.codeVerifier, redirectUri: pending.redirectUri };
+    if (!pending || pending.expiresAt < Date.now()) throw new Error("OAUTH_STATE_INVALID");
+    return { codeVerifier: pending.codeVerifier, redirectUri: pending.redirectUri, origin: pending.origin };
   }
 
   clearExpired(now = Date.now()): void {
