@@ -37,6 +37,7 @@ function isBrowser(): boolean {
 function validUrl(value: string): boolean {
   try {
     const url = new URL(value);
+    if (url.username || url.password || url.search || url.hash || (url.pathname !== "/" && url.pathname !== "")) return false;
     return url.protocol === "https:" ||
       ((url.hostname === "localhost" || url.hostname === "127.0.0.1") && url.protocol === "http:");
   } catch {
@@ -52,14 +53,29 @@ export function validateRuntimeSupabaseConfig(value: unknown): value is RuntimeS
   if (typeof candidate.supabaseUrl !== "string" || !validUrl(candidate.supabaseUrl)) return false;
   if (typeof candidate.supabasePublishableKey !== "string" || candidate.supabasePublishableKey.length < 8) return false;
   const lowered = candidate.supabasePublishableKey.toLowerCase();
+  if (candidate.supabasePublishableKey.startsWith("eyJ")) {
+    try {
+      const payload = JSON.parse(atob(candidate.supabasePublishableKey.split(".")[1].replace(/-/g, "+").replace(/_/g, "/")));
+      if (payload.role !== "anon" || payload.sub || payload.session_id) return false;
+    } catch { return false; }
+  }
   return !lowered.includes("service_role") && !lowered.includes("secret") && !lowered.includes("password");
+}
+
+/** Explicit projection prevents extra runtime properties from entering links/storage. */
+function publicInstallationConfig(config: RuntimeSupabaseConfig): RuntimeSupabaseConfig {
+  return {
+    installationId: config.installationId,
+    supabaseUrl: config.supabaseUrl,
+    supabasePublishableKey: config.supabasePublishableKey,
+  };
 }
 
 function parseStoredConfig(raw: string | null): RuntimeSupabaseConfig | null {
   if (!raw) return null;
   try {
     const value: unknown = JSON.parse(raw);
-    return validateRuntimeSupabaseConfig(value) ? value : null;
+    return validateRuntimeSupabaseConfig(value) ? publicInstallationConfig(value) : null;
   } catch {
     return null;
   }
@@ -73,7 +89,7 @@ export function readInstallationConfigFromHash(hash = typeof window === "undefin
     const encoded = match[1].replace(/-/g, "+").replace(/_/g, "/") + "=".repeat((4 - match[1].length % 4) % 4);
     const decoded = typeof atob === "function" ? atob(encoded) : Buffer.from(encoded, "base64").toString("utf8");
     const config: unknown = JSON.parse(decoded);
-    return validateRuntimeSupabaseConfig(config) ? config : null;
+    return validateRuntimeSupabaseConfig(config) ? publicInstallationConfig(config) : null;
   } catch {
     return null;
   }
@@ -89,7 +105,7 @@ export function hasInvalidInstallationConfigHash(hash = typeof window === "undef
 
 export function encodeInstallationConfig(config: RuntimeSupabaseConfig): string {
   if (!validateRuntimeSupabaseConfig(config)) throw new Error("공개 설치 설정이 올바르지 않습니다.");
-  const json = JSON.stringify(config);
+  const json = JSON.stringify(publicInstallationConfig(config));
   const encoded = typeof btoa === "function" ? btoa(json) : Buffer.from(json, "utf8").toString("base64");
   return encoded.replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
 }
@@ -127,7 +143,7 @@ export function getPendingInstallationConfig(): RuntimeSupabaseConfig | null {
 export function saveRuntimeSupabaseConfig(config: RuntimeSupabaseConfig): void {
   if (!validateRuntimeSupabaseConfig(config)) throw new Error("공개 설치 설정이 올바르지 않습니다.");
   if (!isBrowser()) throw new Error("브라우저 저장소를 사용할 수 없습니다.");
-  localStorage.setItem(INSTALLATION_CONFIG_KEY, JSON.stringify(config));
+  localStorage.setItem(INSTALLATION_CONFIG_KEY, JSON.stringify(publicInstallationConfig(config)));
 }
 
 export function clearRuntimeSupabaseConfig(): void {

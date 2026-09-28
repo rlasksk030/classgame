@@ -97,14 +97,14 @@ test('P1 live lesson12 numeric submission and reflection persist',async({page})=
  const api=await liveApi();try{
  await connect(page,api);await login(page);await page.goto('/lesson/12/solve');
  const p=SEED_PROBLEMS.find(p=>p.code==='L12-01')!;if(p.answer.kind!=='count')throw Error('fixture contract');
- await page.getByPlaceholder('정답을 입력').fill(String(p.answer.value));await page.getByRole('button',{name:'정답 확인',exact:true}).click();await expect(page.getByText(/완료 \+ XP/)).toBeVisible();
+ await page.getByRole('textbox',{name:'전체 개수',exact:true}).fill(String(p.answer.value));await page.getByRole('button',{name:'정답 확인',exact:true}).click();await expect(page.getByText(/완료 \+ XP/)).toBeVisible();
  await page.getByRole('textbox',{name:'배운 점',exact:true}).fill('층별로 비교했어요.');await page.getByRole('button',{name:'자기평가 저장',exact:true}).click();await expect(page.getByText('자기평가를 저장했어요.')).toBeVisible();
  expect((await api.pg.query<{reflection:string}>('select reflection from sb_self_evaluations where student_id=$1',[STUDENTS[0]])).rows[0].reflection).toBe('층별로 비교했어요.');
  const restored=page.waitForResponse(r=>r.request().postDataJSON()?.action==='activity:review:get');
  await page.reload();expect((await (await restored).json()).evaluation.reflection).toBe('층별로 비교했어요.');
  await expect(page.getByRole('textbox',{name:'배운 점',exact:true})).toHaveValue('층별로 비교했어요.');
  await page.goto('/world');await page.getByRole('button',{name:'나가기',exact:true}).click();await login(page,'QA학생2');
- await page.goto('/lesson/12/solve');await page.getByPlaceholder('정답을 입력').fill(String(p.answer.value));
+ await page.goto('/lesson/12/solve');await page.getByRole('textbox',{name:'전체 개수',exact:true}).fill(String(p.answer.value));
  await page.getByRole('button',{name:'정답 확인',exact:true}).click();await expect(page.getByRole('textbox',{name:'배운 점',exact:true})).toBeEnabled();
  await expect(page.getByRole('textbox',{name:'배운 점',exact:true})).toHaveValue('');
  await page.goto('/world');await page.getByRole('button',{name:'나가기',exact:true}).click();await login(page);

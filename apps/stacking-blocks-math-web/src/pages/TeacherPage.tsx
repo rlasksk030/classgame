@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { classifyTeacherError, type TeacherErrorInfo } from "../lib/teacherErrors";
 import { classifyClassCreateError } from "../lib/classCreateErrors";
+import { teacherInstallationLink } from "../lib/teacherAccess";
 import { encodeInstallationConfig, getResolvedSupabaseConfig } from "../lib/config";
 import { summarizeClassLiveStatus, type LiveStatus } from "../../shared/teacherSessions.ts";
 
@@ -523,6 +524,7 @@ export default function TeacherPage() {
   };
 
   const runtimeConfig = getResolvedSupabaseConfig();
+  const teacherLink = runtimeConfig ? teacherInstallationLink(runtimeConfig, window.location.origin) : "";
   const classLink = selectedClass && runtimeConfig
     ? `${window.location.origin}/?class=${encodeURIComponent(selectedClass.class_code)}#install=${encodeInstallationConfig(runtimeConfig)}`
     : "";
@@ -530,7 +532,7 @@ export default function TeacherPage() {
   return (
     <div className="screen app-max">
       <div className="stack" style={{ gap: 16 }}>
-        <div className="student-world-heading"><div><p className="eyebrow">TEACHER CONSOLE</p><h1>교사 관리</h1><p className="muted">학급의 학습 흐름과 활동을 한곳에서 관리합니다.</p></div><div className="toolbar-row"><Link className="btn btn-sm" to="/teacher/problems/new">3D 문제 만들기</Link></div></div>
+        <div className="student-world-heading"><div><p className="eyebrow">TEACHER CONSOLE</p><h1>교사 관리</h1><p className="muted">학급의 학습 흐름과 활동을 한곳에서 관리합니다.</p></div><div className="toolbar-row">{teacherLink && <button type="button" className="btn btn-sm" onClick={() => void copyText(teacherLink)}>교사용 접속 링크 복사</button>}<Link className="btn btn-sm" to="/teacher/problems/new">3D 문제 만들기</Link></div></div>
         <nav className="teacher-nav" aria-label="교사 메뉴"><a href="#classes">대시보드</a><a href="#live-status">수업 현황</a><a href="#progress">학생 진도</a><a href="#students">학생 관리</a><a href="#lessons">차시 관리</a><a href="#problem-bank">문제은행 관리</a><a href="/teacher/problems/new">문제은행</a><a href="/teacher/problem-preview">문제 미리보기</a><a href="#results">수업 결과</a><a href="#activities">놀이·친구 문제</a><button type="button" className="btn btn-sm" onClick={() => setHelpOpen(true)}>도움말</button></nav>
         <UpdateStatusWidget onUpdated={() => { if (classId) { void loadClassData(classId); void loadSessions(classId); } }} />
 

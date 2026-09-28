@@ -1,8 +1,23 @@
 import { useEffect, useState, type ReactNode, type FormEvent } from 'react';
+import { Link } from 'react-router-dom';
+import { getResolvedSupabaseConfig, hasInvalidInstallationConfigHash } from '../lib/config';
 import { getSupabase } from '../lib/supabase';
 import { classifyTeacherError } from '../lib/teacherErrors';
 
 export default function TeacherGate({ children }: { children: ReactNode }) {
+  const invalid = hasInvalidInstallationConfigHash();
+  if (invalid || !getResolvedSupabaseConfig()) {
+    return <main className="screen app-max"><section className="panel stack" style={{ maxWidth: 460, margin: '40px auto' }}>
+      <h1>수업앱 연결</h1>
+      <p>{invalid ? '접속 링크의 연결 정보가 올바르지 않습니다. 기존 수업앱을 다시 연결해 주세요.' : '이 기기에서는 아직 수업앱 연결이 되어 있지 않습니다.'}</p>
+      <Link className="btn btn-primary" to="/setup?returnTo=%2Fteacher">기존 수업앱 연결하기</Link>
+      <p className="muted">기존 프로젝트를 선택하면 교사 화면으로 돌아옵니다. 연결 후 교사 계정으로 로그인해 주세요.</p>
+    </section></main>;
+  }
+  return <TeacherAuthGate>{children}</TeacherAuthGate>;
+}
+
+function TeacherAuthGate({ children }: { children: ReactNode }) {
   const [ready, setReady] = useState(false);
   const [signedIn, setSignedIn] = useState(false);
   const [recovering, setRecovering] = useState(false);

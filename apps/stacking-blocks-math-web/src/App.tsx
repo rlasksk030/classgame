@@ -27,7 +27,7 @@ function InstallationSwitchPrompt(){
   const location=useLocation();
   const pending=getPendingInstallationConfig();
   const [dismissed,setDismissed]=useState(false);
-  if(hasInvalidInstallationConfigHash() && location.pathname!=="/setup") return <Navigate to="/setup?invalid=1" replace />;
+  if(hasInvalidInstallationConfigHash() && location.pathname!=="/setup" && !location.pathname.startsWith("/teacher")) return <Navigate to="/setup?invalid=1" replace />;
   if(!pending || dismissed) return null;
   const switchInstallation=()=>{
     saveRuntimeSupabaseConfig(pending);

@@ -57,7 +57,7 @@ test("C. installer OAuth session missing/expired/revoked shows 'Supabase 연결�
 
 test("C-continued. SetupPage consumes the resume flag once the OAuth round trip has rebound the same project, finishes the update, and navigates back to /teacher -- the teacher is never made to walk the wizard for a reconnect started from the update widget", async () => {
   const setup = await readSetup();
-  const resumeEffect = setup.match(/useEffect\(\(\) => \{\s*if \(oauthCallbackPending \|\| !connectionVerified \|\| !installerClient\) return;[\s\S]*?\n {2}\}, \[oauthCallbackPending, connectionVerified, installerClient\]\);/);
+  const resumeEffect = setup.match(/useEffect\(\(\) => \{\s*if \(teacherReturn \|\| oauthCallbackPending \|\| !connectionVerified \|\| !installerClient\) return;[\s\S]*?\n {2}\}, \[teacherReturn, oauthCallbackPending, connectionVerified, installerClient\]\);/);
   assert.ok(resumeEffect, "resume-update effect not found in SetupPage");
   assert.match(resumeEffect![0], /if \(!consumeInstallerResumeUpdate\(\)\) return;/);
   assert.match(resumeEffect![0], /await installerClient\.update\(installerTarget\(\)\);/);
