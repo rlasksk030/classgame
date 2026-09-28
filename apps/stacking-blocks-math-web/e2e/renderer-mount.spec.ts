@@ -134,8 +134,8 @@ test("height map cells support both increase and decrease, and clamp at 0 and 9 
   const renderer = page.locator('[data-answer-renderer="HeightMapInputRenderer"]');
   await expect(renderer).toBeVisible();
   const firstCell = renderer.locator(".number-cell").first();
-  const dec = firstCell.getByRole("button", { name: /감소$/ });
-  const inc = firstCell.getByRole("button", { name: /증가$/ });
+  const dec = firstCell.locator(".number-cell-step").first();
+  const inc = firstCell.locator(".number-cell-step").last();
   const value = firstCell.locator(".number-cell-value");
 
   await expect(value).toHaveText("0");

@@ -26,8 +26,6 @@ import {
   type TeacherStudentRow,
 } from "../lib/studentApi";
 
-import { clearTeacherReturn, rememberTeacherReturn } from "../lib/teacherAccess";
-
 const STEP_TITLES = ["시작", "연결 준비", "연결", "자동 설치", "교사 확인", "학급 생성", "학생 생성", "설치 완료"] as const;
 
 async function checkSupabaseConnection(supabaseUrl: string, publishableKey: string): Promise<void> {
@@ -64,13 +62,26 @@ function installerStatusLabel(status: InstallerRemoteStatus): string {
 
 export default function SetupPage() {
   const navigate = useNavigate();
-  const [teacherReturn] = useState(() => rememberTeacherReturn(window.location.search));
+  const [returnToTeacher] = useState(() => {
+    // Exact allowlist; preserve only this route across the existing OAuth redirect.
+    const requested = new URLSearchParams(window.location.search).get("returnTo") === "/teacher";
+    try {
+      if (requested) sessionStorage.setItem("stacking-teacher-return", "/teacher");
+      return requested || sessionStorage.getItem("stacking-teacher-return") === "/teacher";
+    } catch { return requested; }
+  });
+  const finishTeacherReconnect = () => {
+    if (!returnToTeacher) return false;
+    try { sessionStorage.removeItem("stacking-teacher-return"); } catch { /* Storage may be unavailable. */ }
+    navigate("/teacher", { replace: true });
+    return true;
+  };
   const current = getRuntimeSupabaseConfig();
   const vite = getAppConfig();
   const [installationId] = useState(current?.installationId ?? getOrCreatePendingInstallationId(defaultInstallationId));
   const [supabaseUrl, setSupabaseUrl] = useState(current?.supabaseUrl ?? (vite.configSource === "vite-fallback" ? vite.supabaseUrl ?? "" : ""));
   const [publishableKey, setPublishableKey] = useState(current?.supabasePublishableKey ?? "");
-  const [step, setStep] = useState<InstallerStep>(() => teacherReturn ? 3 : readInstallerProgress(installationId)?.step ?? 1);
+  const [step, setStep] = useState<InstallerStep>(() => returnToTeacher ? 3 : readInstallerProgress(installationId)?.step ?? 1);
   const [connectionVerified, setConnectionVerified] = useState(Boolean(current));
   const [teacherSignedIn, setTeacherSignedIn] = useState(false);
   const [teacherEmail, setTeacherEmail] = useState("");
@@ -190,7 +201,7 @@ export default function SetupPage() {
   // that was interrupted and send the teacher straight back to /teacher --
   // never make them walk this step-by-step wizard for a routine reconnect.
   useEffect(() => {
-    if (teacherReturn || oauthCallbackPending || !connectionVerified || !installerClient) return;
+    if (oauthCallbackPending || !connectionVerified || !installerClient) return;
     if (!consumeInstallerResumeUpdate()) return;
     let active = true;
     void (async () => {
@@ -199,14 +210,14 @@ export default function SetupPage() {
       finally { if (active) navigate("/teacher"); }
     })();
     return () => { active = false; };
-  }, [teacherReturn, oauthCallbackPending, connectionVerified, installerClient]);
+  }, [oauthCallbackPending, connectionVerified, installerClient]);
 
   const connect = async (event: FormEvent) => {
     event.preventDefault(); setError(null); setMessage(null);
     const config: RuntimeSupabaseConfig = { installationId: installationId.trim(), supabaseUrl: supabaseUrl.trim(), supabasePublishableKey: publishableKey.trim() };
     if (!validateRuntimeSupabaseConfig(config)) { setError("HTTPS 형식의 Supabase URL, 공개 Publishable Key, 설치 ID를 확인해 주세요."); return; }
     setBusy(true);
-    try { await checkSupabaseConnection(config.supabaseUrl, config.supabasePublishableKey); saveRuntimeSupabaseConfig(config); if (teacherReturn) { clearTeacherReturn(); navigate(teacherReturn, { replace: true }); return; } setConnectionVerified(true); setPublishableKey(""); setMessage("Supabase 연결을 확인했어요."); persistStep(4); }
+    try { await checkSupabaseConnection(config.supabaseUrl, config.supabasePublishableKey); saveRuntimeSupabaseConfig(config); if (finishTeacherReconnect()) return; setConnectionVerified(true); setPublishableKey(""); setMessage("Supabase 연결을 확인했어요."); persistStep(4); }
     catch (reason) { setError(reason instanceof Error ? reason.message : "Supabase 연결을 확인하지 못했습니다."); }
     finally { setBusy(false); }
   };
@@ -327,7 +338,7 @@ export default function SetupPage() {
       const previousMatch = previousRef ? result.projects.find((project) => project.ref === previousRef) : undefined;
       const defaultProject = previousMatch ?? result.projects[0];
       setSelectedProjectRef(defaultProject.ref);
-      if (autoBind && !teacherReturn && (previousMatch || result.projects.length === 1)) {
+      if (autoBind && (previousMatch || result.projects.length === 1)) {
         console.log("PROJECT_AUTO_BIND_STARTED");
         await bindOAuthProject(defaultProject);
       }
@@ -348,11 +359,7 @@ export default function SetupPage() {
       console.log("INSTALLER_SESSION_READY");
       const config: RuntimeSupabaseConfig = { installationId: installationId.trim(), supabaseUrl: projectUrl, supabasePublishableKey: result.publishableKey ?? "" };
       saveRuntimeSupabaseConfig(config);
-      if (teacherReturn) {
-        clearTeacherReturn();
-        navigate(teacherReturn, { replace: true });
-        return;
-      }
+      if (finishTeacherReconnect()) return;
       setSupabaseUrl(projectUrl); setConnectionVerified(true); setOauthAuthorized(true); setOauthProjects(null);
       setBoundProjectLabel(project.name ?? project.ref);
       console.log("PROJECT_AUTO_BIND_SUCCESS");
@@ -467,8 +474,8 @@ export default function SetupPage() {
   return (
     <main className="screen app-max">
       <section className="panel stack installer-wizard" aria-label="교사용 설치 마법사">
-        <header className="installer-header"><div><p className="eyebrow">TEACHER SETUP</p><h1>{teacherReturn ? "기존 수업앱 연결하기" : "공간과 입체 수업앱 설치"}</h1><p className="muted">{teacherReturn ? "기존 프로젝트에 연결하면 교사 화면으로 돌아갑니다. 학급과 학생 기록은 그대로 유지됩니다." : "몇 단계만 진행하면 우리 반에서 바로 사용할 수 있어요."}</p></div>{!teacherReturn && <span className="status-chip">{step}/8</span>}</header>
-        {!teacherReturn && <nav className="installer-steps" aria-label="설치 단계">{STEP_TITLES.map((title, index) => <span className={index + 1 === step ? "active" : index + 1 < step ? "done" : ""} key={title}>{index + 1}. {title}</span>)}</nav>}
+        <header className="installer-header"><div><p className="eyebrow">TEACHER SETUP</p><h1>공간과 입체 수업앱 설치</h1><p className="muted">몇 단계만 진행하면 우리 반에서 바로 사용할 수 있어요.</p></div><span className="status-chip">{step}/8</span></header>
+        <nav className="installer-steps" aria-label="설치 단계">{STEP_TITLES.map((title, index) => <span className={index + 1 === step ? "active" : index + 1 < step ? "done" : ""} key={title}>{index + 1}. {title}</span>)}</nav>
 
         {step === 1 && <div className="installer-card stack"><h2>처음 시작하기</h2><p>선생님의 Supabase에 학생 계정과 학습 기록을 연결합니다. 학생에게는 Supabase 정보가 보이지 않아요.</p><button className="btn btn-primary" onClick={() => persistStep(2)}>설치 시작하기</button>{readInstallerProgress(installationId)?.step && <button className="btn" onClick={() => persistStep(readInstallerProgress(installationId)!.step)}>이어서 설치하기</button>}<p className="muted">이미 설치했나요? 아래에서 연결 상태를 다시 확인할 수 있어요.</p><button className="btn btn-sm" onClick={() => persistStep(3)}>설치 상태 확인 / 복구</button></div>}
 
@@ -477,7 +484,7 @@ export default function SetupPage() {
         {step === 3 && <div className="installer-card stack">
           <h2>Supabase 연결</h2>
           {oauthProjects ? <>
-            <p>{teacherReturn ? "기존 학급과 학생이 저장된 Supabase 프로젝트를 선택하세요." : "설치할 Supabase 프로젝트를 선택하세요."}</p>
+            <p>설치할 Supabase 프로젝트를 선택하세요.</p>
             {oauthProjects.length ? <>
               <label className="label" htmlFor="installer-project-select">내 Supabase 프로젝트<select id="installer-project-select" className="field" value={selectedProjectRef} onChange={event => setSelectedProjectRef(event.target.value)}>{oauthProjects.map(project => <option value={project.ref} key={project.ref}>{project.name ?? project.ref}{project.region ? ` · ${project.region}` : ""}</option>)}</select></label>
               <button className="btn btn-primary" disabled={busy || !selectedProjectRef} onClick={() => selectOAuthProject()}>{busy ? "연결 중…" : "이 프로젝트 사용"}</button>
