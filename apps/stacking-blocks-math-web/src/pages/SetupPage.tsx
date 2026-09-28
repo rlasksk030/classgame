@@ -62,12 +62,26 @@ function installerStatusLabel(status: InstallerRemoteStatus): string {
 
 export default function SetupPage() {
   const navigate = useNavigate();
+  const [returnToTeacher] = useState(() => {
+    // Exact allowlist; preserve only this route across the existing OAuth redirect.
+    const requested = new URLSearchParams(window.location.search).get("returnTo") === "/teacher";
+    try {
+      if (requested) sessionStorage.setItem("stacking-teacher-return", "/teacher");
+      return requested || sessionStorage.getItem("stacking-teacher-return") === "/teacher";
+    } catch { return requested; }
+  });
+  const finishTeacherReconnect = () => {
+    if (!returnToTeacher) return false;
+    try { sessionStorage.removeItem("stacking-teacher-return"); } catch { /* Storage may be unavailable. */ }
+    navigate("/teacher", { replace: true });
+    return true;
+  };
   const current = getRuntimeSupabaseConfig();
   const vite = getAppConfig();
   const [installationId] = useState(current?.installationId ?? getOrCreatePendingInstallationId(defaultInstallationId));
   const [supabaseUrl, setSupabaseUrl] = useState(current?.supabaseUrl ?? (vite.configSource === "vite-fallback" ? vite.supabaseUrl ?? "" : ""));
   const [publishableKey, setPublishableKey] = useState(current?.supabasePublishableKey ?? "");
-  const [step, setStep] = useState<InstallerStep>(() => readInstallerProgress(installationId)?.step ?? 1);
+  const [step, setStep] = useState<InstallerStep>(() => returnToTeacher ? 3 : readInstallerProgress(installationId)?.step ?? 1);
   const [connectionVerified, setConnectionVerified] = useState(Boolean(current));
   const [teacherSignedIn, setTeacherSignedIn] = useState(false);
   const [teacherEmail, setTeacherEmail] = useState("");
@@ -203,7 +217,7 @@ export default function SetupPage() {
     const config: RuntimeSupabaseConfig = { installationId: installationId.trim(), supabaseUrl: supabaseUrl.trim(), supabasePublishableKey: publishableKey.trim() };
     if (!validateRuntimeSupabaseConfig(config)) { setError("HTTPS 형식의 Supabase URL, 공개 Publishable Key, 설치 ID를 확인해 주세요."); return; }
     setBusy(true);
-    try { await checkSupabaseConnection(config.supabaseUrl, config.supabasePublishableKey); saveRuntimeSupabaseConfig(config); setConnectionVerified(true); setPublishableKey(""); setMessage("Supabase 연결을 확인했어요."); persistStep(4); }
+    try { await checkSupabaseConnection(config.supabaseUrl, config.supabasePublishableKey); saveRuntimeSupabaseConfig(config); if (finishTeacherReconnect()) return; setConnectionVerified(true); setPublishableKey(""); setMessage("Supabase 연결을 확인했어요."); persistStep(4); }
     catch (reason) { setError(reason instanceof Error ? reason.message : "Supabase 연결을 확인하지 못했습니다."); }
     finally { setBusy(false); }
   };
@@ -345,6 +359,7 @@ export default function SetupPage() {
       console.log("INSTALLER_SESSION_READY");
       const config: RuntimeSupabaseConfig = { installationId: installationId.trim(), supabaseUrl: projectUrl, supabasePublishableKey: result.publishableKey ?? "" };
       saveRuntimeSupabaseConfig(config);
+      if (finishTeacherReconnect()) return;
       setSupabaseUrl(projectUrl); setConnectionVerified(true); setOauthAuthorized(true); setOauthProjects(null);
       setBoundProjectLabel(project.name ?? project.ref);
       console.log("PROJECT_AUTO_BIND_SUCCESS");

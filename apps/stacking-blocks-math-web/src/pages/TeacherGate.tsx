@@ -1,8 +1,11 @@
 import { useEffect, useState, type ReactNode, type FormEvent } from 'react';
+import { Link } from 'react-router-dom';
+import { getResolvedSupabaseConfig } from '../lib/config';
 import { getSupabase } from '../lib/supabase';
 import { classifyTeacherError } from '../lib/teacherErrors';
 
 export default function TeacherGate({ children }: { children: ReactNode }) {
+  const configured = Boolean(getResolvedSupabaseConfig());
   const [ready, setReady] = useState(false);
   const [signedIn, setSignedIn] = useState(false);
   const [recovering, setRecovering] = useState(false);
@@ -16,6 +19,7 @@ export default function TeacherGate({ children }: { children: ReactNode }) {
   const [newPasswordConfirm, setNewPasswordConfirm] = useState('');
   const [newPasswordDone, setNewPasswordDone] = useState(false);
   useEffect(() => {
+    if (!configured) return;
     try {
       const auth = getSupabase().auth;
       let active = true;
@@ -72,6 +76,11 @@ export default function TeacherGate({ children }: { children: ReactNode }) {
     } catch (reason) { const info = classifyTeacherError(reason); setResetError(`${info.code}: ${info.message}`); }
     finally { setBusy(false); }
   };
+  if (!configured) return <main className="screen app-max"><section className="panel stack" style={{ maxWidth: 460, margin: '40px auto' }}>
+    <h1>수업앱 연결</h1>
+    <p>이 기기에서는 아직 수업앱 연결이 되어 있지 않습니다.</p>
+    <Link className="btn btn-primary" to="/setup?returnTo=%2Fteacher">기존 수업앱 연결하기</Link>
+  </section></main>;
   if (!ready) return <main className="screen app-max"><p role="status">로그인 확인 중…</p></main>;
   if (recovering) {
     return <main className="screen app-max"><form className="panel stack" onSubmit={submitNewPassword} style={{ maxWidth: 460, margin: '40px auto' }}>
