@@ -89,7 +89,35 @@
     }
   ],
   "frontend": {
-    "status": "UNCONFIRMED",
-    "reason": "Render workspace confirmation pending; no deployment ID or SHA assumed"
+    "status": "CONFIRMED",
+    "confirmedOn": "2026-10-03",
+    "verification": "User confirmation matched read-only Render get_service and list_deploys results",
+    "workspace": {
+      "name": "My Workspace",
+      "id": "tea-damhhg5bedkc73bpecr0"
+    },
+    "service": {
+      "name": "stacking-blocks-math",
+      "id": "srv-dar3ic7avr4c73fkmcqg",
+      "type": "static_site",
+      "url": "https://stacking-blocks-math.onrender.com",
+      "branch": "release/production",
+      "autoDeployTrigger": "commit",
+      "buildCommand": "npm ci && npm run build",
+      "publishPath": "dist"
+    },
+    "currentLive": {
+      "deployId": "dep-dat56gg473hc738esfk0",
+      "commitSha": "bc535a4a750b9f66391e6b12301e52c86d0edd89",
+      "status": "live"
+    },
+    "rollbackCandidate": {
+      "deployId": "dep-dar8lvrbc2fs738qaeag",
+      "commitSha": "7927e240df47eb136fa09c47a2bc5dc7a1e510ed",
+      "status": "deactivated",
+      "reason": "Previous successful deployment replaced by currentLive; not a failed deployment"
+    },
+    "postPrRollbackPolicy": "Reconfirm deployment records immediately before release. Restore the pre-change currentLive deployment first after a failed PR rollout; rollbackCandidate identifies the earlier known-good alternative. Restore frontend before rolling Edge back to v4.",
+    "deploymentGuard": "Do not change release/production until DB and Edge smoke tests pass and production rollout is explicitly authorized. No Render settings or deployments changed during this audit."
   }
 }
