@@ -94,4 +94,4 @@
 - 기존 운영은 빈 migration history/16테이블/구 student-api v4다. 과거 migration 전체를 재실행하지 않는다. `20261002104459_live_v4_compatibility.sql`은 누락 객체 추가와 증거 기반 완료 승격만 수행하는 별도 운영 확장안이다. 기존 완료/PIN/session/작품/풀이 기록을 보존한다. 운영 미적용.
 - 12차시 자기평가/성찰은 별도 선택 활동이며 필수 진행 12/12 조건에 추가하지 않는다. production 9차시는 shared_challenges/solves/v2 RPC 경로로 유지한다.
 - 구 학생 payload의 작품 크기/외형을 유지하고, 정답 공개 시에만 구 challenge answer 응답도 제공한다. 최신 DB→기존 Edge→신규 Edge/구 프런트→신규 프런트의 호환성을 합성 로컬 DB/브라우저로 검증한다.
-- 최종 운영 준비 판정은 프런트의 실제 rollback deployment/SHA 확인 대기다. 최신 증거는 `qa/predeploy/2026-10-02_수학공간과입체_PR3_운영전감사.md`를 따른다.
+- 2026-10-03 Render LIVE `dep-dat56gg473hc738esfk0` / `bc535a4a750b9f66391e6b12301e52c86d0edd89`, 이전 정상 rollback 후보 `dep-dar8lvrbc2fs738qaeag` / `7927e240df47eb136fa09c47a2bc5dc7a1e510ed`를 사용자 확인과 읽기 전용 재조회로 확정했다. PR #3 판정은 READY FOR MERGE이며 Draft/OPEN 유지, 운영 미반영이다. 이번 PR 배포 후 기본 복원 기준은 적용 직전 LIVE이고, 이전 정상 후보를 별도로 보관한다. 최신 증거는 `qa/predeploy/2026-10-02_수학공간과입체_PR3_운영전감사.md`를 따른다.
