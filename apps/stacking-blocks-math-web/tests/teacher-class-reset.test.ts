@@ -3,17 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync, readdirSync } from "node:fs";
 import { PGlite } from "@electric-sql/pglite";
 
-// Teacher Page Expansion Phase 2C: teacher:progress:reset-class cannot call
-// the existing sb_reset_progress() RPC (202609110007_teacher_reset.sql),
-// because that function checks sb_owns_student() via auth.uid(), which is
-// always null under the edge function's service-role context -- so it
-// would reject every student with FORBIDDEN_STUDENT. The handler instead
-// re-implements the SAME delete rules directly, batched across the whole
-// class (one query per table, not one per student). This test runs those
-// exact statements against a real PostgreSQL (via PGlite) with the actual
-// migrations applied, to prove the batched rules are equivalent to
-// sb_reset_progress()'s rules and that class scoping never crosses into
-// another teacher's students.
+// Real class reset RPC with all shipped migrations. No mirrored DELETE implementation.
 
 async function setupDb() {
   const db = new PGlite();
@@ -73,38 +63,10 @@ async function seed(db: InstanceType<typeof PGlite>) {
   }
 }
 
-/** Mirrors the exact batched delete rules in teacher:progress:reset-class. */
+/** Resolve the fixture class; the production RPC decides/locks its members. */
 async function resetClass(db: InstanceType<typeof PGlite>, studentIds: string[], lesson: number | null) {
-  const inClause = (col: string) => `${col} = any($1::uuid[])`;
-  await db.query(`delete from sb_problem_attempts where ${inClause("student_id")}${lesson !== null ? " and lesson=$2" : ""}`, lesson !== null ? [studentIds, lesson] : [studentIds]);
-  await db.query(`delete from sb_block_snapshots where ${inClause("student_id")}${lesson !== null ? " and lesson=$2" : ""}`, lesson !== null ? [studentIds, lesson] : [studentIds]);
-  if (lesson === null) {
-    await db.query(`delete from sb_student_progress where ${inClause("student_id")}`, [studentIds]);
-  } else if (lesson === 10 || lesson === 11) {
-    await db.query(`delete from sb_student_progress where ${inClause("student_id")} and lesson = any($2::int[])`, [studentIds, [10, 11]]);
-  } else {
-    await db.query(`delete from sb_student_progress where ${inClause("student_id")} and lesson=$2`, [studentIds, lesson]);
-  }
-  if (lesson === null || lesson === 9) await db.query(`delete from sb_challenge_solves where ${inClause("student_id")}`, [studentIds]);
-  if (lesson === null || lesson === 10 || lesson === 11) await db.query(`delete from sb_projects where ${inClause("student_id")}`, [studentIds]);
-  if (lesson === null || lesson === 12) await db.query(`delete from sb_self_evaluations where ${inClause("student_id")}`, [studentIds]);
-
-  const remaining = await db.query<{ student_id: string; xp_earned: number; stars: number }>(
-    `select student_id, xp_earned, stars from sb_problem_attempts where ${inClause("student_id")}`,
-    [studentIds],
-  );
-  const totals = new Map(studentIds.map((id) => [id, { xp: 0, stars: 0 }]));
-  for (const row of remaining.rows) {
-    const t = totals.get(row.student_id)!;
-    t.xp += Number(row.xp_earned ?? 0);
-    t.stars += Number(row.stars ?? 0);
-  }
-  for (const [studentId, t] of totals) {
-    await db.query(
-      "insert into sb_student_rewards(student_id,total_xp,total_stars,badges,streak) values($1,$2,$3,'[]',0) on conflict(student_id) do update set total_xp=excluded.total_xp,total_stars=excluded.total_stars,badges=excluded.badges,streak=excluded.streak",
-      [studentId, t.xp, t.stars],
-    );
-  }
+  const klass = (await db.query<{class_id:string;teacher_id:string}>("select s.class_id,c.teacher_id from sb_students s join sb_classes c on c.id=s.class_id where s.id=$1", [studentIds[0]])).rows[0];
+  await db.query('select sb_reset_class_progress($1,$2,$3)', [klass.class_id,klass.teacher_id,lesson]);
 }
 
 test("A. full class reset (lesson=null) clears every table for the targeted students only, resets rewards to 0", async () => {
