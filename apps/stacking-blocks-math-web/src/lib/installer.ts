@@ -6,8 +6,8 @@ const INSTALLER_RESUME_UPDATE_KEY = "stacking-installer-resume-update";
 
 /** Set right before navigating away to the OAuth authorize screen from the
  * teacher-page update widget (never from the /setup wizard itself, which
- * has its own step flow). Read once by /setup after a successful OAuth
- * round trip auto-rebinds the same project, so it can finish the update and
+ * has its own step flow). Retained by /setup until a successful OAuth
+ * round trip verifies the same project session and completes the update to
  * send the teacher straight back to /teacher instead of stranding them in
  * the install wizard. sessionStorage (not localStorage): must not survive
  * past this one browser tab's round trip. */
@@ -16,7 +16,19 @@ export function markInstallerResumeUpdate(): void {
   try { sessionStorage.setItem(INSTALLER_RESUME_UPDATE_KEY, "1"); } catch { /* 저장 불가 환경은 그냥 무시 */ }
 }
 
-/** Reads and clears in one step -- must only ever fire once per OAuth round trip. */
+/** Peek without consuming: a failed OAuth bind/update must remain retryable. */
+export function hasInstallerResumeUpdate(): boolean {
+  if (typeof window === "undefined") return false;
+  try { return sessionStorage.getItem(INSTALLER_RESUME_UPDATE_KEY) === "1"; } catch { return false; }
+}
+
+/** Clear only after cookie-authenticated status and update completion. */
+export function clearInstallerResumeUpdate(): void {
+  if (typeof window === "undefined") return;
+  try { sessionStorage.removeItem(INSTALLER_RESUME_UPDATE_KEY); } catch { /* Storage may be unavailable. */ }
+}
+
+/** Legacy read-and-clear helper; reconnect uses peek + explicit success clear. */
 export function consumeInstallerResumeUpdate(): boolean {
   if (typeof window === "undefined") return false;
   try {
