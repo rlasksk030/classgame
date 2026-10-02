@@ -35,6 +35,8 @@ export async function setupRequiredProgressDb(dataDir?: string, options: { legac
     if(options.legacyCompletion && file.endsWith('_required_lesson_completion.sql')) continue;
     await db.exec(readFileSync(`supabase/migrations/${file}`, 'utf8').replace('create extension if not exists "pgcrypto";', ''));
   }
+  // Restore the actual legacy writer after all schema migrations for historical fixtures.
+  if(options.legacyCompletion) await db.exec(readFileSync('supabase/migrations/202609110004_atomic_attempts.sql', 'utf8'));
   await db.query('insert into auth.users(id) values($1)', [TEACHER]);
   for (const [id, code] of [[CLASS, 'REQPROGRESS'], [OTHER_CLASS, 'OTHERREQ']]) {
     await db.query('insert into sb_classes(id,teacher_id,name,class_code) values($1,$2,$3,$4)', [id,TEACHER,'합성 진도 검증반',code]);

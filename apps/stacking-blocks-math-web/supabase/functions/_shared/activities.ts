@@ -38,7 +38,9 @@ export async function activityRequest(db:ReturnType<typeof serviceClient>, body:
     if ((value === 'pastel' && xp < 50) || (value === 'brick' && xp < 150) || (value === 'tile' && xp < 300)) appearance[key] = 'wood';
   }
   const theme = sanitizeTheme((building as Building & { intro_theme?: unknown }).intro_theme);
-  const {data,error}=await db.rpc('sb_save_building',{p_student:student.studentId,p_class:student.classId,p_version:building.version,p_data:{...building,progress_lesson:lesson,blocks:canonicalize(building.blocks),block_appearance:appearance,intro_theme:theme}});
+  // Old clients omit appearance/theme. Let the RPC retain the stored values.
+  const cosmetics = {...(building.block_appearance === undefined ? {} : {block_appearance:appearance}),...(building.intro_theme === undefined ? {} : {intro_theme:theme})};
+  const {data,error}=await db.rpc('sb_save_building',{p_student:student.studentId,p_class:student.classId,p_version:building.version,p_data:{...building,progress_lesson:lesson,blocks:canonicalize(building.blocks),...cosmetics}});
   return error?fail(error.message.includes('VERSION_CONFLICT')?409:500,'SAVE_CONFLICT','다른 창에서 수정했거나 저장에 실패했습니다. 기기 기록을 보관했습니다. 서버 상태를 다시 확인해 주세요.'):ok({version:data});
  }
  if(action==='activity:challenge:list'){
@@ -77,7 +79,7 @@ export async function activityRequest(db:ReturnType<typeof serviceClient>, body:
   const state=solveState(prior);
   const given=challengeGiven(c.blocks,c.challenge_type as ChallengeType);
   const hintGiven=state.hintShown?challengeGiven(c.blocks,(c.hint_type as ChallengeType)??'heightMap'):undefined;
-  if(action==='activity:challenge:get')return ok({given,state,...(state.answerRevealed?{revealedAnswer:c.blocks}:{}),hintGiven});
+  if(action==='activity:challenge:get')return ok({given,state,...(state.answerRevealed?{answer:c.blocks,revealedAnswer:c.blocks}:{}),hintGiven});
   if(action==='activity:challenge:hint'){
    if(state.completed)return ok({state,hint:'이미 완료한 문제예요.'});
    const hinted={...state,hintShown:true};
@@ -92,7 +94,7 @@ export async function activityRequest(db:ReturnType<typeof serviceClient>, body:
   const {data:saved,error:saveError}=await db.rpc('sb_submit_challenge_v2',{p_student:student.studentId,p_challenge:c.id,p_previous:state.wrongCount,p_state:{...outcome.state,expectedHintShown:state.hintShown}});
   if(saveError)return fail(409,'SAVE_FAILED','시도를 저장하지 못했습니다. 문제를 다시 열어 주세요.');
   const final=solveState(saved.state);
-  return ok({outcome:{...outcome,state:final,xpEarned:0,stars:0},state:final,...(final.answerRevealed?{revealedAnswer:c.blocks}:{}),hintGiven:final.hintShown?challengeGiven(c.blocks,(c.hint_type as ChallengeType)??'heightMap'):undefined,score:final.score});
+  return ok({outcome:{...outcome,state:final,xpEarned:0,stars:0},state:final,hint:final.hintShown?'각 자리의 높이와 보이지 않는 블록을 차례로 살펴보세요.':null,...(final.answerRevealed?{answer:c.blocks,revealedAnswer:c.blocks}:{}),hintGiven:final.hintShown?challengeGiven(c.blocks,(c.hint_type as ChallengeType)??'heightMap'):undefined,score:final.score});
  }
  if(action==='activity:review:get'){
   const {data,error}=await db.from('sb_self_evaluations').select('confidence,reflection').eq('student_id',student.studentId).maybeSingle();
