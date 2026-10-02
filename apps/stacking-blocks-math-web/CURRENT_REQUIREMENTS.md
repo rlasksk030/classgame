@@ -78,3 +78,13 @@
 | R04 | 학생 표시는 `앞`·`옆`으로 단순화하고 기준 안내를 짧게 제공한다. | `앞쪽 경계`·긴 관찰자 문구 반복 | `src/components/world/BlockWorld.tsx`, `src/components/world/ProjectionGrid.tsx`, `src/pages/LessonPage.tsx` | 소스/DOM 문자열 및 화면 캡처 | IMPLEMENTED (브라우저 BLOCKED) |
 | R05 | 보관함은 세 면이 맞붙은 닫힌 정육면체이며 기존 드래그·탭 배치를 유지한다. | 펼쳐진 CSS 전개도 형태 | `src/components/world/BlockWorld.tsx`, `src/styles/index.css` | SVG 꼭짓점 검사·화면 조작 | IMPLEMENTED (브라우저 BLOCKED) |
 | R06 | 학생 단계는 `① 개념 배우기 → ② 문제 풀기 → ③ 더 풀어보기`이며 각 단계가 실제 URL·본문·문항으로 분리되고 위치를 보존한다. | `전체 학습 / 개념 익히기 / 개념 확인` 혼합 표시, 버튼만 바뀌는 단계 전환 | `src/pages/LessonLearnPage.tsx`, `src/pages/LessonPage.tsx`, `src/pages/StudentWorld.tsx`, `src/App.tsx` | `/learn` 안내 활동, `/solve` 입력·채점, `/practice` 반복 문제의 직접 접속·전환·새로고침과 단계별 문항/입력 복원 | IMPLEMENTED (정적 검사 통과, 브라우저 BLOCKED) |
+
+## 2026-10-02 — 학생·교사 필수 진도 계약
+
+- 일반 차시(1~8, 12)는 현재 학급/global 활성 `order_index=2` 문항 전체 완료를 필수 완료로 인정한다. concept, 선택 연습, 다른 seed는 필수 분모에서 제외한다.
+- 9차시는 본인 문제가 아닌 같은 학급 친구/시스템 문제 1개 성공. 제작·힌트·오답은 참여로만 기록한다.
+- 10차시 초안 저장은 진행 중이며, 기존 설계대로 11차시의 유효한 소개서 제출 때 10·11차시를 함께 완료한다. 자기평가만으로 12차시 완료를 부여하지 않는다.
+- 학생 월드 전체 비율은 완료 차시/12, 카드에는 필수 진행과 현재 선택 연습을 나누어 표시한다. 과거 연습 답안은 보존한다.
+- 교사 현재 차시는 최근 저장된 학습 활동, 전체 완료는 12개 차시 모두 완료로 판정한다. 활동 참여도 수업 결과에 포함한다.
+- 학급 초기화는 소유권을 검증하는 단일 트랜잭션 RPC를 사용한다. 잘못된 차시 범위는 거절한다.
+- 새 migration 2개와 앞선 필수 판정 migration은 운영 미적용. 로컬 검증과 운영 배포 상태를 구분한다. 상세 근거·한계는 `qa/progress-contract/2026-10-02_수학공간과입체_진도체계전수수정.md`를 따른다.

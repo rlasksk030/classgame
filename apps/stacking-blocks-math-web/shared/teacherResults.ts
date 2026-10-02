@@ -21,12 +21,15 @@ export interface ResultAttemptRow {
 export interface ResultProgressRow {
   student_id: string;
   completed: boolean;
+  participated?: boolean;
 }
 
 export interface ResultProblemRow {
   id: string;
   problem_type: ProblemType;
   code: string | null;
+  order_index?: number;
+  lesson?: number;
 }
 
 export interface ProblemTypeStat {
@@ -63,6 +66,7 @@ export function summarizeLessonResults(
 ): LessonResultSummary {
   const problemById = new Map(problems.map((p) => [p.id, p]));
   const participatedStudentIds = new Set(attempts.map((a) => a.student_id));
+  for (const row of progress) if (row.completed || row.participated) participatedStudentIds.add(row.student_id);
   const completedStudentIds = new Set(progress.filter((p) => p.completed).map((p) => p.student_id));
 
   const wrongByStudent = new Map<string, number>();
@@ -74,10 +78,13 @@ export function summarizeLessonResults(
       ) / 10
     : 0;
 
-  // 선택 연습(GENERATED_PRACTICE) 문제는 코드가 GEN-L<lesson>- 로 시작한다
-  // (shared/practiceSet.ts의 generatedProblemId 규칙과 동일).
-  const genPrefix = `GEN-L${lesson}-`;
-  const optionalAttempts = attempts.filter((a) => problemById.get(a.problem_id)?.code?.startsWith(genPrefix));
+  // Stage metadata covers both built-in and generated optional work.
+  // The code fallback only supports older DTOs without metadata.
+  const optionalAttempts = attempts.filter(a => {
+    const p = problemById.get(a.problem_id);
+    return p && (p.lesson === undefined || p.lesson === lesson) && (p.order_index === undefined
+      ? p.code?.startsWith(`GEN-L${lesson}-`) : p.order_index > 2);
+  });
   const optionalPracticeParticipants = new Set(optionalAttempts.map((a) => a.student_id)).size;
 
   const byType = new Map<ProblemType, { attempts: number; wrongAttempts: number }>();

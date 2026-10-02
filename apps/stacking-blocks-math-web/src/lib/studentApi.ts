@@ -85,6 +85,10 @@ export interface StudentHomeLesson {
   completedProblems: number;
   stars: number;
   completed: boolean;
+  optionalTotal?: number;
+  optionalCompleted?: number;
+  requiredTotal?: number;
+  requiredCompleted?: number;
 }
 
 export interface StudentHomeReward {

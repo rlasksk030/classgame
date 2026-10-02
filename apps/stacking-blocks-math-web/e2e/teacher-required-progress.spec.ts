@@ -1,11 +1,11 @@
 import type { BrowserContext, Page } from '@playwright/test';
 import { test, expect } from './live-fixture';
 import { requiredProgressApi, PROGRESS_PIN, TEACHER_EMAIL, TEACHER_PASSWORD } from './support/required-progress-api';
-import { STUDENTS, REQUIRED_LESSONS, solveRequiredLesson, completeActivityLessons, readTeacherSummary } from '../tests/support/required-progress-db.ts';
+import { STUDENTS, REQUIRED_LESSONS, solveRequiredLesson, submitProblem, completeActivityLessons, readTeacherSummary } from '../tests/support/required-progress-db.ts';
 
-async function studentLogin(page: Page) {
+async function studentLogin(page: Page, name = '합성학생1') {
   await page.goto('/?class=REQPROGRESS');
-  await page.getByLabel('이름', { exact: true }).fill('합성학생1');
+  await page.getByLabel('이름', { exact: true }).fill(name);
   await page.getByLabel('PIN 4자리').fill(PROGRESS_PIN);
   await page.getByRole('button', { name: '들어가기', exact: true }).click();
   await expect(page.getByRole('heading', { name: '공간과 입체 월드', exact: true })).toBeVisible();
@@ -92,7 +92,7 @@ test('required progress persists through real UI submission, polling, reloads an
   } finally { for (const context of contexts) await context.close(); await api.close(); }
 });
 
-test('independent A/B/C database records render exact 1/12, 5/12 and 12/12 totals', async ({ page }) => {
+test('independent A/B/C database records render exact 1/12, 5/12 and 12/12 totals', async ({ page, browser }) => {
   test.setTimeout(120000);
   const api = await requiredProgressApi();
   try {
@@ -106,5 +106,43 @@ test('independent A/B/C database records render exact 1/12, 5/12 and 12/12 total
     await expect(page.locator('#results').getByText('완료율 100%', { exact: true })).toBeVisible();
     await page.locator('#progress').scrollIntoViewIfNeeded();
     await page.locator('#progress').screenshot({ path: 'test-results/teacher-required-progress.png' });
+    const studentContext = await browser.newContext({ baseURL: 'http://127.0.0.1:4173' });
+    try {
+      const student = await studentContext.newPage(); await api.connect(student); await studentLogin(student, '합성학생3');
+      await expect(student.getByText('필수 학습 진행률 100% · 완료 12/12차시', { exact: true })).toBeVisible();
+      await student.reload();
+      await expect(student.getByText('필수 학습 진행률 100% · 완료 12/12차시', { exact: true })).toBeVisible();
+    } finally { await studentContext.close(); }
   } finally { await api.close(); }
+});
+
+test('world separates required work from the selected practice seed and restores it on a new student device', async ({ page, browser }) => {
+  const api = await requiredProgressApi();
+  const contexts: BrowserContext[] = [];
+  try {
+    for (const lesson of [1, 2]) await solveRequiredLesson(api.db, STUDENTS[0], lesson);
+    const ids: string[] = [];
+    for (const [seed, count] of [[111, 7], [222, 3]]) for (let i = 0; i < count; i++) {
+      const row = (await api.db.query<{id:string}>("insert into sb_problems(code,lesson,order_index,problem_type,title,answer) values($1,1,$2,'COUNT','합성 선택 연습',$3) returning id", [`GEN-L1-S${seed}-${i}-V2`, 100+i, {kind:'count',value:1}])).rows[0];
+      if (seed === 111) { ids.push(row.id); await submitProblem(api.db, STUDENTS[0], row.id); }
+    }
+    await api.db.query('update sb_student_progress set practice_seed=111 where student_id=$1 and lesson=1', [STUDENTS[0]]);
+    await api.connect(page); await studentLogin(page);
+    const card = page.locator('.lesson-card').filter({has:page.getByRole('heading',{name:/^1차시 ·/})});
+    await expect(page.getByText('필수 학습 진행률 17% · 완료 2/12차시', {exact:true})).toBeVisible();
+    await expect(card.getByText('필수 1/1문제', {exact:true})).toBeVisible();
+    await expect(card.getByText('현재 선택 연습 7/8문제', {exact:true})).toBeVisible();
+    // Change only the persisted assignment, as a new-set transition does. Old answers remain.
+    await api.db.query('update sb_student_progress set practice_seed=222 where student_id=$1 and lesson=1', [STUDENTS[0]]);
+    await page.reload();
+    await expect(card.getByText('현재 선택 연습 0/4문제', {exact:true})).toBeVisible();
+    await expect(page.getByText('필수 학습 진행률 17% · 완료 2/12차시', {exact:true})).toBeVisible();
+    expect((await readTeacherSummary(api.db))[0].optionalPracticeCount).toBe(7);
+    expect((await api.db.query('select 1 from sb_problem_attempts where student_id=$1 and problem_id=any($2::uuid[]) and completed',[STUDENTS[0],ids])).rows).toHaveLength(7);
+    const newContext = await browser.newContext({baseURL:'http://127.0.0.1:4173'}); contexts.push(newContext);
+    const newStudent = await newContext.newPage(); await api.connect(newStudent); await studentLogin(newStudent);
+    await expect(newStudent.locator('.lesson-card').filter({has:newStudent.getByRole('heading',{name:/^1차시 ·/})}).getByText('현재 선택 연습 0/4문제', {exact:true})).toBeVisible();
+    await expect(newStudent.getByText('필수 학습 진행률 17% · 완료 2/12차시', {exact:true})).toBeVisible();
+    await page.screenshot({path:'test-results/student-world-progress-contract.png',fullPage:true});
+  } finally { for (const context of contexts) await context.close(); await api.close(); }
 });

@@ -128,6 +128,7 @@ export default function TeacherPage() {
   const [lastSyncAt, setLastSyncAt] = useState<number | null>(null);
   const [serverHealthy, setServerHealthy] = useState<boolean | null>(null);
   const [resultsLesson, setResultsLesson] = useState<number | null>(null);
+  const [resultsRefreshVersion, setResultsRefreshVersion] = useState(0);
   const [resultsSummary, setResultsSummary] = useState<LessonResultSummary | null>(null);
   const [resultsLoading, setResultsLoading] = useState(false);
   const [resultsError, setResultsError] = useState<string | null>(null);
@@ -246,6 +247,7 @@ export default function TeacherPage() {
   // let a stale response overwrite a newer one's data.
   const classDataGenerationRef = useRef(0);
   const progressRequestRef = useRef(0);
+  const resultsRequestRef = useRef(0);
   const loadClassData = useCallback(async (targetClassId: string) => {
     const generation = ++classDataGenerationRef.current;
     const progressRequest = ++progressRequestRef.current;
@@ -402,6 +404,7 @@ export default function TeacherPage() {
       if (classDataGenerationRef.current !== generation) return;
       setMessage(`학생 ${result.targetedCount}명의 ${lesson ? `${lesson}차시` : "전체"} 진도를 초기화했습니다.`);
       await loadProgress(classId);
+      if (classDataGenerationRef.current === generation) setResultsRefreshVersion(version => version + 1);
     } catch (err) {
       setError(err instanceof Error ? err.message : "학급 진도 초기화에 실패했습니다. 진도표를 새로고침해 확인해 주세요.");
     } finally {
@@ -448,18 +451,21 @@ export default function TeacherPage() {
     return () => { cancelled = true; clearInterval(intervalId); };
   }, [classId, loadSessions]);
 
-  // 수업 결과(Phase 3C)는 polling하지 않는다 -- 학급/차시 변경 또는 수동
-  // 새로고침 때만 가져온다.
+  // 수업 결과는 학급/차시 변경, 수동 새로고침, 초기화 성공 후 가져온다.
   const loadResults = useCallback(async (targetClassId: string, lesson: number) => {
+    const generation = classDataGenerationRef.current;
+    const request = ++resultsRequestRef.current;
     setResultsLoading(true);
     try {
       const payload = await teacherResultsSummary(targetClassId, lesson);
+      if (classDataGenerationRef.current !== generation || resultsRequestRef.current !== request) return;
       setResultsSummary(payload.summary);
       setResultsError(null);
     } catch (err) {
+      if (classDataGenerationRef.current !== generation || resultsRequestRef.current !== request) return;
       setResultsError(err instanceof Error ? err.message : "수업 결과를 불러오지 못했습니다.");
     } finally {
-      setResultsLoading(false);
+      if (classDataGenerationRef.current === generation && resultsRequestRef.current === request) setResultsLoading(false);
     }
   }, []);
 
@@ -470,8 +476,10 @@ export default function TeacherPage() {
 
   useEffect(() => {
     if (!classId || resultsLesson === null) return;
+    setResultsSummary(null);
     void loadResults(classId, resultsLesson);
-  }, [classId, resultsLesson, loadResults]);
+    return () => { resultsRequestRef.current++; };
+  }, [classId, resultsLesson, resultsRefreshVersion, loadResults]);
 
   const toggleLessonLock = async (lesson: number, locked: boolean) => {
     try {
@@ -583,7 +591,7 @@ export default function TeacherPage() {
           <div className="panel"><span className="summary-label">현재 학급</span><strong className="summary-number">{selectedClass?.name ?? "선택 전"}</strong><p className="muted">{selectedClass?.class_code ?? "학급을 만들어 주세요."}</p></div>
           <div className="panel"><span className="summary-label">미시작</span><strong className="summary-number">{progressSummaryError ? "확인 실패" : classDataLoading ? "불러오는 중…" : `${progressSummary.notStarted}명`}</strong><p className="muted">{progressSummaryError ? progressSummaryError.message : "아직 시작 전"}</p></div>
           <div className="panel"><span className="summary-label">진행 중</span><strong className="summary-number">{progressSummaryError ? "확인 실패" : classDataLoading ? "불러오는 중…" : `${progressSummary.inProgress}명`}</strong><p className="muted">{progressSummaryError ? progressSummaryError.message : "학습 진행 중"}</p></div>
-          <div className="panel"><span className="summary-label">완료</span><strong className="summary-number">{progressSummaryError ? "확인 실패" : classDataLoading ? "불러오는 중…" : `${progressSummary.completed}명`}</strong><p className="muted">{progressSummaryError ? progressSummaryError.message : "12차시까지 완료"}</p></div>
+          <div className="panel"><span className="summary-label">완료</span><strong className="summary-number">{progressSummaryError ? "확인 실패" : classDataLoading ? "불러오는 중…" : `${progressSummary.completed}명`}</strong><p className="muted">{progressSummaryError ? progressSummaryError.message : "전체 12차시 완료"}</p></div>
           <div className="panel"><span className="summary-label">가장 많이 학습 중인 차시</span><strong className="summary-number">{progressSummaryError ? "확인 실패" : classDataLoading ? "불러오는 중…" : progressSummary.mostCommonLesson ? `${progressSummary.mostCommonLesson}차시` : "—"}</strong><p className="muted">학생 수 기준</p></div>
           <div className="panel"><span className="summary-label">최근 활동</span><strong className="summary-number">{progressSummaryError ? "확인 실패" : classDataLoading ? "불러오는 중…" : `${progressSummary.recentActivity}명`}</strong><p className="muted">최근 10분 이내 학습 기록{progressSummary.lastActivityAt ? ` · 마지막 ${formatLastActivity(progressSummary.lastActivityAt)}` : ""}</p></div>
         </section>
