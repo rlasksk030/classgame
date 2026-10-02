@@ -68,7 +68,7 @@ test("G. a manual 상태 새로고침 button re-triggers the sessions fetch imme
   assert.match(page, /상태 새로고침/);
   const liveStatusSection = page.match(/<section className="panel stack" id="live-status">[\s\S]*?<\/section>/)?.[0];
   assert.ok(liveStatusSection);
-  assert.match(liveStatusSection!, /onClick=\{\(\) => classId && void loadSessions\(classId\)\}/);
+  assert.match(liveStatusSection!, /void loadSessions\(classId\); void loadProgress\(classId\);/);
 });
 
 test("H. stale-activity wording is conservative -- '저장 실패' is never asserted outright, only '상태 확인'/'저장 기록이 없습니다' style language", async () => {

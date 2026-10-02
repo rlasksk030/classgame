@@ -245,8 +245,10 @@ export default function TeacherPage() {
   // or the update widget triggering a manual refresh mid-flight, can never
   // let a stale response overwrite a newer one's data.
   const classDataGenerationRef = useRef(0);
+  const progressRequestRef = useRef(0);
   const loadClassData = useCallback(async (targetClassId: string) => {
     const generation = ++classDataGenerationRef.current;
+    const progressRequest = ++progressRequestRef.current;
     setClassDataLoading(true);
     setProgressLoading(true);
     const [studentsResult, lessonsResult, problemsResult, progressResult] = await Promise.allSettled([
@@ -269,11 +271,13 @@ export default function TeacherPage() {
       setProblemsError(null);
     } else setProblemsError(classifyTeacherError(problemsResult.reason));
 
-    if (progressResult.status === "fulfilled") { setProgressStudents(progressResult.value.students); setProgressSummaryError(null); }
-    else setProgressSummaryError(classifyTeacherError(progressResult.reason));
+    if (progressRequestRef.current === progressRequest) {
+      if (progressResult.status === "fulfilled") { setProgressStudents(progressResult.value.students); setProgressSummaryError(null); }
+      else setProgressSummaryError(classifyTeacherError(progressResult.reason));
+      setProgressLoading(false);
+    }
 
     setClassDataLoading(false);
-    setProgressLoading(false);
   }, []);
 
   useEffect(() => {
@@ -283,6 +287,7 @@ export default function TeacherPage() {
     setStudents([]); setLessons([]); setProblems([]); setBuiltinCount(0); setProgressStudents([]);
     setStudentsError(null); setLessonsError(null); setProblemsError(null); setProgressSummaryError(null);
     void loadClassData(classId);
+    return () => { classDataGenerationRef.current++; };
   }, [classId, loadClassData]);
 
   const createStudent = async (event: FormEvent) => {
@@ -350,18 +355,37 @@ export default function TeacherPage() {
     }
   };
 
-  const loadProgress = async () => {
-    if (!classId) return;
-    setProgressLoading(true);
+  const loadProgress = useCallback(async (targetClassId: string, quiet = false) => {
+    if (!targetClassId) return;
+    const generation = classDataGenerationRef.current;
+    const request = ++progressRequestRef.current;
+    if (!quiet) setProgressLoading(true);
     try {
-      const payload = await teacherProgressSummary(classId);
+      const payload = await teacherProgressSummary(targetClassId);
+      if (classDataGenerationRef.current !== generation || progressRequestRef.current !== request) return;
       setProgressStudents(payload.students);
+      setProgressSummaryError(null);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "진도 정보를 불러오지 못했습니다.");
+      if (classDataGenerationRef.current !== generation || progressRequestRef.current !== request) return;
+      setProgressSummaryError(classifyTeacherError(err));
     } finally {
-      setProgressLoading(false);
+      if (classDataGenerationRef.current === generation && progressRequestRef.current === request) setProgressLoading(false);
     }
-  };
+  }, []);
+
+  // 진도와 접속 상태는 별도 요청/오류 상태를 유지한다. 자동 갱신 중에는
+  // 현재 표를 그대로 보여 주며, 학급 변경 전의 늦은 응답은 적용하지 않는다.
+  useEffect(() => {
+    if (!classId || classDataLoading) return;
+    let pending = false;
+    const poll = async () => {
+      if (document.hidden || pending) return;
+      pending = true;
+      try { await loadProgress(classId, true); } finally { pending = false; }
+    };
+    const intervalId = setInterval(poll, 10000);
+    return () => { clearInterval(intervalId); };
+  }, [classId, classDataLoading, loadProgress]);
 
   const resetClassProgress = async () => {
     if (!classId || !progressStudents.length) return;
@@ -370,12 +394,14 @@ export default function TeacherPage() {
     if (!window.confirm(`이 학급의 모든 학생 진도를 초기화할까요?\n${scopeWarning}`)) return;
     const typed = window.prompt(`학생 ${progressStudents.length}명의 학습 기록이 초기화됩니다.\n계속하려면 '초기화'를 입력하세요.`);
     if (typed !== "초기화") return;
+    const generation = classDataGenerationRef.current;
     setResetBusy(true);
     setError(null);
     try {
       const result = await teacherResetClassProgress(classId, lesson);
+      if (classDataGenerationRef.current !== generation) return;
       setMessage(`학생 ${result.targetedCount}명의 ${lesson ? `${lesson}차시` : "전체"} 진도를 초기화했습니다.`);
-      await loadProgress();
+      await loadProgress(classId);
     } catch (err) {
       setError(err instanceof Error ? err.message : "학급 진도 초기화에 실패했습니다. 진도표를 새로고침해 확인해 주세요.");
     } finally {
@@ -571,7 +597,7 @@ export default function TeacherPage() {
               {serverHealthy === false ? "상태 확인 실패" : serverHealthy === true ? "서버 연결 정상" : "확인 중…"}
             </span>
             <span className="muted">{lastSyncAt ? `마지막 갱신 ${formatLastActivity(new Date(lastSyncAt).toISOString())}` : "아직 갱신 전"}</span>
-            <button className="btn btn-sm" type="button" onClick={() => classId && void loadSessions(classId)}>상태 새로고침</button>
+            <button className="btn btn-sm" type="button" onClick={() => { if (classId) { void loadSessions(classId); void loadProgress(classId); } }}>상태 새로고침</button>
           </div>
           {sessionsError ? (
             <p className="error" role="alert">
@@ -733,6 +759,8 @@ export default function TeacherPage() {
         <section className="panel stack" id="progress">
           <h3>학생 진도</h3>
           {progressSummaryError && <p className="error" role="alert">진도 정보를 불러오지 못했습니다: {progressSummaryError.message}</p>}
+          <p className="muted">필수 진행은 필수 학습을 마친 차시 수입니다(전체 12차시). 선택 연습은 별도로 집계하며, 진도는 10초마다 갱신됩니다.</p>
+          <button className="btn btn-sm" type="button" disabled={progressLoading} onClick={() => void loadProgress(classId)}>진도 새로고침</button>
           <p className="muted">한 화면에서 학생별 1~12차시 상태를 확인합니다. 오답/문제 기록 등 세부 내용은 학생 이름을 눌러 기존 학생 상세에서 확인하세요.</p>
           <div className="toolbar-row" style={{ flexWrap: "wrap" }}>
             <input className="field" placeholder="이름 검색" value={progressSearch} onChange={(e) => setProgressSearch(e.target.value)} />

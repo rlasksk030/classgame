@@ -103,7 +103,7 @@ test("J. class-wide reset requires two confirmation steps: a window.confirm, the
 test("K. a successful reset refreshes the progress table (and therefore the dashboard summary, which is derived from it) and shows a non-silent success message", async () => {
   const page = await readSource("../src/pages/TeacherPage.tsx");
   const fnBody = page.match(/const resetClassProgress = async \(\) => \{[\s\S]*?\n {2}\};/)?.[0];
-  assert.match(fnBody!, /await loadProgress\(\);/);
+  assert.match(fnBody!, /await loadProgress\(classId\);/);
   assert.match(fnBody!, /setMessage\(/);
   assert.match(fnBody!, /catch \(err\) \{\s*setError\(/, "failures must surface via setError, never swallowed silently");
 });
