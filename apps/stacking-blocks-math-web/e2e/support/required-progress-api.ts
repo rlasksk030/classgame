@@ -1,3 +1,5 @@
+import { homeLessonProgress, practiceSeedForStudent } from '../../shared/homeProgress.ts';
+import { practiceDisplaySeed, selectPracticeRows, practiceSetStatus } from '../../shared/practiceSet.ts';
 /** Synthetic auth/HTTP adapter; progress uses real migrations, grader, RPC and summary. */
 import type { Page } from '@playwright/test';
 import { deriveProblemPresentation } from '../../shared/problemPresentation.ts';
@@ -78,8 +80,8 @@ export async function requiredProgressApi() {
         const lesson = Number(body.lesson);
         const students = await readTeacherSummary(db);
         const attempts = (await db.query<ResultAttemptRow>('select a.student_id,a.problem_id,a.wrong_count from sb_problem_attempts a join sb_students s on s.id=a.student_id where s.class_id=$1 and a.lesson=$2', [CLASS, lesson])).rows;
-        const problems = (await db.query<ResultProblemRow>('select distinct p.id,p.problem_type,p.code from sb_problems p join sb_problem_attempts a on a.problem_id=p.id join sb_students s on s.id=a.student_id where s.class_id=$1 and a.lesson=$2', [CLASS, lesson])).rows;
-        const progress = students.map(student => ({ student_id: student.studentId, completed: student.lessonStates[lesson - 1] === 'complete' }));
+        const problems = (await db.query<ResultProblemRow>('select distinct p.id,p.problem_type,p.code,p.order_index,p.lesson from sb_problems p join sb_problem_attempts a on a.problem_id=p.id join sb_students s on s.id=a.student_id where s.class_id=$1 and a.lesson=$2', [CLASS, lesson])).rows;
+        const progress = students.map(student => ({ student_id: student.studentId, completed: student.lessonStates[lesson - 1] === 'complete', participated: student.lessonStates[lesson - 1] !== 'not_started' }));
         return response({ summary: summarizeLessonResults(lesson, students.length, attempts, progress, problems) });
       }
       if (action === 'teacher:progress:summary') {
@@ -91,19 +93,29 @@ export async function requiredProgressApi() {
     const student = sessions.get(headers['x-student-token'] ?? '');
     if (!student) return response({ error: { code: 'SESSION_INVALID', message: '합성 학생 로그인 필요' } }, 401);
     if (action === 'home') {
-      const summary = (await readTeacherSummary(db)).find(s => s.studentId === student.id)!;
-      return response({ student: { classId: CLASS, className: '합성 진도 검증반', rewards: { totalXp: 0, totalStars: 0, badges: [], streak: 0 }, lessons: summary.lessonStates.map((state, i) => ({ lesson: i + 1, locked: false, completed: state === 'complete', totalProblems: 1, completedProblems: Number(state === 'complete'), stars: 0 })) } });
+      const progress = (await db.query<{lesson:number;completed:boolean;practice_seed:number;stars:number}>('select lesson,completed,practice_seed,stars from sb_student_progress where student_id=$1',[student.id])).rows;
+      const problems = (await db.query<PublicProblemRow>('select * from sb_problems where active and (class_id is null or class_id=$1)',[student.class_id])).rows;
+      const attempts = (await db.query<{problem_id:string;completed:boolean}>('select problem_id,completed from sb_problem_attempts where student_id=$1',[student.id])).rows;
+      const lessons = Array.from({length:12},(_,i)=> {
+        const lesson=i+1, saved=progress.find(p=>p.lesson===lesson), originalSeed=practiceSeedForStudent(student.id,lesson);
+        return {lesson,locked:false,stars:saved?.stars??0,...homeLessonProgress(lesson,problems,attempts,saved?.completed??false,saved?.practice_seed??originalSeed,originalSeed)};
+      });
+      const rewards=(await db.query<{total_xp:number;total_stars:number}>('select total_xp,total_stars from sb_student_rewards where student_id=$1',[student.id])).rows[0];
+      return response({student:{classId:CLASS,className:'합성 진도 검증반',rewards:{totalXp:rewards?.total_xp??0,totalStars:rewards?.total_stars??0,badges:lessons.filter(l=>l.completed).map(l=>`${l.lesson}차시 완료`),streak:0},lessons}});
     }
     if (action === 'lessonProblems') {
       const lesson = Number(body.lesson);
       if (body.markGuidedComplete !== false) await db.query('insert into sb_student_progress(student_id,lesson,guided_completed) values($1,$2,true) on conflict(student_id,lesson) do update set guided_completed=true', [student.id, lesson]);
       const rows = (await db.query<PublicProblemRow>('select * from sb_problems where active and lesson=$1 and (class_id is null or class_id=$2) order by order_index,id', [lesson, CLASS])).rows;
-      const problems = rows.map(publicProblem);
+      const seedRow=(await db.query<{practice_seed:number}>('select practice_seed from sb_student_progress where student_id=$1 and lesson=$2',[student.id,lesson])).rows[0];
+      const original=practiceSeedForStudent(student.id,lesson), seed=seedRow?.practice_seed??original;
+      const displayed=practiceDisplaySeed(rows,lesson,seed,original), selected=selectPracticeRows(rows,lesson,displayed);
+      const problems = selected.map(publicProblem);
       const done = new Set((await db.query<{ problem_id: string }>('select problem_id from sb_problem_attempts where student_id=$1 and lesson=$2 and completed', [student.id, lesson])).rows.map(r => r.problem_id));
       const required = requiredSolveIds(problems);
       const requiredComplete = required.length > 0 && required.every(id => done.has(id));
       const saved = (await db.query<{ guided_completed: boolean; last_problem_id: string }>('select guided_completed,last_problem_id from sb_student_progress where student_id=$1 and lesson=$2', [student.id, lesson])).rows[0];
-      return response({ problems, seedFallback: false, requiredComplete, currentStage: saved?.guided_completed ? requiredComplete ? 'optional' : 'required' : 'guided', currentProblemId: saved?.last_problem_id ?? required[0], allowSimilar: true, allowRetry: true });
+      return response({ problems, practiceSet: practiceSetStatus(selected,lesson,seed,5,displayed), seedFallback: false, requiredComplete, currentStage: saved?.guided_completed ? requiredComplete ? 'optional' : 'required' : 'guided', currentProblemId: saved?.last_problem_id ?? required[0], allowSimilar: true, allowRetry: true });
     }
     if (action === 'problem') {
       const p = (await db.query<PublicProblemRow>('select * from sb_problems where id=$1', [body.problemId])).rows[0];

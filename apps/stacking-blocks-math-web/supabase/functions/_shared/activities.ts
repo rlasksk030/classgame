@@ -7,6 +7,16 @@ import { sanitizeAppearance, sanitizeTheme, type RewardMaterial, type RewardThem
 import { generateShareCode } from './security.ts';
 import { fail,ok,text } from './http.ts';
 import type { serviceClient } from './db.ts';
+/** Legacy project DTO uses the same validation, lesson lock and completion path. */
+export async function phase5ProjectSaveRequest(db:ReturnType<typeof serviceClient>, body:Record<string,unknown>, student:{studentId:string;classId:string}) {
+ const project = {building_name:text(body.title,120),reason:text(body.reason,500),description:text(body.description,1000),layer_notes:body.layerUsageNotes??body.layerNotes??['','',''],blocks:body.blocks??[],block_appearance:body.materials??body.blockAppearance??{},intro_theme:text(body.introTheme,40)||'blueprint',grid_width:Number(body.gridWidth)||10,grid_depth:Number(body.gridDepth)||10,max_height:Number(body.maxHeight)||3,submitted:body.submitted===true};
+ const lesson=body.lesson??(project.submitted?11:10);
+ if(lesson!==10&&lesson!==11)return fail(400,'BAD_LESSON','건축 활동 차시를 확인해 주세요.');
+ const response=await activityRequest(db,{action:'activity:project:save',lesson,building:{...project,version:Number(body.expectedVersion??body.version??0)}},student);
+ if(!response.ok)return response;
+ const saved=await response.json();
+ return ok({projectVersion:saved.version,project});
+}
 export async function activityRequest(db:ReturnType<typeof serviceClient>, body:Record<string,unknown>, student:{studentId:string;classId:string}) {
  const action=String(body.action);
  const lesson=action.includes('challenge')?9:action.includes('review')?12:body.lesson===11?11:10;
@@ -28,7 +38,7 @@ export async function activityRequest(db:ReturnType<typeof serviceClient>, body:
     if ((value === 'pastel' && xp < 50) || (value === 'brick' && xp < 150) || (value === 'tile' && xp < 300)) appearance[key] = 'wood';
   }
   const theme = sanitizeTheme((building as Building & { intro_theme?: unknown }).intro_theme);
-  const {data,error}=await db.rpc('sb_save_building',{p_student:student.studentId,p_class:student.classId,p_version:building.version,p_data:{...building,blocks:canonicalize(building.blocks),block_appearance:appearance,intro_theme:theme}});
+  const {data,error}=await db.rpc('sb_save_building',{p_student:student.studentId,p_class:student.classId,p_version:building.version,p_data:{...building,progress_lesson:lesson,blocks:canonicalize(building.blocks),block_appearance:appearance,intro_theme:theme}});
   return error?fail(error.message.includes('VERSION_CONFLICT')?409:500,'SAVE_CONFLICT','다른 창에서 수정했거나 저장에 실패했습니다. 기기 기록을 보관했습니다. 서버 상태를 다시 확인해 주세요.'):ok({version:data});
  }
  if(action==='activity:challenge:list'){

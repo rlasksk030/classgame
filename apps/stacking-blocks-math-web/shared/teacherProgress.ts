@@ -54,7 +54,7 @@ export function summarizeStudentProgress(
   const lessonStates: LessonProgressState[] = Array.from({ length: 12 }, (_, index) => {
     const lesson = index + 1;
     if (lessonCompleted(lesson, progressByLesson.get(lesson)?.completed ?? false, problems, completedIds)) return "complete";
-    if (attempts.some((a) => a.lesson === lesson)) return "in_progress";
+    if (progressByLesson.has(lesson) || attempts.some((a) => a.lesson === lesson)) return "in_progress";
     return "not_started";
   });
 
@@ -65,16 +65,9 @@ export function summarizeStudentProgress(
     attempt.completed && attempt.problem_id && (attempt.order_index ?? orderByProblem.get(attempt.problem_id) ?? 0) > 2,
   ).map(attempt => attempt.problem_id)).size;
 
-  const activityTimestamps = [
-    ...attempts.map((a) => a.updated_at),
-    ...progress.map((p) => p.updated_at),
-  ].filter(Boolean);
-  const lastActivityAt = activityTimestamps.length
-    ? activityTimestamps.reduce((latest, ts) => (ts > latest ? ts : latest))
-    : null;
-
-  const touchedLessons = [...attempts.map((a) => a.lesson), ...progress.map((p) => p.lesson)];
-  const currentLesson = touchedLessons.length ? Math.max(...touchedLessons) : 1;
+  const latest = latestLearningEvent([...progress, ...attempts]);
+  const lastActivityAt = latest?.updated_at ?? null;
+  const currentLesson = latest?.lesson ?? 1;
 
   return {
     studentId,
@@ -89,10 +82,17 @@ export function summarizeStudentProgress(
   };
 }
 
-/** 학생 1명의 전체 진행 상태를 3단계로 요약한다 (12차시 완료 = 전체 과정 완료로 간주). */
+/** The most recent persisted learning event; lesson number only breaks timestamp ties. */
+export function latestLearningEvent<T extends { lesson: number; updated_at: string }>(rows: ReadonlyArray<T>): T | null {
+  return rows.filter(row => row.lesson >= 1 && row.lesson <= 12 && Number.isFinite(Date.parse(row.updated_at)))
+    .reduce<T | null>((latest, row) => !latest || Date.parse(row.updated_at) > Date.parse(latest.updated_at)
+      || (Date.parse(row.updated_at) === Date.parse(latest.updated_at) && row.lesson > latest.lesson) ? row : latest, null);
+}
+
+/** All twelve lessons, including activities, must be complete. */
 export function overallProgressStatus(summary: Pick<StudentProgressSummary, "lessonStates">): LessonProgressState {
   const anyProgress = summary.lessonStates.some((s) => s !== "not_started");
   if (!anyProgress) return "not_started";
-  if (summary.lessonStates[11] === "complete") return "complete";
+  if (summary.lessonStates.length === 12 && summary.lessonStates.every(state => state === "complete")) return "complete";
   return "in_progress";
 }

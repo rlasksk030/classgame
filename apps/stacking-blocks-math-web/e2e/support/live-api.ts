@@ -2,7 +2,7 @@ import {requiredSolveIds} from '../../shared/lessonProgression.ts';
 /** Playwright-only transport. Real activity handler + PostgreSQL RPC; synthetic auth/lesson records. */
 import {PGlite} from '@electric-sql/pglite';
 import {readFileSync,readdirSync} from 'node:fs';
-import {activityRequest} from '../../supabase/functions/_shared/activities.ts';
+import {activityRequest,phase5ProjectSaveRequest} from '../../supabase/functions/_shared/activities.ts';
 import {SEED_PROBLEMS} from '../../shared/seedProblems.ts';
 import {deriveProblemPresentation} from '../../shared/problemPresentation.ts';
 import {grade} from '../../shared/grading.ts';
@@ -53,6 +53,7 @@ export async function liveApi(options:{liveStages?:boolean;students?:Array<{id:s
   }
   const sid=tokens.get(token??'');if(!sid)return response({error:{code:'SESSION_INVALID',message:'다시 로그인해 주세요.'}},401);
   const action=String(body.action),key=`${sid}:${body.problemId}`;
+  if(action==='project:save')return phase5ProjectSaveRequest(db as unknown as Parameters<typeof phase5ProjectSaveRequest>[0],body,{studentId:sid,classId:students.find(s=>s.id===sid)!.classId});
   if(action.startsWith('activity:'))return activityRequest(db as unknown as Parameters<typeof activityRequest>[0],body,{studentId:sid,classId:students.find(s=>s.id===sid)!.classId});
   if(action==='home')return response({student:{classId:CLASS,className:'합성 QA반',rewards:{totalXp:0,totalStars:0,badges:[],streak:0},lessons:Array.from({length:12},(_,i)=>({lesson:i+1,locked:false,totalProblems:problems.filter(p=>p.lesson===i+1).length,completedProblems:problems.filter(p=>p.lesson===i+1&&attempts.get(`${sid}:${p.id}`)?.completed).length,completed:false,stars:0}))}});
   if(action==='lessonProblems'){const ps=problems.filter(p=>p.lesson===Number(body.lesson));return response({problems:ps.map(publicProblem),seedFallback:false,requiredComplete:requiredSolveIds(ps).length>0&&requiredSolveIds(ps).every(id=>attempts.get(`${sid}:${id}`)?.completed),currentProblemId:positions.get(`${sid}:${body.lesson}`)});}

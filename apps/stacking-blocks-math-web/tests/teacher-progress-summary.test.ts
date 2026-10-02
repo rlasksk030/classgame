@@ -81,7 +81,7 @@ test("lastActivityAt is the max updated_at across both progress and attempt rows
   assert.equal(summary.lastActivityAt, "2026-03-01T00:00:00Z");
 });
 
-test("currentLesson is the highest lesson number touched by either progress or attempts", () => {
+test("currentLesson uses the higher lesson only to break identical event timestamps", () => {
   const summary = summarizeStudentProgress(
     "s1", "학생1", 1,
     [{ lesson: 3, completed: true, updated_at: "2026-01-01T00:00:00Z" }],
@@ -105,13 +105,13 @@ test("overallProgressStatus: some progress but lesson 12 not complete -> in_prog
   assert.equal(overallProgressStatus(summary), "in_progress");
 });
 
-test("overallProgressStatus: lesson 12 complete -> complete (whole-course proxy)", () => {
+test("overallProgressStatus: lesson 12 complete alone -> in_progress", () => {
   const summary = summarizeStudentProgress(
     "s1", "학생1", 1,
     [{ lesson: 12, completed: true, updated_at: "2026-01-01T00:00:00Z" }],
     [completedAttempt("required-12", 12, 2)], [{ id: "required-12", lesson: 12, order_index: 2 }],
   );
-  assert.equal(overallProgressStatus(summary), "complete");
+  assert.equal(overallProgressStatus(summary), "in_progress");
 });
 
 test("studentNo/name/studentId pass through unchanged", () => {
@@ -167,7 +167,7 @@ test("all assigned required IDs are needed; an empty required set is not complet
   attempts.push(completedAttempt("teacher-required-1", 1, 2));
   assert.equal(summarizeStudentProgress("s1", "학생1", 1, [], attempts, problems).requiredProgress.completedLessons, 1);
   assert.equal(summarizeStudentProgress("s1", "학생1", 1,
-    [{ lesson: 3, completed: true, updated_at: progressTime }], [], []).lessonStates[2], "not_started");
+    [{ lesson: 3, completed: true, updated_at: progressTime }], [], []).lessonStates[2], "in_progress");
 });
 
 test("read-time completion preserves the existing activity rules for lessons 9–11", () => {

@@ -30,8 +30,14 @@ test("P. teacher:results:summary doesn't loop per-student -- one bulk .in(studen
 
 test("결과 요약은 polling하지 않는다 -- 학급/차시 변경 시에만 fetch하고 setInterval을 쓰지 않는다", async () => {
   const page = await readSource("../src/pages/TeacherPage.tsx");
-  const loadResultsEffect = page.match(/useEffect\(\(\) => \{\s*if \(!classId \|\| resultsLesson === null\) return;\s*void loadResults\(classId, resultsLesson\);\s*\}, \[classId, resultsLesson, loadResults\]\);/)?.[0];
+  const loadResultsEffect = page.match(/useEffect\(\(\) => \{\s*if \(!classId \|\| resultsLesson === null\) return;[\s\S]*?\}, \[classId, resultsLesson, resultsRefreshVersion, loadResults\]\);/)?.[0];
   assert.ok(loadResultsEffect, "results must fetch only on classId/resultsLesson change, no interval");
+  assert.match(loadResultsEffect, /void loadResults\(classId, resultsLesson\)/);
+  assert.doesNotMatch(loadResultsEffect, /setInterval/);
+  assert.match(loadResultsEffect, /resultsRequestRef.current\+\+/);
+  const loadResults = page.match(/const loadResults = useCallback[\s\S]*?\n {2}\}, \[\]\);/)?.[0];
+  assert.match(loadResults!, /classDataGenerationRef.current !== generation \|\| resultsRequestRef.current !== request/);
+  assert.match(page, /setResultsRefreshVersion\(version => version \+ 1\)/, "reset reloads the currently selected result, not a captured older lesson");
 });
 
 test("차시 선택 기본값은 학생 진도표에서 가장 많이 학습 중인 차시를 재사용한다 (별도 계산 없음)", async () => {

@@ -1,5 +1,6 @@
+import { homeLessonProgress, practiceSeedForStudent } from '../../../shared/homeProgress.ts';
 import { lessonCompleted, problemStage, requiredSolveComplete } from '../../../shared/lessonProgression.ts';
-import { activityRequest } from "../_shared/activities.ts";
+import { activityRequest, phase5ProjectSaveRequest } from "../_shared/activities.ts";
 import { canonicalize, validStructure, toHeightMap } from "../../../shared/blocks.ts";
 import { makeChallengeCard, validatePeerBlocks, gradePeer, type ChallengeCard, type ChallengeCardType } from "../../../shared/phase4.ts";
 import { applyAttempt, INITIAL_ATTEMPT } from "../../../shared/attempts.ts";
@@ -409,28 +410,6 @@ function makeDefaultLessonSettings(classId: string): Array<{ class_id: string; l
   }));
 }
 
-function countProblemsFromRows(rows: DbProblemRow[]): Record<number, number> {
-  const counts: Record<number, number> = Object.fromEntries(Array.from({ length: 12 }, (_, idx) => [idx + 1, 0]));
-  for (const row of rows) {
-    if (row.lesson >= 1 && row.lesson <= 12 && row.active) {
-      counts[row.lesson] = (counts[row.lesson] ?? 0) + 1;
-    }
-  }
-  return counts;
-}
-
-function practiceSeedForStudent(studentId:string, lesson:number):number {
-  let hash=lesson;
-  for(const char of studentId) hash=((hash*31)+char.charCodeAt(0))|0;
-  return Math.abs(hash)%1000000;
-}
-function belongsToStudentPractice(row:DbProblemRow,studentId:string,seeds:Map<number,number>=new Map()):boolean {
-  const code=String(row.code??'');
-  if(!code.startsWith('GEN-L'))return true;
-  const match=/^GEN-L(\d+)-S(\d+)-/.exec(code);
-  return Boolean(match&&Number(match[2])===(seeds.get(Number(match[1])) ?? practiceSeedForStudent(studentId,Number(match[1]))));
-}
-
 function generatedInsertRow(seed:(typeof SEED_PROBLEMS)[number]) {
   return { class_id:null, created_by:null, code:seed.code, lesson:seed.lesson, order_index:seed.orderIndex, problem_type:seed.problemType, title:seed.title, prompt:seed.prompt, grid_width:seed.grid.gridWidth, grid_depth:seed.grid.gridDepth, max_height:seed.grid.maxHeight, given_blocks:seed.givenBlocks, start_blocks:seed.startBlocks, given:{...seed.given,_generator:{templateId:seed.templateId,seed:seed.seed,generatorVersion:seed.generatorVersion,difficultyTier:seed.difficultyTier,conceptTags:seed.conceptTags,sourceType:seed.sourceType}}, choices:seed.choices, answer:seed.answer, grading_mode:seed.gradingMode, hint:seed.hint, explanation:seed.explanation, difficulty:seed.difficulty, xp:seed.xp, active:true };
 }
@@ -593,11 +572,7 @@ async function phase5StudentAction(db: Awaited<ReturnType<typeof serviceClient>>
     return loaded.error ? fail(500, "PROJECT_LOAD_FAILED", "작품을 불러오지 못했습니다.") : ok({ project: loaded.data ?? null });
   }
   if (action === "project:save") {
-    const expectedVersion = Number(body.expectedVersion ?? body.version ?? 0);
-    const projectData = { building_name: text(body.title, 120), reason: text(body.reason, 500), description: text(body.description, 1000), layer_notes: body.layerUsageNotes ?? body.layerNotes ?? [], blocks: body.blocks ?? [], block_appearance: body.materials ?? body.blockAppearance ?? {}, intro_theme: text(body.introTheme, 40) || "blueprint", grid_width: Number(body.gridWidth) || 10, grid_depth: Number(body.gridDepth) || 10, max_height: Number(body.maxHeight) || 3, submitted: Boolean(body.submitted) };
-    const saved = await db.rpc("sb_save_building", { p_student: session.studentId, p_class: session.classId, p_version: expectedVersion, p_data: projectData });
-    if (saved.error) return fail(saved.error.message === "VERSION_CONFLICT" ? 409 : 500, saved.error.message === "VERSION_CONFLICT" ? "PROJECT_VERSION_CONFLICT" : "PROJECT_SAVE_FAILED", saved.error.message === "VERSION_CONFLICT" ? "최신 작품을 먼저 불러와 주세요." : "작품을 저장하지 못했습니다.");
-    return ok({ projectVersion: Number(saved.data ?? expectedVersion + 1), project: projectData });
+    return phase5ProjectSaveRequest(db, body, session);
   }
   if (action === "progress:save" || action === "attempt:save") {
     const lesson = Number(body.lesson); const setId = text(body.setId, 120); const problemId = text(body.problemId, 120); const problemVersion = Number(body.problemVersion) || 1;
@@ -713,7 +688,7 @@ Deno.serve(async (req: Request) => {
         readAllRows((from, to) => db
           .from("sb_problems")
           .select(
-            "lesson,problem_type,title,prompt,grid_width,grid_depth,max_height,given_blocks,start_blocks,given,choices,answer,grading_mode,difficulty,xp,hint,explanation,order_index,active,id,class_id,code",
+            "id,lesson,order_index,active,code",
           )
           .or(`class_id.eq.${studentSession.classId},class_id.is.null`)
           .eq("active", true).order("id").range(from, to)),
@@ -748,9 +723,6 @@ Deno.serve(async (req: Request) => {
       };
 
       const savedSeeds = new Map((progressRes.data ?? []).filter(p => p.practice_seed !== null).map(p => [Number(p.lesson), Number(p.practice_seed)]));
-      const visibleProblems = ((problemRowsRes.data as unknown[]) as DbProblemRow[]).filter(row => row.active && belongsToStudentPractice(row, studentSession.studentId, savedSeeds));
-      const visibleProblemIds = new Set(visibleProblems.map(problem => problem.id));
-      const countByLesson = countProblemsFromRows(visibleProblems);
 
       const [attempts, challengeXp, projectState] = await Promise.all([
         readAllRows((from, to) => db.from("sb_problem_attempts").select("problem_id,lesson,completed").eq("student_id",studentSession.studentId).order("id").range(from, to)),
@@ -758,7 +730,6 @@ Deno.serve(async (req: Request) => {
         db.from("sb_projects").select("submitted").eq("student_id",studentSession.studentId).maybeSingle(),
       ]);
       if (attempts.error) return fail(500, "PROGRESS_LOAD_FAILED", "저장된 풀이 기록을 불러오지 못했어요.");
-      const completedIds = new Set(attempts.data.filter(attempt => attempt.completed).map(attempt => String(attempt.problem_id)));
       const activityXp=(challengeXp.data??[]).reduce((sum,row)=>sum+Number(row.xp),0)+(projectState.data?.submitted?30:0);
       const lessons = Array.from({ length: 12 }, (_, index) => {
         const lesson = index + 1;
@@ -767,17 +738,13 @@ Deno.serve(async (req: Request) => {
           { lesson, locked: lesson === 1 ? false : true };
         const progress = progressRows.find((row) => row.lesson === lesson);
 
-        const settingCount = Number(finalLessonSettings.find((item) => Number(item.lesson) === lesson)?.practice_count);
-        const totalProblems = lesson>=9 && lesson<=11 ? 1 : Math.max(countByLesson[lesson] ?? 0, [5,10,15,20].includes(settingCount) ? settingCount : recommendedPracticeCount(lesson));
-        const completed = lessonCompleted(lesson, Boolean(progress?.completed), visibleProblems, completedIds);
-        const completedProblems = lesson >= 9 && lesson <= 11 ? Number(completed) : new Set(attempts.data.filter(a => a.lesson === lesson && a.completed && visibleProblemIds.has(a.problem_id)).map(a => a.problem_id)).size;
+        const originalSeed = practiceSeedForStudent(studentSession.studentId, lesson);
+        const counts = homeLessonProgress(lesson, problemRowsRes.data, attempts.data, Boolean(progress?.completed), savedSeeds.get(lesson) ?? originalSeed, originalSeed);
         return {
           lesson,
           locked: Boolean(setting.locked),
-          totalProblems,
-          completedProblems,
+          ...counts,
           stars: Number(progress?.stars ?? 0),
-          completed,
         };
       });
 
@@ -1541,84 +1508,18 @@ Deno.serve(async (req: Request) => {
       const owns = await teacherOwnsClass(db, teacherId, classId);
       if (!owns) return fail(403, "FORBIDDEN_CLASS", "해당 반에 접근할 수 없습니다.");
 
-      const lesson = toInt(body.lesson); // null = 전체 차시 초기화
-      if (lesson !== null && lesson > 12) return fail(400, "BAD_LESSON", "lesson 값은 1~12 사이여야 합니다.");
-
-      // 클라이언트가 studentId 배열을 보내 임의 대상을 고르게 하지 않는다:
-      // 서버가 classId 소유권을 확인한 뒤 이 학급 소속 학생을 직접 조회한다.
-      const { data: studentRows, error: studentsErr } = await db.from("sb_students").select("id").eq("class_id", classId);
-      if (studentsErr) return fail(500, "RESET_FAILED", "학생 목록을 불러오지 못했습니다.");
-      const studentIds = (studentRows ?? []).map((row) => String(row.id));
-      if (studentIds.length === 0) return ok({ ok: true, targetedCount: 0, lesson });
-
-      // 아래는 202609110007_teacher_reset.sql 의 sb_reset_progress() 와 같은
-      // 삭제 규칙을 그대로 반영한다. 그 함수는 auth.uid() 기반
-      // sb_owns_student 검사를 내부에 갖고 있어 service-role 컨텍스트
-      // (교사 JWT 없이 호출되는 이 edge function 안)에서는 항상
-      // FORBIDDEN_STUDENT로 실패하므로 재사용할 수 없다. 그래서 같은 삭제
-      // 규칙을 학급 전체에 대해 테이블당 1회 배치 쿼리로 재구현한다
-      // (학생별 반복 호출 아님 -- N+1 금지).
-      let attemptsQuery = db.from("sb_problem_attempts").delete().in("student_id", studentIds);
-      let snapshotsQuery = db.from("sb_block_snapshots").delete().in("student_id", studentIds);
-      let progressQuery = db.from("sb_student_progress").delete().in("student_id", studentIds);
-      if (lesson !== null) {
-        attemptsQuery = attemptsQuery.eq("lesson", lesson);
-        snapshotsQuery = snapshotsQuery.eq("lesson", lesson);
-        progressQuery = (lesson === 10 || lesson === 11)
-          ? progressQuery.in("lesson", [10, 11])
-          : progressQuery.eq("lesson", lesson);
+      const lesson = body.lesson === undefined || body.lesson === null ? null : body.lesson;
+      if (lesson !== null && (!Number.isInteger(lesson) || Number(lesson) < 1 || Number(lesson) > 12)) {
+        return fail(400, "BAD_LESSON", "lesson 값은 1~12 사이여야 합니다.");
       }
-
-      const steps: Array<{ name: string; error: { code?: string } | null }> = [];
-      steps.push({ name: "attempts", error: (await attemptsQuery).error });
-      steps.push({ name: "snapshots", error: (await snapshotsQuery).error });
-      steps.push({ name: "progress", error: (await progressQuery).error });
-      if (lesson === null || lesson === 9) {
-        steps.push({ name: "challenge_solves", error: (await db.from("sb_challenge_solves").delete().in("student_id", studentIds)).error });
+      const { data: targetedCount, error: resetError } = await db.rpc("sb_reset_class_progress", {
+        p_class: classId, p_teacher: teacherId, p_lesson: lesson,
+      });
+      if (resetError) {
+        console.error("[student-api] atomic class reset failed", { code: resetError.code });
+        return fail(500, "RESET_FAILED", "초기화하지 못했습니다. 기존 기록은 유지됩니다. 다시 시도해 주세요.");
       }
-      if (lesson === null || lesson === 10 || lesson === 11) {
-        steps.push({ name: "projects", error: (await db.from("sb_projects").delete().in("student_id", studentIds)).error });
-      }
-      if (lesson === null || lesson === 12) {
-        steps.push({ name: "self_evaluations", error: (await db.from("sb_self_evaluations").delete().in("student_id", studentIds)).error });
-      }
-
-      const failedStep = steps.find((step) => step.error);
-      if (failedStep) {
-        console.error("[student-api] class reset failed", { step: failedStep.name, code: failedStep.error?.code });
-        return fail(500, "RESET_PARTIAL_FAILED", `초기화 중 일부 단계(${failedStep.name})가 실패했습니다. 새로고침 후 다시 시도해 주세요.`);
-      }
-
-      // 남은 attempts로 보상 재계산 -- 학생별 upsert 대신 배치 upsert 1회.
-      const { data: remainingAttempts, error: remErr } = await db
-        .from("sb_problem_attempts")
-        .select("student_id,xp_earned,stars")
-        .in("student_id", studentIds);
-      if (remErr) return fail(500, "RESET_PARTIAL_FAILED", "진도는 초기화됐지만 보상 재계산에 실패했습니다. 새로고침 후 다시 확인해 주세요.");
-
-      const rewardTotals = new Map<string, { xp: number; stars: number }>();
-      for (const id of studentIds) rewardTotals.set(id, { xp: 0, stars: 0 });
-      for (const row of remainingAttempts ?? []) {
-        const sid = String(row.student_id);
-        const current = rewardTotals.get(sid) ?? { xp: 0, stars: 0 };
-        current.xp += Number(row.xp_earned ?? 0);
-        current.stars += Number(row.stars ?? 0);
-        rewardTotals.set(sid, current);
-      }
-      const rewardRows = Array.from(rewardTotals.entries()).map(([studentId, totals]) => ({
-        student_id: studentId,
-        total_xp: totals.xp,
-        total_stars: totals.stars,
-        badges: [],
-        streak: 0,
-      }));
-      const rewardUpsert = await db.from("sb_student_rewards").upsert(rewardRows, { onConflict: "student_id" });
-      if (rewardUpsert.error) {
-        console.error("[student-api] class reset reward recompute failed", { code: rewardUpsert.error.code });
-        return fail(500, "RESET_PARTIAL_FAILED", "진도는 초기화됐지만 보상 재계산에 실패했습니다. 새로고침 후 다시 확인해 주세요.");
-      }
-
-      return ok({ ok: true, targetedCount: studentIds.length, lesson });
+      return ok({ ok: true, targetedCount: Number(targetedCount), lesson });
     }
 
     if (action === "teacher:sessions:list") {
@@ -1678,7 +1579,7 @@ Deno.serve(async (req: Request) => {
       }
 
       const [attemptsRes, progressRes, requiredRes] = await Promise.all([
-        readAllRows((from, to) => db.from("sb_problem_attempts").select("student_id,problem_id,wrong_count,completed,sb_problems(id,problem_type,code)").in("student_id", studentIds).eq("lesson", lesson).order("id").range(from, to)),
+        readAllRows((from, to) => db.from("sb_problem_attempts").select("student_id,problem_id,wrong_count,completed,sb_problems(id,problem_type,code,lesson,order_index)").in("student_id", studentIds).eq("lesson", lesson).order("id").range(from, to)),
         readAllRows((from, to) => db.from("sb_student_progress").select("student_id,completed").in("student_id", studentIds).eq("lesson", lesson).order("student_id").range(from, to)),
         readAllRows((from, to) => db.from("sb_problems").select("id,lesson,order_index").or(`class_id.eq.${classId},class_id.is.null`).eq("active", true).eq("lesson", lesson).eq("order_index", 2).order("id").range(from, to)),
       ]);
@@ -1698,12 +1599,13 @@ Deno.serve(async (req: Request) => {
           completedByStudent.get(sid)!.add(String(attempt.problem_id));
         }
         const problem = Array.isArray(attempt.sb_problems) ? attempt.sb_problems[0] : attempt.sb_problems;
-        if (problem) problemsById.set(String(problem.id), { id: String(problem.id), problem_type: parseProblemType(problem.problem_type), code: problem.code ?? null });
+        if (problem) problemsById.set(String(problem.id), { id: String(problem.id), problem_type: parseProblemType(problem.problem_type), code: problem.code ?? null, lesson: Number(problem.lesson), order_index: Number(problem.order_index) });
       }
       const storedProgress = new Map(progressRes.data.map(row => [String(row.student_id), Boolean(row.completed)]));
       const progressRows: ResultProgressRow[] = studentIds.map(studentId => ({
         student_id: studentId,
         completed: lessonCompleted(lesson, storedProgress.get(studentId) ?? false, requiredRes.data, completedByStudent.get(studentId) ?? new Set()),
+        participated: storedProgress.has(studentId),
       }));
 
       const summary = summarizeLessonResults(lesson, totalStudents, attemptRows, progressRows, [...problemsById.values()]);
