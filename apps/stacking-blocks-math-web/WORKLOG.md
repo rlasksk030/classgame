@@ -524,3 +524,11 @@ Start 3454fd7, branch feature/spatial-math-redesign-v1. Pre-existing work backed
 
 - worksheet import UI removed: `WorksheetImportPage.tsx`, `src/features/worksheet/`, `App.tsx`의 lazy import·`/teacher/worksheet-import` route, `TeacherPage.tsx`의 관련 버튼/nav 링크를 제거했다. `sb_worksheet_imports` 테이블, RLS 정책, `sb-worksheets`/`sb-problem-images` Storage 버킷, 관련 migration은 전혀 건드리지 않았다(데이터 보존/롤백 가능성 유지). `sb-problem-images`는 student-api의 일반 문제 이미지 표시에도 쓰이므로 별도로 확인 후 유지했다.
 - 현재 로컬 검사: `npm test` 207개 중 205 PASS, 2 SKIPPED(localhost listen EPERM), typecheck/lint/build/Edge/security/audit/mock PASS. 실제 HTTPS backend, TEST status/plan/repair/update, SetupPage remote, QR, 신규 설치 E2E는 NOT_RUN/BLOCKED. 교사 외부 수동 작업 감소 0개.
+
+## 2026-10-02 — 수학 공간과 입체 진도 체계 전수 조사·수정
+
+- 시작 HEAD e9b61d4, 기존 안전 브랜치에서 후속 작업. 기존 미추적 QA/배포자료 보존.
+- 학생 홈·교사 요약/상세·수업 결과의 필수 완료, 선택 연습, 최근 활동, 활동 참여 집계를 통일했다. 별도 project:save도 같은 소개서 검증과 차시 잠금을 거치게 했다.
+- 완료 기록 backfill과 활동 참여 기록 migration, 원자적 학급 초기화 RPC migration을 추가했다. 기존 migration은 수정하지 않았다.
+- 운영 read-only: 완료 복구 2행(2·5차시 각 1), 미완료 참여 추가 2행(9·10차시 각 1). student-api v4/student-auth v7, migration history 빈 배열, Phase5 테이블 5개 부재. 운영 데이터·RLS·비밀값 변경 및 배포 없음.
+- 전체 unit 606/606 PASS, 완료/복구/초기화/활동 핵심 DB·API 17개 포함. 브라우저 및 기타 검사 최종 수치와 기존 QA 실패 비교는 위 날짜·작업명이 포함된 상세 보고서에 기록한다.

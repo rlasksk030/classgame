@@ -41,8 +41,7 @@ export default function StudentWorld() {
   };
 
   const completedLessons = home?.lessons.filter((lesson) => lesson.completed).length ?? 0;
-  const totalProgress = home?.lessons.reduce((sum, lesson) => sum + (lesson.totalProblems ? lesson.completedProblems / lesson.totalProblems : 0), 0) ?? 0;
-  const progressPercent = Math.round(totalProgress / LESSON_COUNT * 100);
+  const progressPercent = Math.round(completedLessons / LESSON_COUNT * 100);
   const groups = [
     { label: "기초 탐험", lessons: [1, 2, 3, 4] },
     { label: "공간 추리", lessons: [5, 6, 7, 8] },
@@ -88,7 +87,7 @@ export default function StudentWorld() {
             <strong className="summary-number">⭐ {home?.rewards.totalStars ?? 0}</strong>
             <p className="muted">별은 ① 개념 배우기·② 문제 풀기·③ 선택 연습을 풀면 모아요.</p>
             <div className="lesson-progress" aria-label={`전체 진행률 ${progressPercent}%`}><span style={{ width: `${progressPercent}%` }} /></div>
-            <p className="muted">전체 진행률 {progressPercent}% · 완료 {completedLessons}/{LESSON_COUNT}차시</p>
+            <p className="muted">필수 학습 진행률 {progressPercent}% · 완료 {completedLessons}/{LESSON_COUNT}차시</p>
           </div>
           <div className="panel reward-summary">
             <div className="summary-label">내 배지</div>
@@ -103,8 +102,8 @@ export default function StudentWorld() {
             const info = home?.lessons.find((row) => row.lesson === lesson);
             const meta = LESSONS.find((l) => l.lesson === lesson);
             const locked = info?.locked ?? true;
-            const total = info?.totalProblems ?? 0;
-            const done = info?.completedProblems ?? 0;
+            const total = info?.requiredTotal ?? info?.totalProblems ?? 0;
+            const done = info?.requiredCompleted ?? info?.completedProblems ?? 0;
             const completed = info?.completed ?? false;
             return (
               <Link key={lesson} className="lesson-card" to={locked ? "#" : `/lesson/${lesson}${lesson===10||lesson===11?"/project":"/learn"}`} onClick={event => { if (locked) { event.preventDefault(); setError("선생님이 아직 열지 않은 차시예요."); } }}>
@@ -115,7 +114,8 @@ export default function StudentWorld() {
                     {locked ? " 🔒" : ""}
                   </h3>
                   <p className="muted">{meta?.summary ?? "준비 중입니다."}</p>
-                  <div className="lesson-card-meta"><span>{done}/{total}문제</span><span>⭐ {info?.stars ?? 0}</span><span className={`status-chip ${locked ? "locked" : completed ? "complete" : "ready"}`}>{locked ? "잠김" : completed ? "완료" : "이어하기"}</span></div>
+                  <div className="lesson-card-meta"><span>{info?.requiredTotal !== undefined ? '필수 ' : ''}{done}/{total}{lesson >= 9 && lesson <= 11 ? '활동' : '문제'}</span><span>⭐ {info?.stars ?? 0}</span><span className={`status-chip ${locked ? "locked" : completed ? "complete" : "ready"}`}>{locked ? "잠김" : completed ? "완료" : "이어하기"}</span></div>
+                  {info?.optionalTotal !== undefined && !(lesson >= 9 && lesson <= 11) && <p className="muted">현재 선택 연습 {info.optionalCompleted ?? 0}/{info.optionalTotal}문제</p>}
                   <div className="lesson-progress" aria-label={`${lesson}차시 진행률 ${total ? Math.round(done / total * 100) : 0}%`}><span style={{ width: `${total ? Math.round(done / total * 100) : 0}%` }} /></div>
                 </div>
               </Link>

@@ -34,15 +34,18 @@ test("G. class-wide reset derives its student list server-side from classId -- t
   const edge = await readSource("../supabase/functions/student-api/index.ts");
   const resetBody = edge.match(/if \(action === "teacher:progress:reset-class"\) \{[\s\S]*?\n {4}\}/)?.[0];
   assert.ok(resetBody);
-  assert.match(resetBody!, /db\.from\("sb_students"\)\.select\("id"\)\.eq\("class_id", classId\)/, "student ids come from a server-side query keyed on classId");
+  assert.match(resetBody!, /db\.rpc\("sb_reset_class_progress"/, "student membership is resolved inside the atomic DB RPC");
+  assert.match(resetBody!, /p_class: classId, p_teacher: teacherId/);
   assert.doesNotMatch(resetBody!, /body\.studentIds/, "must never read a client-supplied student id list");
 });
 
-test("H. class-wide reset accepts an optional lesson scope (1-12) and treats missing/invalid as whole-class", async () => {
+test("H. class-wide reset accepts an optional lesson scope (1-12) and rejects invalid values", async () => {
   const edge = await readSource("../supabase/functions/student-api/index.ts");
   const resetBody = edge.match(/if \(action === "teacher:progress:reset-class"\) \{[\s\S]*?\n {4}\}/)?.[0];
-  assert.match(resetBody!, /const lesson = toInt\(body\.lesson\);/);
-  assert.match(resetBody!, /lesson === 10 \|\| lesson === 11/, "lesson 10/11 combined-unit special case preserved from sb_reset_progress");
+  assert.match(resetBody!, /body.lesson === undefined \|\| body.lesson === null/);
+  assert.match(resetBody!, /!Number.isInteger\(lesson\)/);
+  assert.match(resetBody!, /BAD_LESSON/);
+  assert.doesNotMatch(resetBody!, /RESET_PARTIAL_FAILED|\.delete\(/);
 });
 
 test("F. dashboard 'recent activity' is never labeled as live/connected presence", async () => {
@@ -103,7 +106,7 @@ test("J. class-wide reset requires two confirmation steps: a window.confirm, the
 test("K. a successful reset refreshes the progress table (and therefore the dashboard summary, which is derived from it) and shows a non-silent success message", async () => {
   const page = await readSource("../src/pages/TeacherPage.tsx");
   const fnBody = page.match(/const resetClassProgress = async \(\) => \{[\s\S]*?\n {2}\};/)?.[0];
-  assert.match(fnBody!, /await loadProgress\(\);/);
+  assert.match(fnBody!, /await loadProgress\(classId\);/);
   assert.match(fnBody!, /setMessage\(/);
   assert.match(fnBody!, /catch \(err\) \{\s*setError\(/, "failures must surface via setError, never swallowed silently");
 });

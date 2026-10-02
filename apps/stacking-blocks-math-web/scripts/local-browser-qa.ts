@@ -415,11 +415,11 @@ async function main() {
         assertCondition(await visible(page, '[data-answer-renderer="TripleProjectionGridRenderer"]'), "세 방향 답안 Renderer가 보이지 않습니다.");
         const cells = page.locator('[data-answer-renderer="TripleProjectionGridRenderer"] button.cell-btn');
         assertCondition(await cells.count() === 12, "세 격자의 실제 셀 수가 12개가 아닙니다.");
-        // front/side 실루엣은 화면에서 행을 뒤집어 표시하므로 underlying row 0은 두 번째 행이다.
-        const edgeCell = await cells.nth(0).boundingBox();
+        // 화면 행/옆 열 순서와 수학 좌표를 구분한다. 세 방향의 row 0을 입력한다.
+        const edgeCell = await cells.nth(2).boundingBox();
         assertCondition(edgeCell, "첫 번째 입력 셀의 화면 영역을 찾지 못했습니다.");
-        await cells.nth(0).click({ position: { x: 3, y: 3 } });
-        for (const index of [6, 10]) await cells.nth(index).click();
+        await cells.nth(2).click({ position: { x: 3, y: 3 } });
+        for (const index of [6, 11]) await cells.nth(index).click();
         await page.getByRole("button", { name: "정답 확인", exact: true }).click();
         assertCondition(state.attempts[0]?.submission.kind === "projections", "제출 payload가 projections가 아닙니다.");
         assertCondition(state.attempts[0]?.submission.projections?.top?.[0]?.[0] === true, "입력한 셀이 payload에 반영되지 않았습니다.");
@@ -430,7 +430,7 @@ async function main() {
         await waitForStudentPage(page);
         assertCondition(await page.locator('[data-answer-renderer="TripleProjectionGridRenderer"] table.projection-table').count() === 3, "12차시 세 격자가 보이지 않습니다.");
         const cells = page.locator('[data-answer-renderer="TripleProjectionGridRenderer"] button.cell-btn');
-        for (const index of [0, 6, 10]) await cells.nth(index).click();
+        for (const index of [2, 6, 11]) await cells.nth(index).click();
         await page.getByRole("button", { name: "정답 확인", exact: true }).click();
         assertCondition(state.attempts.length === 1 && state.attempts[0].submission.kind === "projections", "12차시 격자 제출이 발생하지 않았습니다.");
       }}));
@@ -446,7 +446,7 @@ async function main() {
       initial.push(await run({ id: "T04-l5-hidden-none-count", title: "5차시 숨은 블록 없음 3×3 개수", problemId: countFixture.id, problems: [countFixture], run: async (page, state) => {
         await page.goto(`${baseUrl}/lesson/5`);
         await waitForStudentPage(page);
-        await page.locator('input[placeholder="정답을 입력"]').fill("9");
+        await page.getByPlaceholder('전체 개수',{exact:true}).fill("9");
         await page.getByRole("button", { name: "정답 확인", exact: true }).click();
         assertCondition(state.attempts[0]?.submission.kind === "count" && state.attempts[0].submission.value === 9, "3×3 입력이 9로 제출되지 않았습니다.");
         await expect(page.getByText("정답이에요",{exact:false}).first()).toBeVisible();
@@ -454,12 +454,12 @@ async function main() {
       initial.push(await run({ id: "T05-number-reveal", title: "숫자 정답 공개는 재구성을 요구하지 않음", problemId: countFixture.id, problems: [countFixture], run: async (page) => {
         await page.goto(`${baseUrl}/lesson/5`);
         await waitForStudentPage(page);
-        await page.locator('input[placeholder="정답을 입력"]').fill("8");
-        for(let attempt=1;attempt<=4;attempt++) {
+        await page.getByPlaceholder('전체 개수',{exact:true}).fill("8");
+        for(let attempt=1;attempt<=3;attempt++) {
           await page.getByRole("button", { name: "정답 확인", exact: true }).click();
           await expect(page.getByText(`오답 수: ${attempt}`,{exact:true})).toBeVisible();
-          if(attempt<4) await expect(page.getByText('정답: 9개',{exact:true})).toHaveCount(0);
-          if(attempt===3) await expect(page.getByText('힌트: 앞면의 칸을 세어 보세요.',{exact:true})).toBeVisible();
+          if(attempt<3) await expect(page.getByText('정답: 9개',{exact:true})).toHaveCount(0);
+          if(attempt===2) await expect(page.getByText('힌트: 앞면의 칸을 세어 보세요.',{exact:true})).toBeVisible();
         }
         await expect(page.getByText("정답: 9개",{exact:true})).toBeVisible();
         assertCondition(!(await textVisible(page, "정답 모양대로 다시 쌓기")), "숫자 문제에 재구성 단계가 표시됩니다.");
@@ -560,10 +560,10 @@ async function main() {
             await page.getByText(p.title,{exact:true}).waitFor({state:'visible'});
             await page.getByText(p.prompt,{exact:true}).waitFor({state:'visible'});
             if(p.given.projections?.front) {
-              const table=page.getByRole('table',{name:'앞에서 본 조건',exact:true});
+              const table=page.getByRole('table',{name:'앞에서 본 모양',exact:true});
               await expect(table).toBeVisible();
               for(let y=0;y<p.given.projections.front.length;y++) for(let x=0;x<p.given.projections.front[y].length;x++) {
-                const cell=table.getByRole('button',{name:`앞에서 본 조건 ${y+1}행 ${x+1}열`,exact:true});
+                const cell=table.getByRole('button',{name:`앞에서 본 모양 ${y+1}행 ${x+1}열`,exact:true});
                 await expect(cell).toBeVisible();
                 await expect(cell).toHaveAttribute('aria-pressed',String(p.given.projections.front[y][x]));
               }
@@ -574,7 +574,8 @@ async function main() {
             else if(p.answer.kind==='count') await page.locator('input[inputmode="numeric"]').fill(String(p.answer.value));
             if(index===2 && p.answer.kind==='count') {
               await page.getByRole('button',{name:'① 개념 배우기',exact:true}).click();
-              await page.getByRole('button',{name:'③ 선택 연습으로 이동',exact:true}).click();
+              // Completed required work resumes the current practice route automatically.
+              await expect(page).toHaveURL(/\/lesson\/5\/practice$/);
               await expect(page.getByText(p.title,{exact:true})).toBeVisible();
               await expect(page.locator('input[inputmode="numeric"]')).toHaveValue(String(p.answer.value));
               await page.reload();
@@ -592,7 +593,7 @@ async function main() {
             comparison.push({index:index+1,problemId:p.id,templateId:p.templateId,seed:p.seed,version:p.generatorVersion,prompt:p.prompt,status:'PASS',screenshot});
             if(index<lesson5Set.length-1) await page.getByRole('button',{name:'다음 문제',exact:true}).click();
           }
-          await page.getByRole('button',{name:'차시 결과 보기',exact:true}).click();
+          await page.getByRole('button',{name:'학습 완료',exact:true}).click();
           await expect(page).toHaveURL(/\/world$/);
           await page.getByRole('button',{name:'나가기',exact:false}).click();
           await page.goto(`${baseUrl}/?class=QA`);
@@ -614,13 +615,18 @@ async function main() {
         const first=lesson5Set[0];
         await expect(page.getByText(first.title,{exact:true})).toBeVisible();
         await expect(page.getByRole('button',{name:'정답 확인',exact:true})).toBeEnabled();
+        if(first.answer.kind==='choice') await page.getByRole('button',{name:`${first.answer.index+1}. ${first.choices[first.answer.index]}`,exact:true}).click();
+        else if(first.answer.kind==='count') await page.getByPlaceholder('전체 개수').fill(String(first.answer.value));
         const pending=page.waitForResponse(r=>r.request().postDataJSON()?.action==='attempt');
         void pending.catch(()=>undefined);
         await page.getByRole('button',{name:'정답 확인',exact:true}).click();
-        await page.getByRole('button',{name:'다음',exact:true}).click();
+        const next=page.getByRole('button',{name:'다음 문제',exact:true});
+        await expect(next).toBeDisabled();
+        await pending;
+        await expect(next).toBeEnabled();
+        await next.click();
         await expect(page.getByText(lesson5Set[1].title,{exact:true})).toBeVisible();
         await page.locator('input[inputmode="numeric"]').fill('7');
-        await pending;
         await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
         await expect(page.locator('input[inputmode="numeric"]')).toHaveValue('7');
         await expect(page.getByText('오답 수: 0',{exact:true})).toBeVisible();
@@ -657,7 +663,8 @@ async function main() {
         await waitForStudentPage(page);
         await expect(page.getByText("① 개념 배우기",{exact:false}).first()).toBeVisible();
         await expect(page.getByText("안내된 탐구",{exact:false}).first()).toBeVisible();
-        await expect(page.getByText("직접 해 보기",{exact:false}).first()).toBeVisible();
+        await page.getByRole('button',{name:'앞 모양 확인',exact:true}).click();
+        await expect(page.getByRole('table',{name:'앞 투영',exact:true})).toBeVisible();
         await page.getByRole("button", { name: "② 문제 풀기 시작", exact: true }).click();
         await waitForStudentPage(page);
         assertCondition(page.url().endsWith("/lesson/3/solve"), "문제 풀기 페이지 URL로 이동하지 않았습니다.");
@@ -669,7 +676,7 @@ async function main() {
         await page.getByRole("button", { name: "2. 두 번째", exact: true }).click();
         await page.getByRole("button", { name: "정답 확인", exact: true }).click();
         await expect(page.getByText("개념 단계 문항",{exact:false}).first()).toBeVisible();
-        await page.getByRole("button", { name: "문제 풀기 시작", exact: true }).click();
+        await page.getByRole("button", { name: "다음 단계", exact: true }).click();
         await expect(page.getByText("확인 단계 문항",{exact:true})).toBeVisible();
       }}));
     } finally {

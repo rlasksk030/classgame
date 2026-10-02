@@ -1,0 +1,108 @@
+{
+  "verifiedSourceBase": "37c835f9873eb56bf4f26e658255801641ed6602 + PR audit patch",
+  "environment": "Local synthetic identities, real PostgreSQL/PGlite and Chromium; no production writes",
+  "unit": {
+    "passed": 611,
+    "failed": 0,
+    "skipped": 0
+  },
+  "security": {
+    "passed": 1,
+    "failed": 0
+  },
+  "e2e": {
+    "passed": 42,
+    "failed": 0
+  },
+  "qaLocal": {
+    "counts": {
+      "PASS": 16,
+      "FAIL": 0,
+      "BLOCKED": 0,
+      "NOT_RUN": 0
+    },
+    "cases": [
+      {
+        "id": "T01-l3-triple-grid",
+        "status": "PASS"
+      },
+      {
+        "id": "T02-l12-triple-grid",
+        "status": "PASS"
+      },
+      {
+        "id": "T03-l5-choice",
+        "status": "PASS"
+      },
+      {
+        "id": "T04-l5-hidden-none-count",
+        "status": "PASS"
+      },
+      {
+        "id": "T05-number-reveal",
+        "status": "PASS"
+      },
+      {
+        "id": "T06-stage-position",
+        "status": "PASS"
+      },
+      {
+        "id": "T07-builder-drag",
+        "status": "PASS"
+      },
+      {
+        "id": "T08-builder-touch",
+        "status": "PASS"
+      },
+      {
+        "id": "T09-architecture-10x10",
+        "status": "PASS"
+      },
+      {
+        "id": "T10-architecture-restore",
+        "status": "PASS"
+      },
+      {
+        "id": "T11-grid-shape-orientation",
+        "status": "PASS"
+      },
+      {
+        "id": "T14-lesson5-set35",
+        "status": "PASS"
+      },
+      {
+        "id": "T15-late-grade",
+        "status": "PASS"
+      },
+      {
+        "id": "T16-old-set-replacement",
+        "status": "PASS"
+      },
+      {
+        "id": "T13-learn-stage-page",
+        "status": "PASS"
+      },
+      {
+        "id": "T12-completion-navigation",
+        "status": "PASS"
+      }
+    ]
+  },
+  "staticChecks": {
+    "typecheck": "PASS",
+    "edge": "PASS",
+    "lint": "PASS",
+    "build": "PASS"
+  },
+  "advisorsLocal": "NOT_RUN: no local Supabase at 127.0.0.1:54322",
+  "runtimeCopyNote": "Same package-lock; source copied to /private/tmp/teacher-required-progress-verify. QA git metadata unavailable in copy. Source file digests below identify the tested input.",
+  "sourceSha256": {
+    "package-lock.json": "ca4ee32282ea55b0603debf744858ab3cf1a87f1cef21e88f2d106cd9a154850",
+    "scripts/local-browser-qa.ts": "5ee2ddbde67cd805a2e475118045750efad93863dc9b9116031f9450fc0a7fe7",
+    "supabase/functions/_shared/activities.ts": "75a83181513371be844c32aaff9399cd020d006d4f9d1574d07039aab1135342",
+    "supabase/migrations/20261002104459_live_v4_compatibility.sql": "c6cfafaed295d9fd89f03f806aff8321dac07b9d41f8a8050b9a58d4839d44dd",
+    "tests/live-v4-compatibility.test.ts": "9d9b6c0d7a5480057de0f3c5b9e9ae346f138e17135c9ef4c7c67feb22a827b4",
+    "tests/support/live-v4-db.ts": "bda4fd0cae7ed5902b668d0f970258e8f2986479b8bf4e1a165d0fac2e833164",
+    "tests/fixtures/live-v4-schema.json": "85abbee8ab6a880a350b16650417cbdb6f894dbf99bae9f0ae83c5dea79a23e7"
+  }
+}

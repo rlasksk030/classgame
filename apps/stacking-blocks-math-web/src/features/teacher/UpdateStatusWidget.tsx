@@ -21,7 +21,7 @@ import { markInstallerResumeUpdate } from "../../lib/installer";
  * click, starts the same OAuth authorize redirect /setup uses, but first
  * marks (sessionStorage) that /setup should finish the update and send the
  * teacher straight back here instead of stranding them in the install
- * wizard (see the resume effect in SetupPage.tsx).
+ * wizard (after cookie status and update verification in SetupPage.tsx).
  */
 
 type WidgetState =
