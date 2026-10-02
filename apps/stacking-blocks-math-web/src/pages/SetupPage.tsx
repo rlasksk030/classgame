@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 import {
@@ -11,8 +11,9 @@ import {
   validateRuntimeSupabaseConfig,
   type RuntimeSupabaseConfig,
 } from "../lib/config";
-import { clearInstallerProgress, consumeInstallerResumeUpdate, getOrCreatePendingInstallationId, readInstallerProgress, saveInstallerProgress, type InstallerStep } from "../lib/installer";
+import { clearInstallerProgress, hasInstallerResumeUpdate, clearInstallerResumeUpdate, getOrCreatePendingInstallationId, readInstallerProgress, saveInstallerProgress, type InstallerStep } from "../lib/installer";
 import { getConfiguredInstallerClient, InstallerClientError, type InstallerAccessibleProject, type InstallerRemoteStatus, type InstallerStatusResponse } from "../lib/installerClient";
+import { bindInstallerOAuthProject, completeInstallerReconnect, verifyInstallerSession, type VerifiedInstallerSession } from "../lib/installerReconnect";
 import { getSupabase } from "../lib/supabase";
 import {
   clearStudentToken,
@@ -62,17 +63,23 @@ function installerStatusLabel(status: InstallerRemoteStatus): string {
 
 export default function SetupPage() {
   const navigate = useNavigate();
+  const setupActive = useRef(true);
+  useEffect(() => {
+    setupActive.current = true;
+    return () => { setupActive.current = false; };
+  }, []);
   const [returnToTeacher] = useState(() => {
     // Exact allowlist; preserve only this route across the existing OAuth redirect.
     const requested = new URLSearchParams(window.location.search).get("returnTo") === "/teacher";
     try {
       if (requested) sessionStorage.setItem("stacking-teacher-return", "/teacher");
-      return requested || sessionStorage.getItem("stacking-teacher-return") === "/teacher";
+      return requested || hasInstallerResumeUpdate() || sessionStorage.getItem("stacking-teacher-return") === "/teacher";
     } catch { return requested; }
   });
   const finishTeacherReconnect = () => {
-    if (!returnToTeacher) return false;
+    if (!returnToTeacher || !setupActive.current) return false;
     try { sessionStorage.removeItem("stacking-teacher-return"); } catch { /* Storage may be unavailable. */ }
+    clearInstallerResumeUpdate();
     navigate("/teacher", { replace: true });
     return true;
   };
@@ -83,6 +90,9 @@ export default function SetupPage() {
   const [publishableKey, setPublishableKey] = useState(current?.supabasePublishableKey ?? "");
   const [step, setStep] = useState<InstallerStep>(() => returnToTeacher ? 3 : readInstallerProgress(installationId)?.step ?? 1);
   const [connectionVerified, setConnectionVerified] = useState(Boolean(current));
+  const [freshInstallerSession, setFreshInstallerSession] = useState<VerifiedInstallerSession | null>(null);
+  const oauthDiscoveryStarted = useRef(false);
+  const bindInFlight = useRef(false);
   const [teacherSignedIn, setTeacherSignedIn] = useState(false);
   const [teacherEmail, setTeacherEmail] = useState("");
   const [teacherPassword, setTeacherPassword] = useState("");
@@ -135,7 +145,8 @@ export default function SetupPage() {
   };
 
   useEffect(() => {
-    if (!installerClient) return;
+    if (!installerClient || oauthDiscoveryStarted.current) return;
+    oauthDiscoveryStarted.current = true;
     const params = new URLSearchParams(window.location.search);
     const justGranted = params.get("oauth") === "granted";
     if (justGranted) {
@@ -148,6 +159,12 @@ export default function SetupPage() {
       // through THIS grant must run regardless of what connectionVerified
       // says, or a fresh OAuth round trip silently does nothing.
       void loadOAuthProjects(true).finally(() => setOauthCallbackPending(false));
+      return;
+    }
+    if (returnToTeacher) {
+      // A reload may retain a grant OR an already-bound cookie. Local config
+      // alone cannot resume an update or navigate away.
+      void loadOAuthProjects(true, true);
       return;
     }
     if (connectionVerified || useTemporaryPat) return;
@@ -189,35 +206,24 @@ export default function SetupPage() {
     // grant -> project discovery -> bind flow above and misreport a brand
     // new OAuth grant as an expired session before binding ever gets a
     // chance to run.
-    if (oauthCallbackPending || (step !== 3 && step !== 4) || !connectionVerified || !installerClient) return;
+    if (oauthCallbackPending || returnToTeacher || (step !== 3 && step !== 4) || !connectionVerified || !installerClient) return;
     let active = true;
     void checkInstallerConnection(() => active);
     return () => { active = false; };
-  }, [oauthCallbackPending, connectionVerified, installerClient, runtimeConfig?.supabasePublishableKey, step, supabaseUrl, vite.environment]);
+  }, [oauthCallbackPending, returnToTeacher, connectionVerified, installerClient, runtimeConfig?.supabasePublishableKey, step, supabaseUrl, vite.environment]);
 
-  // Reconnect started from the teacher-page update widget (not this wizard):
-  // once the OAuth round trip above has finished rebinding the same project
-  // (oauthCallbackPending false, connectionVerified true), finish the update
-  // that was interrupted and send the teacher straight back to /teacher --
-  // never make them walk this step-by-step wizard for a routine reconnect.
-  useEffect(() => {
-    if (oauthCallbackPending || !connectionVerified || !installerClient) return;
-    if (!consumeInstallerResumeUpdate()) return;
-    let active = true;
-    void (async () => {
-      try { await installerClient.update(installerTarget()); }
-      catch { /* best effort -- the teacher page re-checks status itself and will show its own error */ }
-      finally { if (active) navigate("/teacher"); }
-    })();
-    return () => { active = false; };
-  }, [oauthCallbackPending, connectionVerified, installerClient]);
+  const finishVerifiedReconnect = async (verified: VerifiedInstallerSession) => {
+    if (!installerClient || !returnToTeacher || !setupActive.current) return;
+    await completeInstallerReconnect(installerClient, verified);
+    finishTeacherReconnect();
+  };
 
   const connect = async (event: FormEvent) => {
     event.preventDefault(); setError(null); setMessage(null);
     const config: RuntimeSupabaseConfig = { installationId: installationId.trim(), supabaseUrl: supabaseUrl.trim(), supabasePublishableKey: publishableKey.trim() };
     if (!validateRuntimeSupabaseConfig(config)) { setError("HTTPS 형식의 Supabase URL, 공개 Publishable Key, 설치 ID를 확인해 주세요."); return; }
     setBusy(true);
-    try { await checkSupabaseConnection(config.supabaseUrl, config.supabasePublishableKey); saveRuntimeSupabaseConfig(config); if (finishTeacherReconnect()) return; setConnectionVerified(true); setPublishableKey(""); setMessage("Supabase 연결을 확인했어요."); persistStep(4); }
+    try { await checkSupabaseConnection(config.supabaseUrl, config.supabasePublishableKey); saveRuntimeSupabaseConfig(config); if (!hasInstallerResumeUpdate() && finishTeacherReconnect()) return; setConnectionVerified(true); setPublishableKey(""); setMessage("Supabase 연결을 확인했어요."); persistStep(4); }
     catch (reason) { setError(reason instanceof Error ? reason.message : "Supabase 연결을 확인하지 못했습니다."); }
     finally { setBusy(false); }
   };
@@ -263,14 +269,24 @@ export default function SetupPage() {
   const recheckInstallerConnection = async () => {
     if (checkingConnection) return;
     setCheckingConnection(true);
-    try { await checkInstallerConnection(); } finally { setCheckingConnection(false); }
+    try {
+      if (returnToTeacher && installerClient) {
+        const verified = await verifyInstallerSession(installerClient, freshInstallerSession?.target ?? installerTarget());
+        await checkSupabaseConnection(verified.target.projectUrl, verified.target.publishableKey ?? "");
+        setFreshInstallerSession(verified);
+        await finishVerifiedReconnect(verified);
+      } else await checkInstallerConnection();
+    } catch (reason) { installerFailure(reason); }
+    finally { setCheckingConnection(false); }
   };
   const installerFailure = (reason: unknown) => {
     if (reason instanceof InstallerClientError && reason.code === "INSTALLER_PROJECT_NOT_ALLOWED") {
       setError("선택한 프로젝트에 대한 설치 권한이 없어요. 다른 프로젝트를 선택하거나 다시 연결해 주세요.");
     } else if (reason instanceof InstallerClientError && reason.status === 401) {
       setInstallerStatus(null);
-      setError("설치 권한이 없거나 만료되었어요. 다시 연결하면 완료된 단계부터 이어갑니다.");
+      setError("연결 세션이 저장되지 않았거나 권한이 만료되었습니다. Supabase를 다시 연결해 주세요.");
+    } else if (reason instanceof InstallerClientError && ["INSTALLER_TARGET_MISMATCH", "INSTALLER_PUBLIC_CONFIG_MISSING", "INSTALLER_STATUS_UNVERIFIED", "INSTALLER_UPDATE_INCOMPLETE", "INSTALLER_UPDATE_UNVERIFIED"].includes(reason.code)) {
+      setError(reason.message);
     } else if (reason instanceof InstallerClientError && reason.code === "INSTALLER_BUSY") {
       setError("다른 창에서 이 프로젝트를 설치 중이에요. 잠시 후 상태를 확인해 주세요.");
     } else setError("설치 요청을 완료하지 못했어요. 상태 확인 후 이어서 복구해 주세요. 진단: " + (reason instanceof InstallerClientError ? reason.code : "INSTALLER_REQUEST_FAILED"));
@@ -318,7 +334,7 @@ export default function SetupPage() {
   /** OAuth grant list is re-fetched on every mount (not just the one-time
    * redirect back) so a plain reload while the grant cookie is still live
    * restores the picker instead of stranding the teacher on a dead screen. */
-  const loadOAuthProjects = async (autoBind: boolean) => {
+  const loadOAuthProjects = async (autoBind: boolean, restoreSession = false) => {
     if (!installerClient) return;
     console.log("PROJECTS_LOAD_STARTED");
     setBusy(true); setError(null);
@@ -345,28 +361,45 @@ export default function SetupPage() {
     } catch (reason) {
       // A 401 here just means no OAuth grant is active yet (or it expired) --
       // that is the normal state before connecting, not an error to surface.
-      if (!(reason instanceof InstallerClientError && reason.status === 401)) {
+      if (restoreSession && reason instanceof InstallerClientError && reason.code === "INSTALLER_OAUTH_GRANT_REQUIRED" && current) {
+        try {
+          const verified = await verifyInstallerSession(installerClient, installerTarget());
+          await checkSupabaseConnection(current.supabaseUrl, current.supabasePublishableKey);
+          if (!setupActive.current) return;
+          setFreshInstallerSession(verified);
+          await finishVerifiedReconnect(verified);
+        } catch (failure) { installerFailure(failure); }
+      } else if (returnToTeacher || oauthCallbackPending) {
+        installerFailure(reason);
+      } else if (!(reason instanceof InstallerClientError && reason.status === 401)) {
         setError("Supabase 연결은 됐지만 프로젝트 목록을 불러오지 못했습니다. 다시 연결해 주세요.");
       }
     } finally { setBusy(false); }
   };
   const bindOAuthProject = async (project: InstallerAccessibleProject) => {
-    if (!installerClient || busy) return;
-    setBusy(true); setError(null); setMessage(null);
+    // Discovery owns busy=true too: using that flag as a guard here can
+    // silently skip auto-bind. A separate ref excludes only duplicate binds.
+    if (!installerClient || bindInFlight.current) return;
+    bindInFlight.current = true;
+    setBusy(true); setError(null); setMessage(null); setFreshInstallerSession(null);
     try {
-      const projectUrl = `https://${project.ref}.supabase.co`;
-      const result = await installerClient.createSession({ projectRef: project.ref, projectUrl, release: "spatial-math-v1" });
-      console.log("INSTALLER_SESSION_READY");
-      const config: RuntimeSupabaseConfig = { installationId: installationId.trim(), supabaseUrl: projectUrl, supabasePublishableKey: result.publishableKey ?? "" };
-      saveRuntimeSupabaseConfig(config);
-      if (finishTeacherReconnect()) return;
-      setSupabaseUrl(projectUrl); setConnectionVerified(true); setOauthAuthorized(true); setOauthProjects(null);
+      const verified = await bindInstallerOAuthProject(installerClient, project, installationId.trim(),
+        returnToTeacher && current ? projectRefFromUrl(current.supabaseUrl) : null, checkSupabaseConnection);
+      if (!setupActive.current) return;
+      saveRuntimeSupabaseConfig(verified.config);
+      setSupabaseUrl(verified.config.supabaseUrl); setConnectionVerified(true); setOauthAuthorized(true); setOauthProjects(null);
+      setFreshInstallerSession(verified);
+      setInstallerStatus(verified.status.status); setInstallerDetails(verified.status); setInstallerStatusError(false);
       setBoundProjectLabel(project.name ?? project.ref);
       console.log("PROJECT_AUTO_BIND_SUCCESS");
-      setMessage(result.publishableKey ? "선택한 프로젝트에 연결하고 설치 권한도 받았어요." : "선택한 프로젝트에 연결했지만 공개 키는 자동으로 받지 못했어요. 학생 접속에 필요하니 연결 화면에서 직접 입력해 주세요.");
+      if (returnToTeacher) {
+        await finishVerifiedReconnect(verified);
+        return;
+      }
+      setMessage("선택한 프로젝트에 연결하고 설치 권한도 받았어요.");
       persistStep(4);
     } catch (reason) { installerFailure(reason); }
-    finally { setBusy(false); }
+    finally { bindInFlight.current = false; setBusy(false); }
   };
   const selectOAuthProject = () => {
     const project = oauthProjects?.find((item) => item.ref === selectedProjectRef);
@@ -523,6 +556,10 @@ export default function SetupPage() {
             </div> : <p className="notice">이 화면에 설치 서버가 연결되지 않았습니다. 아래 개발자용 수동 연결을 사용해 주세요.</p>}
           </>}
           {error && <p className="error" role="alert">{error}</p>}
+          {returnToTeacher && error && <div className="toolbar-row">
+            <button type="button" className="btn" disabled={busy || checkingConnection} onClick={() => void recheckInstallerConnection()}>연결 세션 다시 확인</button>
+            <button type="button" className="btn" disabled={busy || authorizing} onClick={startOAuthConnect}>Supabase 다시 연결</button>
+          </div>}
           <details className="installer-advanced" open={useTemporaryPat}>
             <summary>개발자용 수동 연결</summary>
             <form className="stack" onSubmit={connect}>
