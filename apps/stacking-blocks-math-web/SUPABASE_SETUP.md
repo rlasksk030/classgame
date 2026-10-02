@@ -1,5 +1,9 @@
 # Supabase 실제 연결
 
+## 2026-10-02 운영 업데이트 우선 지침
+
+기존 `lpjpwrgzwumnikroledh`의 migration history는 비어 있지만 16개 테이블과 student-api v4/student-auth v7이 존재한다. 아래 과거의 순차 적용/이력 repair 안내를 이 프로젝트에 바로 실행하지 않는다. [PR #3 운영 전 감사](qa/predeploy/2026-10-02_수학공간과입체_PR3_운영전감사.md)의 catalog 대조와 단독 `20261002104459_live_v4_compatibility.sql` 적용 계획이 우선한다. 운영 DB/함수/프런트에는 아직 적용하지 않았다. 현재 두 함수의 verify_jwt=false는 read-only metadata로 확인했다. APP_SESSION_SECRET은 변경하지 않는다. 프런트 rollback deployment/SHA 확인 전에는 배포를 시작하지 않는다.
+
 ## 현재 적용 상태 (2026-09-11)
 
 프로젝트: stacking-blocks-math / Seoul / `lpjpwrgzwumnikroledh`.

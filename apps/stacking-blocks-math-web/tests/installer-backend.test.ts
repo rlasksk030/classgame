@@ -257,11 +257,12 @@ test("B30 math manifest is isolated from interview capabilities and follows migr
 
 test("B31 math installer plan loads checked-in migration and function sources", async () => {
   const plan = await readMathInstallerPlan(fileURLToPath(new URL("..", import.meta.url)));
-  assert.equal(plan.migrations.length, 23);
-  assert.deepEqual(plan.migrations.slice(-3).map(m => m.name), [
+  assert.equal(plan.migrations.length, 24);
+  assert.deepEqual(plan.migrations.slice(-4).map(m => m.name), [
     '20261002085049_required_lesson_completion.sql',
     '20261002094201_progress_contract_backfill.sql',
     '20261002094642_atomic_progress_reset.sql',
+    '20261002104459_live_v4_compatibility.sql',
   ]);
   assert.deepEqual(plan.functions.map((item) => item.slug), ["student-auth", "student-api"]);
   assert.ok(plan.functions.every((item) => item.files[0].path === `supabase/functions/${item.slug}/index.ts` && item.files[0].content.includes("Deno.serve")));
