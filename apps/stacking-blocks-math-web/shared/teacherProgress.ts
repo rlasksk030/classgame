@@ -7,6 +7,8 @@
  * lives here instead of inline in index.ts.
  */
 
+import { lessonCompleted, type ProgressProblemRow } from "./lessonProgression.ts";
+
 export type LessonProgressState = "not_started" | "in_progress" | "complete";
 
 export interface ProgressSourceRow {
@@ -16,6 +18,9 @@ export interface ProgressSourceRow {
 }
 
 export interface AttemptSourceRow {
+  problem_id: string;
+  /** Metadata of this attempted problem, joined in the same bulk query. */
+  order_index?: number;
   lesson: number;
   wrong_count: number;
   completed: boolean;
@@ -41,23 +46,24 @@ export function summarizeStudentProgress(
   studentNo: number | null,
   progress: ProgressSourceRow[],
   attempts: AttemptSourceRow[],
+  problems: ReadonlyArray<ProgressProblemRow>,
 ): StudentProgressSummary {
   const progressByLesson = new Map(progress.map((row) => [row.lesson, row]));
+  const completedIds = new Set(attempts.filter(row => row.completed && row.problem_id).map(row => row.problem_id!));
 
   const lessonStates: LessonProgressState[] = Array.from({ length: 12 }, (_, index) => {
     const lesson = index + 1;
-    if (progressByLesson.get(lesson)?.completed) return "complete";
+    if (lessonCompleted(lesson, progressByLesson.get(lesson)?.completed ?? false, problems, completedIds)) return "complete";
     if (attempts.some((a) => a.lesson === lesson)) return "in_progress";
     return "not_started";
   });
 
   const completedLessons = lessonStates.filter((s) => s === "complete").length;
   const wrongCount = attempts.reduce((sum, a) => sum + a.wrong_count, 0);
-  const completedAttempts = attempts.filter((a) => a.completed).length;
-  // "선택 연습" = 각 차시를 완료시킨 최소 1건을 넘어서는 완료 시도 수 --
-  // 정확한 필수/선택 문제 분류(학생별 생성 연습문제 뱅크 조회)는 N+1을
-  // 유발하므로, 이미 가진 데이터로 계산 가능한 근사값을 쓴다.
-  const optionalPracticeCount = Math.max(0, completedAttempts - completedLessons);
+  const orderByProblem = new Map(problems.map(problem => [problem.id, problem.order_index]));
+  const optionalPracticeCount = new Set(attempts.filter(attempt =>
+    attempt.completed && attempt.problem_id && (attempt.order_index ?? orderByProblem.get(attempt.problem_id) ?? 0) > 2,
+  ).map(attempt => attempt.problem_id)).size;
 
   const activityTimestamps = [
     ...attempts.map((a) => a.updated_at),

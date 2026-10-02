@@ -1,4 +1,4 @@
-import { requiredSolveIds } from '../../../shared/lessonProgression.ts';
+import { lessonCompleted, problemStage, requiredSolveComplete } from '../../../shared/lessonProgression.ts';
 import { activityRequest } from "../_shared/activities.ts";
 import { canonicalize, validStructure, toHeightMap } from "../../../shared/blocks.ts";
 import { makeChallengeCard, validatePeerBlocks, gradePeer, type ChallengeCard, type ChallengeCardType } from "../../../shared/phase4.ts";
@@ -23,6 +23,7 @@ import { summarizeStudentLiveStatus, type SessionSourceRow } from "../../../shar
 import { synthesizeBuildFromViewsGhost } from "../../../shared/buildAnswerReveal.ts";
 import { summarizeLessonResults, type ResultAttemptRow, type ResultProgressRow, type ResultProblemRow } from "../../../shared/teacherResults.ts";
 import { serviceClient, requireTeacher, teacherOwnsClass } from "../_shared/db.ts";
+import { readAllRows } from "../_shared/pagination.ts";
 import {
   fail,
   handlePreflight,
@@ -224,7 +225,7 @@ function parseProblemRow(row: DbProblemRow | null) {
 
   return {
     id: row.id,
-    stage: Number(row.order_index ?? 0) <= 1 ? "concept" : Number(row.order_index ?? 0) === 2 ? "check" : "more",
+    stage: problemStage(Number(row.order_index ?? 0)),
     hasImage: Boolean(row.image_path),
     templateId: typeof generator?.templateId === "string" ? generator.templateId : undefined,
     seed: Number.isInteger(generator?.seed) ? Number(generator?.seed) : undefined,
@@ -709,17 +710,19 @@ Deno.serve(async (req: Request) => {
           .select("lesson, completed, stars, practice_seed")
           .eq("student_id", studentSession.studentId),
         db.from("sb_student_rewards").select("total_xp,total_stars,badges,streak,equipped_material,intro_theme").eq("student_id", studentSession.studentId).maybeSingle(),
-        db
+        readAllRows((from, to) => db
           .from("sb_problems")
           .select(
             "lesson,problem_type,title,prompt,grid_width,grid_depth,max_height,given_blocks,start_blocks,given,choices,answer,grading_mode,difficulty,xp,hint,explanation,order_index,active,id,class_id,code",
           )
-          .or(`class_id.eq.${studentSession.classId},class_id.is.null`),
+          .or(`class_id.eq.${studentSession.classId},class_id.is.null`)
+          .eq("active", true).order("id").range(from, to)),
       ]);
 
       if (classRowsRes.error) return fail(500, "CLASS_ERROR", "반 정보를 읽지 못했습니다.");
       const baseClass = classRowsRes.data as ClassRow | null;
       if (!baseClass) return fail(404, "CLASS_NOT_FOUND", "반 정보를 못 찾았어요.");
+      if (progressRes.error || problemRowsRes.error) return fail(500, "PROGRESS_LOAD_FAILED", "학습 진도를 불러오지 못했어요.");
 
       const lessonSettings = lessonSettingRes.error
         ? []
@@ -744,15 +747,18 @@ Deno.serve(async (req: Request) => {
         streak: 0, equipped_material: 'wood' as RewardMaterial, intro_theme: 'blueprint' as RewardTheme,
       };
 
-      const countByLesson = countProblemsFromRows(
-        ((problemRowsRes.data as unknown[]) as DbProblemRow[])?.filter((row) => (row as DbProblemRow).active && belongsToStudentPractice(row as DbProblemRow,studentSession.studentId,new Map((progressRes.data??[]).filter(p=>p.practice_seed!==null).map(p=>[Number(p.lesson),Number(p.practice_seed)])))) ?? [],
-      );
+      const savedSeeds = new Map((progressRes.data ?? []).filter(p => p.practice_seed !== null).map(p => [Number(p.lesson), Number(p.practice_seed)]));
+      const visibleProblems = ((problemRowsRes.data as unknown[]) as DbProblemRow[]).filter(row => row.active && belongsToStudentPractice(row, studentSession.studentId, savedSeeds));
+      const visibleProblemIds = new Set(visibleProblems.map(problem => problem.id));
+      const countByLesson = countProblemsFromRows(visibleProblems);
 
       const [attempts, challengeXp, projectState] = await Promise.all([
-        db.from("sb_problem_attempts").select("lesson,completed").eq("student_id",studentSession.studentId),
+        readAllRows((from, to) => db.from("sb_problem_attempts").select("problem_id,lesson,completed").eq("student_id",studentSession.studentId).order("id").range(from, to)),
         db.from("sb_challenge_solves").select("xp").eq("student_id",studentSession.studentId),
         db.from("sb_projects").select("submitted").eq("student_id",studentSession.studentId).maybeSingle(),
       ]);
+      if (attempts.error) return fail(500, "PROGRESS_LOAD_FAILED", "저장된 풀이 기록을 불러오지 못했어요.");
+      const completedIds = new Set(attempts.data.filter(attempt => attempt.completed).map(attempt => String(attempt.problem_id)));
       const activityXp=(challengeXp.data??[]).reduce((sum,row)=>sum+Number(row.xp),0)+(projectState.data?.submitted?30:0);
       const lessons = Array.from({ length: 12 }, (_, index) => {
         const lesson = index + 1;
@@ -763,14 +769,15 @@ Deno.serve(async (req: Request) => {
 
         const settingCount = Number(finalLessonSettings.find((item) => Number(item.lesson) === lesson)?.practice_count);
         const totalProblems = lesson>=9 && lesson<=11 ? 1 : Math.max(countByLesson[lesson] ?? 0, [5,10,15,20].includes(settingCount) ? settingCount : recommendedPracticeCount(lesson));
-        const completedProblems = progress?.completed ? totalProblems : (attempts.data??[]).filter(a=>a.lesson===lesson&&a.completed).length;
+        const completed = lessonCompleted(lesson, Boolean(progress?.completed), visibleProblems, completedIds);
+        const completedProblems = lesson >= 9 && lesson <= 11 ? Number(completed) : new Set(attempts.data.filter(a => a.lesson === lesson && a.completed && visibleProblemIds.has(a.problem_id)).map(a => a.problem_id)).size;
         return {
           lesson,
           locked: Boolean(setting.locked),
           totalProblems,
           completedProblems,
           stars: Number(progress?.stars ?? 0),
-          completed: Boolean(progress?.completed),
+          completed,
         };
       });
 
@@ -781,7 +788,7 @@ Deno.serve(async (req: Request) => {
           rewards: {
             totalXp: Number(reward.total_xp ?? 0)+activityXp,
             totalStars: Number(reward.total_stars ?? 0),
-            badges: progressRows.filter(p=>p.completed).map(p=>`${p.lesson}차시 완료`),
+            badges: lessons.filter(lesson => lesson.completed).map(lesson => `${lesson.lesson}차시 완료`),
             streak: Number(reward.streak ?? 0),
             equippedMaterial: reward.equipped_material ?? 'wood',
             introTheme: reward.intro_theme ?? 'blueprint',
@@ -869,15 +876,15 @@ Deno.serve(async (req: Request) => {
       }
       const parsed=(problemRows as DbProblemRow[]|null)?.map(row=>parseProblemRow(row)).filter(Boolean)??[];
       const merged = [...parsed];
-      const requiredIds=requiredSolveIds(parsed.filter((p): p is NonNullable<typeof p> => p !== null));
       // 필수 학습 흐름(개념+문제 풀기, stage!=='more') 전체의 완료 여부를 한 번에 조회한다 --
       // 이어풀기 계산과 requiredComplete가 같은 완료 판정(서버의 sb_problem_attempts.completed)을
       // 공유하므로, "완료로 보는 기준"이 두 값 사이에서 어긋날 수 없다.
       const nonMoreProblems=parsed.filter((p): p is NonNullable<typeof p> => p !== null && p.stage!=='more');
       const nonMoreIds=nonMoreProblems.map(p=>p.id);
-      const {data:nonMoreAttempts}=nonMoreIds.length?await db.from("sb_problem_attempts").select("problem_id,completed").eq("student_id",studentSession.studentId).in("problem_id",nonMoreIds):{data:[] as {problem_id:string;completed:boolean}[]};
+      const {data:nonMoreAttempts,error:nonMoreError}=nonMoreIds.length?await db.from("sb_problem_attempts").select("problem_id,completed").eq("student_id",studentSession.studentId).in("problem_id",nonMoreIds):{data:[] as {problem_id:string;completed:boolean}[],error:null};
+      if (nonMoreError) return fail(500, "PROGRESS_LOAD_FAILED", "저장된 필수 풀이 기록을 불러오지 못했어요.");
       const completedIds=new Set((nonMoreAttempts??[]).filter(row=>row.completed).map(row=>row.problem_id));
-      const requiredComplete=requiredIds.length>0&&requiredIds.every(id=>completedIds.has(id));
+      const requiredComplete=requiredSolveComplete(nonMoreProblems,completedIds);
       const stages={concept:parsed.filter(p=>p?.stage==='concept').length,check:parsed.filter(p=>p?.stage==='check').length,more:parsed.filter(p=>p?.stage==='more').length};
 
       const problems = merged
@@ -1484,13 +1491,14 @@ Deno.serve(async (req: Request) => {
       const studentIds = (studentRows ?? []).map((row) => String(row.id));
       if (studentIds.length === 0) return ok({ students: [] });
 
-      // 학생마다 개별 요청하지 않는다 -- 학급 전체를 테이블당 1회 쿼리로
-      // 가져온 뒤 메모리에서 집계한다 (N+1 금지).
-      const [progressRes, attemptsRes] = await Promise.all([
-        db.from("sb_student_progress").select("student_id,lesson,completed,updated_at").in("student_id", studentIds),
-        db.from("sb_problem_attempts").select("student_id,lesson,wrong_count,completed,updated_at").in("student_id", studentIds),
+      // 학급 전체를 묶어서 읽는다. 1,000행 제한은 페이지로 이어 읽으며
+      // 학생별 쿼리나 다른 학생의 생성 문제 전체 조회는 하지 않는다.
+      const [progressRes, attemptsRes, requiredRes] = await Promise.all([
+        readAllRows((from, to) => db.from("sb_student_progress").select("student_id,lesson,completed,updated_at").in("student_id", studentIds).order("student_id").order("lesson").range(from, to)),
+        readAllRows((from, to) => db.from("sb_problem_attempts").select("student_id,problem_id,lesson,wrong_count,completed,updated_at,sb_problems(order_index)").in("student_id", studentIds).order("id").range(from, to)),
+        readAllRows((from, to) => db.from("sb_problems").select("id,lesson,order_index").or(`class_id.eq.${classId},class_id.is.null`).eq("active", true).eq("order_index", 2).order("id").range(from, to)),
       ]);
-      if (progressRes.error || attemptsRes.error) return fail(500, "PROGRESS_LOAD_FAILED", "진도 정보를 불러오지 못했습니다.");
+      if (progressRes.error || attemptsRes.error || requiredRes.error) return fail(500, "PROGRESS_LOAD_FAILED", "진도 정보를 불러오지 못했습니다.");
 
       const progressByStudent = new Map<string, ProgressSourceRow[]>();
       for (const row of progressRes.data ?? []) {
@@ -1503,7 +1511,10 @@ Deno.serve(async (req: Request) => {
       for (const row of attemptsRes.data ?? []) {
         const sid = String(row.student_id);
         if (!attemptsByStudent.has(sid)) attemptsByStudent.set(sid, []);
+        const problem = Array.isArray(row.sb_problems) ? row.sb_problems[0] : row.sb_problems;
         attemptsByStudent.get(sid)!.push({
+          problem_id: String(row.problem_id),
+          order_index: problem?.order_index,
           lesson: Number(row.lesson),
           wrong_count: Number(row.wrong_count ?? 0),
           completed: Boolean(row.completed),
@@ -1518,6 +1529,7 @@ Deno.serve(async (req: Request) => {
           (student as { student_no?: number | null }).student_no ?? null,
           progressByStudent.get(String(student.id)) ?? [],
           attemptsByStudent.get(String(student.id)) ?? [],
+          requiredRes.data,
         ),
       );
 
@@ -1665,34 +1677,36 @@ Deno.serve(async (req: Request) => {
         return ok({ summary: summarizeLessonResults(lesson ?? 0, totalStudents, [], [], []) });
       }
 
-      const [attemptsRes, progressRes] = await Promise.all([
-        db.from("sb_problem_attempts").select("student_id,problem_id,wrong_count").in("student_id", studentIds).eq("lesson", lesson),
-        db.from("sb_student_progress").select("student_id,completed").in("student_id", studentIds).eq("lesson", lesson),
+      const [attemptsRes, progressRes, requiredRes] = await Promise.all([
+        readAllRows((from, to) => db.from("sb_problem_attempts").select("student_id,problem_id,wrong_count,completed,sb_problems(id,problem_type,code)").in("student_id", studentIds).eq("lesson", lesson).order("id").range(from, to)),
+        readAllRows((from, to) => db.from("sb_student_progress").select("student_id,completed").in("student_id", studentIds).eq("lesson", lesson).order("student_id").range(from, to)),
+        readAllRows((from, to) => db.from("sb_problems").select("id,lesson,order_index").or(`class_id.eq.${classId},class_id.is.null`).eq("active", true).eq("lesson", lesson).eq("order_index", 2).order("id").range(from, to)),
       ]);
-      if (attemptsRes.error || progressRes.error) return fail(500, "RESULTS_LOAD_FAILED", "결과 정보를 불러오지 못했습니다.");
+      if (attemptsRes.error || progressRes.error || requiredRes.error) return fail(500, "RESULTS_LOAD_FAILED", "결과 정보를 불러오지 못했습니다.");
 
       const attemptRows: ResultAttemptRow[] = (attemptsRes.data ?? []).map((a) => ({
         student_id: String(a.student_id),
         problem_id: String(a.problem_id),
         wrong_count: Number(a.wrong_count ?? 0),
       }));
-      const progressRows: ResultProgressRow[] = (progressRes.data ?? []).map((p) => ({
-        student_id: String(p.student_id),
-        completed: Boolean(p.completed),
+      const completedByStudent = new Map<string, Set<string>>();
+      const problemsById = new Map<string, ResultProblemRow>();
+      for (const attempt of attemptsRes.data) {
+        const sid = String(attempt.student_id);
+        if (attempt.completed) {
+          if (!completedByStudent.has(sid)) completedByStudent.set(sid, new Set());
+          completedByStudent.get(sid)!.add(String(attempt.problem_id));
+        }
+        const problem = Array.isArray(attempt.sb_problems) ? attempt.sb_problems[0] : attempt.sb_problems;
+        if (problem) problemsById.set(String(problem.id), { id: String(problem.id), problem_type: parseProblemType(problem.problem_type), code: problem.code ?? null });
+      }
+      const storedProgress = new Map(progressRes.data.map(row => [String(row.student_id), Boolean(row.completed)]));
+      const progressRows: ResultProgressRow[] = studentIds.map(studentId => ({
+        student_id: studentId,
+        completed: lessonCompleted(lesson, storedProgress.get(studentId) ?? false, requiredRes.data, completedByStudent.get(studentId) ?? new Set()),
       }));
 
-      const problemIds = [...new Set(attemptRows.map((a) => a.problem_id))];
-      const problemsRes = problemIds.length
-        ? await db.from("sb_problems").select("id,problem_type,code").in("id", problemIds)
-        : { data: [] as Array<{ id: string; problem_type: string; code: string | null }>, error: null };
-      if (problemsRes.error) return fail(500, "RESULTS_LOAD_FAILED", "문제 정보를 불러오지 못했습니다.");
-      const problemRows: ResultProblemRow[] = (problemsRes.data ?? []).map((p) => ({
-        id: String(p.id),
-        problem_type: parseProblemType(p.problem_type),
-        code: p.code ?? null,
-      }));
-
-      const summary = summarizeLessonResults(lesson, totalStudents, attemptRows, progressRows, problemRows);
+      const summary = summarizeLessonResults(lesson, totalStudents, attemptRows, progressRows, [...problemsById.values()]);
       return ok({ summary });
     }
 
