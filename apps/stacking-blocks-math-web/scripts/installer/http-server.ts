@@ -1,3 +1,5 @@
+import { inspectMigrationState, manualReview } from "./database-state.ts";
+import { functionMatches } from "./orchestrator.ts";
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from "node:http";
 import { createHmac, randomBytes, timingSafeEqual } from "node:crypto";
 
@@ -331,6 +333,7 @@ async function handleRequest(request: IncomingMessage, response: ServerResponse,
       try {
         if (url.pathname === "/api/installer/repair" || url.pathname === "/api/installer/update") {
           const current = await statusFor(session, backend, options.plan);
+          if (current.status === "DRIFT_REQUIRES_REVIEW") throw manualReview();
           const action = maintenanceAction(url.pathname, String(current.status));
           if (action) { sendJson(response, 200, { jobId: session.jobId, status: "COMPLETE", action }); return; }
         }
@@ -345,7 +348,7 @@ async function handleRequest(request: IncomingMessage, response: ServerResponse,
     sendError(response, 404, "INSTALLER_ROUTE_NOT_FOUND", "설치 경로를 찾을 수 없습니다.");
   } catch (error) {
     const detail = error instanceof InstallerError ? error : new InstallerError("INSTALLER_SERVER_ERROR", "target", "설치 실행부에서 오류가 발생했습니다.");
-    const status = detail.code.includes("SESSION") || detail.code.includes("AUTH") ? 401 : detail.code === "PRODUCTION_TARGET_BLOCKED" || detail.code === "INSTALLER_TARGET_MISMATCH" ? 403 : 502;
+    const status = detail.code === "INSTALLER_MANUAL_REVIEW_REQUIRED" ? 409 : detail.code.includes("SESSION") || detail.code.includes("AUTH") ? 401 : detail.code === "PRODUCTION_TARGET_BLOCKED" || detail.code === "INSTALLER_TARGET_MISMATCH" ? 403 : 502;
     sendError(response, status, detail.code, detail.message, detail.stage, detail.upstreamStatus);
   }
 }
@@ -395,21 +398,29 @@ async function statusFor(session: InstallerSession, backend: InstallerBackend, p
   const migrations = (migrationsResult as PromiseFulfilledResult<string[]>).value;
   const secrets = (secretsResult as PromiseFulfilledResult<string[]>).value;
   const functions = (functionsResult as PromiseFulfilledResult<FunctionDeployment[]>).value;
-  const missingMigrations = plan.migrations.filter((item) => !migrations.includes(item.name));
-  const missingFunctions = plan.functions.filter((bundle) => !functions.some((item) => item.slug === bundle.slug && item.hash === bundle.hash));
+  const assessment = await inspectMigrationState(backend, session.target, plan, migrations);
+  const missingMigrations = assessment.migrations.filter((item) => item.status === "PENDING");
+  const missingFunctions = plan.functions.filter((bundle) => !functions.some((item) => functionMatches(item, bundle, Boolean(plan.databaseBaseline))));
   const probes = await Promise.all(plan.functions.map(async (bundle) => {
     if (!functions.some((item) => item.slug === bundle.slug)) return { slug: bundle.slug, status: "MISSING" };
     try { await backend.probeFunction(session.target, bundle.slug); return { slug: bundle.slug, status: "PASS" }; }
     catch { return { slug: bundle.slug, status: "FAIL" }; }
   }));
   const probeFailed = probes.some((probe) => probe.status === "FAIL");
-  const status = missingMigrations.length || !secrets.includes("APP_SESSION_SECRET") ? (migrations.length ? "PARTIAL" : "NEW") : missingFunctions.length ? "UPDATE_REQUIRED" : probeFailed ? "BROKEN" : "INSTALLED";
-  return { status, appVersion: plan.appVersion, schemaVersion: plan.schemaVersion, project: { ref: project.ref, name: project.name, region: project.region, status: project.status }, appliedMigrationCount: plan.migrations.length - missingMigrations.length, requiredMigrationCount: plan.migrations.length, missingMigrations: missingMigrations.map((item) => item.name), secretConfigured: secrets.includes("APP_SESSION_SECRET"), functions: functions.map(({ slug, version, status: functionStatus }) => ({ slug, version, status: functionStatus })), probes };
+  const status = assessment.drift ? "DRIFT_REQUIRES_REVIEW" : missingMigrations.length || !secrets.includes("APP_SESSION_SECRET") ? (migrations.length ? "PARTIAL" : "NEW") : missingFunctions.length ? "UPDATE_REQUIRED" : probeFailed ? "BROKEN" : "INSTALLED";
+  return { status, appVersion: plan.appVersion, schemaVersion: plan.schemaVersion, project: { ref: project.ref, name: project.name, region: project.region, status: project.status }, appliedMigrationCount: assessment.migrations.filter(m => m.status === "APPLIED_BY_HISTORY").length, satisfiedMigrationCount: assessment.migrations.filter(m => m.status === "SATISFIED_BY_STATE").length, migrationStates: assessment.migrations, differences: assessment.differences, requiredMigrationCount: plan.migrations.length, missingMigrations: missingMigrations.map((item) => item.name), secretConfigured: secrets.includes("APP_SESSION_SECRET"), functions: functions.map(({ slug, version, status: functionStatus }) => ({ slug, version, status: functionStatus })), probes };
 }
 
 async function planFor(session: InstallerSession, backend: InstallerBackend, plan: InstallerPlan): Promise<Record<string, unknown>> {
   const [migrations, secrets, functions] = await Promise.all([backend.listAppliedMigrations(session.target), backend.listSecrets(session.target), backend.listFunctions(session.target)]);
-  return { migrations: plan.migrations.map((item) => ({ name: item.name, status: migrations.includes(item.name) ? "APPLIED" : "PENDING" })), functions: plan.functions.map((bundle) => ({ slug: bundle.slug, status: functions.some((item) => item.slug === bundle.slug && item.hash === bundle.hash) ? "INSTALLED" : functions.some((item) => item.slug === bundle.slug) ? "UPDATE_REQUIRED" : "MISSING" })), secretConfigured: secrets.includes("APP_SESSION_SECRET"), action: plan.migrations.every(item => migrations.includes(item.name)) && secrets.includes("APP_SESSION_SECRET") && plan.functions.every(bundle => functions.some(item => item.slug === bundle.slug && item.hash === bundle.hash)) ? "NO_RUNTIME_CHANGES" : "CHANGES_REQUIRED" };
+  const assessment = await inspectMigrationState(backend, session.target, plan, migrations);
+  return {
+    migrations: plan.databaseBaseline ? assessment.migrations : assessment.migrations.map(m => ({ ...m, status: m.status === 'APPLIED_BY_HISTORY' ? 'APPLIED' : m.status })),
+    differences: assessment.differences,
+    functions: plan.functions.map(bundle => ({ slug: bundle.slug, status: functionMatches(functions.find(f => f.slug === bundle.slug) ?? { slug: bundle.slug }, bundle, Boolean(plan.databaseBaseline)) ? 'INSTALLED' : functions.some(f => f.slug === bundle.slug) ? 'UPDATE_REQUIRED' : 'MISSING' })),
+    secretConfigured: secrets.includes('APP_SESSION_SECRET'),
+    action: assessment.drift ? 'DRIFT_REQUIRES_REVIEW' : assessment.migrations.every(m => m.status !== 'PENDING') && secrets.includes('APP_SESSION_SECRET') && plan.functions.every(bundle => functions.some(item => functionMatches(item, bundle, Boolean(plan.databaseBaseline)))) ? 'NO_RUNTIME_CHANGES' : 'CHANGES_REQUIRED',
+  };
 }
 
 function parseTarget(value: unknown): InstallerTarget {

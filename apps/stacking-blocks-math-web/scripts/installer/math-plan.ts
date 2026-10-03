@@ -1,3 +1,5 @@
+import { readFile } from "node:fs/promises";
+import type { DatabaseBaseline } from "./database-state.ts";
 import { join } from "node:path";
 
 import { readMigrationPlan, type InstallerPlan } from "./orchestrator.ts";
@@ -20,5 +22,6 @@ export async function readMathInstallerPlan(root: string): Promise<InstallerPlan
     const bundle: FunctionBundle = { slug, files, metadata: { entrypoint_path: entrypointPath, verify_jwt: false, name: hash }, hash };
     return bundle;
   }));
-  return { migrations, functions, appVersion: MATH_INSTALLER_MANIFEST.release, schemaVersion: migrations.at(-1)!.name.split("_")[0], productionRef: process.env.INSTALLER_PRODUCTION_REF ?? "stacking-blocks-math" };
+  const databaseBaseline = JSON.parse(await readFile(join(root, "scripts/installer/database-baseline.json"), "utf8")) as DatabaseBaseline;
+  return { databaseBaseline, migrations, functions, appVersion: MATH_INSTALLER_MANIFEST.release, schemaVersion: migrations.at(-1)!.name.split("_")[0], productionRef: process.env.INSTALLER_PRODUCTION_REF ?? "stacking-blocks-math" };
 }

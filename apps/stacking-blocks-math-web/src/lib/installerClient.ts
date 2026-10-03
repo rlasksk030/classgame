@@ -10,6 +10,7 @@ export type InstallerPublicTarget = {
 };
 
 export type InstallerRemoteStatus =
+  | "DRIFT_REQUIRES_REVIEW"
   | "NEW"
   | "PARTIAL"
   | "INSTALLED"
@@ -20,6 +21,7 @@ export type InstallerRemoteStatus =
 export interface InstallerStatusResponse {
   status: InstallerRemoteStatus;
   appliedMigrationCount?: number;
+  satisfiedMigrationCount?: number;
   requiredMigrationCount?: number;
   completedStages?: string[];
   missingMigrations?: string[];
@@ -30,7 +32,7 @@ export interface InstallerStatusResponse {
 }
 
 export interface InstallerPlanResponse {
-  migrations: Array<{ name: string; status: "APPLIED" | "PENDING" }>;
+  migrations: Array<{ name: string; status: "APPLIED" | "APPLIED_BY_HISTORY" | "SATISFIED_BY_STATE" | "PENDING" | "DRIFT_REQUIRES_REVIEW" }>;
   functions: Array<{ slug: string; status: "INSTALLED" | "MISSING" | "UPDATE_REQUIRED" }>;
   secretConfigured: boolean;
 }

@@ -52,6 +52,7 @@ function friendlyAuthError(error: unknown): string {
 
 function installerStatusLabel(status: InstallerRemoteStatus): string {
   switch (status) {
+    case "DRIFT_REQUIRES_REVIEW": return "자동 업데이트로 변경하기 전에 확인이 필요합니다.";
     case "INSTALLED": return "설치가 완료된 프로젝트입니다.";
     case "UPDATE_REQUIRED": return "업데이트가 필요한 프로젝트입니다.";
     case "PARTIAL": return "일부 단계만 설치된 프로젝트입니다. 이어서 진행할 수 있어요.";
@@ -245,6 +246,9 @@ export default function SetupPage() {
       setInstallerStatus(result.status); setInstallerDetails(result); setOauthAuthorized(true);
     } catch (reason) {
       if (!isActive()) return;
+      if (reason instanceof InstallerClientError && reason.code === "INSTALLER_MANUAL_REVIEW_REQUIRED") {
+        setInstallerStatus("DRIFT_REQUIRES_REVIEW"); setError("자동 업데이트로 변경하기 전에 확인이 필요합니다."); return;
+      }
       setInstallerStatus(null); setInstallerStatusError(true);
       if (reason instanceof InstallerClientError && (reason.code === "INSTALLER_AUTH_REQUIRED" || reason.code === "INSTALLER_SESSION_REQUIRED")) {
         setOauthAuthorized(false); setConnectionIssue("session");
@@ -280,7 +284,10 @@ export default function SetupPage() {
     finally { setCheckingConnection(false); }
   };
   const installerFailure = (reason: unknown) => {
-    if (reason instanceof InstallerClientError && reason.code === "INSTALLER_PROJECT_NOT_ALLOWED") {
+    if (reason instanceof InstallerClientError && reason.code === "INSTALLER_MANUAL_REVIEW_REQUIRED") {
+      setInstallerStatus("DRIFT_REQUIRES_REVIEW");
+      setError("자동 업데이트로 변경하기 전에 확인이 필요합니다.");
+    } else if (reason instanceof InstallerClientError && reason.code === "INSTALLER_PROJECT_NOT_ALLOWED") {
       setError("선택한 프로젝트에 대한 설치 권한이 없어요. 다른 프로젝트를 선택하거나 다시 연결해 주세요.");
     } else if (reason instanceof InstallerClientError && reason.status === 401) {
       setInstallerStatus(null);
@@ -414,6 +421,7 @@ export default function SetupPage() {
         setMessage("설치 서버에 맡긴 권한을 해제했어요. Supabase에서 토큰도 폐기할 수 있어요."); return;
       }
       if (action !== "status") {
+        if (installerStatus === "DRIFT_REQUIRES_REVIEW") throw new InstallerClientError("INSTALLER_MANUAL_REVIEW_REQUIRED", 409, "자동 업데이트로 변경하기 전에 확인이 필요합니다.");
         const target = installerTarget();
         await (action === "install" ? installerClient.startInstall(target) : action === "repair" ? installerClient.repair(target) : installerClient.update(target));
       }
@@ -599,13 +607,13 @@ export default function SetupPage() {
             {(oauthAuthorized || (connectionVerified && (installerStatus || installerStatusError))) && <>
               <div className="installer-checks" aria-live="polite">
                 <p>{installerStatus ? installerStatusLabel(installerStatus) : installerStatusError ? "설치 권한을 연결한 후 상태를 확인해 주세요." : "설치 상태 확인 중…"}</p>
-                {installerDetails?.requiredMigrationCount !== undefined && <p>데이터베이스 준비: {installerDetails.appliedMigrationCount ?? 0}/{installerDetails.requiredMigrationCount}</p>}
+                {installerDetails?.requiredMigrationCount !== undefined && <p>데이터베이스 준비: {(installerDetails.appliedMigrationCount ?? 0) + (installerDetails.satisfiedMigrationCount ?? 0)}/{installerDetails.requiredMigrationCount}</p>}
                 {installerDetails?.functions?.map(item => <p key={item.slug}>학생 로그인 기능 ({item.slug === "student-auth" ? "인증" : "학습"}): {item.status}</p>)}
               </div>
               <div className="toolbar-row">
-                <button className="btn btn-primary" disabled={busy || authorizing || !installerStatus} onClick={() => void runInstallerAction("install")}>{busy ? "처리 중…" : "수학 앱 설치"}</button>
-                <button className="btn" disabled={busy || !installerStatus} onClick={() => void runInstallerAction("repair")}>이어서 복구</button>
-                <button className="btn" disabled={busy || !installerStatus} onClick={() => void runInstallerAction("update")}>업데이트</button>
+                <button className="btn btn-primary" disabled={busy || authorizing || !installerStatus || installerStatus === "DRIFT_REQUIRES_REVIEW"} onClick={() => void runInstallerAction("install")}>{busy ? "처리 중…" : "수학 앱 설치"}</button>
+                <button className="btn" disabled={busy || !installerStatus || installerStatus === "DRIFT_REQUIRES_REVIEW"} onClick={() => void runInstallerAction("repair")}>이어서 복구</button>
+                <button className="btn" disabled={busy || !installerStatus || installerStatus === "DRIFT_REQUIRES_REVIEW"} onClick={() => void runInstallerAction("update")}>업데이트</button>
                 <button className="btn" disabled={busy || authorizing} onClick={() => void runInstallerAction("status")}>설치 확인</button>
                 <button className="btn" disabled={busy || authorizing} onClick={() => void runInstallerAction("revoke")}>설치 권한 해제</button>
               </div>
