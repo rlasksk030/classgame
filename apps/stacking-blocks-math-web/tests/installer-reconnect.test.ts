@@ -34,3 +34,17 @@ test('resume marker is read repeatedly and cleared only after success', () => {
   try { markInstallerResumeUpdate(); assert.equal(hasInstallerResumeUpdate(), true); assert.equal(hasInstallerResumeUpdate(), true); clearInstallerResumeUpdate(); assert.equal(hasInstallerResumeUpdate(), false); }
   finally { delete (globalThis as { window?: unknown }).window; delete (globalThis as { sessionStorage?: unknown }).sessionStorage; }
 });
+
+test('Reconnect manual review is an authorized state but never starts OAuth/update or completes navigation', async () => {
+  const calls: string[] = [];
+  const client = new InstallerClient('https://frontend.example', async input => {
+    calls.push(new URL(input).pathname);
+    return Response.json({ status: 'DRIFT_REQUIRES_REVIEW' });
+  });
+  const verified = await bindInstallerOAuthProject(new InstallerClient('https://frontend.example', async input => {
+    const path = new URL(input).pathname; calls.push(path);
+    return Response.json(path.endsWith('/session') ? { status: 'AUTHORIZED', publishableKey: 'sb_publishable_synthetic' } : { status: 'DRIFT_REQUIRES_REVIEW' });
+  }), { ref: 'test-project' }, 'synthetic-install', 'test-project', async () => {});
+  await assert.rejects(completeInstallerReconnect(client, verified), { code: 'INSTALLER_MANUAL_REVIEW_REQUIRED' });
+  assert.equal(calls.some(path => /update|authorize/.test(path)), false);
+});

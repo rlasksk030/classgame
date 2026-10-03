@@ -1,7 +1,7 @@
 import { test, expect, type Page } from '@playwright/test';
 
 const config = { installationId: 'reconnect-synthetic', supabaseUrl: 'https://reconnect-project.supabase.co', supabasePublishableKey: 'sb_publishable_synthetic_old' };
-type Scenario = { failure?: 'projects' | 'session' | 'status' | 'update' | 'missing-key' | 'wrong-project'; installed?: boolean; newInstall?: boolean; picker?: boolean };
+type Scenario = { failure?: 'projects' | 'session' | 'status' | 'update' | 'missing-key' | 'wrong-project'; drift?: boolean; installed?: boolean; newInstall?: boolean; picker?: boolean };
 async function fixture(page: Page, scenario: Scenario = {}) {
   const calls: string[] = [];
   let updated = false;
@@ -27,7 +27,7 @@ async function fixture(page: Page, scenario: Scenario = {}) {
     if (path === 'status') {
       return route.fulfill(scenario.failure === 'status' || scenario.failure === 'projects'
         ? { status: 401, json: { code: 'INSTALLER_SESSION_REQUIRED' } }
-        : { json: { status: scenario.installed || updated ? 'INSTALLED' : 'UPDATE_REQUIRED' } });
+        : { json: { status: scenario.drift ? 'DRIFT_REQUIRES_REVIEW' : scenario.installed || updated ? 'INSTALLED' : 'UPDATE_REQUIRED' } });
     }
     if (path === 'update') {
       if (scenario.failure !== 'update') updated = true;
@@ -182,4 +182,28 @@ test('leaving setup during a slow bind cancels automatic update and teacher retu
   expect(await page.evaluate(() => JSON.parse(localStorage.getItem('stacking-installation-config')!).supabasePublishableKey)).toBe(config.supabasePublishableKey);
   expect(calls).not.toContain('update');
   expect(await page.evaluate(() => sessionStorage.getItem('stacking-installer-resume-update'))).toBe('1');
+});
+
+test('drift reconnect shows manual review without update, repeat OAuth, or teacher return', async ({ page }) => {
+  const calls = await fixture(page, { drift: true });
+  await page.goto('/setup?oauth=granted');
+  await expect(page.getByRole('alert').first()).toHaveText('자동 업데이트로 변경하기 전에 확인이 필요합니다.');
+  await expect(page).toHaveURL(/\/setup$/);
+  const before = [...calls];
+  await page.waitForTimeout(500);
+  expect(calls).toEqual(before);
+  expect(calls).not.toContain('update');
+  expect(calls).not.toContain('authorize');
+  await page.getByRole('button', { name: '연결 세션 다시 확인', exact: true }).click();
+  await expect(page.getByRole('alert').first()).toHaveText('자동 업데이트로 변경하기 전에 확인이 필요합니다.');
+  expect(calls).not.toContain('update');
+  expect(await page.evaluate(() => sessionStorage.getItem('stacking-installer-resume-update'))).toBe('1');
+});
+test('drift normal setup disables every mutation action and permits status inspection', async ({ page }) => {
+  await fixture(page, { newInstall: true, picker: true, drift: true });
+  await page.goto('/setup?oauth=granted');
+  await page.getByRole('button', { name: '이 프로젝트 사용' }).click();
+  await expect(page.getByRole('heading', { name: '데이터베이스 준비' })).toBeVisible();
+  for (const name of ['수학 앱 설치', '이어서 복구', '업데이트']) await expect(page.getByRole('button', { name, exact: true })).toBeDisabled();
+  await expect(page.getByRole('button', { name: '설치 확인', exact: true })).toBeEnabled();
 });

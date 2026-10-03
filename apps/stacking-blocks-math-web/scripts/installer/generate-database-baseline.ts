@@ -1,0 +1,37 @@
+import { readFile, writeFile } from 'node:fs/promises';
+import { PGlite } from '@electric-sql/pglite';
+import { catalogFingerprints, type Catalog, type DatabaseBaseline } from './database-state.ts';
+import { readMigrationPlan } from './orchestrator.ts';
+import { createHash } from 'node:crypto';
+import { createFixture } from '../../qa/live-required-progress/installer-fixture.mjs';
+// LOCAL ONLY: immutable source migrations + schema-only manual fixture, no credentials.
+const migrations = await readMigrationPlan('supabase/migrations');
+const query = await readFile('scripts/installer/catalog.sql', 'utf8');
+const result: DatabaseBaseline = { migrationHashes: migrations.map(m => createHash('sha256').update(m.query).digest('hex')), profiles: [] };
+const db = new PGlite();
+await db.exec(`create role anon; create role authenticated; create role service_role bypassrls;
+create schema auth; create table auth.users(id uuid primary key);
+create function auth.uid() returns uuid language sql stable as $$select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid$$;
+grant usage on schema auth, public to anon, authenticated, service_role;
+create schema storage;create table storage.buckets(id text primary key,name text,public boolean,file_size_limit bigint,allowed_mime_types text[]);
+create table storage.objects(id uuid primary key default gen_random_uuid(),bucket_id text,name text);alter table storage.objects enable row level security;
+create function storage.foldername(text) returns text[] language sql as $$ select string_to_array($1,'/') $$;`);
+async function capture(database: PGlite, name: string, kind: DatabaseBaseline['profiles'][number]['kind'], prefix: number) {
+  const snapshot = (await database.query<{ snapshot: Catalog }>(query)).rows[0].snapshot;
+  result.profiles.push({ name, kind, prefix, objects: catalogFingerprints(snapshot) });
+}
+try {
+  await capture(db, 'fresh-empty', 'RESUME', 0);
+  for (const [i, migration] of migrations.entries()) {
+    await db.exec(migration.query.replace('create extension if not exists "pgcrypto";', ''));
+    await capture(db, `history-prefix-${i + 1}`, i === migrations.length - 1 ? 'RELEASE' : 'RESUME', i + 1);
+  }
+} finally { await db.close(); }
+const manual = await createFixture();
+try {
+  await capture(manual, 'manual-previous-contract', 'MANUAL_DELTA_REQUIRED', 20);
+  await manual.exec(await readFile('qa/live-required-progress/sql/20261003051402_actual_use_required_progress_delta.sql', 'utf8'));
+  await capture(manual, 'manual-required-progress-contract', 'RELEASE', 0);
+} finally { await manual.close(); }
+await writeFile('scripts/installer/database-baseline.json', JSON.stringify(result, null, 2) + '\n');
+console.log(`LOCAL baseline generated: ${result.profiles.length} supported profiles`);

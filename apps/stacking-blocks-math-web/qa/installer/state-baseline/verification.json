@@ -1,0 +1,95 @@
+{
+  "scope": "LOCAL_LOGIC / UI_WITH_TEST_DATA",
+  "base_commit": "1f45a11579f264e332d4bdd6edd30dc9fa712a29",
+  "branch": "fix/2026-10-03-installer-state-baseline",
+  "production_changes": 0,
+  "prepared_delta_sha256": "464f2ebba29bee9664957e0e926f6af5c716c5c375ee762d66520987dbabc788",
+  "npm_test": {
+    "pass": 645,
+    "fail": 0,
+    "skip": 0
+  },
+  "installer_state_tests": {
+    "pass": 21,
+    "fail": 0,
+    "skip": 0,
+    "included_in_npm_test": true
+  },
+  "security": {
+    "pass": 1,
+    "fail": 0
+  },
+  "checks": {
+    "typecheck": "PASS",
+    "installer_server_typecheck": "PASS",
+    "typecheck_edge": "PASS",
+    "lint": "PASS",
+    "build": "PASS"
+  },
+  "e2e": {
+    "pass": 61,
+    "fail": 0,
+    "skip": 0,
+    "workers": 1,
+    "unchanged_timeouts_and_assertions": true
+  },
+  "e2e_first_parallel_run": {
+    "pass": 59,
+    "fail": 2,
+    "failure": "lesson9 whole-test timeout with concurrent WebGL suites; full serial rerun passed"
+  },
+  "redesign_all": {
+    "pass": 30,
+    "fail": 3,
+    "skip": 0,
+    "executed": 33
+  },
+  "redesign_unchanged_base_reproduction": {
+    "commit": "1f45a11579f264e332d4bdd6edd30dc9fa712a29",
+    "pass": 1,
+    "fail": 3,
+    "skip": 0,
+    "cases": [
+      "P46",
+      "P47",
+      "P48"
+    ],
+    "assertions_unchanged": true
+  },
+  "standalone_delta_regression": {
+    "smoke_pass": 21,
+    "checks_pass": 6,
+    "fail": 0,
+    "live": false
+  },
+  "installer_before_delta": {
+    "status": "DRIFT_REQUIRES_REVIEW",
+    "history_only_pending": 4,
+    "automatic_pending": 0,
+    "writes": 0,
+    "difference_objects": [
+      "sb_record_attempt",
+      "sb_save_building",
+      "sb_submit_challenge_v2",
+      "sb_reset_class_progress",
+      "sb_track_challenge_author + trigger",
+      "sb_practice_assignments.updated_at"
+    ]
+  },
+  "installer_after_delta": {
+    "history_applied": 20,
+    "satisfied_by_state": 4,
+    "pending_migrations": 0,
+    "student_api_update": 0,
+    "student_auth_update": 0,
+    "secret_update": 0,
+    "status": "INSTALLED"
+  },
+  "old_api_only": {
+    "pending_migrations": 0,
+    "student_api_update": 1,
+    "student_auth_update": 0,
+    "secret_update": 0
+  },
+  "git_ci": "Recorded in final turn report after commit/push; this file does not claim a remote result before it is observed."
+}

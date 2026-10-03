@@ -95,3 +95,10 @@
 - 12차시 자기평가/성찰은 별도 선택 활동이며 필수 진행 12/12 조건에 추가하지 않는다. production 9차시는 shared_challenges/solves/v2 RPC 경로로 유지한다.
 - 구 학생 payload의 작품 크기/외형을 유지하고, 정답 공개 시에만 구 challenge answer 응답도 제공한다. 최신 DB→기존 Edge→신규 Edge/구 프런트→신규 프런트의 호환성을 합성 로컬 DB/브라우저로 검증한다.
 - 2026-10-03 Render LIVE `dep-dat56gg473hc738esfk0` / `bc535a4a750b9f66391e6b12301e52c86d0edd89`, 이전 정상 rollback 후보 `dep-dar8lvrbc2fs738qaeag` / `7927e240df47eb136fa09c47a2bc5dc7a1e510ed`를 사용자 확인과 읽기 전용 재조회로 확정했다. PR #3 판정은 READY FOR MERGE이며 Draft/OPEN 유지, 운영 미반영이다. 이번 PR 배포 후 기본 복원 기준은 적용 직전 LIVE이고, 이전 정상 후보를 별도로 보관한다. 최신 증거는 `qa/predeploy/2026-10-02_수학공간과입체_PR3_운영전감사.md`를 따른다.
+
+### 2026-10-03 — Installer state-based compatibility
+
+- 이번 release의 installer는 history와 실제 DB catalog 계약을 함께 검증한다. 수동 최소 delta로 최종 계약을 만족한 누락 이력은 SATISFIED_BY_STATE로 처리하고 과거 SQL을 다시 적용하거나 history row를 만들어 넣지 않는다.
+- 부분 drift 또는 catalog 확인 불가에서는 설치/복구/update를 MANUAL_REVIEW_REQUIRED로 중단한다. UI update와 reconnect 자동 update/OAuth 반복을 차단한다.
+- 검증된 빈 설치와 중단 prefix의 신규 설치 경로는 유지한다. API/인증 함수는 version 숫자가 아닌 source closure fingerprint/ACTIVE/verify_jwt로 판정한다.
+- 기존 standalone delta SQL은 변경하지 않는다. 별도 branch의 로컬 수정·검증이며 실제 DB/Edge/installer/Frontend 배포 및 promotion PR merge는 수행하지 않는다. 상세는 `qa/installer/state-baseline/2026-10-03_state_baseline.md`를 따른다.

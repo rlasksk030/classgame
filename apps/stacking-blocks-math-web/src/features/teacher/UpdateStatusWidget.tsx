@@ -27,6 +27,7 @@ import { markInstallerResumeUpdate } from "../../lib/installer";
 type WidgetState =
   | { kind: "unavailable" }
   | { kind: "checking" }
+  | { kind: "manualReview" }
   | { kind: "upToDate" }
   | { kind: "updateRequired" }
   | { kind: "needsConnection"; issue: InstallerConnectionIssue }
@@ -58,9 +59,11 @@ export default function UpdateStatusWidget({ onUpdated }: { onUpdated?: () => vo
     try {
       const result = await installerClient.getStatus(target);
       if (result.status === "INSTALLED") setState({ kind: "upToDate" });
+      else if (result.status === "DRIFT_REQUIRES_REVIEW") setState({ kind: "manualReview" });
       else if (result.status === "UPDATE_REQUIRED") setState({ kind: "updateRequired" });
       else setState({ kind: "unexpectedStatus", status: result.status });
     } catch (reason) {
+      if (reason instanceof InstallerClientError && reason.code === "INSTALLER_MANUAL_REVIEW_REQUIRED") { setState({ kind: "manualReview" }); return; }
       const { issue, detail } = classifyInstallerConnectionError(reason);
       if (issue === "session" || issue === "revoked" || issue === "mismatch") setState({ kind: "needsConnection", issue });
       else setState({ kind: "checkFailed", detail });
@@ -95,7 +98,7 @@ export default function UpdateStatusWidget({ onUpdated }: { onUpdated?: () => vo
       onUpdated?.();
     } catch (reason) {
       const code = reason instanceof InstallerClientError ? reason.code : "INSTALLER_UPDATE_FAILED";
-      setState({ kind: "updateFailed", code });
+      setState(code === "INSTALLER_MANUAL_REVIEW_REQUIRED" ? { kind: "manualReview" } : { kind: "updateFailed", code });
     }
   };
 
@@ -107,6 +110,12 @@ export default function UpdateStatusWidget({ onUpdated }: { onUpdated?: () => vo
 
       {state.kind === "upToDate" && <>
         <span className="status-chip ready">✓ 최신 버전입니다</span>
+        <button className="btn btn-sm" type="button" onClick={() => void checkStatus()}>다시 확인</button>
+      </>}
+
+      {state.kind === "manualReview" && <>
+        <span className="notice" role="status">자동 업데이트로 변경하기 전에 확인이 필요합니다.</span>
+        <button className="btn btn-sm" type="button" disabled>업데이트</button>
         <button className="btn btn-sm" type="button" onClick={() => void checkStatus()}>다시 확인</button>
       </>}
 

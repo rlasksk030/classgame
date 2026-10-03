@@ -7,7 +7,7 @@ export type VerifiedInstallerSession = { target: InstallerPublicTarget; status: 
  * HttpOnly session cookie issued by this bind (or restored after a reload). */
 export async function verifyInstallerSession(client: InstallerClient, target: InstallerPublicTarget): Promise<VerifiedInstallerSession> {
   const status = await client.getStatus(target);
-  if (!['NEW', 'PARTIAL', 'INSTALLED', 'UPDATE_REQUIRED', 'BROKEN'].includes(status.status)) {
+  if (!['DRIFT_REQUIRES_REVIEW', 'NEW', 'PARTIAL', 'INSTALLED', 'UPDATE_REQUIRED', 'BROKEN'].includes(status.status)) {
     throw new InstallerClientError('INSTALLER_STATUS_UNVERIFIED', 0, '설치 세션의 상태를 확인하지 못했습니다. 다시 연결해 주세요.');
   }
   return { target, status };
@@ -42,6 +42,9 @@ export async function bindInstallerOAuthProject(
  * and a second cookie-authenticated status check. */
 export async function completeInstallerReconnect(client: InstallerClient, verified: VerifiedInstallerSession): Promise<void> {
   if (verified.status.status === 'INSTALLED') return;
+  if (verified.status.status === 'DRIFT_REQUIRES_REVIEW') {
+    throw new InstallerClientError('INSTALLER_MANUAL_REVIEW_REQUIRED', 409, '자동 업데이트로 변경하기 전에 확인이 필요합니다.');
+  }
   const job = await client.update(verified.target);
   if (job.status !== 'COMPLETE') {
     throw new InstallerClientError('INSTALLER_UPDATE_INCOMPLETE', 0, '업데이트가 완료되지 않았습니다. 상태를 확인한 뒤 다시 시도해 주세요.');

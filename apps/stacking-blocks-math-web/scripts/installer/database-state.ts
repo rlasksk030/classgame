@@ -1,0 +1,73 @@
+import { createHash } from 'node:crypto';
+import { InstallerError, type InstallerBackend, type InstallerTarget } from './contract.ts';
+import type { InstallerPlan } from './orchestrator.ts';
+
+export type MigrationDisposition = 'APPLIED_BY_HISTORY' | 'SATISFIED_BY_STATE' | 'PENDING' | 'DRIFT_REQUIRES_REVIEW';
+export type Catalog = Record<string, Array<Record<string, unknown>>>;
+export interface DatabaseBaseline {
+  migrationHashes: string[];
+  profiles: Array<{ name: string; kind: 'RELEASE' | 'RESUME' | 'MANUAL_DELTA_REQUIRED'; prefix: number; objects: Record<string, string> }>;
+}
+export interface MigrationAssessment {
+  migrations: Array<{ name: string; status: MigrationDisposition }>;
+  drift: boolean;
+  differences: string[];
+  baseline?: string;
+}
+const sections = ['tables', 'columns', 'constraints', 'indexes', 'policies', 'rpcs', 'rpc_definitions', 'triggers', 'column_acls', 'policy_modes'];
+function canonical(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(canonical).sort((a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b)));
+  if (value && typeof value === 'object') return Object.fromEntries(Object.entries(value).sort(([a], [b]) => a.localeCompare(b)).map(([k, v]) => [k, canonical(v)]));
+  return value;
+}
+export function catalogFingerprints(catalog: Catalog): Record<string, string> {
+  const objects: Record<string, string> = {};
+  for (const section of sections) {
+    if (!Array.isArray(catalog[section])) throw manualReview();
+    for (const original of catalog[section]) {
+      const row = { ...original };
+      // PG18 exposes NOT NULL in pg_constraint; PG17 exposes it in columns.
+      if (section === 'constraints' && row.type === 'n') continue;
+      // Physical column order is not part of the named runtime contract.
+      if (section === 'columns') delete row.position;
+      const key = `${section}:${row.table ?? ''}:${row.name ?? row.column ?? ''}:${row.arguments ?? ''}`;
+      if (objects[key]) throw manualReview();
+      objects[key] = createHash('sha256').update(JSON.stringify(canonical(row))).digest('hex');
+    }
+  }
+  return objects;
+}
+function differences(expected: Record<string, string>, actual: Record<string, string>): string[] {
+  return [...new Set([...Object.keys(expected), ...Object.keys(actual)])].filter(k => expected[k] !== actual[k]).sort();
+}
+export function assessDatabaseState(plan: InstallerPlan, history: string[], catalog?: Catalog): MigrationAssessment {
+  const applied = new Set(history);
+  if (!plan.databaseBaseline) return { drift: false, differences: [], migrations: plan.migrations.map(m => ({ name: m.name, status: applied.has(m.name) ? 'APPLIED_BY_HISTORY' : 'PENDING' })) };
+  const baseline = plan.databaseBaseline;
+  const hashes = plan.migrations.map(m => createHash('sha256').update(m.query).digest('hex'));
+  if (JSON.stringify(hashes) !== JSON.stringify(baseline.migrationHashes) || !catalog) throw manualReview();
+  const actual = catalogFingerprints(catalog);
+  const matches = baseline.profiles.filter(p => differences(p.objects, actual).length === 0);
+  const release = matches.find(p => p.kind === 'RELEASE');
+  const manual = matches.find(p => p.kind === 'MANUAL_DELTA_REQUIRED');
+  // History can confirm provenance, never override a mismatched definition.
+  // A manual baseline takes priority over a coincidentally matching prefix.
+  const resume = !manual && matches.find(p => p.kind === 'RESUME' && plan.migrations.every((m, i) => applied.has(m.name) === (i < p.prefix)));
+  const selected = release ?? resume;
+  const drift = !selected;
+  const nearest = baseline.profiles.filter(p => p.kind === 'RELEASE').sort((a, b) => differences(a.objects, actual).length - differences(b.objects, actual).length)[0];
+  return {
+    drift, baseline: selected?.name ?? manual?.name,
+    differences: drift ? differences(nearest.objects, actual) : [],
+    migrations: plan.migrations.map(m => ({ name: m.name, status: drift ? 'DRIFT_REQUIRES_REVIEW' : applied.has(m.name) ? 'APPLIED_BY_HISTORY' : release ? 'SATISFIED_BY_STATE' : 'PENDING' })),
+  };
+}
+export async function inspectMigrationState(backend: InstallerBackend, target: InstallerTarget, plan: InstallerPlan, history?: string[]): Promise<MigrationAssessment> {
+  const applied = history ?? await backend.listAppliedMigrations(target);
+  if (plan.databaseBaseline && !backend.inspectDatabaseCatalog) throw manualReview();
+  const catalog = plan.databaseBaseline ? await backend.inspectDatabaseCatalog!(target) : undefined;
+  return assessDatabaseState(plan, applied, catalog);
+}
+export function manualReview(): InstallerError {
+  return new InstallerError('INSTALLER_MANUAL_REVIEW_REQUIRED', 'migrations', '자동 업데이트로 변경하기 전에 확인이 필요합니다.');
+}

@@ -45,3 +45,39 @@ for (const dropped of [false, true]) {
     } finally { await server.close(); }
   });
 }
+
+test('teacher drift widget disables update and never starts OAuth', async ({ page }) => {
+  const server = await reconnectServer();
+  const calls: string[] = [];
+  try {
+    await syntheticTeacher(page);
+    await page.route('**/api/installer/**', route => {
+      calls.push(new URL(route.request().url()).pathname);
+      return route.fulfill({ json: { status: 'DRIFT_REQUIRES_REVIEW' } });
+    });
+    await page.goto(server.origin + '/teacher');
+    await expect(page.getByText('자동 업데이트로 변경하기 전에 확인이 필요합니다.', { exact: true })).toBeVisible();
+    await expect(page.getByRole('button', { name: '업데이트', exact: true })).toBeDisabled();
+    await expect(page.getByRole('button', { name: '연결하고 업데이트', exact: true })).toHaveCount(0);
+    await page.getByRole('button', { name: '다시 확인', exact: true }).click();
+    await expect(page.getByText('자동 업데이트로 변경하기 전에 확인이 필요합니다.', { exact: true })).toBeVisible();
+    expect(calls.every(path => path.endsWith('/status'))).toBe(true);
+  } finally { await server.close(); }
+});
+test('stale teacher update plan becomes manual review on server 409 and cannot repeat update', async ({ page }) => {
+  const server = await reconnectServer();
+  const calls: string[] = [];
+  try {
+    await syntheticTeacher(page);
+    await page.route('**/api/installer/**', route => {
+      const path = new URL(route.request().url()).pathname; calls.push(path);
+      return route.fulfill(path.endsWith('/update') ? { status: 409, json: { code: 'INSTALLER_MANUAL_REVIEW_REQUIRED' } } : { json: { status: 'UPDATE_REQUIRED' } });
+    });
+    await page.goto(server.origin + '/teacher');
+    await page.getByRole('button', { name: '지금 업데이트', exact: true }).click();
+    await expect(page.getByText('자동 업데이트로 변경하기 전에 확인이 필요합니다.', { exact: true })).toBeVisible();
+    await expect(page.getByRole('button', { name: '업데이트', exact: true })).toBeDisabled();
+    expect(calls.filter(path => path.endsWith('/update'))).toHaveLength(1);
+    expect(calls.some(path => path.endsWith('/authorize'))).toBe(false);
+  } finally { await server.close(); }
+});
