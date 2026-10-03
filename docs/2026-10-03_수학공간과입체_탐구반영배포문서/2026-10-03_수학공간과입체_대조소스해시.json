@@ -1,0 +1,6 @@
+{
+  "src/pages/LessonLearnPage.tsx": "c886c591075ff8a6f297f54daf03cfe858f138832bcb404ea0fd2f005ce13db3",
+  "src/features/activities/GuidedExploration.tsx": "37d5c185a789a7fa02862e24680f37da34df73ded453bf8486ee0a41ed869b89",
+  "src/features/activities/explorationActivities.ts": "3c43657bf16c3b0d5c16914f7cb43ed0ae0670c4f81302f229b96ece100c4cf6",
+  "src/pages/SetupPage.tsx": "25d46d79250234b680a197fc5395ec8dbd0ab2ab1b1c488ddc039cf050cf2dcf"
+}

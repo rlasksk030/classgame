@@ -1,0 +1,8 @@
+수학 공간과 입체 접속 안내
+
+기존 배포 기록의 앱 주소: https://stacking-blocks-math.onrender.com
+설치: https://stacking-blocks-math.onrender.com/setup
+교사: https://stacking-blocks-math.onrender.com/teacher
+학생: 교사 화면에서 복사한 학급 전체 링크를 전달합니다. 기본 주소만으로 학급을 추측하지 않습니다.
+
+이번 문서 작업에서는 서비스 설정·배포·원격 데이터를 변경하지 않았습니다. 접속 화면과 안내가 다르면 제작자에게 버전을 확인해 주세요. PIN·비밀번호·키를 이 파일에 적지 마세요.

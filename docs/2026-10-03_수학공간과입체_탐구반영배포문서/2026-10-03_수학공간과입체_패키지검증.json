@@ -1,0 +1,52 @@
+{
+  "date": "2026-10-03",
+  "sourceFeatureHead": "43186f49ddfb5bbd1e8184c380f642bed7d5561d",
+  "files": 14,
+  "pdfPages": {
+    "00_먼저읽어주세요.pdf": 1,
+    "01_초보자용_설치사용설명서.pdf": 12,
+    "02_빠른설치가이드.pdf": 1,
+    "03_설치체크리스트.pdf": 1,
+    "04_수업운영가이드.pdf": 8,
+    "05_문제해결가이드.pdf": 3
+  },
+  "totalPages": 26,
+  "docxOpen": "6/6 PASS",
+  "visualReview": "26/26 pages reviewed; no missing Hangul or clipping",
+  "secretPatternFindings": {
+    "PAT": 0,
+    "supabase_key": 0,
+    "JWT": 0,
+    "private_key": 0,
+    "email": 0,
+    "local_path": 0,
+    "credential_value": 0,
+    "pin_value": 0
+  },
+  "zipCRC": "PASS",
+  "utf8Names": "PASS",
+  "reopenByteComparison": "PASS",
+  "recompressEntryComparison": "PASS",
+  "zipSize": 646364,
+  "zipSha256": "9b41be655d1ec093ef28baff4347d7815921184a48b4039511caa5abd52fb0be",
+  "fileSha256": {
+    "00_먼저읽어주세요.pdf": "9a81bcd6c3af51e65eecf16ce3380d06d9dbb00e8db40ee3d19d77a1c760a322",
+    "01_초보자용_설치사용설명서.pdf": "9a07f5007c88c0a4d1f1838d7b4f221dc3c7e2394b2c9e43f86324fc7e0376d0",
+    "02_빠른설치가이드.pdf": "f9a694d537fedff70d20fe78100432d3d9cc5b99131c0e36f3579c5446b188b9",
+    "03_설치체크리스트.pdf": "c1633990710cc3866e3ebf498c0d6d323a28e468184ca55504654df7aae319c3",
+    "04_수업운영가이드.pdf": "734ce5aec3924dfef556a9474ee61318b67f8d174db50b756ca80f7ac86dfd9b",
+    "05_문제해결가이드.pdf": "c0db20d3ec9b2ac14584ce257fb2fd517ec79eec10ea0d2b210d2094932b02e2",
+    "README.txt": "3d56a9be6816cd5d2349b756b852b92a632ec84724c71491a15202a53bb208b6",
+    "문서원본/00_먼저읽어주세요.docx": "ea4221b92bda5544a2ab4cafd4b788976863b0b54518fd26a3dc3d9b8e54ba6b",
+    "문서원본/01_초보자용_설치사용설명서.docx": "9344bc0a5d198c02b2726a6ee929657cb81e846148a1598365162870d2ac29e0",
+    "문서원본/02_빠른설치가이드.docx": "102b8c8ba77cd6e50f5342133336949083f61996198a7bee6c09145b3112fe53",
+    "문서원본/03_설치체크리스트.docx": "dfa03c6e98059ea736b18b887af8ec356706368dbcb4f4c34ae5200480173f81",
+    "문서원본/04_수업운영가이드.docx": "4eb9af4bb225c5eba13d77b008c25f5a5b06c1c704ef1d2ff24614f6a9ddeab8",
+    "문서원본/05_문제해결가이드.docx": "5276f8c54d3cdd2ccbeec807eec8062ce9df953eef0a78cdab85aa3788b1d149",
+    "설치및접속정보/2026-10-03_수학공간과입체_접속안내.txt": "a4e92c61a6c1f7ae7525fcd750b95828146ed7b18463917e6d001f6f60d3d9f9"
+  },
+  "appTestsRerun": false,
+  "appCodeChanged": false,
+  "remoteDeployed": false,
+  "screenshotsIncluded": 0
+}
