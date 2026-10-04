@@ -1,0 +1,3729 @@
+{
+  "tables": [
+    {
+      "acl": [
+        "postgres=arwdDxtm/postgres",
+        "anon=Dxtm/postgres",
+        "authenticated=arwdDxtm/postgres",
+        "service_role=arwdDxtm/postgres"
+      ],
+      "rls": true,
+      "name": "sb_block_snapshots",
+      "force_rls": false
+    },
+    {
+      "acl": [
+        "postgres=arwdDxtm/postgres",
+        "anon=Dxtm/postgres",
+        "authenticated=arwdDxtm/postgres",
+        "service_role=arwdDxtm/postgres"
+      ],
+      "rls": true,
+      "name": "sb_challenge_solves",
+      "force_rls": false
+    },
+    {
+      "acl": [
+        "postgres=arwdDxtm/postgres",
+        "anon=Dxtm/postgres",
+        "authenticated=arwdDxtm/postgres",
+        "service_role=arwdDxtm/postgres"
+      ],
+      "rls": true,
+      "name": "sb_classes",
+      "force_rls": false
+    },
+    {
+      "acl": [
+        "postgres=arwdDxtm/postgres",
+        "authenticated=rDxtm/postgres",
+        "service_role=arwdDxtm/postgres"
+      ],
+      "rls": true,
+      "name": "sb_lesson_progress_records",
+      "force_rls": false
+    },
+    {
+      "acl": [
+        "postgres=arwdDxtm/postgres",
+        "anon=Dxtm/postgres",
+        "authenticated=arwdDxtm/postgres",
+        "service_role=arwdDxtm/postgres"
+      ],
+      "rls": true,
+      "name": "sb_lesson_settings",
+      "force_rls": false
+    },
+    {
+      "acl": [
+        "postgres=arwdDxtm/postgres",
+        "authenticated=rDxtm/postgres",
+        "service_role=arwdDxtm/postgres"
+      ],
+      "rls": true,
+      "name": "sb_peer_problem_attempts",
+      "force_rls": false
+    },
+    {
+      "acl": [
+        "postgres=arwdDxtm/postgres",
+        "authenticated=rDxtm/postgres",
+        "service_role=arwdDxtm/postgres"
+      ],
+      "rls": true,
+      "name": "sb_practice_assignments",
+      "force_rls": false
+    },
+    {
+      "acl": [
+        "postgres=arwdDxtm/postgres",
+        "anon=Dxtm/postgres",
+        "authenticated=arwdDxtm/postgres",
+        "service_role=arwdDxtm/postgres"
+      ],
+      "rls": true,
+      "name": "sb_problem_attempts",
+      "force_rls": false
+    },
+    {
+      "acl": [
+        "postgres=arwdDxtm/postgres",
+        "anon=Dxtm/postgres",
+        "authenticated=arwdDxtm/postgres",
+        "service_role=arwdDxtm/postgres"
+      ],
+      "rls": true,
+      "name": "sb_problems",
+      "force_rls": false
+    },
+    {
+      "acl": [
+        "postgres=arwdDxtm/postgres",
+        "authenticated=rDxtm/postgres",
+        "service_role=arwdDxtm/postgres"
+      ],
+      "rls": true,
+      "name": "sb_project_exports",
+      "force_rls": false
+    },
+    {
+      "acl": [
+        "postgres=arwdDxtm/postgres",
+        "anon=Dxtm/postgres",
+        "authenticated=arwdDxtm/postgres",
+        "service_role=arwdDxtm/postgres"
+      ],
+      "rls": true,
+      "name": "sb_projects",
+      "force_rls": false
+    },
+    {
+      "acl": [
+        "postgres=arwdDxtm/postgres",
+        "anon=Dxtm/postgres",
+        "authenticated=arwdDxtm/postgres",
+        "service_role=arwdDxtm/postgres"
+      ],
+      "rls": true,
+      "name": "sb_self_evaluations",
+      "force_rls": false
+    },
+    {
+      "acl": [
+        "postgres=arwdDxtm/postgres",
+        "anon=Dxtm/postgres",
+        "authenticated=arwdDxtm/postgres",
+        "service_role=arwdDxtm/postgres"
+      ],
+      "rls": true,
+      "name": "sb_shared_challenges",
+      "force_rls": false
+    },
+    {
+      "acl": [
+        "postgres=arwdDxtm/postgres",
+        "authenticated=rDxtm/postgres",
+        "service_role=arwdDxtm/postgres"
+      ],
+      "rls": true,
+      "name": "sb_student_created_problems",
+      "force_rls": false
+    },
+    {
+      "acl": [
+        "postgres=arwdDxtm/postgres",
+        "authenticated=rDxtm/postgres",
+        "service_role=arwdDxtm/postgres"
+      ],
+      "rls": true,
+      "name": "sb_student_lesson_reflections",
+      "force_rls": false
+    },
+    {
+      "acl": [
+        "postgres=arwdDxtm/postgres",
+        "anon=Dxtm/postgres",
+        "authenticated=arwdDxtm/postgres",
+        "service_role=arwdDxtm/postgres"
+      ],
+      "rls": true,
+      "name": "sb_student_pin_vault",
+      "force_rls": false
+    },
+    {
+      "acl": [
+        "postgres=arwdDxtm/postgres",
+        "anon=Dxtm/postgres",
+        "authenticated=arwdDxtm/postgres",
+        "service_role=arwdDxtm/postgres"
+      ],
+      "rls": true,
+      "name": "sb_student_progress",
+      "force_rls": false
+    },
+    {
+      "acl": [
+        "postgres=arwdDxtm/postgres",
+        "anon=Dxtm/postgres",
+        "authenticated=arwdDxtm/postgres",
+        "service_role=arwdDxtm/postgres"
+      ],
+      "rls": true,
+      "name": "sb_student_rewards",
+      "force_rls": false
+    },
+    {
+      "acl": [
+        "postgres=arwdDxtm/postgres",
+        "service_role=arwdDxtm/postgres"
+      ],
+      "rls": true,
+      "name": "sb_student_sessions",
+      "force_rls": false
+    },
+    {
+      "acl": [
+        "postgres=arwdDxtm/postgres",
+        "anon=Dxtm/postgres",
+        "authenticated=arwdDxtm/postgres",
+        "service_role=arwdDxtm/postgres"
+      ],
+      "rls": true,
+      "name": "sb_students",
+      "force_rls": false
+    },
+    {
+      "acl": [
+        "postgres=arwdDxtm/postgres",
+        "anon=Dxtm/postgres",
+        "authenticated=arwdDxtm/postgres",
+        "service_role=arwdDxtm/postgres"
+      ],
+      "rls": true,
+      "name": "sb_teacher_settings",
+      "force_rls": false
+    },
+    {
+      "acl": [
+        "postgres=arwdDxtm/postgres",
+        "anon=Dxtm/postgres",
+        "authenticated=arwdDxtm/postgres",
+        "service_role=arwdDxtm/postgres"
+      ],
+      "rls": true,
+      "name": "sb_worksheet_imports",
+      "force_rls": false
+    }
+  ],
+  "columns": [
+    {
+      "name": "id",
+      "type": "uuid",
+      "table": "sb_block_snapshots",
+      "default": "gen_random_uuid()",
+      "nullable": "NO",
+      "position": 1
+    },
+    {
+      "name": "student_id",
+      "type": "uuid",
+      "table": "sb_block_snapshots",
+      "default": null,
+      "nullable": "NO",
+      "position": 2
+    },
+    {
+      "name": "problem_id",
+      "type": "uuid",
+      "table": "sb_block_snapshots",
+      "default": null,
+      "nullable": "YES",
+      "position": 3
+    },
+    {
+      "name": "lesson",
+      "type": "int2",
+      "table": "sb_block_snapshots",
+      "default": null,
+      "nullable": "NO",
+      "position": 4
+    },
+    {
+      "name": "blocks",
+      "type": "jsonb",
+      "table": "sb_block_snapshots",
+      "default": "'[]'::jsonb",
+      "nullable": "NO",
+      "position": 5
+    },
+    {
+      "name": "grid_width",
+      "type": "int2",
+      "table": "sb_block_snapshots",
+      "default": "4",
+      "nullable": "NO",
+      "position": 6
+    },
+    {
+      "name": "grid_depth",
+      "type": "int2",
+      "table": "sb_block_snapshots",
+      "default": "4",
+      "nullable": "NO",
+      "position": 7
+    },
+    {
+      "name": "max_height",
+      "type": "int2",
+      "table": "sb_block_snapshots",
+      "default": "4",
+      "nullable": "NO",
+      "position": 8
+    },
+    {
+      "name": "label",
+      "type": "text",
+      "table": "sb_block_snapshots",
+      "default": null,
+      "nullable": "YES",
+      "position": 9
+    },
+    {
+      "name": "updated_at",
+      "type": "timestamptz",
+      "table": "sb_block_snapshots",
+      "default": "now()",
+      "nullable": "NO",
+      "position": 10
+    },
+    {
+      "name": "challenge_id",
+      "type": "uuid",
+      "table": "sb_challenge_solves",
+      "default": null,
+      "nullable": "NO",
+      "position": 1
+    },
+    {
+      "name": "student_id",
+      "type": "uuid",
+      "table": "sb_challenge_solves",
+      "default": null,
+      "nullable": "NO",
+      "position": 2
+    },
+    {
+      "name": "correct",
+      "type": "bool",
+      "table": "sb_challenge_solves",
+      "default": "false",
+      "nullable": "NO",
+      "position": 3
+    },
+    {
+      "name": "used_hint",
+      "type": "bool",
+      "table": "sb_challenge_solves",
+      "default": "false",
+      "nullable": "NO",
+      "position": 4
+    },
+    {
+      "name": "solved_at",
+      "type": "timestamptz",
+      "table": "sb_challenge_solves",
+      "default": "now()",
+      "nullable": "NO",
+      "position": 5
+    },
+    {
+      "name": "wrong_count",
+      "type": "int4",
+      "table": "sb_challenge_solves",
+      "default": "0",
+      "nullable": "NO",
+      "position": 6
+    },
+    {
+      "name": "answer_revealed",
+      "type": "bool",
+      "table": "sb_challenge_solves",
+      "default": "false",
+      "nullable": "NO",
+      "position": 7
+    },
+    {
+      "name": "xp",
+      "type": "int4",
+      "table": "sb_challenge_solves",
+      "default": "0",
+      "nullable": "NO",
+      "position": 8
+    },
+    {
+      "name": "score",
+      "type": "int4",
+      "table": "sb_challenge_solves",
+      "default": "0",
+      "nullable": "NO",
+      "position": 9
+    },
+    {
+      "name": "id",
+      "type": "uuid",
+      "table": "sb_classes",
+      "default": "gen_random_uuid()",
+      "nullable": "NO",
+      "position": 1
+    },
+    {
+      "name": "teacher_id",
+      "type": "uuid",
+      "table": "sb_classes",
+      "default": null,
+      "nullable": "NO",
+      "position": 2
+    },
+    {
+      "name": "name",
+      "type": "text",
+      "table": "sb_classes",
+      "default": null,
+      "nullable": "NO",
+      "position": 3
+    },
+    {
+      "name": "class_code",
+      "type": "text",
+      "table": "sb_classes",
+      "default": null,
+      "nullable": "NO",
+      "position": 4
+    },
+    {
+      "name": "school_year",
+      "type": "int4",
+      "table": "sb_classes",
+      "default": "EXTRACT(year FROM now())",
+      "nullable": "NO",
+      "position": 5
+    },
+    {
+      "name": "created_at",
+      "type": "timestamptz",
+      "table": "sb_classes",
+      "default": "now()",
+      "nullable": "NO",
+      "position": 6
+    },
+    {
+      "name": "updated_at",
+      "type": "timestamptz",
+      "table": "sb_classes",
+      "default": "now()",
+      "nullable": "NO",
+      "position": 7
+    },
+    {
+      "name": "installation_id",
+      "type": "text",
+      "table": "sb_lesson_progress_records",
+      "default": null,
+      "nullable": "NO",
+      "position": 1
+    },
+    {
+      "name": "class_id",
+      "type": "uuid",
+      "table": "sb_lesson_progress_records",
+      "default": null,
+      "nullable": "NO",
+      "position": 2
+    },
+    {
+      "name": "student_id",
+      "type": "uuid",
+      "table": "sb_lesson_progress_records",
+      "default": null,
+      "nullable": "NO",
+      "position": 3
+    },
+    {
+      "name": "curriculum_version",
+      "type": "text",
+      "table": "sb_lesson_progress_records",
+      "default": null,
+      "nullable": "NO",
+      "position": 4
+    },
+    {
+      "name": "lesson",
+      "type": "int2",
+      "table": "sb_lesson_progress_records",
+      "default": null,
+      "nullable": "NO",
+      "position": 5
+    },
+    {
+      "name": "stage",
+      "type": "text",
+      "table": "sb_lesson_progress_records",
+      "default": null,
+      "nullable": "NO",
+      "position": 6
+    },
+    {
+      "name": "set_id",
+      "type": "text",
+      "table": "sb_lesson_progress_records",
+      "default": null,
+      "nullable": "NO",
+      "position": 7
+    },
+    {
+      "name": "problem_id",
+      "type": "text",
+      "table": "sb_lesson_progress_records",
+      "default": null,
+      "nullable": "NO",
+      "position": 8
+    },
+    {
+      "name": "problem_version",
+      "type": "int4",
+      "table": "sb_lesson_progress_records",
+      "default": "1",
+      "nullable": "NO",
+      "position": 9
+    },
+    {
+      "name": "question_index",
+      "type": "int4",
+      "table": "sb_lesson_progress_records",
+      "default": null,
+      "nullable": "NO",
+      "position": 10
+    },
+    {
+      "name": "answer",
+      "type": "jsonb",
+      "table": "sb_lesson_progress_records",
+      "default": "'{}'::jsonb",
+      "nullable": "NO",
+      "position": 11
+    },
+    {
+      "name": "first_attempt_result",
+      "type": "text",
+      "table": "sb_lesson_progress_records",
+      "default": null,
+      "nullable": "YES",
+      "position": 12
+    },
+    {
+      "name": "attempt_count",
+      "type": "int4",
+      "table": "sb_lesson_progress_records",
+      "default": "0",
+      "nullable": "NO",
+      "position": 13
+    },
+    {
+      "name": "hint_level",
+      "type": "int2",
+      "table": "sb_lesson_progress_records",
+      "default": "0",
+      "nullable": "NO",
+      "position": 14
+    },
+    {
+      "name": "final_result",
+      "type": "text",
+      "table": "sb_lesson_progress_records",
+      "default": null,
+      "nullable": "YES",
+      "position": 15
+    },
+    {
+      "name": "remediation_status",
+      "type": "text",
+      "table": "sb_lesson_progress_records",
+      "default": "'none'::text",
+      "nullable": "NO",
+      "position": 16
+    },
+    {
+      "name": "completed_at",
+      "type": "timestamptz",
+      "table": "sb_lesson_progress_records",
+      "default": null,
+      "nullable": "YES",
+      "position": 17
+    },
+    {
+      "name": "self_evaluation",
+      "type": "jsonb",
+      "table": "sb_lesson_progress_records",
+      "default": "'{}'::jsonb",
+      "nullable": "NO",
+      "position": 18
+    },
+    {
+      "name": "created_at",
+      "type": "timestamptz",
+      "table": "sb_lesson_progress_records",
+      "default": "now()",
+      "nullable": "NO",
+      "position": 19
+    },
+    {
+      "name": "updated_at",
+      "type": "timestamptz",
+      "table": "sb_lesson_progress_records",
+      "default": "now()",
+      "nullable": "NO",
+      "position": 20
+    },
+    {
+      "name": "class_id",
+      "type": "uuid",
+      "table": "sb_lesson_settings",
+      "default": null,
+      "nullable": "NO",
+      "position": 1
+    },
+    {
+      "name": "lesson",
+      "type": "int2",
+      "table": "sb_lesson_settings",
+      "default": null,
+      "nullable": "NO",
+      "position": 2
+    },
+    {
+      "name": "locked",
+      "type": "bool",
+      "table": "sb_lesson_settings",
+      "default": "true",
+      "nullable": "NO",
+      "position": 3
+    },
+    {
+      "name": "updated_at",
+      "type": "timestamptz",
+      "table": "sb_lesson_settings",
+      "default": "now()",
+      "nullable": "NO",
+      "position": 4
+    },
+    {
+      "name": "practice_count",
+      "type": "int2",
+      "table": "sb_lesson_settings",
+      "default": null,
+      "nullable": "YES",
+      "position": 5
+    },
+    {
+      "name": "allow_similar",
+      "type": "bool",
+      "table": "sb_lesson_settings",
+      "default": "true",
+      "nullable": "NO",
+      "position": 6
+    },
+    {
+      "name": "allow_retry",
+      "type": "bool",
+      "table": "sb_lesson_settings",
+      "default": "true",
+      "nullable": "NO",
+      "position": 7
+    },
+    {
+      "name": "id",
+      "type": "uuid",
+      "table": "sb_peer_problem_attempts",
+      "default": "gen_random_uuid()",
+      "nullable": "NO",
+      "position": 1
+    },
+    {
+      "name": "installation_id",
+      "type": "text",
+      "table": "sb_peer_problem_attempts",
+      "default": null,
+      "nullable": "NO",
+      "position": 2
+    },
+    {
+      "name": "class_id",
+      "type": "uuid",
+      "table": "sb_peer_problem_attempts",
+      "default": null,
+      "nullable": "NO",
+      "position": 3
+    },
+    {
+      "name": "problem_id",
+      "type": "uuid",
+      "table": "sb_peer_problem_attempts",
+      "default": null,
+      "nullable": "NO",
+      "position": 4
+    },
+    {
+      "name": "problem_version",
+      "type": "int4",
+      "table": "sb_peer_problem_attempts",
+      "default": null,
+      "nullable": "NO",
+      "position": 5
+    },
+    {
+      "name": "student_id",
+      "type": "uuid",
+      "table": "sb_peer_problem_attempts",
+      "default": null,
+      "nullable": "NO",
+      "position": 6
+    },
+    {
+      "name": "used_hint",
+      "type": "bool",
+      "table": "sb_peer_problem_attempts",
+      "default": "false",
+      "nullable": "NO",
+      "position": 7
+    },
+    {
+      "name": "submitted_answer_json",
+      "type": "jsonb",
+      "table": "sb_peer_problem_attempts",
+      "default": "'{}'::jsonb",
+      "nullable": "NO",
+      "position": 8
+    },
+    {
+      "name": "is_correct",
+      "type": "bool",
+      "table": "sb_peer_problem_attempts",
+      "default": "false",
+      "nullable": "NO",
+      "position": 9
+    },
+    {
+      "name": "score_awarded",
+      "type": "int2",
+      "table": "sb_peer_problem_attempts",
+      "default": "0",
+      "nullable": "NO",
+      "position": 10
+    },
+    {
+      "name": "completed_at",
+      "type": "timestamptz",
+      "table": "sb_peer_problem_attempts",
+      "default": null,
+      "nullable": "YES",
+      "position": 11
+    },
+    {
+      "name": "idempotency_key",
+      "type": "text",
+      "table": "sb_peer_problem_attempts",
+      "default": null,
+      "nullable": "YES",
+      "position": 12
+    },
+    {
+      "name": "created_at",
+      "type": "timestamptz",
+      "table": "sb_peer_problem_attempts",
+      "default": "now()",
+      "nullable": "NO",
+      "position": 13
+    },
+    {
+      "name": "updated_at",
+      "type": "timestamptz",
+      "table": "sb_peer_problem_attempts",
+      "default": "now()",
+      "nullable": "NO",
+      "position": 14
+    },
+    {
+      "name": "assignment_id",
+      "type": "uuid",
+      "table": "sb_practice_assignments",
+      "default": "gen_random_uuid()",
+      "nullable": "NO",
+      "position": 1
+    },
+    {
+      "name": "installation_id",
+      "type": "text",
+      "table": "sb_practice_assignments",
+      "default": null,
+      "nullable": "NO",
+      "position": 2
+    },
+    {
+      "name": "class_id",
+      "type": "uuid",
+      "table": "sb_practice_assignments",
+      "default": null,
+      "nullable": "NO",
+      "position": 3
+    },
+    {
+      "name": "student_id",
+      "type": "uuid",
+      "table": "sb_practice_assignments",
+      "default": null,
+      "nullable": "NO",
+      "position": 4
+    },
+    {
+      "name": "lesson",
+      "type": "int2",
+      "table": "sb_practice_assignments",
+      "default": null,
+      "nullable": "NO",
+      "position": 5
+    },
+    {
+      "name": "curriculum_version",
+      "type": "text",
+      "table": "sb_practice_assignments",
+      "default": null,
+      "nullable": "NO",
+      "position": 6
+    },
+    {
+      "name": "set_id",
+      "type": "text",
+      "table": "sb_practice_assignments",
+      "default": null,
+      "nullable": "NO",
+      "position": 7
+    },
+    {
+      "name": "seed",
+      "type": "int4",
+      "table": "sb_practice_assignments",
+      "default": null,
+      "nullable": "NO",
+      "position": 8
+    },
+    {
+      "name": "problem_ids",
+      "type": "jsonb",
+      "table": "sb_practice_assignments",
+      "default": "'[]'::jsonb",
+      "nullable": "NO",
+      "position": 9
+    },
+    {
+      "name": "target_total",
+      "type": "int2",
+      "table": "sb_practice_assignments",
+      "default": null,
+      "nullable": "NO",
+      "position": 10
+    },
+    {
+      "name": "active",
+      "type": "bool",
+      "table": "sb_practice_assignments",
+      "default": "true",
+      "nullable": "NO",
+      "position": 11
+    },
+    {
+      "name": "created_at",
+      "type": "timestamptz",
+      "table": "sb_practice_assignments",
+      "default": "now()",
+      "nullable": "NO",
+      "position": 12
+    },
+    {
+      "name": "deactivated_at",
+      "type": "timestamptz",
+      "table": "sb_practice_assignments",
+      "default": null,
+      "nullable": "YES",
+      "position": 13
+    },
+    {
+      "name": "id",
+      "type": "uuid",
+      "table": "sb_problem_attempts",
+      "default": "gen_random_uuid()",
+      "nullable": "NO",
+      "position": 1
+    },
+    {
+      "name": "student_id",
+      "type": "uuid",
+      "table": "sb_problem_attempts",
+      "default": null,
+      "nullable": "NO",
+      "position": 2
+    },
+    {
+      "name": "problem_id",
+      "type": "uuid",
+      "table": "sb_problem_attempts",
+      "default": null,
+      "nullable": "NO",
+      "position": 3
+    },
+    {
+      "name": "lesson",
+      "type": "int2",
+      "table": "sb_problem_attempts",
+      "default": null,
+      "nullable": "NO",
+      "position": 4
+    },
+    {
+      "name": "wrong_count",
+      "type": "int4",
+      "table": "sb_problem_attempts",
+      "default": "0",
+      "nullable": "NO",
+      "position": 5
+    },
+    {
+      "name": "hint_shown",
+      "type": "bool",
+      "table": "sb_problem_attempts",
+      "default": "false",
+      "nullable": "NO",
+      "position": 6
+    },
+    {
+      "name": "answer_revealed",
+      "type": "bool",
+      "table": "sb_problem_attempts",
+      "default": "false",
+      "nullable": "NO",
+      "position": 7
+    },
+    {
+      "name": "completed",
+      "type": "bool",
+      "table": "sb_problem_attempts",
+      "default": "false",
+      "nullable": "NO",
+      "position": 8
+    },
+    {
+      "name": "attempt_count",
+      "type": "int4",
+      "table": "sb_problem_attempts",
+      "default": "0",
+      "nullable": "NO",
+      "position": 9
+    },
+    {
+      "name": "stars",
+      "type": "int4",
+      "table": "sb_problem_attempts",
+      "default": "0",
+      "nullable": "NO",
+      "position": 10
+    },
+    {
+      "name": "xp_earned",
+      "type": "int4",
+      "table": "sb_problem_attempts",
+      "default": "0",
+      "nullable": "NO",
+      "position": 11
+    },
+    {
+      "name": "first_seen_at",
+      "type": "timestamptz",
+      "table": "sb_problem_attempts",
+      "default": "now()",
+      "nullable": "NO",
+      "position": 12
+    },
+    {
+      "name": "completed_at",
+      "type": "timestamptz",
+      "table": "sb_problem_attempts",
+      "default": null,
+      "nullable": "YES",
+      "position": 13
+    },
+    {
+      "name": "updated_at",
+      "type": "timestamptz",
+      "table": "sb_problem_attempts",
+      "default": "now()",
+      "nullable": "NO",
+      "position": 14
+    },
+    {
+      "name": "id",
+      "type": "uuid",
+      "table": "sb_problems",
+      "default": "gen_random_uuid()",
+      "nullable": "NO",
+      "position": 1
+    },
+    {
+      "name": "class_id",
+      "type": "uuid",
+      "table": "sb_problems",
+      "default": null,
+      "nullable": "YES",
+      "position": 2
+    },
+    {
+      "name": "created_by",
+      "type": "uuid",
+      "table": "sb_problems",
+      "default": null,
+      "nullable": "YES",
+      "position": 3
+    },
+    {
+      "name": "code",
+      "type": "text",
+      "table": "sb_problems",
+      "default": null,
+      "nullable": "YES",
+      "position": 4
+    },
+    {
+      "name": "lesson",
+      "type": "int2",
+      "table": "sb_problems",
+      "default": null,
+      "nullable": "NO",
+      "position": 5
+    },
+    {
+      "name": "order_index",
+      "type": "int4",
+      "table": "sb_problems",
+      "default": "0",
+      "nullable": "NO",
+      "position": 6
+    },
+    {
+      "name": "problem_type",
+      "type": "text",
+      "table": "sb_problems",
+      "default": null,
+      "nullable": "NO",
+      "position": 7
+    },
+    {
+      "name": "title",
+      "type": "text",
+      "table": "sb_problems",
+      "default": null,
+      "nullable": "NO",
+      "position": 8
+    },
+    {
+      "name": "prompt",
+      "type": "text",
+      "table": "sb_problems",
+      "default": "''::text",
+      "nullable": "NO",
+      "position": 9
+    },
+    {
+      "name": "grid_width",
+      "type": "int2",
+      "table": "sb_problems",
+      "default": "4",
+      "nullable": "NO",
+      "position": 10
+    },
+    {
+      "name": "grid_depth",
+      "type": "int2",
+      "table": "sb_problems",
+      "default": "4",
+      "nullable": "NO",
+      "position": 11
+    },
+    {
+      "name": "max_height",
+      "type": "int2",
+      "table": "sb_problems",
+      "default": "4",
+      "nullable": "NO",
+      "position": 12
+    },
+    {
+      "name": "given_blocks",
+      "type": "jsonb",
+      "table": "sb_problems",
+      "default": "'[]'::jsonb",
+      "nullable": "NO",
+      "position": 13
+    },
+    {
+      "name": "start_blocks",
+      "type": "jsonb",
+      "table": "sb_problems",
+      "default": "'[]'::jsonb",
+      "nullable": "NO",
+      "position": 14
+    },
+    {
+      "name": "given",
+      "type": "jsonb",
+      "table": "sb_problems",
+      "default": "'{}'::jsonb",
+      "nullable": "NO",
+      "position": 15
+    },
+    {
+      "name": "choices",
+      "type": "jsonb",
+      "table": "sb_problems",
+      "default": "'[]'::jsonb",
+      "nullable": "NO",
+      "position": 16
+    },
+    {
+      "name": "answer",
+      "type": "jsonb",
+      "table": "sb_problems",
+      "default": null,
+      "nullable": "NO",
+      "position": 17
+    },
+    {
+      "name": "grading_mode",
+      "type": "text",
+      "table": "sb_problems",
+      "default": "'exact'::text",
+      "nullable": "NO",
+      "position": 18
+    },
+    {
+      "name": "hint",
+      "type": "text",
+      "table": "sb_problems",
+      "default": "''::text",
+      "nullable": "NO",
+      "position": 19
+    },
+    {
+      "name": "explanation",
+      "type": "text",
+      "table": "sb_problems",
+      "default": "''::text",
+      "nullable": "NO",
+      "position": 20
+    },
+    {
+      "name": "difficulty",
+      "type": "int2",
+      "table": "sb_problems",
+      "default": "2",
+      "nullable": "NO",
+      "position": 21
+    },
+    {
+      "name": "xp",
+      "type": "int4",
+      "table": "sb_problems",
+      "default": "30",
+      "nullable": "NO",
+      "position": 22
+    },
+    {
+      "name": "active",
+      "type": "bool",
+      "table": "sb_problems",
+      "default": "true",
+      "nullable": "NO",
+      "position": 23
+    },
+    {
+      "name": "created_at",
+      "type": "timestamptz",
+      "table": "sb_problems",
+      "default": "now()",
+      "nullable": "NO",
+      "position": 24
+    },
+    {
+      "name": "updated_at",
+      "type": "timestamptz",
+      "table": "sb_problems",
+      "default": "now()",
+      "nullable": "NO",
+      "position": 25
+    },
+    {
+      "name": "source_type",
+      "type": "text",
+      "table": "sb_problems",
+      "default": "'BUILT_IN'::text",
+      "nullable": "NO",
+      "position": 26
+    },
+    {
+      "name": "image_path",
+      "type": "text",
+      "table": "sb_problems",
+      "default": null,
+      "nullable": "YES",
+      "position": 27
+    },
+    {
+      "name": "id",
+      "type": "uuid",
+      "table": "sb_project_exports",
+      "default": "gen_random_uuid()",
+      "nullable": "NO",
+      "position": 1
+    },
+    {
+      "name": "installation_id",
+      "type": "text",
+      "table": "sb_project_exports",
+      "default": null,
+      "nullable": "NO",
+      "position": 2
+    },
+    {
+      "name": "class_id",
+      "type": "uuid",
+      "table": "sb_project_exports",
+      "default": null,
+      "nullable": "NO",
+      "position": 3
+    },
+    {
+      "name": "student_id",
+      "type": "uuid",
+      "table": "sb_project_exports",
+      "default": null,
+      "nullable": "NO",
+      "position": 4
+    },
+    {
+      "name": "project_id",
+      "type": "uuid",
+      "table": "sb_project_exports",
+      "default": null,
+      "nullable": "YES",
+      "position": 5
+    },
+    {
+      "name": "project_version",
+      "type": "int4",
+      "table": "sb_project_exports",
+      "default": null,
+      "nullable": "NO",
+      "position": 6
+    },
+    {
+      "name": "export_type",
+      "type": "text",
+      "table": "sb_project_exports",
+      "default": null,
+      "nullable": "NO",
+      "position": 7
+    },
+    {
+      "name": "snapshot_json",
+      "type": "jsonb",
+      "table": "sb_project_exports",
+      "default": "'{}'::jsonb",
+      "nullable": "NO",
+      "position": 8
+    },
+    {
+      "name": "created_at",
+      "type": "timestamptz",
+      "table": "sb_project_exports",
+      "default": "now()",
+      "nullable": "NO",
+      "position": 9
+    },
+    {
+      "name": "student_id",
+      "type": "uuid",
+      "table": "sb_projects",
+      "default": null,
+      "nullable": "NO",
+      "position": 1
+    },
+    {
+      "name": "class_id",
+      "type": "uuid",
+      "table": "sb_projects",
+      "default": null,
+      "nullable": "NO",
+      "position": 2
+    },
+    {
+      "name": "building_name",
+      "type": "text",
+      "table": "sb_projects",
+      "default": "''::text",
+      "nullable": "NO",
+      "position": 3
+    },
+    {
+      "name": "reason",
+      "type": "text",
+      "table": "sb_projects",
+      "default": "''::text",
+      "nullable": "NO",
+      "position": 4
+    },
+    {
+      "name": "description",
+      "type": "text",
+      "table": "sb_projects",
+      "default": "''::text",
+      "nullable": "NO",
+      "position": 5
+    },
+    {
+      "name": "layer_notes",
+      "type": "jsonb",
+      "table": "sb_projects",
+      "default": "'[]'::jsonb",
+      "nullable": "NO",
+      "position": 6
+    },
+    {
+      "name": "blocks",
+      "type": "jsonb",
+      "table": "sb_projects",
+      "default": "'[]'::jsonb",
+      "nullable": "NO",
+      "position": 7
+    },
+    {
+      "name": "grid_width",
+      "type": "int2",
+      "table": "sb_projects",
+      "default": "10",
+      "nullable": "NO",
+      "position": 8
+    },
+    {
+      "name": "grid_depth",
+      "type": "int2",
+      "table": "sb_projects",
+      "default": "10",
+      "nullable": "NO",
+      "position": 9
+    },
+    {
+      "name": "max_height",
+      "type": "int2",
+      "table": "sb_projects",
+      "default": "5",
+      "nullable": "NO",
+      "position": 10
+    },
+    {
+      "name": "capture",
+      "type": "text",
+      "table": "sb_projects",
+      "default": null,
+      "nullable": "YES",
+      "position": 11
+    },
+    {
+      "name": "submitted",
+      "type": "bool",
+      "table": "sb_projects",
+      "default": "false",
+      "nullable": "NO",
+      "position": 12
+    },
+    {
+      "name": "updated_at",
+      "type": "timestamptz",
+      "table": "sb_projects",
+      "default": "now()",
+      "nullable": "NO",
+      "position": 13
+    },
+    {
+      "name": "version",
+      "type": "int4",
+      "table": "sb_projects",
+      "default": "1",
+      "nullable": "NO",
+      "position": 14
+    },
+    {
+      "name": "block_appearance",
+      "type": "jsonb",
+      "table": "sb_projects",
+      "default": "'{}'::jsonb",
+      "nullable": "NO",
+      "position": 15
+    },
+    {
+      "name": "intro_theme",
+      "type": "text",
+      "table": "sb_projects",
+      "default": "'blueprint'::text",
+      "nullable": "NO",
+      "position": 16
+    },
+    {
+      "name": "project_id",
+      "type": "uuid",
+      "table": "sb_projects",
+      "default": "gen_random_uuid()",
+      "nullable": "YES",
+      "position": 17
+    },
+    {
+      "name": "student_id",
+      "type": "uuid",
+      "table": "sb_self_evaluations",
+      "default": null,
+      "nullable": "NO",
+      "position": 1
+    },
+    {
+      "name": "confidence",
+      "type": "int4",
+      "table": "sb_self_evaluations",
+      "default": null,
+      "nullable": "NO",
+      "position": 2
+    },
+    {
+      "name": "reflection",
+      "type": "text",
+      "table": "sb_self_evaluations",
+      "default": "''::text",
+      "nullable": "NO",
+      "position": 3
+    },
+    {
+      "name": "updated_at",
+      "type": "timestamptz",
+      "table": "sb_self_evaluations",
+      "default": "now()",
+      "nullable": "NO",
+      "position": 4
+    },
+    {
+      "name": "id",
+      "type": "uuid",
+      "table": "sb_shared_challenges",
+      "default": "gen_random_uuid()",
+      "nullable": "NO",
+      "position": 1
+    },
+    {
+      "name": "class_id",
+      "type": "uuid",
+      "table": "sb_shared_challenges",
+      "default": null,
+      "nullable": "NO",
+      "position": 2
+    },
+    {
+      "name": "author_id",
+      "type": "uuid",
+      "table": "sb_shared_challenges",
+      "default": null,
+      "nullable": "YES",
+      "position": 3
+    },
+    {
+      "name": "share_code",
+      "type": "text",
+      "table": "sb_shared_challenges",
+      "default": null,
+      "nullable": "NO",
+      "position": 4
+    },
+    {
+      "name": "challenge_type",
+      "type": "text",
+      "table": "sb_shared_challenges",
+      "default": "'views'::text",
+      "nullable": "NO",
+      "position": 5
+    },
+    {
+      "name": "blocks",
+      "type": "jsonb",
+      "table": "sb_shared_challenges",
+      "default": "'[]'::jsonb",
+      "nullable": "NO",
+      "position": 6
+    },
+    {
+      "name": "grid_width",
+      "type": "int2",
+      "table": "sb_shared_challenges",
+      "default": "4",
+      "nullable": "NO",
+      "position": 7
+    },
+    {
+      "name": "grid_depth",
+      "type": "int2",
+      "table": "sb_shared_challenges",
+      "default": "4",
+      "nullable": "NO",
+      "position": 8
+    },
+    {
+      "name": "max_height",
+      "type": "int2",
+      "table": "sb_shared_challenges",
+      "default": "4",
+      "nullable": "NO",
+      "position": 9
+    },
+    {
+      "name": "solved_count",
+      "type": "int4",
+      "table": "sb_shared_challenges",
+      "default": "0",
+      "nullable": "NO",
+      "position": 10
+    },
+    {
+      "name": "created_at",
+      "type": "timestamptz",
+      "table": "sb_shared_challenges",
+      "default": "now()",
+      "nullable": "NO",
+      "position": 11
+    },
+    {
+      "name": "hint_type",
+      "type": "text",
+      "table": "sb_shared_challenges",
+      "default": "'heightMap'::text",
+      "nullable": "NO",
+      "position": 12
+    },
+    {
+      "name": "source",
+      "type": "text",
+      "table": "sb_shared_challenges",
+      "default": "'student'::text",
+      "nullable": "NO",
+      "position": 13
+    },
+    {
+      "name": "problem_id",
+      "type": "uuid",
+      "table": "sb_student_created_problems",
+      "default": "gen_random_uuid()",
+      "nullable": "NO",
+      "position": 1
+    },
+    {
+      "name": "version",
+      "type": "int4",
+      "table": "sb_student_created_problems",
+      "default": null,
+      "nullable": "NO",
+      "position": 2
+    },
+    {
+      "name": "installation_id",
+      "type": "text",
+      "table": "sb_student_created_problems",
+      "default": null,
+      "nullable": "NO",
+      "position": 3
+    },
+    {
+      "name": "class_id",
+      "type": "uuid",
+      "table": "sb_student_created_problems",
+      "default": null,
+      "nullable": "NO",
+      "position": 4
+    },
+    {
+      "name": "author_student_id",
+      "type": "uuid",
+      "table": "sb_student_created_problems",
+      "default": null,
+      "nullable": "NO",
+      "position": 5
+    },
+    {
+      "name": "title",
+      "type": "text",
+      "table": "sb_student_created_problems",
+      "default": "''::text",
+      "nullable": "NO",
+      "position": 6
+    },
+    {
+      "name": "public_problem_json",
+      "type": "jsonb",
+      "table": "sb_student_created_problems",
+      "default": "'{}'::jsonb",
+      "nullable": "NO",
+      "position": 7
+    },
+    {
+      "name": "hidden_validation_json",
+      "type": "jsonb",
+      "table": "sb_student_created_problems",
+      "default": "'{}'::jsonb",
+      "nullable": "NO",
+      "position": 8
+    },
+    {
+      "name": "hint_type",
+      "type": "text",
+      "table": "sb_student_created_problems",
+      "default": null,
+      "nullable": "NO",
+      "position": 9
+    },
+    {
+      "name": "status",
+      "type": "text",
+      "table": "sb_student_created_problems",
+      "default": "'draft'::text",
+      "nullable": "NO",
+      "position": 10
+    },
+    {
+      "name": "published_at",
+      "type": "timestamptz",
+      "table": "sb_student_created_problems",
+      "default": null,
+      "nullable": "YES",
+      "position": 11
+    },
+    {
+      "name": "hidden_at",
+      "type": "timestamptz",
+      "table": "sb_student_created_problems",
+      "default": null,
+      "nullable": "YES",
+      "position": 12
+    },
+    {
+      "name": "created_at",
+      "type": "timestamptz",
+      "table": "sb_student_created_problems",
+      "default": "now()",
+      "nullable": "NO",
+      "position": 13
+    },
+    {
+      "name": "updated_at",
+      "type": "timestamptz",
+      "table": "sb_student_created_problems",
+      "default": "now()",
+      "nullable": "NO",
+      "position": 14
+    },
+    {
+      "name": "installation_id",
+      "type": "text",
+      "table": "sb_student_lesson_reflections",
+      "default": null,
+      "nullable": "NO",
+      "position": 1
+    },
+    {
+      "name": "class_id",
+      "type": "uuid",
+      "table": "sb_student_lesson_reflections",
+      "default": null,
+      "nullable": "NO",
+      "position": 2
+    },
+    {
+      "name": "student_id",
+      "type": "uuid",
+      "table": "sb_student_lesson_reflections",
+      "default": null,
+      "nullable": "NO",
+      "position": 3
+    },
+    {
+      "name": "lesson",
+      "type": "int2",
+      "table": "sb_student_lesson_reflections",
+      "default": null,
+      "nullable": "NO",
+      "position": 4
+    },
+    {
+      "name": "curriculum_version",
+      "type": "text",
+      "table": "sb_student_lesson_reflections",
+      "default": null,
+      "nullable": "NO",
+      "position": 5
+    },
+    {
+      "name": "confidence",
+      "type": "int2",
+      "table": "sb_student_lesson_reflections",
+      "default": null,
+      "nullable": "YES",
+      "position": 6
+    },
+    {
+      "name": "favorite_concept",
+      "type": "text",
+      "table": "sb_student_lesson_reflections",
+      "default": null,
+      "nullable": "YES",
+      "position": 7
+    },
+    {
+      "name": "self_praise",
+      "type": "text",
+      "table": "sb_student_lesson_reflections",
+      "default": "''::text",
+      "nullable": "NO",
+      "position": 8
+    },
+    {
+      "name": "updated_at",
+      "type": "timestamptz",
+      "table": "sb_student_lesson_reflections",
+      "default": "now()",
+      "nullable": "NO",
+      "position": 9
+    },
+    {
+      "name": "student_id",
+      "type": "uuid",
+      "table": "sb_student_pin_vault",
+      "default": null,
+      "nullable": "NO",
+      "position": 1
+    },
+    {
+      "name": "class_id",
+      "type": "uuid",
+      "table": "sb_student_pin_vault",
+      "default": null,
+      "nullable": "NO",
+      "position": 2
+    },
+    {
+      "name": "pin_plain",
+      "type": "text",
+      "table": "sb_student_pin_vault",
+      "default": null,
+      "nullable": "NO",
+      "position": 3
+    },
+    {
+      "name": "issued_at",
+      "type": "timestamptz",
+      "table": "sb_student_pin_vault",
+      "default": "now()",
+      "nullable": "NO",
+      "position": 4
+    },
+    {
+      "name": "student_id",
+      "type": "uuid",
+      "table": "sb_student_progress",
+      "default": null,
+      "nullable": "NO",
+      "position": 1
+    },
+    {
+      "name": "lesson",
+      "type": "int2",
+      "table": "sb_student_progress",
+      "default": null,
+      "nullable": "NO",
+      "position": 2
+    },
+    {
+      "name": "completed",
+      "type": "bool",
+      "table": "sb_student_progress",
+      "default": "false",
+      "nullable": "NO",
+      "position": 3
+    },
+    {
+      "name": "completed_at",
+      "type": "timestamptz",
+      "table": "sb_student_progress",
+      "default": null,
+      "nullable": "YES",
+      "position": 4
+    },
+    {
+      "name": "stars",
+      "type": "int4",
+      "table": "sb_student_progress",
+      "default": "0",
+      "nullable": "NO",
+      "position": 5
+    },
+    {
+      "name": "last_problem_id",
+      "type": "uuid",
+      "table": "sb_student_progress",
+      "default": null,
+      "nullable": "YES",
+      "position": 6
+    },
+    {
+      "name": "updated_at",
+      "type": "timestamptz",
+      "table": "sb_student_progress",
+      "default": "now()",
+      "nullable": "NO",
+      "position": 7
+    },
+    {
+      "name": "practice_seed",
+      "type": "int4",
+      "table": "sb_student_progress",
+      "default": null,
+      "nullable": "YES",
+      "position": 8
+    },
+    {
+      "name": "guided_completed",
+      "type": "bool",
+      "table": "sb_student_progress",
+      "default": "false",
+      "nullable": "NO",
+      "position": 9
+    },
+    {
+      "name": "student_id",
+      "type": "uuid",
+      "table": "sb_student_rewards",
+      "default": null,
+      "nullable": "NO",
+      "position": 1
+    },
+    {
+      "name": "total_xp",
+      "type": "int4",
+      "table": "sb_student_rewards",
+      "default": "0",
+      "nullable": "NO",
+      "position": 2
+    },
+    {
+      "name": "total_stars",
+      "type": "int4",
+      "table": "sb_student_rewards",
+      "default": "0",
+      "nullable": "NO",
+      "position": 3
+    },
+    {
+      "name": "badges",
+      "type": "jsonb",
+      "table": "sb_student_rewards",
+      "default": "'[]'::jsonb",
+      "nullable": "NO",
+      "position": 4
+    },
+    {
+      "name": "streak",
+      "type": "int4",
+      "table": "sb_student_rewards",
+      "default": "0",
+      "nullable": "NO",
+      "position": 5
+    },
+    {
+      "name": "updated_at",
+      "type": "timestamptz",
+      "table": "sb_student_rewards",
+      "default": "now()",
+      "nullable": "NO",
+      "position": 6
+    },
+    {
+      "name": "equipped_material",
+      "type": "text",
+      "table": "sb_student_rewards",
+      "default": "'wood'::text",
+      "nullable": "NO",
+      "position": 7
+    },
+    {
+      "name": "intro_theme",
+      "type": "text",
+      "table": "sb_student_rewards",
+      "default": "'blueprint'::text",
+      "nullable": "NO",
+      "position": 8
+    },
+    {
+      "name": "id",
+      "type": "uuid",
+      "table": "sb_student_sessions",
+      "default": "gen_random_uuid()",
+      "nullable": "NO",
+      "position": 1
+    },
+    {
+      "name": "student_id",
+      "type": "uuid",
+      "table": "sb_student_sessions",
+      "default": null,
+      "nullable": "NO",
+      "position": 2
+    },
+    {
+      "name": "class_id",
+      "type": "uuid",
+      "table": "sb_student_sessions",
+      "default": null,
+      "nullable": "NO",
+      "position": 3
+    },
+    {
+      "name": "token_hash",
+      "type": "text",
+      "table": "sb_student_sessions",
+      "default": null,
+      "nullable": "NO",
+      "position": 4
+    },
+    {
+      "name": "issued_at",
+      "type": "timestamptz",
+      "table": "sb_student_sessions",
+      "default": "now()",
+      "nullable": "NO",
+      "position": 5
+    },
+    {
+      "name": "expires_at",
+      "type": "timestamptz",
+      "table": "sb_student_sessions",
+      "default": null,
+      "nullable": "NO",
+      "position": 6
+    },
+    {
+      "name": "revoked",
+      "type": "bool",
+      "table": "sb_student_sessions",
+      "default": "false",
+      "nullable": "NO",
+      "position": 7
+    },
+    {
+      "name": "id",
+      "type": "uuid",
+      "table": "sb_students",
+      "default": "gen_random_uuid()",
+      "nullable": "NO",
+      "position": 1
+    },
+    {
+      "name": "class_id",
+      "type": "uuid",
+      "table": "sb_students",
+      "default": null,
+      "nullable": "NO",
+      "position": 2
+    },
+    {
+      "name": "name",
+      "type": "text",
+      "table": "sb_students",
+      "default": null,
+      "nullable": "NO",
+      "position": 3
+    },
+    {
+      "name": "student_no",
+      "type": "int4",
+      "table": "sb_students",
+      "default": null,
+      "nullable": "YES",
+      "position": 4
+    },
+    {
+      "name": "pin_hash",
+      "type": "text",
+      "table": "sb_students",
+      "default": null,
+      "nullable": "NO",
+      "position": 5
+    },
+    {
+      "name": "failed_attempts",
+      "type": "int4",
+      "table": "sb_students",
+      "default": "0",
+      "nullable": "NO",
+      "position": 6
+    },
+    {
+      "name": "locked_until",
+      "type": "timestamptz",
+      "table": "sb_students",
+      "default": null,
+      "nullable": "YES",
+      "position": 7
+    },
+    {
+      "name": "status",
+      "type": "text",
+      "table": "sb_students",
+      "default": "'active'::text",
+      "nullable": "NO",
+      "position": 8
+    },
+    {
+      "name": "created_at",
+      "type": "timestamptz",
+      "table": "sb_students",
+      "default": "now()",
+      "nullable": "NO",
+      "position": 9
+    },
+    {
+      "name": "updated_at",
+      "type": "timestamptz",
+      "table": "sb_students",
+      "default": "now()",
+      "nullable": "NO",
+      "position": 10
+    },
+    {
+      "name": "teacher_id",
+      "type": "uuid",
+      "table": "sb_teacher_settings",
+      "default": null,
+      "nullable": "NO",
+      "position": 1
+    },
+    {
+      "name": "display_name",
+      "type": "text",
+      "table": "sb_teacher_settings",
+      "default": null,
+      "nullable": "YES",
+      "position": 2
+    },
+    {
+      "name": "created_at",
+      "type": "timestamptz",
+      "table": "sb_teacher_settings",
+      "default": "now()",
+      "nullable": "NO",
+      "position": 3
+    },
+    {
+      "name": "updated_at",
+      "type": "timestamptz",
+      "table": "sb_teacher_settings",
+      "default": "now()",
+      "nullable": "NO",
+      "position": 4
+    },
+    {
+      "name": "id",
+      "type": "uuid",
+      "table": "sb_worksheet_imports",
+      "default": "gen_random_uuid()",
+      "nullable": "NO",
+      "position": 1
+    },
+    {
+      "name": "teacher_id",
+      "type": "uuid",
+      "table": "sb_worksheet_imports",
+      "default": null,
+      "nullable": "NO",
+      "position": 2
+    },
+    {
+      "name": "class_id",
+      "type": "uuid",
+      "table": "sb_worksheet_imports",
+      "default": null,
+      "nullable": "NO",
+      "position": 3
+    },
+    {
+      "name": "filename",
+      "type": "text",
+      "table": "sb_worksheet_imports",
+      "default": null,
+      "nullable": "NO",
+      "position": 4
+    },
+    {
+      "name": "storage_path",
+      "type": "text",
+      "table": "sb_worksheet_imports",
+      "default": null,
+      "nullable": "NO",
+      "position": 5
+    },
+    {
+      "name": "status",
+      "type": "text",
+      "table": "sb_worksheet_imports",
+      "default": "'UPLOADED'::text",
+      "nullable": "NO",
+      "position": 6
+    },
+    {
+      "name": "created_at",
+      "type": "timestamptz",
+      "table": "sb_worksheet_imports",
+      "default": "now()",
+      "nullable": "NO",
+      "position": 7
+    }
+  ],
+  "constraints": [
+    {
+      "name": "sb_block_snapshots_pkey",
+      "type": "p",
+      "table": "sb_block_snapshots",
+      "definition": "PRIMARY KEY (id)"
+    },
+    {
+      "name": "sb_block_snapshots_problem_id_fkey",
+      "type": "f",
+      "table": "sb_block_snapshots",
+      "definition": "FOREIGN KEY (problem_id) REFERENCES sb_problems(id) ON DELETE CASCADE"
+    },
+    {
+      "name": "sb_block_snapshots_student_id_fkey",
+      "type": "f",
+      "table": "sb_block_snapshots",
+      "definition": "FOREIGN KEY (student_id) REFERENCES sb_students(id) ON DELETE CASCADE"
+    },
+    {
+      "name": "sb_block_snapshots_student_id_problem_id_key",
+      "type": "u",
+      "table": "sb_block_snapshots",
+      "definition": "UNIQUE (student_id, problem_id)"
+    },
+    {
+      "name": "sb_challenge_solves_challenge_id_fkey",
+      "type": "f",
+      "table": "sb_challenge_solves",
+      "definition": "FOREIGN KEY (challenge_id) REFERENCES sb_shared_challenges(id) ON DELETE CASCADE"
+    },
+    {
+      "name": "sb_challenge_solves_pkey",
+      "type": "p",
+      "table": "sb_challenge_solves",
+      "definition": "PRIMARY KEY (challenge_id, student_id)"
+    },
+    {
+      "name": "sb_challenge_solves_score_check",
+      "type": "c",
+      "table": "sb_challenge_solves",
+      "definition": "CHECK (((score >= 0) AND (score <= 2)))"
+    },
+    {
+      "name": "sb_challenge_solves_student_id_fkey",
+      "type": "f",
+      "table": "sb_challenge_solves",
+      "definition": "FOREIGN KEY (student_id) REFERENCES sb_students(id) ON DELETE CASCADE"
+    },
+    {
+      "name": "sb_classes_class_code_key",
+      "type": "u",
+      "table": "sb_classes",
+      "definition": "UNIQUE (class_code)"
+    },
+    {
+      "name": "sb_classes_pkey",
+      "type": "p",
+      "table": "sb_classes",
+      "definition": "PRIMARY KEY (id)"
+    },
+    {
+      "name": "sb_classes_teacher_id_fkey",
+      "type": "f",
+      "table": "sb_classes",
+      "definition": "FOREIGN KEY (teacher_id) REFERENCES auth.users(id) ON DELETE CASCADE"
+    },
+    {
+      "name": "sb_lesson_progress_records_attempt_count_check",
+      "type": "c",
+      "table": "sb_lesson_progress_records",
+      "definition": "CHECK ((attempt_count >= 0))"
+    },
+    {
+      "name": "sb_lesson_progress_records_class_id_fkey",
+      "type": "f",
+      "table": "sb_lesson_progress_records",
+      "definition": "FOREIGN KEY (class_id) REFERENCES sb_classes(id) ON DELETE CASCADE"
+    },
+    {
+      "name": "sb_lesson_progress_records_final_result_check",
+      "type": "c",
+      "table": "sb_lesson_progress_records",
+      "definition": "CHECK ((final_result = ANY (ARRAY['correct'::text, 'incorrect'::text])))"
+    },
+    {
+      "name": "sb_lesson_progress_records_first_attempt_result_check",
+      "type": "c",
+      "table": "sb_lesson_progress_records",
+      "definition": "CHECK ((first_attempt_result = ANY (ARRAY['correct'::text, 'incorrect'::text])))"
+    },
+    {
+      "name": "sb_lesson_progress_records_hint_level_check",
+      "type": "c",
+      "table": "sb_lesson_progress_records",
+      "definition": "CHECK ((hint_level >= 0))"
+    },
+    {
+      "name": "sb_lesson_progress_records_lesson_check",
+      "type": "c",
+      "table": "sb_lesson_progress_records",
+      "definition": "CHECK (((lesson >= 1) AND (lesson <= 12)))"
+    },
+    {
+      "name": "sb_lesson_progress_records_pkey",
+      "type": "p",
+      "table": "sb_lesson_progress_records",
+      "definition": "PRIMARY KEY (installation_id, class_id, student_id, lesson, set_id, problem_id, problem_version)"
+    },
+    {
+      "name": "sb_lesson_progress_records_problem_version_check",
+      "type": "c",
+      "table": "sb_lesson_progress_records",
+      "definition": "CHECK ((problem_version > 0))"
+    },
+    {
+      "name": "sb_lesson_progress_records_question_index_check",
+      "type": "c",
+      "table": "sb_lesson_progress_records",
+      "definition": "CHECK ((question_index >= 0))"
+    },
+    {
+      "name": "sb_lesson_progress_records_remediation_status_check",
+      "type": "c",
+      "table": "sb_lesson_progress_records",
+      "definition": "CHECK ((remediation_status = ANY (ARRAY['none'::text, 'needed'::text, 'complete'::text])))"
+    },
+    {
+      "name": "sb_lesson_progress_records_stage_check",
+      "type": "c",
+      "table": "sb_lesson_progress_records",
+      "definition": "CHECK ((stage = ANY (ARRAY['learn'::text, 'solve'::text, 'practice'::text])))"
+    },
+    {
+      "name": "sb_lesson_progress_records_student_id_fkey",
+      "type": "f",
+      "table": "sb_lesson_progress_records",
+      "definition": "FOREIGN KEY (student_id) REFERENCES sb_students(id) ON DELETE CASCADE"
+    },
+    {
+      "name": "sb_lesson_settings_class_id_fkey",
+      "type": "f",
+      "table": "sb_lesson_settings",
+      "definition": "FOREIGN KEY (class_id) REFERENCES sb_classes(id) ON DELETE CASCADE"
+    },
+    {
+      "name": "sb_lesson_settings_lesson_check",
+      "type": "c",
+      "table": "sb_lesson_settings",
+      "definition": "CHECK (((lesson >= 1) AND (lesson <= 12)))"
+    },
+    {
+      "name": "sb_lesson_settings_pkey",
+      "type": "p",
+      "table": "sb_lesson_settings",
+      "definition": "PRIMARY KEY (class_id, lesson)"
+    },
+    {
+      "name": "sb_lesson_settings_practice_count_check",
+      "type": "c",
+      "table": "sb_lesson_settings",
+      "definition": "CHECK ((practice_count = ANY (ARRAY[5, 10, 15, 20])))"
+    },
+    {
+      "name": "sb_peer_problem_attempts_class_id_fkey",
+      "type": "f",
+      "table": "sb_peer_problem_attempts",
+      "definition": "FOREIGN KEY (class_id) REFERENCES sb_classes(id) ON DELETE CASCADE"
+    },
+    {
+      "name": "sb_peer_problem_attempts_installation_id_idempotency_key_key",
+      "type": "u",
+      "table": "sb_peer_problem_attempts",
+      "definition": "UNIQUE (installation_id, idempotency_key)"
+    },
+    {
+      "name": "sb_peer_problem_attempts_installation_id_problem_id_problem_key",
+      "type": "u",
+      "table": "sb_peer_problem_attempts",
+      "definition": "UNIQUE (installation_id, problem_id, problem_version, student_id)"
+    },
+    {
+      "name": "sb_peer_problem_attempts_pkey",
+      "type": "p",
+      "table": "sb_peer_problem_attempts",
+      "definition": "PRIMARY KEY (id)"
+    },
+    {
+      "name": "sb_peer_problem_attempts_problem_id_problem_version_fkey",
+      "type": "f",
+      "table": "sb_peer_problem_attempts",
+      "definition": "FOREIGN KEY (problem_id, problem_version) REFERENCES sb_student_created_problems(problem_id, version) ON DELETE CASCADE"
+    },
+    {
+      "name": "sb_peer_problem_attempts_problem_version_check",
+      "type": "c",
+      "table": "sb_peer_problem_attempts",
+      "definition": "CHECK ((problem_version > 0))"
+    },
+    {
+      "name": "sb_peer_problem_attempts_score_awarded_check",
+      "type": "c",
+      "table": "sb_peer_problem_attempts",
+      "definition": "CHECK (((score_awarded >= 0) AND (score_awarded <= 2)))"
+    },
+    {
+      "name": "sb_peer_problem_attempts_student_id_fkey",
+      "type": "f",
+      "table": "sb_peer_problem_attempts",
+      "definition": "FOREIGN KEY (student_id) REFERENCES sb_students(id) ON DELETE CASCADE"
+    },
+    {
+      "name": "sb_practice_assignments_class_id_fkey",
+      "type": "f",
+      "table": "sb_practice_assignments",
+      "definition": "FOREIGN KEY (class_id) REFERENCES sb_classes(id) ON DELETE CASCADE"
+    },
+    {
+      "name": "sb_practice_assignments_installation_id_student_id_lesson_s_key",
+      "type": "u",
+      "table": "sb_practice_assignments",
+      "definition": "UNIQUE (installation_id, student_id, lesson, set_id)"
+    },
+    {
+      "name": "sb_practice_assignments_lesson_check",
+      "type": "c",
+      "table": "sb_practice_assignments",
+      "definition": "CHECK (((lesson >= 1) AND (lesson <= 12)))"
+    },
+    {
+      "name": "sb_practice_assignments_pkey",
+      "type": "p",
+      "table": "sb_practice_assignments",
+      "definition": "PRIMARY KEY (assignment_id)"
+    },
+    {
+      "name": "sb_practice_assignments_student_id_fkey",
+      "type": "f",
+      "table": "sb_practice_assignments",
+      "definition": "FOREIGN KEY (student_id) REFERENCES sb_students(id) ON DELETE CASCADE"
+    },
+    {
+      "name": "sb_practice_assignments_target_total_check",
+      "type": "c",
+      "table": "sb_practice_assignments",
+      "definition": "CHECK ((target_total = ANY (ARRAY[5, 10, 15, 20])))"
+    },
+    {
+      "name": "sb_problem_attempts_pkey",
+      "type": "p",
+      "table": "sb_problem_attempts",
+      "definition": "PRIMARY KEY (id)"
+    },
+    {
+      "name": "sb_problem_attempts_problem_id_fkey",
+      "type": "f",
+      "table": "sb_problem_attempts",
+      "definition": "FOREIGN KEY (problem_id) REFERENCES sb_problems(id) ON DELETE CASCADE"
+    },
+    {
+      "name": "sb_problem_attempts_student_id_fkey",
+      "type": "f",
+      "table": "sb_problem_attempts",
+      "definition": "FOREIGN KEY (student_id) REFERENCES sb_students(id) ON DELETE CASCADE"
+    },
+    {
+      "name": "sb_problem_attempts_student_id_problem_id_key",
+      "type": "u",
+      "table": "sb_problem_attempts",
+      "definition": "UNIQUE (student_id, problem_id)"
+    },
+    {
+      "name": "sb_problems_class_id_code_key",
+      "type": "u",
+      "table": "sb_problems",
+      "definition": "UNIQUE (class_id, code)"
+    },
+    {
+      "name": "sb_problems_class_id_fkey",
+      "type": "f",
+      "table": "sb_problems",
+      "definition": "FOREIGN KEY (class_id) REFERENCES sb_classes(id) ON DELETE CASCADE"
+    },
+    {
+      "name": "sb_problems_created_by_fkey",
+      "type": "f",
+      "table": "sb_problems",
+      "definition": "FOREIGN KEY (created_by) REFERENCES auth.users(id) ON DELETE SET NULL"
+    },
+    {
+      "name": "sb_problems_difficulty_check",
+      "type": "c",
+      "table": "sb_problems",
+      "definition": "CHECK (((difficulty >= 1) AND (difficulty <= 3)))"
+    },
+    {
+      "name": "sb_problems_grading_mode_check",
+      "type": "c",
+      "table": "sb_problems",
+      "definition": "CHECK ((grading_mode = ANY (ARRAY['exact'::text, 'constraint'::text])))"
+    },
+    {
+      "name": "sb_problems_grid_depth_check",
+      "type": "c",
+      "table": "sb_problems",
+      "definition": "CHECK (((grid_depth >= 1) AND (grid_depth <= 8)))"
+    },
+    {
+      "name": "sb_problems_grid_width_check",
+      "type": "c",
+      "table": "sb_problems",
+      "definition": "CHECK (((grid_width >= 1) AND (grid_width <= 8)))"
+    },
+    {
+      "name": "sb_problems_lesson_check",
+      "type": "c",
+      "table": "sb_problems",
+      "definition": "CHECK (((lesson >= 1) AND (lesson <= 12)))"
+    },
+    {
+      "name": "sb_problems_max_height_check",
+      "type": "c",
+      "table": "sb_problems",
+      "definition": "CHECK (((max_height >= 1) AND (max_height <= 8)))"
+    },
+    {
+      "name": "sb_problems_pkey",
+      "type": "p",
+      "table": "sb_problems",
+      "definition": "PRIMARY KEY (id)"
+    },
+    {
+      "name": "sb_problems_source_type_check",
+      "type": "c",
+      "table": "sb_problems",
+      "definition": "CHECK ((source_type = ANY (ARRAY['BUILT_IN'::text, 'TEXTBOOK_STYLE'::text, 'WORKSHEET_IMPORT'::text, 'TEACHER_CREATED'::text])))"
+    },
+    {
+      "name": "sb_problems_xp_check",
+      "type": "c",
+      "table": "sb_problems",
+      "definition": "CHECK ((xp >= 0))"
+    },
+    {
+      "name": "sb_project_exports_class_id_fkey",
+      "type": "f",
+      "table": "sb_project_exports",
+      "definition": "FOREIGN KEY (class_id) REFERENCES sb_classes(id) ON DELETE CASCADE"
+    },
+    {
+      "name": "sb_project_exports_export_type_check",
+      "type": "c",
+      "table": "sb_project_exports",
+      "definition": "CHECK ((export_type = ANY (ARRAY['png'::text, 'pdf'::text])))"
+    },
+    {
+      "name": "sb_project_exports_installation_id_student_id_project_id_pr_key",
+      "type": "u",
+      "table": "sb_project_exports",
+      "definition": "UNIQUE (installation_id, student_id, project_id, project_version, export_type)"
+    },
+    {
+      "name": "sb_project_exports_pkey",
+      "type": "p",
+      "table": "sb_project_exports",
+      "definition": "PRIMARY KEY (id)"
+    },
+    {
+      "name": "sb_project_exports_project_id_fkey",
+      "type": "f",
+      "table": "sb_project_exports",
+      "definition": "FOREIGN KEY (project_id) REFERENCES sb_projects(project_id) ON DELETE SET NULL"
+    },
+    {
+      "name": "sb_project_exports_project_version_check",
+      "type": "c",
+      "table": "sb_project_exports",
+      "definition": "CHECK ((project_version >= 0))"
+    },
+    {
+      "name": "sb_project_exports_student_id_fkey",
+      "type": "f",
+      "table": "sb_project_exports",
+      "definition": "FOREIGN KEY (student_id) REFERENCES sb_students(id) ON DELETE CASCADE"
+    },
+    {
+      "name": "sb_projects_class_id_fkey",
+      "type": "f",
+      "table": "sb_projects",
+      "definition": "FOREIGN KEY (class_id) REFERENCES sb_classes(id) ON DELETE CASCADE"
+    },
+    {
+      "name": "sb_projects_intro_theme_check",
+      "type": "c",
+      "table": "sb_projects",
+      "definition": "CHECK ((intro_theme = ANY (ARRAY['blueprint'::text, 'museum'::text, 'sky'::text])))"
+    },
+    {
+      "name": "sb_projects_pkey",
+      "type": "p",
+      "table": "sb_projects",
+      "definition": "PRIMARY KEY (student_id)"
+    },
+    {
+      "name": "sb_projects_student_id_fkey",
+      "type": "f",
+      "table": "sb_projects",
+      "definition": "FOREIGN KEY (student_id) REFERENCES sb_students(id) ON DELETE CASCADE"
+    },
+    {
+      "name": "sb_self_evaluations_confidence_check",
+      "type": "c",
+      "table": "sb_self_evaluations",
+      "definition": "CHECK (((confidence >= 1) AND (confidence <= 3)))"
+    },
+    {
+      "name": "sb_self_evaluations_pkey",
+      "type": "p",
+      "table": "sb_self_evaluations",
+      "definition": "PRIMARY KEY (student_id)"
+    },
+    {
+      "name": "sb_self_evaluations_student_id_fkey",
+      "type": "f",
+      "table": "sb_self_evaluations",
+      "definition": "FOREIGN KEY (student_id) REFERENCES sb_students(id) ON DELETE CASCADE"
+    },
+    {
+      "name": "sb_challenge_source",
+      "type": "c",
+      "table": "sb_shared_challenges",
+      "definition": "CHECK ((((source = 'student'::text) AND (author_id IS NOT NULL)) OR ((source = 'system'::text) AND (author_id IS NULL))))"
+    },
+    {
+      "name": "sb_shared_challenges_author_id_fkey",
+      "type": "f",
+      "table": "sb_shared_challenges",
+      "definition": "FOREIGN KEY (author_id) REFERENCES sb_students(id) ON DELETE CASCADE"
+    },
+    {
+      "name": "sb_shared_challenges_challenge_type_check",
+      "type": "c",
+      "table": "sb_shared_challenges",
+      "definition": "CHECK ((challenge_type = ANY (ARRAY['views'::text, 'top'::text, 'heightMap'::text, 'layers'::text])))"
+    },
+    {
+      "name": "sb_shared_challenges_class_id_fkey",
+      "type": "f",
+      "table": "sb_shared_challenges",
+      "definition": "FOREIGN KEY (class_id) REFERENCES sb_classes(id) ON DELETE CASCADE"
+    },
+    {
+      "name": "sb_shared_challenges_hint_type_check",
+      "type": "c",
+      "table": "sb_shared_challenges",
+      "definition": "CHECK ((hint_type = ANY (ARRAY['views'::text, 'top'::text, 'heightMap'::text, 'layers'::text])))"
+    },
+    {
+      "name": "sb_shared_challenges_pkey",
+      "type": "p",
+      "table": "sb_shared_challenges",
+      "definition": "PRIMARY KEY (id)"
+    },
+    {
+      "name": "sb_shared_challenges_share_code_key",
+      "type": "u",
+      "table": "sb_shared_challenges",
+      "definition": "UNIQUE (share_code)"
+    },
+    {
+      "name": "sb_student_created_problems_author_student_id_fkey",
+      "type": "f",
+      "table": "sb_student_created_problems",
+      "definition": "FOREIGN KEY (author_student_id) REFERENCES sb_students(id) ON DELETE CASCADE"
+    },
+    {
+      "name": "sb_student_created_problems_class_id_fkey",
+      "type": "f",
+      "table": "sb_student_created_problems",
+      "definition": "FOREIGN KEY (class_id) REFERENCES sb_classes(id) ON DELETE CASCADE"
+    },
+    {
+      "name": "sb_student_created_problems_hint_type_check",
+      "type": "c",
+      "table": "sb_student_created_problems",
+      "definition": "CHECK ((hint_type = ANY (ARRAY['views'::text, 'top'::text, 'heightMap'::text, 'layers'::text])))"
+    },
+    {
+      "name": "sb_student_created_problems_pkey",
+      "type": "p",
+      "table": "sb_student_created_problems",
+      "definition": "PRIMARY KEY (problem_id, version)"
+    },
+    {
+      "name": "sb_student_created_problems_status_check",
+      "type": "c",
+      "table": "sb_student_created_problems",
+      "definition": "CHECK ((status = ANY (ARRAY['draft'::text, 'published'::text, 'hidden'::text])))"
+    },
+    {
+      "name": "sb_student_created_problems_version_check",
+      "type": "c",
+      "table": "sb_student_created_problems",
+      "definition": "CHECK ((version > 0))"
+    },
+    {
+      "name": "sb_student_lesson_reflections_class_id_fkey",
+      "type": "f",
+      "table": "sb_student_lesson_reflections",
+      "definition": "FOREIGN KEY (class_id) REFERENCES sb_classes(id) ON DELETE CASCADE"
+    },
+    {
+      "name": "sb_student_lesson_reflections_confidence_check",
+      "type": "c",
+      "table": "sb_student_lesson_reflections",
+      "definition": "CHECK (((confidence >= 1) AND (confidence <= 5)))"
+    },
+    {
+      "name": "sb_student_lesson_reflections_lesson_check",
+      "type": "c",
+      "table": "sb_student_lesson_reflections",
+      "definition": "CHECK (((lesson >= 1) AND (lesson <= 12)))"
+    },
+    {
+      "name": "sb_student_lesson_reflections_pkey",
+      "type": "p",
+      "table": "sb_student_lesson_reflections",
+      "definition": "PRIMARY KEY (installation_id, student_id, lesson, curriculum_version)"
+    },
+    {
+      "name": "sb_student_lesson_reflections_student_id_fkey",
+      "type": "f",
+      "table": "sb_student_lesson_reflections",
+      "definition": "FOREIGN KEY (student_id) REFERENCES sb_students(id) ON DELETE CASCADE"
+    },
+    {
+      "name": "sb_student_pin_vault_class_id_fkey",
+      "type": "f",
+      "table": "sb_student_pin_vault",
+      "definition": "FOREIGN KEY (class_id) REFERENCES sb_classes(id) ON DELETE CASCADE"
+    },
+    {
+      "name": "sb_student_pin_vault_pkey",
+      "type": "p",
+      "table": "sb_student_pin_vault",
+      "definition": "PRIMARY KEY (student_id)"
+    },
+    {
+      "name": "sb_student_pin_vault_student_id_fkey",
+      "type": "f",
+      "table": "sb_student_pin_vault",
+      "definition": "FOREIGN KEY (student_id) REFERENCES sb_students(id) ON DELETE CASCADE"
+    },
+    {
+      "name": "sb_student_progress_last_problem_id_fkey",
+      "type": "f",
+      "table": "sb_student_progress",
+      "definition": "FOREIGN KEY (last_problem_id) REFERENCES sb_problems(id) ON DELETE SET NULL"
+    },
+    {
+      "name": "sb_student_progress_lesson_check",
+      "type": "c",
+      "table": "sb_student_progress",
+      "definition": "CHECK (((lesson >= 1) AND (lesson <= 12)))"
+    },
+    {
+      "name": "sb_student_progress_pkey",
+      "type": "p",
+      "table": "sb_student_progress",
+      "definition": "PRIMARY KEY (student_id, lesson)"
+    },
+    {
+      "name": "sb_student_progress_student_id_fkey",
+      "type": "f",
+      "table": "sb_student_progress",
+      "definition": "FOREIGN KEY (student_id) REFERENCES sb_students(id) ON DELETE CASCADE"
+    },
+    {
+      "name": "sb_student_rewards_equipped_material_check",
+      "type": "c",
+      "table": "sb_student_rewards",
+      "definition": "CHECK ((equipped_material = ANY (ARRAY['wood'::text, 'pastel'::text, 'brick'::text, 'tile'::text])))"
+    },
+    {
+      "name": "sb_student_rewards_intro_theme_check",
+      "type": "c",
+      "table": "sb_student_rewards",
+      "definition": "CHECK ((intro_theme = ANY (ARRAY['blueprint'::text, 'museum'::text, 'sky'::text])))"
+    },
+    {
+      "name": "sb_student_rewards_pkey",
+      "type": "p",
+      "table": "sb_student_rewards",
+      "definition": "PRIMARY KEY (student_id)"
+    },
+    {
+      "name": "sb_student_rewards_student_id_fkey",
+      "type": "f",
+      "table": "sb_student_rewards",
+      "definition": "FOREIGN KEY (student_id) REFERENCES sb_students(id) ON DELETE CASCADE"
+    },
+    {
+      "name": "sb_student_sessions_class_id_fkey",
+      "type": "f",
+      "table": "sb_student_sessions",
+      "definition": "FOREIGN KEY (class_id) REFERENCES sb_classes(id) ON DELETE CASCADE"
+    },
+    {
+      "name": "sb_student_sessions_pkey",
+      "type": "p",
+      "table": "sb_student_sessions",
+      "definition": "PRIMARY KEY (id)"
+    },
+    {
+      "name": "sb_student_sessions_student_id_fkey",
+      "type": "f",
+      "table": "sb_student_sessions",
+      "definition": "FOREIGN KEY (student_id) REFERENCES sb_students(id) ON DELETE CASCADE"
+    },
+    {
+      "name": "sb_student_sessions_token_hash_key",
+      "type": "u",
+      "table": "sb_student_sessions",
+      "definition": "UNIQUE (token_hash)"
+    },
+    {
+      "name": "sb_students_class_id_fkey",
+      "type": "f",
+      "table": "sb_students",
+      "definition": "FOREIGN KEY (class_id) REFERENCES sb_classes(id) ON DELETE CASCADE"
+    },
+    {
+      "name": "sb_students_class_id_name_student_no_key",
+      "type": "u",
+      "table": "sb_students",
+      "definition": "UNIQUE (class_id, name, student_no)"
+    },
+    {
+      "name": "sb_students_pkey",
+      "type": "p",
+      "table": "sb_students",
+      "definition": "PRIMARY KEY (id)"
+    },
+    {
+      "name": "sb_students_status_check",
+      "type": "c",
+      "table": "sb_students",
+      "definition": "CHECK ((status = ANY (ARRAY['active'::text, 'disabled'::text])))"
+    },
+    {
+      "name": "sb_teacher_settings_pkey",
+      "type": "p",
+      "table": "sb_teacher_settings",
+      "definition": "PRIMARY KEY (teacher_id)"
+    },
+    {
+      "name": "sb_teacher_settings_teacher_id_fkey",
+      "type": "f",
+      "table": "sb_teacher_settings",
+      "definition": "FOREIGN KEY (teacher_id) REFERENCES auth.users(id) ON DELETE CASCADE"
+    },
+    {
+      "name": "sb_worksheet_imports_class_id_fkey",
+      "type": "f",
+      "table": "sb_worksheet_imports",
+      "definition": "FOREIGN KEY (class_id) REFERENCES sb_classes(id)"
+    },
+    {
+      "name": "sb_worksheet_imports_pkey",
+      "type": "p",
+      "table": "sb_worksheet_imports",
+      "definition": "PRIMARY KEY (id)"
+    },
+    {
+      "name": "sb_worksheet_imports_status_check",
+      "type": "c",
+      "table": "sb_worksheet_imports",
+      "definition": "CHECK ((status = ANY (ARRAY['UPLOADED'::text, 'REVIEW'::text, 'APPROVED'::text, 'PUBLISHED'::text])))"
+    },
+    {
+      "name": "sb_worksheet_imports_teacher_id_fkey",
+      "type": "f",
+      "table": "sb_worksheet_imports",
+      "definition": "FOREIGN KEY (teacher_id) REFERENCES auth.users(id)"
+    }
+  ],
+  "indexes": [
+    {
+      "name": "sb_block_snapshots_pkey",
+      "table": "sb_block_snapshots",
+      "definition": "CREATE UNIQUE INDEX sb_block_snapshots_pkey ON public.sb_block_snapshots USING btree (id)"
+    },
+    {
+      "name": "sb_block_snapshots_student_id_problem_id_key",
+      "table": "sb_block_snapshots",
+      "definition": "CREATE UNIQUE INDEX sb_block_snapshots_student_id_problem_id_key ON public.sb_block_snapshots USING btree (student_id, problem_id)"
+    },
+    {
+      "name": "sb_snapshots_student_idx",
+      "table": "sb_block_snapshots",
+      "definition": "CREATE INDEX sb_snapshots_student_idx ON public.sb_block_snapshots USING btree (student_id, lesson)"
+    },
+    {
+      "name": "sb_challenge_solves_pkey",
+      "table": "sb_challenge_solves",
+      "definition": "CREATE UNIQUE INDEX sb_challenge_solves_pkey ON public.sb_challenge_solves USING btree (challenge_id, student_id)"
+    },
+    {
+      "name": "sb_classes_class_code_key",
+      "table": "sb_classes",
+      "definition": "CREATE UNIQUE INDEX sb_classes_class_code_key ON public.sb_classes USING btree (class_code)"
+    },
+    {
+      "name": "sb_classes_pkey",
+      "table": "sb_classes",
+      "definition": "CREATE UNIQUE INDEX sb_classes_pkey ON public.sb_classes USING btree (id)"
+    },
+    {
+      "name": "sb_classes_teacher_idx",
+      "table": "sb_classes",
+      "definition": "CREATE INDEX sb_classes_teacher_idx ON public.sb_classes USING btree (teacher_id)"
+    },
+    {
+      "name": "sb_lesson_progress_records_class_idx",
+      "table": "sb_lesson_progress_records",
+      "definition": "CREATE INDEX sb_lesson_progress_records_class_idx ON public.sb_lesson_progress_records USING btree (installation_id, class_id, lesson, remediation_status)"
+    },
+    {
+      "name": "sb_lesson_progress_records_pkey",
+      "table": "sb_lesson_progress_records",
+      "definition": "CREATE UNIQUE INDEX sb_lesson_progress_records_pkey ON public.sb_lesson_progress_records USING btree (installation_id, class_id, student_id, lesson, set_id, problem_id, problem_version)"
+    },
+    {
+      "name": "sb_lesson_progress_records_student_idx",
+      "table": "sb_lesson_progress_records",
+      "definition": "CREATE INDEX sb_lesson_progress_records_student_idx ON public.sb_lesson_progress_records USING btree (installation_id, student_id, lesson, set_id, question_index)"
+    },
+    {
+      "name": "sb_lesson_settings_pkey",
+      "table": "sb_lesson_settings",
+      "definition": "CREATE UNIQUE INDEX sb_lesson_settings_pkey ON public.sb_lesson_settings USING btree (class_id, lesson)"
+    },
+    {
+      "name": "sb_peer_problem_attempts_class_idx",
+      "table": "sb_peer_problem_attempts",
+      "definition": "CREATE INDEX sb_peer_problem_attempts_class_idx ON public.sb_peer_problem_attempts USING btree (installation_id, class_id, problem_id)"
+    },
+    {
+      "name": "sb_peer_problem_attempts_installation_id_idempotency_key_key",
+      "table": "sb_peer_problem_attempts",
+      "definition": "CREATE UNIQUE INDEX sb_peer_problem_attempts_installation_id_idempotency_key_key ON public.sb_peer_problem_attempts USING btree (installation_id, idempotency_key)"
+    },
+    {
+      "name": "sb_peer_problem_attempts_installation_id_problem_id_problem_key",
+      "table": "sb_peer_problem_attempts",
+      "definition": "CREATE UNIQUE INDEX sb_peer_problem_attempts_installation_id_problem_id_problem_key ON public.sb_peer_problem_attempts USING btree (installation_id, problem_id, problem_version, student_id)"
+    },
+    {
+      "name": "sb_peer_problem_attempts_pkey",
+      "table": "sb_peer_problem_attempts",
+      "definition": "CREATE UNIQUE INDEX sb_peer_problem_attempts_pkey ON public.sb_peer_problem_attempts USING btree (id)"
+    },
+    {
+      "name": "sb_peer_problem_attempts_student_idx",
+      "table": "sb_peer_problem_attempts",
+      "definition": "CREATE INDEX sb_peer_problem_attempts_student_idx ON public.sb_peer_problem_attempts USING btree (installation_id, student_id, created_at DESC)"
+    },
+    {
+      "name": "sb_practice_assignments_class_idx",
+      "table": "sb_practice_assignments",
+      "definition": "CREATE INDEX sb_practice_assignments_class_idx ON public.sb_practice_assignments USING btree (installation_id, class_id, lesson, active)"
+    },
+    {
+      "name": "sb_practice_assignments_installation_id_student_id_lesson_s_key",
+      "table": "sb_practice_assignments",
+      "definition": "CREATE UNIQUE INDEX sb_practice_assignments_installation_id_student_id_lesson_s_key ON public.sb_practice_assignments USING btree (installation_id, student_id, lesson, set_id)"
+    },
+    {
+      "name": "sb_practice_assignments_one_active_idx",
+      "table": "sb_practice_assignments",
+      "definition": "CREATE UNIQUE INDEX sb_practice_assignments_one_active_idx ON public.sb_practice_assignments USING btree (installation_id, student_id, lesson) WHERE active"
+    },
+    {
+      "name": "sb_practice_assignments_pkey",
+      "table": "sb_practice_assignments",
+      "definition": "CREATE UNIQUE INDEX sb_practice_assignments_pkey ON public.sb_practice_assignments USING btree (assignment_id)"
+    },
+    {
+      "name": "sb_attempts_student_idx",
+      "table": "sb_problem_attempts",
+      "definition": "CREATE INDEX sb_attempts_student_idx ON public.sb_problem_attempts USING btree (student_id, lesson)"
+    },
+    {
+      "name": "sb_problem_attempts_pkey",
+      "table": "sb_problem_attempts",
+      "definition": "CREATE UNIQUE INDEX sb_problem_attempts_pkey ON public.sb_problem_attempts USING btree (id)"
+    },
+    {
+      "name": "sb_problem_attempts_student_id_problem_id_key",
+      "table": "sb_problem_attempts",
+      "definition": "CREATE UNIQUE INDEX sb_problem_attempts_student_id_problem_id_key ON public.sb_problem_attempts USING btree (student_id, problem_id)"
+    },
+    {
+      "name": "sb_problems_class_id_code_key",
+      "table": "sb_problems",
+      "definition": "CREATE UNIQUE INDEX sb_problems_class_id_code_key ON public.sb_problems USING btree (class_id, code)"
+    },
+    {
+      "name": "sb_problems_class_idx",
+      "table": "sb_problems",
+      "definition": "CREATE INDEX sb_problems_class_idx ON public.sb_problems USING btree (class_id)"
+    },
+    {
+      "name": "sb_problems_lesson_idx",
+      "table": "sb_problems",
+      "definition": "CREATE INDEX sb_problems_lesson_idx ON public.sb_problems USING btree (lesson, order_index)"
+    },
+    {
+      "name": "sb_problems_pkey",
+      "table": "sb_problems",
+      "definition": "CREATE UNIQUE INDEX sb_problems_pkey ON public.sb_problems USING btree (id)"
+    },
+    {
+      "name": "sb_project_exports_class_idx",
+      "table": "sb_project_exports",
+      "definition": "CREATE INDEX sb_project_exports_class_idx ON public.sb_project_exports USING btree (installation_id, class_id, student_id, created_at DESC)"
+    },
+    {
+      "name": "sb_project_exports_installation_id_student_id_project_id_pr_key",
+      "table": "sb_project_exports",
+      "definition": "CREATE UNIQUE INDEX sb_project_exports_installation_id_student_id_project_id_pr_key ON public.sb_project_exports USING btree (installation_id, student_id, project_id, project_version, export_type)"
+    },
+    {
+      "name": "sb_project_exports_pkey",
+      "table": "sb_project_exports",
+      "definition": "CREATE UNIQUE INDEX sb_project_exports_pkey ON public.sb_project_exports USING btree (id)"
+    },
+    {
+      "name": "sb_projects_pkey",
+      "table": "sb_projects",
+      "definition": "CREATE UNIQUE INDEX sb_projects_pkey ON public.sb_projects USING btree (student_id)"
+    },
+    {
+      "name": "sb_projects_project_id_idx",
+      "table": "sb_projects",
+      "definition": "CREATE UNIQUE INDEX sb_projects_project_id_idx ON public.sb_projects USING btree (project_id)"
+    },
+    {
+      "name": "sb_self_evaluations_pkey",
+      "table": "sb_self_evaluations",
+      "definition": "CREATE UNIQUE INDEX sb_self_evaluations_pkey ON public.sb_self_evaluations USING btree (student_id)"
+    },
+    {
+      "name": "sb_shared_challenges_pkey",
+      "table": "sb_shared_challenges",
+      "definition": "CREATE UNIQUE INDEX sb_shared_challenges_pkey ON public.sb_shared_challenges USING btree (id)"
+    },
+    {
+      "name": "sb_shared_challenges_share_code_key",
+      "table": "sb_shared_challenges",
+      "definition": "CREATE UNIQUE INDEX sb_shared_challenges_share_code_key ON public.sb_shared_challenges USING btree (share_code)"
+    },
+    {
+      "name": "sb_student_created_problems_author_idx",
+      "table": "sb_student_created_problems",
+      "definition": "CREATE INDEX sb_student_created_problems_author_idx ON public.sb_student_created_problems USING btree (installation_id, author_student_id)"
+    },
+    {
+      "name": "sb_student_created_problems_class_idx",
+      "table": "sb_student_created_problems",
+      "definition": "CREATE INDEX sb_student_created_problems_class_idx ON public.sb_student_created_problems USING btree (installation_id, class_id, status, created_at DESC)"
+    },
+    {
+      "name": "sb_student_created_problems_pkey",
+      "table": "sb_student_created_problems",
+      "definition": "CREATE UNIQUE INDEX sb_student_created_problems_pkey ON public.sb_student_created_problems USING btree (problem_id, version)"
+    },
+    {
+      "name": "sb_student_lesson_reflections_pkey",
+      "table": "sb_student_lesson_reflections",
+      "definition": "CREATE UNIQUE INDEX sb_student_lesson_reflections_pkey ON public.sb_student_lesson_reflections USING btree (installation_id, student_id, lesson, curriculum_version)"
+    },
+    {
+      "name": "sb_student_pin_vault_pkey",
+      "table": "sb_student_pin_vault",
+      "definition": "CREATE UNIQUE INDEX sb_student_pin_vault_pkey ON public.sb_student_pin_vault USING btree (student_id)"
+    },
+    {
+      "name": "sb_student_progress_pkey",
+      "table": "sb_student_progress",
+      "definition": "CREATE UNIQUE INDEX sb_student_progress_pkey ON public.sb_student_progress USING btree (student_id, lesson)"
+    },
+    {
+      "name": "sb_student_rewards_pkey",
+      "table": "sb_student_rewards",
+      "definition": "CREATE UNIQUE INDEX sb_student_rewards_pkey ON public.sb_student_rewards USING btree (student_id)"
+    },
+    {
+      "name": "sb_sessions_expiry_idx",
+      "table": "sb_student_sessions",
+      "definition": "CREATE INDEX sb_sessions_expiry_idx ON public.sb_student_sessions USING btree (expires_at)"
+    },
+    {
+      "name": "sb_sessions_student_idx",
+      "table": "sb_student_sessions",
+      "definition": "CREATE INDEX sb_sessions_student_idx ON public.sb_student_sessions USING btree (student_id)"
+    },
+    {
+      "name": "sb_student_sessions_pkey",
+      "table": "sb_student_sessions",
+      "definition": "CREATE UNIQUE INDEX sb_student_sessions_pkey ON public.sb_student_sessions USING btree (id)"
+    },
+    {
+      "name": "sb_student_sessions_token_hash_key",
+      "table": "sb_student_sessions",
+      "definition": "CREATE UNIQUE INDEX sb_student_sessions_token_hash_key ON public.sb_student_sessions USING btree (token_hash)"
+    },
+    {
+      "name": "sb_students_class_id_name_student_no_key",
+      "table": "sb_students",
+      "definition": "CREATE UNIQUE INDEX sb_students_class_id_name_student_no_key ON public.sb_students USING btree (class_id, name, student_no)"
+    },
+    {
+      "name": "sb_students_class_idx",
+      "table": "sb_students",
+      "definition": "CREATE INDEX sb_students_class_idx ON public.sb_students USING btree (class_id)"
+    },
+    {
+      "name": "sb_students_pkey",
+      "table": "sb_students",
+      "definition": "CREATE UNIQUE INDEX sb_students_pkey ON public.sb_students USING btree (id)"
+    },
+    {
+      "name": "sb_teacher_settings_pkey",
+      "table": "sb_teacher_settings",
+      "definition": "CREATE UNIQUE INDEX sb_teacher_settings_pkey ON public.sb_teacher_settings USING btree (teacher_id)"
+    },
+    {
+      "name": "sb_worksheet_imports_pkey",
+      "table": "sb_worksheet_imports",
+      "definition": "CREATE UNIQUE INDEX sb_worksheet_imports_pkey ON public.sb_worksheet_imports USING btree (id)"
+    }
+  ],
+  "policies": [
+    {
+      "name": "sb_snapshots_owner",
+      "check": "sb_owns_student(student_id)",
+      "roles": [
+        "authenticated"
+      ],
+      "table": "sb_block_snapshots",
+      "using": "sb_owns_student(student_id)",
+      "command": "ALL"
+    },
+    {
+      "name": "sb_challenge_solves_owner",
+      "check": "sb_owns_student(student_id)",
+      "roles": [
+        "authenticated"
+      ],
+      "table": "sb_challenge_solves",
+      "using": "sb_owns_student(student_id)",
+      "command": "ALL"
+    },
+    {
+      "name": "sb_classes_owner",
+      "check": "(teacher_id = auth.uid())",
+      "roles": [
+        "authenticated"
+      ],
+      "table": "sb_classes",
+      "using": "(teacher_id = auth.uid())",
+      "command": "ALL"
+    },
+    {
+      "name": "sb_lesson_progress_records_teacher",
+      "check": null,
+      "roles": [
+        "authenticated"
+      ],
+      "table": "sb_lesson_progress_records",
+      "using": "sb_owns_class(class_id)",
+      "command": "SELECT"
+    },
+    {
+      "name": "sb_lesson_settings_owner",
+      "check": "sb_owns_class(class_id)",
+      "roles": [
+        "authenticated"
+      ],
+      "table": "sb_lesson_settings",
+      "using": "sb_owns_class(class_id)",
+      "command": "ALL"
+    },
+    {
+      "name": "sb_peer_problem_attempts_teacher",
+      "check": null,
+      "roles": [
+        "authenticated"
+      ],
+      "table": "sb_peer_problem_attempts",
+      "using": "sb_owns_class(class_id)",
+      "command": "SELECT"
+    },
+    {
+      "name": "sb_practice_assignments_teacher",
+      "check": null,
+      "roles": [
+        "authenticated"
+      ],
+      "table": "sb_practice_assignments",
+      "using": "sb_owns_class(class_id)",
+      "command": "SELECT"
+    },
+    {
+      "name": "sb_attempts_owner",
+      "check": "sb_owns_student(student_id)",
+      "roles": [
+        "authenticated"
+      ],
+      "table": "sb_problem_attempts",
+      "using": "sb_owns_student(student_id)",
+      "command": "ALL"
+    },
+    {
+      "name": "sb_problems_teacher_read",
+      "check": null,
+      "roles": [
+        "authenticated"
+      ],
+      "table": "sb_problems",
+      "using": "((class_id IS NULL) OR sb_owns_class(class_id))",
+      "command": "SELECT"
+    },
+    {
+      "name": "sb_problems_teacher_write",
+      "check": "((class_id IS NOT NULL) AND sb_owns_class(class_id))",
+      "roles": [
+        "authenticated"
+      ],
+      "table": "sb_problems",
+      "using": "((class_id IS NOT NULL) AND sb_owns_class(class_id))",
+      "command": "ALL"
+    },
+    {
+      "name": "sb_project_exports_teacher",
+      "check": null,
+      "roles": [
+        "authenticated"
+      ],
+      "table": "sb_project_exports",
+      "using": "sb_owns_class(class_id)",
+      "command": "SELECT"
+    },
+    {
+      "name": "sb_projects_owner",
+      "check": "sb_owns_class(class_id)",
+      "roles": [
+        "authenticated"
+      ],
+      "table": "sb_projects",
+      "using": "sb_owns_class(class_id)",
+      "command": "ALL"
+    },
+    {
+      "name": "sb_self_evaluation_teacher",
+      "check": "sb_owns_student(student_id)",
+      "roles": [
+        "authenticated"
+      ],
+      "table": "sb_self_evaluations",
+      "using": "sb_owns_student(student_id)",
+      "command": "ALL"
+    },
+    {
+      "name": "sb_challenges_owner",
+      "check": "sb_owns_class(class_id)",
+      "roles": [
+        "authenticated"
+      ],
+      "table": "sb_shared_challenges",
+      "using": "sb_owns_class(class_id)",
+      "command": "ALL"
+    },
+    {
+      "name": "sb_student_created_problems_teacher",
+      "check": null,
+      "roles": [
+        "authenticated"
+      ],
+      "table": "sb_student_created_problems",
+      "using": "sb_owns_class(class_id)",
+      "command": "SELECT"
+    },
+    {
+      "name": "sb_student_created_problems_teacher_update",
+      "check": "sb_owns_class(class_id)",
+      "roles": [
+        "authenticated"
+      ],
+      "table": "sb_student_created_problems",
+      "using": "sb_owns_class(class_id)",
+      "command": "UPDATE"
+    },
+    {
+      "name": "sb_student_lesson_reflections_teacher",
+      "check": null,
+      "roles": [
+        "authenticated"
+      ],
+      "table": "sb_student_lesson_reflections",
+      "using": "sb_owns_class(class_id)",
+      "command": "SELECT"
+    },
+    {
+      "name": "sb_pin_vault_owner",
+      "check": null,
+      "roles": [
+        "authenticated"
+      ],
+      "table": "sb_student_pin_vault",
+      "using": "sb_owns_class(class_id)",
+      "command": "SELECT"
+    },
+    {
+      "name": "sb_progress_owner",
+      "check": "sb_owns_student(student_id)",
+      "roles": [
+        "authenticated"
+      ],
+      "table": "sb_student_progress",
+      "using": "sb_owns_student(student_id)",
+      "command": "ALL"
+    },
+    {
+      "name": "sb_rewards_owner",
+      "check": "sb_owns_student(student_id)",
+      "roles": [
+        "authenticated"
+      ],
+      "table": "sb_student_rewards",
+      "using": "sb_owns_student(student_id)",
+      "command": "ALL"
+    },
+    {
+      "name": "sb_students_owner",
+      "check": "sb_owns_class(class_id)",
+      "roles": [
+        "authenticated"
+      ],
+      "table": "sb_students",
+      "using": "sb_owns_class(class_id)",
+      "command": "ALL"
+    },
+    {
+      "name": "sb_teacher_settings_owner",
+      "check": "(teacher_id = auth.uid())",
+      "roles": [
+        "authenticated"
+      ],
+      "table": "sb_teacher_settings",
+      "using": "(teacher_id = auth.uid())",
+      "command": "ALL"
+    },
+    {
+      "name": "sb_worksheet_teacher",
+      "check": "((teacher_id = auth.uid()) AND sb_owns_class(class_id))",
+      "roles": [
+        "authenticated"
+      ],
+      "table": "sb_worksheet_imports",
+      "using": "((teacher_id = auth.uid()) AND sb_owns_class(class_id))",
+      "command": "ALL"
+    }
+  ],
+  "rpcs": [
+    {
+      "acl": null,
+      "name": "sb_owns_class",
+      "returns": "boolean",
+      "arguments": "target uuid",
+      "definition_md5": "32ad6fd2f213b67a401930b20088121b",
+      "security_definer": true
+    },
+    {
+      "acl": null,
+      "name": "sb_owns_student",
+      "returns": "boolean",
+      "arguments": "target uuid",
+      "definition_md5": "fbd0ab6fc6f0192c8e09fc322fa2271a",
+      "security_definer": true
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "anon=X/postgres",
+        "authenticated=X/postgres"
+      ],
+      "name": "sb_public_class_info",
+      "returns": "TABLE(class_id uuid, class_name text)",
+      "arguments": "p_class_code text",
+      "definition_md5": "2690f8aa436b0ba1409ab8c5c12198d6",
+      "security_definer": true
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "name": "sb_record_attempt",
+      "returns": "void",
+      "arguments": "p_student uuid, p_problem uuid, p_expected integer, p_next jsonb, p_blocks jsonb",
+      "definition_md5": "f3b2e832dc4564f4ee70cf0890737de2",
+      "security_definer": true
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "authenticated=X/postgres"
+      ],
+      "name": "sb_reset_progress",
+      "returns": "void",
+      "arguments": "p_student uuid, p_lesson integer",
+      "definition_md5": "6bc5f1b506fac7c8ee93ad8d023b6994",
+      "security_definer": false
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "name": "sb_save_building",
+      "returns": "integer",
+      "arguments": "p_student uuid, p_class uuid, p_version integer, p_data jsonb",
+      "definition_md5": "09876dea862d49d80815c365ce567b86",
+      "security_definer": true
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "name": "sb_set_reward_loadout",
+      "returns": "TABLE(equipped_material text, intro_theme text)",
+      "arguments": "p_student uuid, p_material text, p_theme text",
+      "definition_md5": "5ffaee8633c432cdb41b4359477f734f",
+      "security_definer": true
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "name": "sb_submit_challenge",
+      "returns": "void",
+      "arguments": "p_student uuid, p_challenge uuid, p_previous integer, p_state jsonb",
+      "definition_md5": "3da40eae790f01160429e033be26431f",
+      "security_definer": true
+    },
+    {
+      "acl": [
+        "postgres=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "name": "sb_submit_challenge_v2",
+      "returns": "jsonb",
+      "arguments": "p_student uuid, p_challenge uuid, p_previous integer, p_state jsonb",
+      "definition_md5": "520c390ecd97304b1eea578a4177594d",
+      "security_definer": true
+    },
+    {
+      "acl": null,
+      "name": "sb_touch_updated_at",
+      "returns": "trigger",
+      "arguments": "",
+      "definition_md5": "f842f80372afdaf14b4deb3880c536b9",
+      "security_definer": false
+    }
+  ],
+  "rpc_definitions": [
+    {
+      "name": "sb_owns_class",
+      "owner": "postgres",
+      "arguments": "target uuid",
+      "definition": "CREATE OR REPLACE FUNCTION public.sb_owns_class(target uuid)\n RETURNS boolean\n LANGUAGE sql\n STABLE SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\n  select exists (\n    select 1 from public.sb_classes c\n    where c.id = target and c.teacher_id = auth.uid()\n  );\n$function$\n",
+      "search_path": [
+        "search_path=public"
+      ]
+    },
+    {
+      "name": "sb_owns_student",
+      "owner": "postgres",
+      "arguments": "target uuid",
+      "definition": "CREATE OR REPLACE FUNCTION public.sb_owns_student(target uuid)\n RETURNS boolean\n LANGUAGE sql\n STABLE SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\n  select exists (\n    select 1\n    from public.sb_students s\n    join public.sb_classes c on c.id = s.class_id\n    where s.id = target and c.teacher_id = auth.uid()\n  );\n$function$\n",
+      "search_path": [
+        "search_path=public"
+      ]
+    },
+    {
+      "name": "sb_public_class_info",
+      "owner": "postgres",
+      "arguments": "p_class_code text",
+      "definition": "CREATE OR REPLACE FUNCTION public.sb_public_class_info(p_class_code text)\n RETURNS TABLE(class_id uuid, class_name text)\n LANGUAGE sql\n STABLE SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\n  select c.id, c.name\n  from public.sb_classes c\n  where c.class_code = upper(trim(p_class_code))\n  limit 1;\n$function$\n",
+      "search_path": [
+        "search_path=public"
+      ]
+    },
+    {
+      "name": "sb_record_attempt",
+      "owner": "postgres",
+      "arguments": "p_student uuid, p_problem uuid, p_expected integer, p_next jsonb, p_blocks jsonb",
+      "definition": "CREATE OR REPLACE FUNCTION public.sb_record_attempt(p_student uuid, p_problem uuid, p_expected integer, p_next jsonb, p_blocks jsonb DEFAULT NULL::jsonb)\n RETURNS void\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\ndeclare\n  student_row public.sb_students%rowtype;\n  problem_row public.sb_problems%rowtype;\n  previous public.sb_problem_attempts%rowtype;\n  total integer;\n  done integer;\n  star_count integer;\nbegin\n  select * into strict student_row from public.sb_students where id=p_student for update;\n  if student_row.status <> 'active' then raise exception 'STUDENT_DISABLED'; end if;\n  select * into strict problem_row from public.sb_problems where id=p_problem and active\n    and (class_id is null or class_id=student_row.class_id);\n  if coalesce((select locked from public.sb_lesson_settings where class_id=student_row.class_id and lesson=problem_row.lesson),problem_row.lesson<>1)\n    then raise exception 'LESSON_LOCKED'; end if;\n  select * into previous from public.sb_problem_attempts where student_id=p_student and problem_id=p_problem;\n  if coalesce(previous.attempt_count,0)<>p_expected then raise exception 'ATTEMPT_CONFLICT'; end if;\n  if previous.completed then return; end if;\n  insert into public.sb_problem_attempts(student_id,problem_id,lesson,wrong_count,hint_shown,answer_revealed,completed,attempt_count,stars,xp_earned,completed_at)\n  values(p_student,p_problem,problem_row.lesson,(p_next->>'wrongCount')::integer,(p_next->>'hintShown')::boolean,(p_next->>'answerRevealed')::boolean,\n    (p_next->>'completed')::boolean,p_expected+1,(p_next->>'stars')::integer,(p_next->>'xp')::integer,\n    case when (p_next->>'completed')::boolean then now() else null end)\n  on conflict(student_id,problem_id) do update set\n    wrong_count=excluded.wrong_count,hint_shown=excluded.hint_shown,answer_revealed=excluded.answer_revealed,completed=excluded.completed,\n    attempt_count=excluded.attempt_count,stars=excluded.stars,xp_earned=excluded.xp_earned,completed_at=excluded.completed_at,updated_at=now();\n  if p_blocks is not null then\n    insert into public.sb_block_snapshots(student_id,problem_id,lesson,blocks,grid_width,grid_depth,max_height)\n    values(p_student,p_problem,problem_row.lesson,p_blocks,problem_row.grid_width,problem_row.grid_depth,problem_row.max_height)\n    on conflict(student_id,problem_id) do update set blocks=excluded.blocks,updated_at=now();\n  end if;\n  select count(*) into total from public.sb_problems where lesson=problem_row.lesson and active and (class_id is null or class_id=student_row.class_id);\n  select count(*) filter(where a.completed), coalesce(sum(a.stars),0) into done,star_count from public.sb_problem_attempts a\n    join public.sb_problems p on p.id=a.problem_id where a.student_id=p_student and p.lesson=problem_row.lesson and p.active and (p.class_id is null or p.class_id=student_row.class_id);\n  insert into public.sb_student_progress(student_id,lesson,completed,completed_at,stars,last_problem_id)\n  values(p_student,problem_row.lesson,total>0 and done=total,case when total>0 and done=total then now() else null end,star_count,p_problem)\n  on conflict(student_id,lesson) do update set completed=excluded.completed,completed_at=excluded.completed_at,stars=excluded.stars,last_problem_id=excluded.last_problem_id,updated_at=now();\n  insert into public.sb_student_rewards(student_id,total_xp,total_stars)\n  select p_student,coalesce(sum(xp_earned),0),coalesce(sum(stars),0) from public.sb_problem_attempts where student_id=p_student\n  on conflict(student_id) do update set total_xp=excluded.total_xp,total_stars=excluded.total_stars,updated_at=now();\nend;\n$function$\n",
+      "search_path": [
+        "search_path=public"
+      ]
+    },
+    {
+      "name": "sb_reset_progress",
+      "owner": "postgres",
+      "arguments": "p_student uuid, p_lesson integer",
+      "definition": "CREATE OR REPLACE FUNCTION public.sb_reset_progress(p_student uuid, p_lesson integer DEFAULT NULL::integer)\n RETURNS void\n LANGUAGE plpgsql\n SET search_path TO 'public'\nAS $function$\nbegin\n if not public.sb_owns_student(p_student) then raise exception 'FORBIDDEN_STUDENT'; end if;\n if p_lesson is not null and (p_lesson<1 or p_lesson>12) then raise exception 'BAD_LESSON'; end if;\n perform 1 from public.sb_students where id=p_student for update;\n delete from public.sb_problem_attempts where student_id=p_student and (p_lesson is null or lesson=p_lesson);\n delete from public.sb_block_snapshots where student_id=p_student and (p_lesson is null or lesson=p_lesson);\n delete from public.sb_student_progress where student_id=p_student and (p_lesson is null or lesson=p_lesson or (p_lesson in (10,11) and lesson in (10,11)));\n if p_lesson is null or p_lesson=9 then delete from public.sb_challenge_solves where student_id=p_student; end if;\n if p_lesson is null or p_lesson in (10,11) then delete from public.sb_projects where student_id=p_student; end if;\n if p_lesson is null or p_lesson=12 then delete from public.sb_self_evaluations where student_id=p_student; end if;\n insert into public.sb_student_rewards(student_id,total_xp,total_stars)\n select p_student,coalesce(sum(xp_earned),0),coalesce(sum(stars),0) from public.sb_problem_attempts where student_id=p_student\n on conflict(student_id) do update set total_xp=excluded.total_xp,total_stars=excluded.total_stars,badges='[]',streak=0;\nend; $function$\n",
+      "search_path": [
+        "search_path=public"
+      ]
+    },
+    {
+      "name": "sb_save_building",
+      "owner": "postgres",
+      "arguments": "p_student uuid, p_class uuid, p_version integer, p_data jsonb",
+      "definition": "CREATE OR REPLACE FUNCTION public.sb_save_building(p_student uuid, p_class uuid, p_version integer, p_data jsonb)\n RETURNS integer\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\ndeclare\n  current_version integer; next_version integer;\n  requested_width integer; requested_depth integer; requested_height integer;\n  material text; theme text; xp integer;\nbegin\n  perform 1 from public.sb_students where id=p_student and class_id=p_class and status='active' for update;\n  if not found then raise exception 'FORBIDDEN_STUDENT'; end if;\n  select version into current_version from public.sb_projects where student_id=p_student;\n  if coalesce(current_version,0)<>p_version then raise exception 'VERSION_CONFLICT'; end if;\n  next_version:=coalesce(current_version,0)+1;\n  requested_width := case when coalesce(p_data->>'grid_width','') ~ '^[0-9]+$' then (p_data->>'grid_width')::integer else 10 end;\n  requested_depth := case when coalesce(p_data->>'grid_depth','') ~ '^[0-9]+$' then (p_data->>'grid_depth')::integer else 10 end;\n  requested_height := case when coalesce(p_data->>'max_height','') ~ '^[0-9]+$' then (p_data->>'max_height')::integer else 3 end;\n  requested_width := greatest(4, least(10, requested_width)); requested_depth := greatest(4, least(10, requested_depth)); requested_height := 3;\n  xp := coalesce((select total_xp from public.sb_student_rewards where student_id=p_student),0);\n  material := coalesce((select equipped_material from public.sb_student_rewards where student_id=p_student),'wood');\n  theme := coalesce(p_data->>'intro_theme', coalesce((select intro_theme from public.sb_student_rewards where student_id=p_student),'blueprint'));\n  if theme not in ('blueprint','museum','sky') then theme := 'blueprint'; end if;\n  if (theme='museum' and xp<250) or (theme='sky' and xp<450) then theme := 'blueprint'; end if;\n  insert into public.sb_projects(student_id,class_id,building_name,reason,description,layer_notes,blocks,block_appearance,intro_theme,grid_width,grid_depth,max_height,submitted,version)\n  values(p_student,p_class,p_data->>'building_name',p_data->>'reason',p_data->>'description',p_data->'layer_notes',p_data->'blocks',coalesce(p_data->'block_appearance','{}'::jsonb),theme,requested_width,requested_depth,requested_height,(p_data->>'submitted')::boolean,next_version)\n  on conflict(student_id) do update set building_name=excluded.building_name,reason=excluded.reason,description=excluded.description,layer_notes=excluded.layer_notes,blocks=excluded.blocks,block_appearance=excluded.block_appearance,intro_theme=excluded.intro_theme,grid_width=excluded.grid_width,grid_depth=excluded.grid_depth,max_height=excluded.max_height,submitted=excluded.submitted,version=excluded.version;\n  if (p_data->>'submitted')::boolean then\n    insert into public.sb_student_progress(student_id,lesson,completed,completed_at,stars) values(p_student,10,true,now(),1),(p_student,11,true,now(),1)\n    on conflict(student_id,lesson) do update set completed=true,completed_at=now(),stars=1;\n  end if;\n  return next_version;\nend; $function$\n",
+      "search_path": [
+        "search_path=public"
+      ]
+    },
+    {
+      "name": "sb_set_reward_loadout",
+      "owner": "postgres",
+      "arguments": "p_student uuid, p_material text, p_theme text",
+      "definition": "CREATE OR REPLACE FUNCTION public.sb_set_reward_loadout(p_student uuid, p_material text, p_theme text)\n RETURNS TABLE(equipped_material text, intro_theme text)\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\ndeclare\n  xp integer;\nbegin\n  if not exists (select 1 from public.sb_students where id=p_student and status='active') then\n    raise exception 'FORBIDDEN_STUDENT';\n  end if;\n  xp := coalesce((select total_xp from public.sb_student_rewards where student_id=p_student),0);\n  if p_material not in ('wood','pastel','brick','tile') then raise exception 'INVALID_MATERIAL'; end if;\n  if p_theme not in ('blueprint','museum','sky') then raise exception 'INVALID_THEME'; end if;\n  if (p_material='pastel' and xp<50) or (p_material='brick' and xp<150) or (p_material='tile' and xp<300)\n     or (p_theme='museum' and xp<250) or (p_theme='sky' and xp<450) then\n    raise exception 'REWARD_LOCKED';\n  end if;\n  insert into public.sb_student_rewards(student_id,equipped_material,intro_theme)\n    values(p_student,p_material,p_theme)\n    on conflict(student_id) do update set equipped_material=excluded.equipped_material,intro_theme=excluded.intro_theme,updated_at=now();\n  return query select r.equipped_material,r.intro_theme from public.sb_student_rewards r where r.student_id=p_student;\nend; $function$\n",
+      "search_path": [
+        "search_path=public"
+      ]
+    },
+    {
+      "name": "sb_submit_challenge",
+      "owner": "postgres",
+      "arguments": "p_student uuid, p_challenge uuid, p_previous integer, p_state jsonb",
+      "definition": "CREATE OR REPLACE FUNCTION public.sb_submit_challenge(p_student uuid, p_challenge uuid, p_previous integer, p_state jsonb)\n RETURNS void\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\ndeclare current_wrong integer;\nbegin\n perform 1 from public.sb_students s join public.sb_shared_challenges c on c.class_id=s.class_id where s.id=p_student and c.id=p_challenge and s.status='active' for update of s;\n if not found then raise exception 'FORBIDDEN_CLASS'; end if;\n select wrong_count into current_wrong from public.sb_challenge_solves where student_id=p_student and challenge_id=p_challenge;\n if coalesce(current_wrong,0)<>p_previous then raise exception 'VERSION_CONFLICT'; end if;\n insert into public.sb_challenge_solves(challenge_id,student_id,correct,used_hint,wrong_count,answer_revealed,xp)\n values(p_challenge,p_student,(p_state->>'completed')::boolean,(p_state->>'hintShown')::boolean,(p_state->>'wrongCount')::integer,(p_state->>'answerRevealed')::boolean,(p_state->>'xp')::integer)\n on conflict(challenge_id,student_id) do update set correct=excluded.correct,used_hint=excluded.used_hint,wrong_count=excluded.wrong_count,answer_revealed=excluded.answer_revealed,xp=excluded.xp,score=coalesce((p_state->>'score')::integer,0),solved_at=now()\n where not sb_challenge_solves.correct;\n if (p_state->>'completed')::boolean then\n insert into public.sb_student_progress(student_id,lesson,completed,completed_at,stars) values(p_student,9,true,now(),1)\n on conflict(student_id,lesson) do update set completed=true,completed_at=now(),stars=1;\n end if;\nend; $function$\n",
+      "search_path": [
+        "search_path=public"
+      ]
+    },
+    {
+      "name": "sb_submit_challenge_v2",
+      "owner": "postgres",
+      "arguments": "p_student uuid, p_challenge uuid, p_previous integer, p_state jsonb",
+      "definition": "CREATE OR REPLACE FUNCTION public.sb_submit_challenge_v2(p_student uuid, p_challenge uuid, p_previous integer, p_state jsonb)\n RETURNS jsonb\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\ndeclare prior public.sb_challenge_solves; awarded boolean; result public.sb_challenge_solves;\nbegin\n perform 1 from public.sb_students s join public.sb_shared_challenges c on c.class_id=s.class_id\n where s.id=p_student and c.id=p_challenge and s.status='active' and c.author_id is distinct from p_student for update of s;\n if not found then raise exception 'FORBIDDEN_CLASS_OR_AUTHOR'; end if;\n if not exists(select 1 from public.sb_lesson_settings l join public.sb_students s on s.class_id=l.class_id where s.id=p_student and l.lesson=9 and not l.locked) then raise exception 'LESSON_LOCKED'; end if;\n select * into prior from public.sb_challenge_solves where student_id=p_student and challenge_id=p_challenge;\n if prior.correct then return jsonb_build_object('state',to_jsonb(prior),'awarded',false); end if;\n if coalesce(prior.wrong_count,0)<>p_previous or coalesce(prior.used_hint,false)<>coalesce((p_state->>'expectedHintShown')::boolean,false) then raise exception 'VERSION_CONFLICT'; end if;\n awarded:=coalesce((p_state->>'completed')::boolean,false);\n insert into public.sb_challenge_solves(challenge_id,student_id,correct,used_hint,wrong_count,answer_revealed,xp,score)\n values(p_challenge,p_student,awarded,(p_state->>'hintShown')::boolean,(p_state->>'wrongCount')::integer,(p_state->>'answerRevealed')::boolean,0,case when not awarded or (p_state->>'answerRevealed')::boolean then 0 when (p_state->>'hintShown')::boolean then 1 else 2 end)\n on conflict(challenge_id,student_id) do update set correct=excluded.correct,used_hint=excluded.used_hint,wrong_count=excluded.wrong_count,answer_revealed=excluded.answer_revealed,xp=0,score=excluded.score,solved_at=now()\n returning * into result;\n if awarded then\n insert into public.sb_student_progress(student_id,lesson,completed,completed_at,stars) values(p_student,9,true,now(),1)\n on conflict(student_id,lesson) do update set completed=true,completed_at=coalesce(sb_student_progress.completed_at,now()),stars=greatest(sb_student_progress.stars,1);\n end if;\n return jsonb_build_object('state',to_jsonb(result),'awarded',awarded);\nend; $function$\n",
+      "search_path": [
+        "search_path=public"
+      ]
+    },
+    {
+      "name": "sb_touch_updated_at",
+      "owner": "postgres",
+      "arguments": "",
+      "definition": "CREATE OR REPLACE FUNCTION public.sb_touch_updated_at()\n RETURNS trigger\n LANGUAGE plpgsql\nAS $function$\nbegin\n  new.updated_at = now();\n  return new;\nend;\n$function$\n",
+      "search_path": null
+    }
+  ],
+  "triggers": [
+    {
+      "name": "sb_block_snapshots_touch",
+      "table": "sb_block_snapshots",
+      "enabled": "O",
+      "definition": "CREATE TRIGGER sb_block_snapshots_touch BEFORE UPDATE ON public.sb_block_snapshots FOR EACH ROW EXECUTE FUNCTION sb_touch_updated_at()"
+    },
+    {
+      "name": "sb_classes_touch",
+      "table": "sb_classes",
+      "enabled": "O",
+      "definition": "CREATE TRIGGER sb_classes_touch BEFORE UPDATE ON public.sb_classes FOR EACH ROW EXECUTE FUNCTION sb_touch_updated_at()"
+    },
+    {
+      "name": "sb_lesson_progress_records_touch",
+      "table": "sb_lesson_progress_records",
+      "enabled": "O",
+      "definition": "CREATE TRIGGER sb_lesson_progress_records_touch BEFORE UPDATE ON public.sb_lesson_progress_records FOR EACH ROW EXECUTE FUNCTION sb_touch_updated_at()"
+    },
+    {
+      "name": "sb_lesson_settings_touch",
+      "table": "sb_lesson_settings",
+      "enabled": "O",
+      "definition": "CREATE TRIGGER sb_lesson_settings_touch BEFORE UPDATE ON public.sb_lesson_settings FOR EACH ROW EXECUTE FUNCTION sb_touch_updated_at()"
+    },
+    {
+      "name": "sb_peer_problem_attempts_touch",
+      "table": "sb_peer_problem_attempts",
+      "enabled": "O",
+      "definition": "CREATE TRIGGER sb_peer_problem_attempts_touch BEFORE UPDATE ON public.sb_peer_problem_attempts FOR EACH ROW EXECUTE FUNCTION sb_touch_updated_at()"
+    },
+    {
+      "name": "sb_practice_assignments_touch",
+      "table": "sb_practice_assignments",
+      "enabled": "O",
+      "definition": "CREATE TRIGGER sb_practice_assignments_touch BEFORE UPDATE ON public.sb_practice_assignments FOR EACH ROW EXECUTE FUNCTION sb_touch_updated_at()"
+    },
+    {
+      "name": "sb_problem_attempts_touch",
+      "table": "sb_problem_attempts",
+      "enabled": "O",
+      "definition": "CREATE TRIGGER sb_problem_attempts_touch BEFORE UPDATE ON public.sb_problem_attempts FOR EACH ROW EXECUTE FUNCTION sb_touch_updated_at()"
+    },
+    {
+      "name": "sb_problems_touch",
+      "table": "sb_problems",
+      "enabled": "O",
+      "definition": "CREATE TRIGGER sb_problems_touch BEFORE UPDATE ON public.sb_problems FOR EACH ROW EXECUTE FUNCTION sb_touch_updated_at()"
+    },
+    {
+      "name": "sb_projects_touch",
+      "table": "sb_projects",
+      "enabled": "O",
+      "definition": "CREATE TRIGGER sb_projects_touch BEFORE UPDATE ON public.sb_projects FOR EACH ROW EXECUTE FUNCTION sb_touch_updated_at()"
+    },
+    {
+      "name": "sb_student_created_problems_touch",
+      "table": "sb_student_created_problems",
+      "enabled": "O",
+      "definition": "CREATE TRIGGER sb_student_created_problems_touch BEFORE UPDATE ON public.sb_student_created_problems FOR EACH ROW EXECUTE FUNCTION sb_touch_updated_at()"
+    },
+    {
+      "name": "sb_student_lesson_reflections_touch",
+      "table": "sb_student_lesson_reflections",
+      "enabled": "O",
+      "definition": "CREATE TRIGGER sb_student_lesson_reflections_touch BEFORE UPDATE ON public.sb_student_lesson_reflections FOR EACH ROW EXECUTE FUNCTION sb_touch_updated_at()"
+    },
+    {
+      "name": "sb_student_progress_touch",
+      "table": "sb_student_progress",
+      "enabled": "O",
+      "definition": "CREATE TRIGGER sb_student_progress_touch BEFORE UPDATE ON public.sb_student_progress FOR EACH ROW EXECUTE FUNCTION sb_touch_updated_at()"
+    },
+    {
+      "name": "sb_student_rewards_touch",
+      "table": "sb_student_rewards",
+      "enabled": "O",
+      "definition": "CREATE TRIGGER sb_student_rewards_touch BEFORE UPDATE ON public.sb_student_rewards FOR EACH ROW EXECUTE FUNCTION sb_touch_updated_at()"
+    },
+    {
+      "name": "sb_students_touch",
+      "table": "sb_students",
+      "enabled": "O",
+      "definition": "CREATE TRIGGER sb_students_touch BEFORE UPDATE ON public.sb_students FOR EACH ROW EXECUTE FUNCTION sb_touch_updated_at()"
+    },
+    {
+      "name": "sb_teacher_settings_touch",
+      "table": "sb_teacher_settings",
+      "enabled": "O",
+      "definition": "CREATE TRIGGER sb_teacher_settings_touch BEFORE UPDATE ON public.sb_teacher_settings FOR EACH ROW EXECUTE FUNCTION sb_touch_updated_at()"
+    }
+  ],
+  "column_acls": [
+    {
+      "acl": [
+        "authenticated=w/postgres"
+      ],
+      "table": "sb_student_created_problems",
+      "column": "hidden_at"
+    },
+    {
+      "acl": [
+        "authenticated=w/postgres"
+      ],
+      "table": "sb_student_created_problems",
+      "column": "status"
+    },
+    {
+      "acl": [
+        "authenticated=w/postgres"
+      ],
+      "table": "sb_student_created_problems",
+      "column": "updated_at"
+    }
+  ],
+  "policy_modes": [
+    {
+      "name": "sb_snapshots_owner",
+      "table": "sb_block_snapshots",
+      "permissive": "PERMISSIVE"
+    },
+    {
+      "name": "sb_challenge_solves_owner",
+      "table": "sb_challenge_solves",
+      "permissive": "PERMISSIVE"
+    },
+    {
+      "name": "sb_classes_owner",
+      "table": "sb_classes",
+      "permissive": "PERMISSIVE"
+    },
+    {
+      "name": "sb_lesson_progress_records_teacher",
+      "table": "sb_lesson_progress_records",
+      "permissive": "PERMISSIVE"
+    },
+    {
+      "name": "sb_lesson_settings_owner",
+      "table": "sb_lesson_settings",
+      "permissive": "PERMISSIVE"
+    },
+    {
+      "name": "sb_peer_problem_attempts_teacher",
+      "table": "sb_peer_problem_attempts",
+      "permissive": "PERMISSIVE"
+    },
+    {
+      "name": "sb_practice_assignments_teacher",
+      "table": "sb_practice_assignments",
+      "permissive": "PERMISSIVE"
+    },
+    {
+      "name": "sb_attempts_owner",
+      "table": "sb_problem_attempts",
+      "permissive": "PERMISSIVE"
+    },
+    {
+      "name": "sb_problems_teacher_read",
+      "table": "sb_problems",
+      "permissive": "PERMISSIVE"
+    },
+    {
+      "name": "sb_problems_teacher_write",
+      "table": "sb_problems",
+      "permissive": "PERMISSIVE"
+    },
+    {
+      "name": "sb_project_exports_teacher",
+      "table": "sb_project_exports",
+      "permissive": "PERMISSIVE"
+    },
+    {
+      "name": "sb_projects_owner",
+      "table": "sb_projects",
+      "permissive": "PERMISSIVE"
+    },
+    {
+      "name": "sb_self_evaluation_teacher",
+      "table": "sb_self_evaluations",
+      "permissive": "PERMISSIVE"
+    },
+    {
+      "name": "sb_challenges_owner",
+      "table": "sb_shared_challenges",
+      "permissive": "PERMISSIVE"
+    },
+    {
+      "name": "sb_student_created_problems_teacher",
+      "table": "sb_student_created_problems",
+      "permissive": "PERMISSIVE"
+    },
+    {
+      "name": "sb_student_created_problems_teacher_update",
+      "table": "sb_student_created_problems",
+      "permissive": "PERMISSIVE"
+    },
+    {
+      "name": "sb_student_lesson_reflections_teacher",
+      "table": "sb_student_lesson_reflections",
+      "permissive": "PERMISSIVE"
+    },
+    {
+      "name": "sb_pin_vault_owner",
+      "table": "sb_student_pin_vault",
+      "permissive": "PERMISSIVE"
+    },
+    {
+      "name": "sb_progress_owner",
+      "table": "sb_student_progress",
+      "permissive": "PERMISSIVE"
+    },
+    {
+      "name": "sb_rewards_owner",
+      "table": "sb_student_rewards",
+      "permissive": "PERMISSIVE"
+    },
+    {
+      "name": "sb_students_owner",
+      "table": "sb_students",
+      "permissive": "PERMISSIVE"
+    },
+    {
+      "name": "sb_teacher_settings_owner",
+      "table": "sb_teacher_settings",
+      "permissive": "PERMISSIVE"
+    },
+    {
+      "name": "sb_worksheet_teacher",
+      "table": "sb_worksheet_imports",
+      "permissive": "PERMISSIVE"
+    }
+  ]
+}

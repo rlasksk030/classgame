@@ -2,7 +2,10 @@ import { readFile, readdir } from "node:fs/promises";
 import { generateFunctionSecret, assertSafeTarget, assertTargetBinding } from "./security.ts";
 import { InstallerError, type FunctionBundle, type InstallState, type InstallerBackend, type InstallerTarget, type MigrationInput } from "./contract.ts";
 
+import { inspectMigrationState, manualReview, type DatabaseBaseline } from "./database-state.ts";
+
 export interface InstallerPlan {
+  databaseBaseline?: DatabaseBaseline;
   migrations: MigrationInput[];
   functions: FunctionBundle[];
   appVersion: string;
@@ -49,13 +52,16 @@ export async function runInstaller(options: InstallerRunOptions): Promise<Instal
     mark(state, "target");
     await save(state, onState);
 
-    const applied = new Set(await options.backend.listAppliedMigrations(target));
+    const assessment = await inspectMigrationState(options.backend, target, plan);
+    if (assessment.drift) throw manualReview();
+    const applied = new Set(assessment.migrations.filter(m => m.status === "APPLIED_BY_HISTORY").map(m => m.name));
+    const pending = new Set(assessment.migrations.filter(m => m.status === "PENDING").map(m => m.name));
     state.appliedMigrations = plan.migrations.filter((migration) => applied.has(migration.name)).map((migration) => migration.name);
-    state.missingMigrations = plan.migrations.filter((migration) => !applied.has(migration.name)).map((migration) => migration.name);
+    state.missingMigrations = [...pending];
     state.status = state.missingMigrations.length ? "PARTIAL_MIGRATION" : "ALREADY_INSTALLED";
     await save(state, onState);
     for (const migration of plan.migrations) {
-      if (applied.has(migration.name)) continue;
+      if (!pending.has(migration.name)) continue;
       await options.backend.applyMigration(target, migration);
       applied.add(migration.name);
       state.appliedMigrations.push(migration.name);
@@ -78,7 +84,7 @@ export async function runInstaller(options: InstallerRunOptions): Promise<Instal
     const deployed = await options.backend.listFunctions(target);
     state.functions = [];
     for (const bundle of plan.functions) {
-      const existing = deployed.find((item) => item.slug === bundle.slug && item.hash === bundle.hash);
+      const existing = deployed.find((item) => functionMatches(item, bundle, Boolean(plan.databaseBaseline)));
       const result = existing ?? await options.backend.deployFunction(target, bundle);
       state.functions.push(result);
       await save(state, onState);
@@ -94,7 +100,7 @@ export async function runInstaller(options: InstallerRunOptions): Promise<Instal
     return state;
   } catch (error) {
     const detail = error instanceof InstallerError ? error : new InstallerError("INSTALLER_RUN_FAILED", "target", "설치 실행에 실패했습니다.");
-    state.status = detail.code === "INSTALLER_MANAGEMENT_NETWORK" ? "RECOVERABLE" : "FAILED";
+    state.status = detail.code === "INSTALLER_MANUAL_REVIEW_REQUIRED" ? "DRIFT_REQUIRES_REVIEW" : detail.code === "INSTALLER_MANAGEMENT_NETWORK" ? "RECOVERABLE" : "FAILED";
     state.lastError = { code: detail.code, stage: detail.stage };
     await save(state, onState);
     throw detail;
@@ -108,4 +114,9 @@ function mark(state: InstallState, stage: InstallState["completedStages"][number
 export async function readMigrationPlan(directory: string): Promise<MigrationInput[]> {
   const files = (await readdir(directory)).filter((name) => /^202\d+_.+\.sql$/.test(name)).sort();
   return Promise.all(files.map(async (name) => ({ name, query: await readFile(`${directory}/${name}`, "utf8") })));
+}
+
+/** Version numbers are not source fingerprints. In math plans ACTIVE and JWT configuration must match too. */
+export function functionMatches(item: import("./contract.ts").FunctionDeployment, bundle: FunctionBundle, strict = false): boolean {
+  return item.slug === bundle.slug && item.hash === bundle.hash && (!strict || (item.status === "ACTIVE" && item.verifyJwt === bundle.metadata.verify_jwt));
 }

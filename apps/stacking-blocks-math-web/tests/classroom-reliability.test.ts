@@ -30,3 +30,24 @@ test('review restore and concurrent project/challenge writes preserve ownership 
   assert.equal((await (await call(b,'challenge:get',{code})).json()).state.completed,false);
  }finally{await api.close();}
 });
+
+test('legacy project save cannot bypass introduction validation or the lesson lock to complete lessons 10 and 11',async()=>{
+ const api=await liveApi();
+ try{
+  const token=(await (await api.request('student-auth',{action:'login',classCode:'QAONLY',name:'QA학생1',pin:SYNTHETIC_PIN},undefined)).json()).token;
+  const save=(body:Record<string,unknown>)=>api.request('student-api',{action:'project:save',title:'소개서',reason:'설계',description:'소개',...body},token);
+  assert.equal((await save({submitted:true,blocks:[{x:0,y:0,z:0}]})).status,400);
+  assert.equal((await api.pg.query('select * from sb_student_progress where completed')).rows.length,0);
+  const draft=await save({submitted:false,blocks:[{x:0,y:0,z:0}]});
+  assert.equal(draft.status,200);
+  assert.equal((await draft.json()).projectVersion,1);
+  const complete={expectedVersion:1,submitted:true,layerNotes:['1층','2층','3층'],blocks:[{x:0,y:0,z:0},{x:0,y:1,z:0},{x:0,y:2,z:0}]};
+  assert.equal((await save({...complete,lesson:10})).status,400);
+  await api.pg.exec('update sb_lesson_settings set locked=true where lesson=11');
+  assert.equal((await save(complete)).status,403);
+  assert.equal((await api.pg.query('select * from sb_student_progress where completed')).rows.length,0);
+  await api.pg.exec('update sb_lesson_settings set locked=false where lesson=11');
+  assert.equal((await save(complete)).status,200);
+  assert.deepEqual((await api.pg.query<{lesson:number}>('select lesson from sb_student_progress where completed order by lesson')).rows.map(r=>r.lesson),[10,11]);
+ }finally{await api.close();}
+});

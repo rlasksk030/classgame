@@ -1,3 +1,5 @@
+import { readFile } from "node:fs/promises";
+import type { Catalog } from "./database-state.ts";
 import { InstallerError, type FunctionBundle, type FunctionDeployment, type InstallerBackend, type InstallerTarget, type MigrationInput, type RemoteProject } from "./contract.ts";
 import { EphemeralCredential, redactInstallerObject } from "./security.ts";
 
@@ -89,6 +91,17 @@ export class SupabaseManagementBackend implements InstallerBackend {
     });
   }
 
+  async inspectDatabaseCatalog(target: InstallerTarget): Promise<Catalog> {
+    const query = await readFile(new URL('./catalog.sql', import.meta.url), 'utf8');
+    const response = await this.request<Array<{ snapshot: Catalog }>>('migrations', `/v1/projects/${encodeURIComponent(target.projectRef)}/database/query`, {
+      method: 'POST', body: JSON.stringify({ query, read_only: true }),
+    });
+    if (!Array.isArray(response) || response.length !== 1 || !response[0]?.snapshot) {
+      throw new InstallerError('INSTALLER_MANUAL_REVIEW_REQUIRED', 'migrations', 'DB 정의를 확인하지 못했습니다. 자동 업데이트 전에 확인이 필요합니다.');
+    }
+    return response[0].snapshot;
+  }
+
   async listAppliedMigrations(target: InstallerTarget): Promise<string[]> {
     const response = await this.request<unknown>("migrations", `/v1/projects/${encodeURIComponent(target.projectRef)}/database/migrations`);
     if (!Array.isArray(response)) throw new InstallerError("INSTALLER_MIGRATION_RESPONSE_INVALID", "migrations", "원격 migration 상태 응답을 해석할 수 없습니다.");
@@ -142,7 +155,7 @@ export class SupabaseManagementBackend implements InstallerBackend {
       // can't be reproduced locally, so deployFunction stores our own content
       // hash in "name" and this reads it back for an exact, self-consistent
       // up-to-date check instead of comparing against an unreplicable value.
-      return [{ slug, version: typeof (item as { version?: unknown }).version === "number" ? (item as { version: number }).version : undefined, hash: typeof (item as { name?: unknown }).name === "string" ? (item as { name: string }).name : undefined, status: typeof (item as { status?: unknown }).status === "string" ? (item as { status: string }).status : undefined }];
+      return [{ slug, verifyJwt: typeof (item as { verify_jwt?: unknown }).verify_jwt === "boolean" ? (item as { verify_jwt: boolean }).verify_jwt : undefined, version: typeof (item as { version?: unknown }).version === "number" ? (item as { version: number }).version : undefined, hash: typeof (item as { name?: unknown }).name === "string" ? (item as { name: string }).name : undefined, status: typeof (item as { status?: unknown }).status === "string" ? (item as { status: string }).status : undefined }];
     });
   }
 
@@ -158,7 +171,7 @@ export class SupabaseManagementBackend implements InstallerBackend {
       method: "POST",
       body: form,
     });
-    return { slug: bundle.slug, version: response.version, hash: bundle.hash, status: response.status };
+    return { slug: bundle.slug, version: response.version, hash: bundle.hash, verifyJwt: bundle.metadata.verify_jwt as boolean, status: response.status };
   }
 
   async probeFunction(target: InstallerTarget, slug: FunctionDeployment["slug"]): Promise<void> {

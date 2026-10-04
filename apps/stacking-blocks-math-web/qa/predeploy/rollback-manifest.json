@@ -1,0 +1,123 @@
+{
+  "capturedAt": "2026-10-02",
+  "projectRef": "lpjpwrgzwumnikroledh",
+  "migrationHistory": [],
+  "functions": [
+    {
+      "slug": "student-api",
+      "version": 4,
+      "verifyJwt": false,
+      "bundleSha256": "d746eef83edbaedf647e5a83ed89da92ac0df36f5921f38f2385d520825329a2",
+      "files": [
+        {
+          "path": "shared/activities.ts",
+          "sha256": "5455f6fe0ee31643b969c3c489c1677dd03f05634c3457abd0ccfab62ec9c478"
+        },
+        {
+          "path": "shared/attempts.ts",
+          "sha256": "3f154c9bdff0ef5f5073ddb865a6f743c550c06f63f90ed07892e1f348c5931f"
+        },
+        {
+          "path": "shared/blocks.ts",
+          "sha256": "a50a328d1aef51114fc28931d80efe1acc7a46719279ed3ddc04d71f3db5bc23"
+        },
+        {
+          "path": "shared/grading.ts",
+          "sha256": "e96ba35915b62cb0dc781c27fd0ce8586804dadb8cb85099626faa8b817da853"
+        },
+        {
+          "path": "shared/practiceGenerator.ts",
+          "sha256": "bbfcb772ba6ee1fc4c3476228be843b191bf370b7f4e985070e19831b274b7bd"
+        },
+        {
+          "path": "shared/problemMetadata.ts",
+          "sha256": "fe2e4d036ee0cb4c74869aa10b5e67bb22e04b94492853da02bd677f46acc8e6"
+        },
+        {
+          "path": "shared/seedProblems.ts",
+          "sha256": "4cc8ce776eacd4fa11ad45470288a5a77c4306bd73b3dd3ad7a1c2483121d59d"
+        },
+        {
+          "path": "shared/types.ts",
+          "sha256": "f8243443114c0993b4e1476f4239ddaaed49fb74f264d1519c67ba57940e50a2"
+        },
+        {
+          "path": "supabase/functions/_shared/activities.ts",
+          "sha256": "07b7e78132ecc605003f5cec25a464c679faa657efcf620c12b98a6a95e16520"
+        },
+        {
+          "path": "supabase/functions/_shared/db.ts",
+          "sha256": "a67827317121967f2f41e791618d450511241ef6808c80ba446fa6101a885475"
+        },
+        {
+          "path": "supabase/functions/_shared/http.ts",
+          "sha256": "feca1dd33fa56bed664653fabd7a134b47a6ded26e9231c2c45f1f14a3017c87"
+        },
+        {
+          "path": "supabase/functions/_shared/security.ts",
+          "sha256": "12778df713dfbd91e6631b566f47a3c14c31f61ad21bfb92d89760e25da1f38e"
+        },
+        {
+          "path": "supabase/functions/student-api/index.ts",
+          "sha256": "4c6776adebc305c683c6242ce3f842c065a25fd0eb78a41c258e331d9648d688"
+        }
+      ]
+    },
+    {
+      "slug": "student-auth",
+      "version": 7,
+      "verifyJwt": false,
+      "bundleSha256": "5c9bbfe004ae0e369bca00dea75085d55fa39edfcf5dd10a60f21cac6310ff51",
+      "files": [
+        {
+          "path": "supabase/functions/_shared/db.ts",
+          "sha256": "a67827317121967f2f41e791618d450511241ef6808c80ba446fa6101a885475"
+        },
+        {
+          "path": "supabase/functions/_shared/http.ts",
+          "sha256": "feca1dd33fa56bed664653fabd7a134b47a6ded26e9231c2c45f1f14a3017c87"
+        },
+        {
+          "path": "supabase/functions/_shared/security.ts",
+          "sha256": "d41a5869875787a9faa5f84a4510e912e251d43e454f3e1bcb541d7b22a87007"
+        },
+        {
+          "path": "supabase/functions/student-auth/index.ts",
+          "sha256": "86607c420abee95aa7726694cc7b6ccec1a0cc635e32952e08cc368ec265bea4"
+        }
+      ]
+    }
+  ],
+  "frontend": {
+    "status": "CONFIRMED",
+    "confirmedOn": "2026-10-03",
+    "verification": "User confirmation matched read-only Render get_service and list_deploys results",
+    "workspace": {
+      "name": "My Workspace",
+      "id": "tea-damhhg5bedkc73bpecr0"
+    },
+    "service": {
+      "name": "stacking-blocks-math",
+      "id": "srv-dar3ic7avr4c73fkmcqg",
+      "type": "static_site",
+      "url": "https://stacking-blocks-math.onrender.com",
+      "branch": "release/production",
+      "autoDeployTrigger": "commit",
+      "buildCommand": "npm ci && npm run build",
+      "publishPath": "dist"
+    },
+    "currentLive": {
+      "deployId": "dep-dat56gg473hc738esfk0",
+      "commitSha": "bc535a4a750b9f66391e6b12301e52c86d0edd89",
+      "status": "live"
+    },
+    "rollbackCandidate": {
+      "deployId": "dep-dar8lvrbc2fs738qaeag",
+      "commitSha": "7927e240df47eb136fa09c47a2bc5dc7a1e510ed",
+      "status": "deactivated",
+      "reason": "Previous successful deployment replaced by currentLive; not a failed deployment"
+    },
+    "postPrRollbackPolicy": "Reconfirm deployment records immediately before release. Restore the pre-change currentLive deployment first after a failed PR rollout; rollbackCandidate identifies the earlier known-good alternative. Restore frontend before rolling Edge back to v4.",
+    "deploymentGuard": "Do not change release/production until DB and Edge smoke tests pass and production rollout is explicitly authorized. No Render settings or deployments changed during this audit."
+  }
+}

@@ -78,3 +78,27 @@
 | R04 | 학생 표시는 `앞`·`옆`으로 단순화하고 기준 안내를 짧게 제공한다. | `앞쪽 경계`·긴 관찰자 문구 반복 | `src/components/world/BlockWorld.tsx`, `src/components/world/ProjectionGrid.tsx`, `src/pages/LessonPage.tsx` | 소스/DOM 문자열 및 화면 캡처 | IMPLEMENTED (브라우저 BLOCKED) |
 | R05 | 보관함은 세 면이 맞붙은 닫힌 정육면체이며 기존 드래그·탭 배치를 유지한다. | 펼쳐진 CSS 전개도 형태 | `src/components/world/BlockWorld.tsx`, `src/styles/index.css` | SVG 꼭짓점 검사·화면 조작 | IMPLEMENTED (브라우저 BLOCKED) |
 | R06 | 학생 단계는 `① 개념 배우기 → ② 문제 풀기 → ③ 더 풀어보기`이며 각 단계가 실제 URL·본문·문항으로 분리되고 위치를 보존한다. | `전체 학습 / 개념 익히기 / 개념 확인` 혼합 표시, 버튼만 바뀌는 단계 전환 | `src/pages/LessonLearnPage.tsx`, `src/pages/LessonPage.tsx`, `src/pages/StudentWorld.tsx`, `src/App.tsx` | `/learn` 안내 활동, `/solve` 입력·채점, `/practice` 반복 문제의 직접 접속·전환·새로고침과 단계별 문항/입력 복원 | IMPLEMENTED (정적 검사 통과, 브라우저 BLOCKED) |
+
+## 2026-10-02 — 학생·교사 필수 진도 계약
+
+- 일반 차시(1~8, 12)는 현재 학급/global 활성 `order_index=2` 문항 전체 완료를 필수 완료로 인정한다. concept, 선택 연습, 다른 seed는 필수 분모에서 제외한다.
+- 9차시는 본인 문제가 아닌 같은 학급 친구/시스템 문제 1개 성공. 제작·힌트·오답은 참여로만 기록한다.
+- 10차시 초안 저장은 진행 중이며, 기존 설계대로 11차시의 유효한 소개서 제출 때 10·11차시를 함께 완료한다. 자기평가만으로 12차시 완료를 부여하지 않는다.
+- 학생 월드 전체 비율은 완료 차시/12, 카드에는 필수 진행과 현재 선택 연습을 나누어 표시한다. 과거 연습 답안은 보존한다.
+- 교사 현재 차시는 최근 저장된 학습 활동, 전체 완료는 12개 차시 모두 완료로 판정한다. 활동 참여도 수업 결과에 포함한다.
+- 학급 초기화는 소유권을 검증하는 단일 트랜잭션 RPC를 사용한다. 잘못된 차시 범위는 거절한다.
+- 새 migration 2개와 앞선 필수 판정 migration은 운영 미적용. 로컬 검증과 운영 배포 상태를 구분한다. 상세 근거·한계는 `qa/progress-contract/2026-10-02_수학공간과입체_진도체계전수수정.md`를 따른다.
+
+### PR #3 운영 전 감사 보정
+
+- 기존 운영은 빈 migration history/16테이블/구 student-api v4다. 과거 migration 전체를 재실행하지 않는다. `20261002104459_live_v4_compatibility.sql`은 누락 객체 추가와 증거 기반 완료 승격만 수행하는 별도 운영 확장안이다. 기존 완료/PIN/session/작품/풀이 기록을 보존한다. 운영 미적용.
+- 12차시 자기평가/성찰은 별도 선택 활동이며 필수 진행 12/12 조건에 추가하지 않는다. production 9차시는 shared_challenges/solves/v2 RPC 경로로 유지한다.
+- 구 학생 payload의 작품 크기/외형을 유지하고, 정답 공개 시에만 구 challenge answer 응답도 제공한다. 최신 DB→기존 Edge→신규 Edge/구 프런트→신규 프런트의 호환성을 합성 로컬 DB/브라우저로 검증한다.
+- 2026-10-03 Render LIVE `dep-dat56gg473hc738esfk0` / `bc535a4a750b9f66391e6b12301e52c86d0edd89`, 이전 정상 rollback 후보 `dep-dar8lvrbc2fs738qaeag` / `7927e240df47eb136fa09c47a2bc5dc7a1e510ed`를 사용자 확인과 읽기 전용 재조회로 확정했다. PR #3 판정은 READY FOR MERGE이며 Draft/OPEN 유지, 운영 미반영이다. 이번 PR 배포 후 기본 복원 기준은 적용 직전 LIVE이고, 이전 정상 후보를 별도로 보관한다. 최신 증거는 `qa/predeploy/2026-10-02_수학공간과입체_PR3_운영전감사.md`를 따른다.
+
+### 2026-10-03 — Installer state-based compatibility
+
+- 이번 release의 installer는 history와 실제 DB catalog 계약을 함께 검증한다. 수동 최소 delta로 최종 계약을 만족한 누락 이력은 SATISFIED_BY_STATE로 처리하고 과거 SQL을 다시 적용하거나 history row를 만들어 넣지 않는다.
+- 부분 drift 또는 catalog 확인 불가에서는 설치/복구/update를 MANUAL_REVIEW_REQUIRED로 중단한다. UI update와 reconnect 자동 update/OAuth 반복을 차단한다.
+- 검증된 빈 설치와 중단 prefix의 신규 설치 경로는 유지한다. API/인증 함수는 version 숫자가 아닌 source closure fingerprint/ACTIVE/verify_jwt로 판정한다.
+- 기존 standalone delta SQL은 변경하지 않는다. 별도 branch의 로컬 수정·검증이며 실제 DB/Edge/installer/Frontend 배포 및 promotion PR merge는 수행하지 않는다. 상세는 `qa/installer/state-baseline/2026-10-03_state_baseline.md`를 따른다.

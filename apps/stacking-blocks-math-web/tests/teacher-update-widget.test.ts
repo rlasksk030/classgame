@@ -55,20 +55,26 @@ test("C. installer OAuth session missing/expired/revoked shows 'Supabase 연결�
   assert.match(connectFn!, /window\.location\.assign\(authorizeUrl\);/);
 });
 
-test("C-continued. SetupPage consumes the resume flag once the OAuth round trip has rebound the same project, finishes the update, and navigates back to /teacher -- the teacher is never made to walk the wizard for a reconnect started from the update widget", async () => {
+test("C-continued. SetupPage resumes only with a verified cookie session and clears the marker after successful update", async () => {
   const setup = await readSetup();
-  const resumeEffect = setup.match(/useEffect\(\(\) => \{\s*if \(oauthCallbackPending \|\| !connectionVerified \|\| !installerClient\) return;[\s\S]*?\n {2}\}, \[oauthCallbackPending, connectionVerified, installerClient\]\);/);
-  assert.ok(resumeEffect, "resume-update effect not found in SetupPage");
-  assert.match(resumeEffect![0], /if \(!consumeInstallerResumeUpdate\(\)\) return;/);
-  assert.match(resumeEffect![0], /await installerClient\.update\(installerTarget\(\)\);/);
-  assert.match(resumeEffect![0], /navigate\("\/teacher"\);/);
+  assert.doesNotMatch(setup, /consumeInstallerResumeUpdate\(/);
+  const finish = setup.match(/const finishVerifiedReconnect = async[\s\S]*?\n {2}\};/)?.[0];
+  assert.ok(finish);
+  assert.match(finish, /await completeInstallerReconnect\(installerClient, verified\);[\s\S]*finishTeacherReconnect\(\)/);
+  assert.doesNotMatch(finish, /finally|catch/);
+  const bind = setup.match(/const bindOAuthProject = async[\s\S]*?\n {2}\};/)?.[0];
+  assert.ok(bind);
+  assert.match(bind, /await bindInstallerOAuthProject[\s\S]*setFreshInstallerSession\(verified\)[\s\S]*await finishVerifiedReconnect\(verified\)/);
 });
 
-test("C-continued. the resume flag is sessionStorage-backed and consumed exactly once (read-and-clear), never left to fire again on a later unrelated /setup visit", async () => {
+test("C-continued. resume peek retains the flag for failures and explicit success clear removes it", async () => {
   const lib = await readInstallerLib();
   assert.match(lib, /sessionStorage\.setItem\(INSTALLER_RESUME_UPDATE_KEY, "1"\);/);
-  assert.match(lib, /const present = sessionStorage\.getItem\(INSTALLER_RESUME_UPDATE_KEY\) === "1";/);
-  assert.match(lib, /if \(present\) sessionStorage\.removeItem\(INSTALLER_RESUME_UPDATE_KEY\);/);
+  const peek = lib.match(/export function hasInstallerResumeUpdate[\s\S]*?\n\}/)?.[0];
+  assert.ok(peek);
+  assert.match(peek, /sessionStorage\.getItem\(INSTALLER_RESUME_UPDATE_KEY\) === "1"/);
+  assert.doesNotMatch(peek, /removeItem/);
+  assert.match(lib, /export function clearInstallerResumeUpdate[\s\S]*sessionStorage\.removeItem\(INSTALLER_RESUME_UPDATE_KEY\)/);
 });
 
 test("current-project detection: the widget builds its target from getResolvedSupabaseConfig() + projectRefFromUrl(), the same runtime-config resolution every other part of the app uses -- no project ref is hardcoded anywhere in this file", async () => {

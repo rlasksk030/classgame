@@ -22,6 +22,7 @@ export type InstallerStage =
   | "complete";
 
 export type InstallerStatus =
+  | "DRIFT_REQUIRES_REVIEW"
   | "NEW"
   | "ALREADY_INSTALLED"
   | "PARTIAL_MIGRATION"
@@ -52,6 +53,7 @@ export interface FunctionDeployment {
   version?: number;
   hash?: string;
   status?: string;
+  verifyJwt?: boolean;
 }
 
 export interface InstallState {
@@ -91,6 +93,8 @@ export interface FunctionBundle {
 
 export interface InstallerBackend {
   inspectProject(target: InstallerTarget): Promise<RemoteProject>;
+  /** Server-only catalog metadata; never reads application rows. */
+  inspectDatabaseCatalog?(target: InstallerTarget): Promise<import("./database-state.ts").Catalog>;
   listAppliedMigrations(target: InstallerTarget): Promise<string[]>;
   applyMigration(target: InstallerTarget, migration: MigrationInput): Promise<void>;
   listSecrets(target: InstallerTarget): Promise<string[]>;

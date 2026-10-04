@@ -7,6 +7,8 @@
  * lives here instead of inline in index.ts.
  */
 
+import { lessonCompleted, type ProgressProblemRow } from "./lessonProgression.ts";
+
 export type LessonProgressState = "not_started" | "in_progress" | "complete";
 
 export interface ProgressSourceRow {
@@ -16,6 +18,9 @@ export interface ProgressSourceRow {
 }
 
 export interface AttemptSourceRow {
+  problem_id: string;
+  /** Metadata of this attempted problem, joined in the same bulk query. */
+  order_index?: number;
   lesson: number;
   wrong_count: number;
   completed: boolean;
@@ -41,34 +46,28 @@ export function summarizeStudentProgress(
   studentNo: number | null,
   progress: ProgressSourceRow[],
   attempts: AttemptSourceRow[],
+  problems: ReadonlyArray<ProgressProblemRow>,
 ): StudentProgressSummary {
   const progressByLesson = new Map(progress.map((row) => [row.lesson, row]));
+  const completedIds = new Set(attempts.filter(row => row.completed && row.problem_id).map(row => row.problem_id!));
 
   const lessonStates: LessonProgressState[] = Array.from({ length: 12 }, (_, index) => {
     const lesson = index + 1;
-    if (progressByLesson.get(lesson)?.completed) return "complete";
-    if (attempts.some((a) => a.lesson === lesson)) return "in_progress";
+    if (lessonCompleted(lesson, progressByLesson.get(lesson)?.completed ?? false, problems, completedIds)) return "complete";
+    if (progressByLesson.has(lesson) || attempts.some((a) => a.lesson === lesson)) return "in_progress";
     return "not_started";
   });
 
   const completedLessons = lessonStates.filter((s) => s === "complete").length;
   const wrongCount = attempts.reduce((sum, a) => sum + a.wrong_count, 0);
-  const completedAttempts = attempts.filter((a) => a.completed).length;
-  // "선택 연습" = 각 차시를 완료시킨 최소 1건을 넘어서는 완료 시도 수 --
-  // 정확한 필수/선택 문제 분류(학생별 생성 연습문제 뱅크 조회)는 N+1을
-  // 유발하므로, 이미 가진 데이터로 계산 가능한 근사값을 쓴다.
-  const optionalPracticeCount = Math.max(0, completedAttempts - completedLessons);
+  const orderByProblem = new Map(problems.map(problem => [problem.id, problem.order_index]));
+  const optionalPracticeCount = new Set(attempts.filter(attempt =>
+    attempt.completed && attempt.problem_id && (attempt.order_index ?? orderByProblem.get(attempt.problem_id) ?? 0) > 2,
+  ).map(attempt => attempt.problem_id)).size;
 
-  const activityTimestamps = [
-    ...attempts.map((a) => a.updated_at),
-    ...progress.map((p) => p.updated_at),
-  ].filter(Boolean);
-  const lastActivityAt = activityTimestamps.length
-    ? activityTimestamps.reduce((latest, ts) => (ts > latest ? ts : latest))
-    : null;
-
-  const touchedLessons = [...attempts.map((a) => a.lesson), ...progress.map((p) => p.lesson)];
-  const currentLesson = touchedLessons.length ? Math.max(...touchedLessons) : 1;
+  const latest = latestLearningEvent([...progress, ...attempts]);
+  const lastActivityAt = latest?.updated_at ?? null;
+  const currentLesson = latest?.lesson ?? 1;
 
   return {
     studentId,
@@ -83,10 +82,17 @@ export function summarizeStudentProgress(
   };
 }
 
-/** 학생 1명의 전체 진행 상태를 3단계로 요약한다 (12차시 완료 = 전체 과정 완료로 간주). */
+/** The most recent persisted learning event; lesson number only breaks timestamp ties. */
+export function latestLearningEvent<T extends { lesson: number; updated_at: string }>(rows: ReadonlyArray<T>): T | null {
+  return rows.filter(row => row.lesson >= 1 && row.lesson <= 12 && Number.isFinite(Date.parse(row.updated_at)))
+    .reduce<T | null>((latest, row) => !latest || Date.parse(row.updated_at) > Date.parse(latest.updated_at)
+      || (Date.parse(row.updated_at) === Date.parse(latest.updated_at) && row.lesson > latest.lesson) ? row : latest, null);
+}
+
+/** All twelve lessons, including activities, must be complete. */
 export function overallProgressStatus(summary: Pick<StudentProgressSummary, "lessonStates">): LessonProgressState {
   const anyProgress = summary.lessonStates.some((s) => s !== "not_started");
   if (!anyProgress) return "not_started";
-  if (summary.lessonStates[11] === "complete") return "complete";
+  if (summary.lessonStates.length === 12 && summary.lessonStates.every(state => state === "complete")) return "complete";
   return "in_progress";
 }
