@@ -23,5 +23,6 @@ export async function readMathInstallerPlan(root: string): Promise<InstallerPlan
     return bundle;
   }));
   const databaseBaseline = JSON.parse(await readFile(join(root, "scripts/installer/database-baseline.json"), "utf8")) as DatabaseBaseline;
-  return { databaseBaseline, migrations, functions, appVersion: MATH_INSTALLER_MANIFEST.release, schemaVersion: migrations.at(-1)!.name.split("_")[0], productionRef: process.env.INSTALLER_PRODUCTION_REF ?? "stacking-blocks-math" };
+  const legacyRecovery = JSON.parse(await readFile(join(root, 'scripts/installer/legacy-recovery.json'), 'utf8')) as import('./legacy-generation.ts').LegacyRecovery;
+  return { databaseBaseline, legacyRecovery, migrations, functions, appVersion: MATH_INSTALLER_MANIFEST.release, schemaVersion: migrations.at(-1)!.name.split("_")[0], productionRef: process.env.INSTALLER_PRODUCTION_REF ?? "stacking-blocks-math" };
 }

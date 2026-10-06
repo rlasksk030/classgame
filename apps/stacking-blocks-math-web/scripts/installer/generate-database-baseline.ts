@@ -4,10 +4,13 @@ import { catalogFingerprints, type Catalog, type DatabaseBaseline } from './data
 import { readMigrationPlan } from './orchestrator.ts';
 import { createHash } from 'node:crypto';
 import { createFixture } from '../../qa/live-required-progress/installer-fixture.mjs';
+import { compileRecovery, type CapturedProfile } from './legacy-generation.ts';
+import { catalogDigestQuery } from './legacy-sql.ts';
 // LOCAL ONLY: immutable source migrations + schema-only manual fixture, no credentials.
 const migrations = await readMigrationPlan('supabase/migrations');
 const query = await readFile('scripts/installer/catalog.sql', 'utf8');
 const result: DatabaseBaseline = { migrationHashes: migrations.map(m => createHash('sha256').update(m.query).digest('hex')), profiles: [] };
+const captured: CapturedProfile[] = [];
 const db = new PGlite();
 await db.exec(`create role anon; create role authenticated; create role service_role bypassrls;
 create schema auth; create table auth.users(id uuid primary key);
@@ -19,6 +22,10 @@ create function storage.foldername(text) returns text[] language sql as $$ selec
 async function capture(database: PGlite, name: string, kind: DatabaseBaseline['profiles'][number]['kind'], prefix: number) {
   const snapshot = (await database.query<{ snapshot: Catalog }>(query)).rows[0].snapshot;
   result.profiles.push({ name, kind, prefix, objects: catalogFingerprints(snapshot) });
+  const digest = (await database.query<{digest: string}>(catalogDigestQuery(query))).rows[0].digest;
+  const seeds = snapshot.tables.some(t => t.name === 'sb_problems') ? (await database.query<Record<string,unknown>>('select * from sb_problems order by code')).rows : [];
+  const storagePolicies = (await database.query<Record<string,unknown>>("select * from pg_policies where schemaname='storage' and tablename='objects' and policyname in ('sb_worksheet_files','sb_problem_crops') order by policyname")).rows;
+  captured.push({ name, prefix, catalog: snapshot, digest, seeds, storagePolicies });
 }
 try {
   await capture(db, 'fresh-empty', 'RESUME', 0);
@@ -34,4 +41,5 @@ try {
   await capture(manual, 'manual-required-progress-contract', 'RELEASE', 0);
 } finally { await manual.close(); }
 await writeFile('scripts/installer/database-baseline.json', JSON.stringify(result, null, 2) + '\n');
+await writeFile('scripts/installer/legacy-recovery.json', JSON.stringify(await compileRecovery(captured, result.migrationHashes, query), null, 2) + '\n');
 console.log(`LOCAL baseline generated: ${result.profiles.length} supported profiles`);

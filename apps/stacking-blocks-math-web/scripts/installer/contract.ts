@@ -95,6 +95,10 @@ export interface InstallerBackend {
   inspectProject(target: InstallerTarget): Promise<RemoteProject>;
   /** Server-only catalog metadata; never reads application rows. */
   inspectDatabaseCatalog?(target: InstallerTarget): Promise<import("./database-state.ts").Catalog>;
+  /** Read-only aggregate evidence, no application rows returned. */
+  inspectDataEvidence?(target: InstallerTarget, query: string): Promise<import('./database-state.ts').DataEvidence>;
+  /** Exact known-profile transaction; never rewrites migration history. */
+  applyLegacyTransition?(target: InstallerTarget, query: string): Promise<void>;
   listAppliedMigrations(target: InstallerTarget): Promise<string[]>;
   applyMigration(target: InstallerTarget, migration: MigrationInput): Promise<void>;
   listSecrets(target: InstallerTarget): Promise<string[]>;
