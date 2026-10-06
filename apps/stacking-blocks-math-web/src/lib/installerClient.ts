@@ -19,6 +19,10 @@ export type InstallerRemoteStatus =
   | "UNKNOWN";
 
 export interface InstallerStatusResponse {
+  project?: { ref: string };
+  legacyRecovery?: 'LEGACY_RESUME_CANDIDATE';
+  matchedProfile?: string;
+  databaseReview?: { reason: string; baseline: string; comparisonBaseline: string; objects: Array<{key: string; change: string}> };
   status: InstallerRemoteStatus;
   appliedMigrationCount?: number;
   satisfiedMigrationCount?: number;

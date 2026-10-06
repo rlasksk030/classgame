@@ -6,6 +6,7 @@ import { inspectMigrationState, manualReview, type DatabaseBaseline } from "./da
 
 export interface InstallerPlan {
   databaseBaseline?: DatabaseBaseline;
+  legacyRecovery?: import('./legacy-generation.ts').LegacyRecovery;
   migrations: MigrationInput[];
   functions: FunctionBundle[];
   appVersion: string;
@@ -60,7 +61,16 @@ export async function runInstaller(options: InstallerRunOptions): Promise<Instal
     state.missingMigrations = [...pending];
     state.status = state.missingMigrations.length ? "PARTIAL_MIGRATION" : "ALREADY_INSTALLED";
     await save(state, onState);
-    for (const migration of plan.migrations) {
+    if (assessment.recovery) {
+      const transition = plan.legacyRecovery?.transitions.find(t => t.from === assessment.baseline);
+      if (!transition || !options.backend.applyLegacyTransition) throw manualReview();
+      await options.backend.applyLegacyTransition(target, transition.query);
+      const verified = await inspectMigrationState(options.backend, target, plan);
+      if (verified.drift || verified.recovery || verified.migrations.some(m => m.status === 'PENDING')) throw manualReview();
+      state.missingMigrations = [];
+      await save(state, onState);
+    }
+    for (const migration of assessment.recovery ? [] : plan.migrations) {
       if (!pending.has(migration.name)) continue;
       await options.backend.applyMigration(target, migration);
       applied.add(migration.name);

@@ -124,6 +124,20 @@ export class SupabaseManagementBackend implements InstallerBackend {
     });
   }
 
+  async inspectDataEvidence(target: InstallerTarget, query: string): Promise<import('./database-state.ts').DataEvidence> {
+    const rows = await this.request<Array<{evidence: import('./database-state.ts').DataEvidence}>>('migrations', `/v1/projects/${encodeURIComponent(target.projectRef)}/database/query`, { method: 'POST', body: JSON.stringify({ query, read_only: true }) });
+    if (!Array.isArray(rows) || rows.length !== 1 || !rows[0]?.evidence) throw new InstallerError('INSTALLER_MANUAL_REVIEW_REQUIRED', 'migrations', '데이터 보존 조건을 확인하지 못했습니다.');
+    const result = rows[0].evidence;
+    const fields = ['seedMissing','seedOutdated','storageMissing','progressMissing','dataConflict'] as const;
+    if (fields.some(k => !Number.isSafeInteger(result[k]) || result[k] < 0)) throw new InstallerError('INSTALLER_MANUAL_REVIEW_REQUIRED', 'migrations', '데이터 보존 조건을 확인하지 못했습니다.');
+    return Object.fromEntries(fields.map(k => [k, result[k]])) as unknown as import('./database-state.ts').DataEvidence;
+  }
+
+  async applyLegacyTransition(target: InstallerTarget, query: string): Promise<void> {
+    // A real new transaction, not fabricated historical migration entries.
+    await this.request('migrations', `/v1/projects/${encodeURIComponent(target.projectRef)}/database/query`, { method: 'POST', body: JSON.stringify({ query, read_only: false }) });
+  }
+
   async applyMigration(target: InstallerTarget, migration: MigrationInput): Promise<void> {
     await this.request("migrations", `/v1/projects/${encodeURIComponent(target.projectRef)}/database/migrations`, {
       method: "POST",

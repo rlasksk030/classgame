@@ -4,9 +4,11 @@ import { extname } from 'node:path';
 import { createInstallerServer } from '../../scripts/installer/http-server.ts';
 import { createFakeInstallerBackend, createFakeManagementExtras, fakeBundle } from '../../scripts/installer/fake-backend.ts';
 import { EphemeralCredential } from '../../scripts/installer/security.ts';
+import type { InstallerPlan } from '../../scripts/installer/orchestrator.ts';
+import type { InstallerBackend } from '../../scripts/installer/contract.ts';
 
-export async function reconnectServer(dropSessionCookie = false) {
-  const backend = createFakeInstallerBackend();
+export async function reconnectServer(dropSessionCookie = false, overrides?: { plan: InstallerPlan; backend: InstallerBackend; now?: () => number }) {
+  const backend = overrides?.backend ?? createFakeInstallerBackend();
   const extras = createFakeManagementExtras({ accessibleProjects: [{ ref: 'reconnect-project' }], publishableKeys: { 'reconnect-project': 'sb_publishable_synthetic_new' } });
   let upstream = '';
   const events: Array<{ path: string; method: string; grantSent: boolean; sessionSent: boolean }> = [];
@@ -37,7 +39,8 @@ export async function reconnectServer(dropSessionCookie = false) {
   }
   const origin = `http://localhost:${await listen(frontend)}`;
   const installer = createInstallerServer({ mode: 'PRODUCTION', productionRef: 'blocked-production', allowedOrigins: [origin], sessionCookieSecure: true, sessionCookieSameSite: 'Lax', sessionSecret: 'synthetic-signing-only-at-least-32-characters',
-    plan: { productionRef: 'blocked-production', migrations: [{ name: '202609110001_initial.sql', query: 'select 1' }], functions: [fakeBundle('student-auth'), fakeBundle('student-api')], appVersion: '1.0.0', schemaVersion: '202609110001' },
+    now: overrides?.now,
+    plan: overrides?.plan ?? { productionRef: 'blocked-production', migrations: [{ name: '202609110001_initial.sql', query: 'select 1' }], functions: [fakeBundle('student-auth'), fakeBundle('student-api')], appVersion: '1.0.0', schemaVersion: '202609110001' },
     createBackend: () => backend, createManagementExtras: () => extras,
     oauth: { clientId: 'synthetic-id', clientSecret: new EphemeralCredential('synthetic-only'), redirectUri: origin + '/api/installer/oauth/callback', fetchImpl: async () => Response.json({ access_token: 'synthetic-only', expires_in: 3600 }) },
   });

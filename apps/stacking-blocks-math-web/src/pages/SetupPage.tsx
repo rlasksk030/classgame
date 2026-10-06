@@ -291,6 +291,7 @@ export default function SetupPage() {
       setError("선택한 프로젝트에 대한 설치 권한이 없어요. 다른 프로젝트를 선택하거나 다시 연결해 주세요.");
     } else if (reason instanceof InstallerClientError && reason.status === 401) {
       setInstallerStatus(null);
+      setInstallerDetails(null); setOauthAuthorized(false); setConnectionIssue("session");
       setError("연결 세션이 저장되지 않았거나 권한이 만료되었습니다. Supabase를 다시 연결해 주세요.");
     } else if (reason instanceof InstallerClientError && ["INSTALLER_TARGET_MISMATCH", "INSTALLER_PUBLIC_CONFIG_MISSING", "INSTALLER_STATUS_UNVERIFIED", "INSTALLER_UPDATE_INCOMPLETE", "INSTALLER_UPDATE_UNVERIFIED"].includes(reason.code)) {
       setError(reason.message);
@@ -594,6 +595,7 @@ export default function SetupPage() {
                 : "설치 권한을 확인하는 중이에요…"}
             </p>}
             {connectionIssue === "network" && connectionIssueDetail && <p className="muted">{connectionIssueDetail}</p>}
+            {!oauthAuthorized && (connectionIssue === "session" || connectionIssue === "revoked") && <button type="button" className="btn" disabled={authorizing || busy} onClick={startOAuthConnect}>Supabase 다시 연결</button>}
             {connectionVerified && <details className="installer-advanced" open={useTemporaryPat && !oauthAuthorized}>
               <summary>개발자용 수동 연결</summary>
               <form className="stack" onSubmit={connectInstallerAuthorization}>
@@ -607,11 +609,23 @@ export default function SetupPage() {
             {(oauthAuthorized || (connectionVerified && (installerStatus || installerStatusError))) && <>
               <div className="installer-checks" aria-live="polite">
                 <p>{installerStatus ? installerStatusLabel(installerStatus) : installerStatusError ? "설치 권한을 연결한 후 상태를 확인해 주세요." : "설치 상태 확인 중…"}</p>
-                {installerDetails?.requiredMigrationCount !== undefined && <p>데이터베이스 준비: {(installerDetails.appliedMigrationCount ?? 0) + (installerDetails.satisfiedMigrationCount ?? 0)}/{installerDetails.requiredMigrationCount}</p>}
+                {installerStatus === "DRIFT_REQUIRES_REVIEW" ? <>
+                  <p>기존 설치 구조 확인이 필요합니다.</p>
+                  <p className="muted">설치 이력이나 데이터베이스 구조를 현재 버전의 기준과 대조하지 못해 자동 변경을 멈췄습니다. 데이터가 없다는 뜻은 아니며, 이 확인 과정에서 기존 자료를 삭제하지 않습니다.</p>
+                  <p className="muted">프로젝트를 삭제하거나 새로 만들지 마세요. 이 화면의 진단 정보로 확인할 수 있습니다. 키·비밀번호·PIN은 보내지 마세요. 아래 ‘설치 확인’으로 다시 조회할 수 있습니다.</p>
+                {installerDetails?.databaseReview && <dl aria-label="설치 진단 정보">
+                    <dt>프로젝트</dt><dd>{installerDetails.project?.ref}</dd>
+                    <dt>진단</dt><dd>{installerDetails.databaseReview.reason}</dd>
+                    <dt>기준</dt><dd>{installerDetails.databaseReview.baseline}</dd>
+                    <dt>객체 차이</dt><dd>{installerDetails.databaseReview.objects.length}</dd>
+                    <dt>진단 코드</dt><dd>DBR-{installerDetails.databaseReview.reason}</dd>
+                  </dl>}
+                </> : installerDetails?.requiredMigrationCount !== undefined && <p>데이터베이스 준비: {(installerDetails.appliedMigrationCount ?? 0) + (installerDetails.satisfiedMigrationCount ?? 0)}/{installerDetails.requiredMigrationCount}</p>}
+                {installerDetails?.legacyRecovery && <p>기존 설치를 확인했습니다. 기존 자료를 그대로 유지하고 최신 버전으로 준비합니다.</p>}
                 {installerDetails?.functions?.map(item => <p key={item.slug}>학생 로그인 기능 ({item.slug === "student-auth" ? "인증" : "학습"}): {item.status}</p>)}
               </div>
               <div className="toolbar-row">
-                <button className="btn btn-primary" disabled={busy || authorizing || !installerStatus || installerStatus === "DRIFT_REQUIRES_REVIEW"} onClick={() => void runInstallerAction("install")}>{busy ? "처리 중…" : "수학 앱 설치"}</button>
+                <button className="btn btn-primary" disabled={busy || authorizing || !installerStatus || installerStatus === "DRIFT_REQUIRES_REVIEW"} onClick={() => void runInstallerAction("install")}>{busy ? "처리 중…" : installerDetails?.legacyRecovery ? "기존 설치 계속하기" : "수학 앱 설치"}</button>
                 <button className="btn" disabled={busy || !installerStatus || installerStatus === "DRIFT_REQUIRES_REVIEW"} onClick={() => void runInstallerAction("repair")}>이어서 복구</button>
                 <button className="btn" disabled={busy || !installerStatus || installerStatus === "DRIFT_REQUIRES_REVIEW"} onClick={() => void runInstallerAction("update")}>업데이트</button>
                 <button className="btn" disabled={busy || authorizing} onClick={() => void runInstallerAction("status")}>설치 확인</button>
