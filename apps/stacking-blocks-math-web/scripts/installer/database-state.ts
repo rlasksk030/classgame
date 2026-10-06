@@ -13,6 +13,13 @@ export interface MigrationAssessment {
   drift: boolean;
   differences: string[];
   baseline?: string;
+  /** Metadata only. Never include catalog definitions, application rows or credentials. */
+  review?: {
+    reason: 'KNOWN_SCHEMA_HISTORY_MISMATCH' | 'REVIEWED_DELTA_REQUIRED' | 'UNRECOGNIZED_SCHEMA';
+    baseline: string;
+    comparisonBaseline: string;
+    objects: Array<{ key: string; change: 'MISSING' | 'ADDITIONAL' | 'CHANGED' }>;
+  };
 }
 const sections = ['tables', 'columns', 'constraints', 'indexes', 'policies', 'rpcs', 'rpc_definitions', 'triggers', 'column_acls', 'policy_modes'];
 function canonical(value: unknown): unknown {
@@ -52,13 +59,25 @@ export function assessDatabaseState(plan: InstallerPlan, history: string[], cata
   const manual = matches.find(p => p.kind === 'MANUAL_DELTA_REQUIRED');
   // History can confirm provenance, never override a mismatched definition.
   // A manual baseline takes priority over a coincidentally matching prefix.
-  const resume = !manual && matches.find(p => p.kind === 'RESUME' && plan.migrations.every((m, i) => applied.has(m.name) === (i < p.prefix)));
+  const resume = manual ? undefined : matches.find(p => p.kind === 'RESUME' && plan.migrations.every((m, i) => applied.has(m.name) === (i < p.prefix)));
   const selected = release ?? resume;
   const drift = !selected;
   const nearest = baseline.profiles.filter(p => p.kind === 'RELEASE').sort((a, b) => differences(a.objects, actual).length - differences(b.objects, actual).length)[0];
+  const knownSchema = manual ? undefined : matches.find(p => p.kind === 'RESUME');
+  // Exact schema with incomplete history is not an object-level schema mismatch.
+  // It still needs review: schema alone cannot prove data-only migrations ran,
+  // nor authorize broader historical SQL over an existing teacher installation.
+  const compared = knownSchema || nearest;
+  const changedObjects = drift ? differences(compared.objects, actual) : [];
   return {
     drift, baseline: selected?.name ?? manual?.name,
-    differences: drift ? differences(nearest.objects, actual) : [],
+    differences: changedObjects,
+    ...(drift ? { review: {
+      reason: manual ? 'REVIEWED_DELTA_REQUIRED' as const : knownSchema ? 'KNOWN_SCHEMA_HISTORY_MISMATCH' as const : 'UNRECOGNIZED_SCHEMA' as const,
+      baseline: manual?.name ?? compared.name,
+      comparisonBaseline: compared.name,
+      objects: changedObjects.map(key => ({ key, change: !(key in actual) ? 'MISSING' as const : !(key in compared.objects) ? 'ADDITIONAL' as const : 'CHANGED' as const })),
+    } } : {}),
     migrations: plan.migrations.map(m => ({ name: m.name, status: drift ? 'DRIFT_REQUIRES_REVIEW' : applied.has(m.name) ? 'APPLIED_BY_HISTORY' : release ? 'SATISFIED_BY_STATE' : 'PENDING' })),
   };
 }

@@ -27,7 +27,7 @@ async function fixture(page: Page, scenario: Scenario = {}) {
     if (path === 'status') {
       return route.fulfill(scenario.failure === 'status' || scenario.failure === 'projects'
         ? { status: 401, json: { code: 'INSTALLER_SESSION_REQUIRED' } }
-        : { json: { status: scenario.drift ? 'DRIFT_REQUIRES_REVIEW' : scenario.installed || updated ? 'INSTALLED' : 'UPDATE_REQUIRED' } });
+        : { json: { status: scenario.drift ? 'DRIFT_REQUIRES_REVIEW' : scenario.installed || updated ? 'INSTALLED' : 'UPDATE_REQUIRED', appliedMigrationCount: 0, satisfiedMigrationCount: scenario.installed || updated ? 24 : 0, requiredMigrationCount: 24, functions: [{ slug: 'student-auth', status: 'ACTIVE' }, { slug: 'student-api', status: 'ACTIVE' }] } });
     }
     if (path === 'update') {
       if (scenario.failure !== 'update') updated = true;
@@ -199,11 +199,21 @@ test('drift reconnect shows manual review without update, repeat OAuth, or teach
   expect(calls).not.toContain('update');
   expect(await page.evaluate(() => sessionStorage.getItem('stacking-installer-resume-update'))).toBe('1');
 });
-test('drift normal setup disables every mutation action and permits status inspection', async ({ page }) => {
-  await fixture(page, { newInstall: true, picker: true, drift: true });
+test('drift normal setup disables every mutation action and permits status inspection', async ({ page }, testInfo) => {
+  const calls = await fixture(page, { newInstall: true, picker: true, drift: true });
   await page.goto('/setup?oauth=granted');
   await page.getByRole('button', { name: '이 프로젝트 사용' }).click();
   await expect(page.getByRole('heading', { name: '데이터베이스 준비' })).toBeVisible();
   for (const name of ['수학 앱 설치', '이어서 복구', '업데이트']) await expect(page.getByRole('button', { name, exact: true })).toBeDisabled();
   await expect(page.getByRole('button', { name: '설치 확인', exact: true })).toBeEnabled();
+  await expect(page.getByRole('button', { name: '교사 확인으로 계속', exact: true })).toBeDisabled();
+  await expect(page.getByText('기존 설치 구조 확인이 필요합니다.', { exact: true })).toBeVisible();
+  await expect(page.getByText(/데이터베이스 준비: 0\/24/)).toHaveCount(0);
+  await expect(page.getByText(/학생 로그인 기능 \(인증\): ACTIVE/)).toBeVisible();
+  await page.getByRole('button', { name: '설치 확인', exact: true }).click();
+  await expect(page.getByText('기존 설치 구조 확인이 필요합니다.', { exact: true })).toBeVisible();
+  await page.reload();
+  await expect(page.getByText('기존 설치 구조 확인이 필요합니다.', { exact: true })).toBeVisible();
+  expect(calls.filter(path => ['install', 'repair', 'update'].includes(path))).toEqual([]);
+  await page.screenshot({ path: testInfo.outputPath('existing-installation-review.png'), fullPage: true });
 });

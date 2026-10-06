@@ -607,7 +607,11 @@ export default function SetupPage() {
             {(oauthAuthorized || (connectionVerified && (installerStatus || installerStatusError))) && <>
               <div className="installer-checks" aria-live="polite">
                 <p>{installerStatus ? installerStatusLabel(installerStatus) : installerStatusError ? "설치 권한을 연결한 후 상태를 확인해 주세요." : "설치 상태 확인 중…"}</p>
-                {installerDetails?.requiredMigrationCount !== undefined && <p>데이터베이스 준비: {(installerDetails.appliedMigrationCount ?? 0) + (installerDetails.satisfiedMigrationCount ?? 0)}/{installerDetails.requiredMigrationCount}</p>}
+                {installerStatus === "DRIFT_REQUIRES_REVIEW" ? <>
+                  <p>기존 설치 구조 확인이 필요합니다.</p>
+                  <p className="muted">설치 이력이나 데이터베이스 구조를 현재 버전의 기준과 대조하지 못해 자동 변경을 멈췄습니다. 데이터가 없다는 뜻은 아니며, 이 확인 과정에서 기존 자료를 삭제하지 않습니다.</p>
+                  <p className="muted">프로젝트를 삭제하거나 새로 만들지 마세요. 제작자에게 이 화면과 프로젝트 ID를 전달해 주세요. 키·비밀번호·PIN은 보내지 마세요. 확인 후 아래 ‘설치 확인’으로 다시 조회할 수 있습니다.</p>
+                </> : installerDetails?.requiredMigrationCount !== undefined && <p>데이터베이스 준비: {(installerDetails.appliedMigrationCount ?? 0) + (installerDetails.satisfiedMigrationCount ?? 0)}/{installerDetails.requiredMigrationCount}</p>}
                 {installerDetails?.functions?.map(item => <p key={item.slug}>학생 로그인 기능 ({item.slug === "student-auth" ? "인증" : "학습"}): {item.status}</p>)}
               </div>
               <div className="toolbar-row">

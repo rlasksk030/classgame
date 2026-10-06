@@ -51,6 +51,14 @@ test('A/B fresh project installs all migrations and Edge; exact history resumes 
     for (const m of plan.migrations.slice(0, 7)) await backend.applyMigration(target, m);
     const partial = await inspectMigrationState(backend, target, plan);
     assert.equal(partial.drift, false); assert.equal(partial.migrations.filter(m => m.status === 'PENDING').length, 17);
+    // Same schema, missing history: diagnose provenance separately from schema
+    // differences. Do not silently opt a teacher into replaying old SQL.
+    const missingHistory = assessDatabaseState(plan, [], await catalog(db));
+    assert.equal(missingHistory.drift, true);
+    assert.equal(missingHistory.review?.reason, 'KNOWN_SCHEMA_HISTORY_MISMATCH');
+    assert.equal(missingHistory.review?.baseline, 'history-prefix-7');
+    assert.deepEqual(missingHistory.differences, []);
+    assert.ok(missingHistory.migrations.every(m => m.status === 'DRIFT_REQUIRES_REVIEW'));
     const result = await runInstaller({ target, plan, backend });
     assert.equal(result.status, 'COMPLETE');
     assert.equal(backend.calls.filter(c => c.startsWith('applyMigration')).length, 24);
@@ -80,6 +88,8 @@ test('F original schema before delta is manual-review state, never historical fo
   const backend = backendFor(previous, plan.migrations.slice(0, 20).map(m => m.name));
   const state = await inspectMigrationState(backend, target, plan);
   assert.equal(state.drift, true); assert.equal(state.baseline, 'manual-previous-contract');
+  assert.equal(state.review?.reason, 'REVIEWED_DELTA_REQUIRED');
+  assert.equal(state.review?.baseline, 'manual-previous-contract');
   assert.ok(state.differences.some(s => s.includes('sb_record_attempt')));
   assert.ok(state.differences.some(s => s.includes('updated_at')));
   await assert.rejects(runInstaller({ target, plan, backend }), { code: 'INSTALLER_MANUAL_REVIEW_REQUIRED' });
@@ -117,7 +127,11 @@ for (const [name, query] of Object.entries(driftSql)) {
       await manual.exec(typeof query === 'function' ? query() : query);
       const changed = await catalog(manual);
       const backend = backendFor(changed, plan.migrations.map(m => m.name), true);
-      assert.equal((await inspectMigrationState(backend, target, plan)).drift, true);
+      const assessment = await inspectMigrationState(backend, target, plan);
+      assert.equal(assessment.drift, true);
+      assert.equal(assessment.review?.reason, 'UNRECOGNIZED_SCHEMA');
+      assert.ok(assessment.differences.length > 0);
+      assert.ok(assessment.review?.objects.every(item => ['MISSING', 'ADDITIONAL', 'CHANGED'].includes(item.change)));
       await assert.rejects(runInstaller({ target, plan, backend }), { code: 'INSTALLER_MANUAL_REVIEW_REQUIRED' });
       assert.deepEqual(writes(backend.calls), []);
     } finally { await manual.exec('ROLLBACK'); }
@@ -130,6 +144,20 @@ test('Missing catalog capability, malformed catalog or changed migration SQL fai
   const changedPlan = { ...plan, migrations: plan.migrations.map((m, i) => i ? m : { ...m, query: m.query + '\n-- unreviewed change' }) };
   assert.throws(() => assessDatabaseState(changedPlan, [], latest), { code: 'INSTALLER_MANUAL_REVIEW_REQUIRED' });
   assert.deepEqual(writes(backend.calls), []);
+});
+test('Review reports object-level missing/additional/changed metadata without catalog bodies', () => {
+  const changed = structuredClone(latest);
+  changed.columns = changed.columns.filter(c => !(c.table === 'sb_students' && c.name === 'name'));
+  changed.columns.push({ table: 'sb_students', name: 'unreviewed_column', type: 'text', nullable: 'YES', default: null });
+  changed.tables.find(t => t.name === 'sb_classes')!.rls = false;
+  const assessment = assessDatabaseState(plan, [], changed);
+  assert.equal(assessment.drift, true);
+  const objects = assessment.review!.objects;
+  assert.ok(objects.some(o => o.key === 'columns:sb_students:name:' && o.change === 'MISSING'));
+  assert.ok(objects.some(o => o.key === 'columns:sb_students:unreviewed_column:' && o.change === 'ADDITIONAL'));
+  assert.ok(objects.some(o => o.key === 'tables::sb_classes:' && o.change === 'CHANGED'));
+  assert.ok(objects.every(o => Object.keys(o).sort().join(',') === 'change,key'));
+  assert.equal(assessDatabaseState(plan, [], latest).review, undefined);
 });
 test('Catalog request is fixed server-only metadata SQL, read_only true; no rows or credentials returned', async () => {
   const credential = new EphemeralCredential('synthetic-management-credential');
@@ -161,7 +189,11 @@ test('HTTP status/plan/update/install/repair agree: fully satisfied installed, d
     const proposed = await (await req('/plan', 'POST')).json(); assert.equal(proposed.action, 'NO_RUNTIME_CHANGES'); assert.equal(proposed.migrations.filter((m: { status: string }) => m.status === 'SATISFIED_BY_STATE').length, 4);
     assert.equal((await req('/update', 'POST')).status, 200); assert.deepEqual(writes(backend.calls), []);
     current = previous;
-    assert.equal((await (await req('/status')).json()).status, 'DRIFT_REQUIRES_REVIEW');
+    const review = await (await req('/status')).json();
+    assert.equal(review.status, 'DRIFT_REQUIRES_REVIEW');
+    assert.equal(review.databaseReview.reason, 'REVIEWED_DELTA_REQUIRED');
+    assert.equal(review.databaseReview.baseline, 'manual-previous-contract');
+    assert.equal(JSON.stringify(review).includes('CREATE OR REPLACE FUNCTION'), false);
     assert.equal((await (await req('/plan', 'POST')).json()).action, 'DRIFT_REQUIRES_REVIEW');
     for (const path of ['/update', '/install', '/repair']) {
       const response = await req(path, 'POST'); assert.equal(response.status, 409);

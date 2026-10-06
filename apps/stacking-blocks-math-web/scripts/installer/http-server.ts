@@ -408,7 +408,7 @@ async function statusFor(session: InstallerSession, backend: InstallerBackend, p
   }));
   const probeFailed = probes.some((probe) => probe.status === "FAIL");
   const status = assessment.drift ? "DRIFT_REQUIRES_REVIEW" : missingMigrations.length || !secrets.includes("APP_SESSION_SECRET") ? (migrations.length ? "PARTIAL" : "NEW") : missingFunctions.length ? "UPDATE_REQUIRED" : probeFailed ? "BROKEN" : "INSTALLED";
-  return { status, appVersion: plan.appVersion, schemaVersion: plan.schemaVersion, project: { ref: project.ref, name: project.name, region: project.region, status: project.status }, appliedMigrationCount: assessment.migrations.filter(m => m.status === "APPLIED_BY_HISTORY").length, satisfiedMigrationCount: assessment.migrations.filter(m => m.status === "SATISFIED_BY_STATE").length, migrationStates: assessment.migrations, differences: assessment.differences, requiredMigrationCount: plan.migrations.length, missingMigrations: missingMigrations.map((item) => item.name), secretConfigured: secrets.includes("APP_SESSION_SECRET"), functions: functions.map(({ slug, version, status: functionStatus }) => ({ slug, version, status: functionStatus })), probes };
+  return { status, appVersion: plan.appVersion, schemaVersion: plan.schemaVersion, project: { ref: project.ref, name: project.name, region: project.region, status: project.status }, appliedMigrationCount: assessment.migrations.filter(m => m.status === "APPLIED_BY_HISTORY").length, satisfiedMigrationCount: assessment.migrations.filter(m => m.status === "SATISFIED_BY_STATE").length, migrationStates: assessment.migrations, differences: assessment.differences, databaseReview: assessment.review, requiredMigrationCount: plan.migrations.length, missingMigrations: missingMigrations.map((item) => item.name), secretConfigured: secrets.includes("APP_SESSION_SECRET"), functions: functions.map(({ slug, version, status: functionStatus }) => ({ slug, version, status: functionStatus })), probes };
 }
 
 async function planFor(session: InstallerSession, backend: InstallerBackend, plan: InstallerPlan): Promise<Record<string, unknown>> {
@@ -417,6 +417,7 @@ async function planFor(session: InstallerSession, backend: InstallerBackend, pla
   return {
     migrations: plan.databaseBaseline ? assessment.migrations : assessment.migrations.map(m => ({ ...m, status: m.status === 'APPLIED_BY_HISTORY' ? 'APPLIED' : m.status })),
     differences: assessment.differences,
+    databaseReview: assessment.review,
     functions: plan.functions.map(bundle => ({ slug: bundle.slug, status: functionMatches(functions.find(f => f.slug === bundle.slug) ?? { slug: bundle.slug }, bundle, Boolean(plan.databaseBaseline)) ? 'INSTALLED' : functions.some(f => f.slug === bundle.slug) ? 'UPDATE_REQUIRED' : 'MISSING' })),
     secretConfigured: secrets.includes('APP_SESSION_SECRET'),
     action: assessment.drift ? 'DRIFT_REQUIRES_REVIEW' : assessment.migrations.every(m => m.status !== 'PENDING') && secrets.includes('APP_SESSION_SECRET') && plan.functions.every(bundle => functions.some(item => functionMatches(item, bundle, Boolean(plan.databaseBaseline)))) ? 'NO_RUNTIME_CHANGES' : 'CHANGES_REQUIRED',
