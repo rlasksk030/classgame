@@ -7,9 +7,9 @@ import { EphemeralCredential } from '../../scripts/installer/security.ts';
 import type { InstallerPlan } from '../../scripts/installer/orchestrator.ts';
 import type { InstallerBackend } from '../../scripts/installer/contract.ts';
 
-export async function reconnectServer(dropSessionCookie = false, overrides?: { plan: InstallerPlan; backend: InstallerBackend; now?: () => number }) {
+export async function reconnectServer(dropSessionCookie = false, overrides?: { plan: InstallerPlan; backend: InstallerBackend; now?: () => number; emptyProjects?: boolean }) {
   const backend = overrides?.backend ?? createFakeInstallerBackend();
-  const extras = createFakeManagementExtras({ accessibleProjects: [{ ref: 'reconnect-project' }], publishableKeys: { 'reconnect-project': 'sb_publishable_synthetic_new' } });
+  const extras = createFakeManagementExtras({ accessibleProjects: overrides?.emptyProjects ? [] : [{ ref: 'reconnect-project' }], publishableKeys: { 'reconnect-project': 'sb_publishable_synthetic_new' } });
   let upstream = '';
   const events: Array<{ path: string; method: string; grantSent: boolean; sessionSent: boolean }> = [];
   const frontend = createServer((req, res) => {

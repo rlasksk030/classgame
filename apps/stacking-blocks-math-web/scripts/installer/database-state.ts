@@ -50,6 +50,13 @@ export function catalogFingerprints(catalog: Catalog): Record<string, string> {
 function differences(expected: Record<string, string>, actual: Record<string, string>): string[] {
   return [...new Set([...Object.keys(expected), ...Object.keys(actual)])].filter(k => expected[k] !== actual[k]).sort();
 }
+/** Names in a remote catalog are untrusted too. Only repository-known keys
+ * may be emitted verbatim; unexpected names get a stable opaque identifier. */
+export function diagnosticObjectKey(key: string, baseline: DatabaseBaseline): string {
+  if (baseline.profiles.some(profile => Object.hasOwn(profile.objects, key))) return key;
+  const section = key.split(':')[0];
+  return `${sections.includes(section) ? section : 'object'}:[unrecognized-${createHash('sha256').update(key).digest('hex').slice(0, 16)}]`;
+}
 export function assessDatabaseState(plan: InstallerPlan, history: string[], catalog?: Catalog, evidence?: DataEvidence): MigrationAssessment {
   const applied = new Set(history);
   if (!plan.databaseBaseline) return { drift: false, differences: [], migrations: plan.migrations.map(m => ({ name: m.name, status: applied.has(m.name) ? 'APPLIED_BY_HISTORY' : 'PENDING' })) };
@@ -99,10 +106,20 @@ export async function inspectMigrationState(backend: InstallerBackend, target: I
   const catalog = plan.databaseBaseline ? await backend.inspectDatabaseCatalog!(target) : undefined;
   const structural = assessDatabaseState(plan, applied, catalog);
   const transition = plan.legacyRecovery?.transitions.find(t => t.from === structural.baseline);
-  if (!transition || (structural.drift && structural.review?.reason !== 'DATA_EVIDENCE_REQUIRED')) return structural;
-  if (!backend.inspectDataEvidence) return structural;
+  const finish = (assessment: MigrationAssessment) => {
+    if (plan.databaseBaseline && assessment.review) {
+      assessment = { ...assessment, differences: assessment.differences.map(key => diagnosticObjectKey(key, plan.databaseBaseline!)), review: { ...assessment.review, objects: assessment.review.objects.map(({key, change}) => ({ key: diagnosticObjectKey(key, plan.databaseBaseline!), change })) } };
+    }
+    if (assessment.drift && assessment.review) {
+      const { reason, baseline, comparisonBaseline, objects } = assessment.review;
+      console.error(JSON.stringify({ event: 'schema_review', projectRef: /^[a-z0-9-]{8,64}$/.test(target.projectRef) ? target.projectRef : '[invalid]', reason, baseline, comparisonBaseline, differenceCount: objects.length, objects }));
+    }
+    return assessment;
+  };
+  if (!transition || (structural.drift && structural.review?.reason !== 'DATA_EVIDENCE_REQUIRED')) return finish(structural);
+  if (!backend.inspectDataEvidence) return finish(structural);
   const evidence = await backend.inspectDataEvidence(target, transition.evidenceQuery);
-  return assessDatabaseState(plan, applied, catalog, evidence);
+  return finish(assessDatabaseState(plan, applied, catalog, evidence));
 }
 export function manualReview(): InstallerError {
   return new InstallerError('INSTALLER_MANUAL_REVIEW_REQUIRED', 'migrations', '자동 업데이트로 변경하기 전에 확인이 필요합니다.');

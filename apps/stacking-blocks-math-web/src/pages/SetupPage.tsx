@@ -13,7 +13,7 @@ import {
 } from "../lib/config";
 import { clearInstallerProgress, hasInstallerResumeUpdate, clearInstallerResumeUpdate, getOrCreatePendingInstallationId, readInstallerProgress, saveInstallerProgress, type InstallerStep } from "../lib/installer";
 import { getConfiguredInstallerClient, InstallerClientError, type InstallerAccessibleProject, type InstallerRemoteStatus, type InstallerStatusResponse } from "../lib/installerClient";
-import { bindInstallerOAuthProject, completeInstallerReconnect, verifyInstallerSession, type VerifiedInstallerSession } from "../lib/installerReconnect";
+import { bindInstallerOAuthProject, completeInstallerReconnect, existingInstallerTarget, verifyInstallerSession, type VerifiedInstallerSession } from "../lib/installerReconnect";
 import { getSupabase } from "../lib/supabase";
 import {
   clearStudentToken,
@@ -244,6 +244,7 @@ export default function SetupPage() {
       if (!isActive()) return;
       console.log("STATUS_AFTER_BIND");
       setInstallerStatus(result.status); setInstallerDetails(result); setOauthAuthorized(true);
+      if (step === 3) persistStep(4);
     } catch (reason) {
       if (!isActive()) return;
       if (reason instanceof InstallerClientError && reason.code === "INSTALLER_MANUAL_REVIEW_REQUIRED") {
@@ -284,7 +285,13 @@ export default function SetupPage() {
     finally { setCheckingConnection(false); }
   };
   const installerFailure = (reason: unknown) => {
-    if (reason instanceof InstallerClientError && reason.code === "INSTALLER_MANUAL_REVIEW_REQUIRED") {
+    if (reason instanceof InstallerClientError && reason.code === 'INSTALLER_EXISTING_PROJECT_FORBIDDEN') {
+      setError('현재 로그인한 Supabase 계정에서는 기존 프로젝트에 접근할 수 없습니다. 처음 설치할 때 사용한 Supabase 계정으로 다시 로그인해 주세요.');
+    } else if (reason instanceof InstallerClientError && reason.code === 'INSTALLER_EXISTING_PROJECT_NOT_FOUND') {
+      setError('기존 설치 정보에 해당하는 프로젝트를 확인하지 못했습니다. 기존 프로젝트를 만든 Supabase 계정과 설치 링크를 확인해 주세요.');
+    } else if (reason instanceof InstallerClientError && reason.code === 'INSTALLER_EXISTING_CONFIG_INVALID') {
+      setError('기존 설치 정보의 프로젝트 주소가 일치하지 않습니다. 기존 설치 링크를 확인해 주세요.');
+    } else if (reason instanceof InstallerClientError && reason.code === "INSTALLER_MANUAL_REVIEW_REQUIRED") {
       setInstallerStatus("DRIFT_REQUIRES_REVIEW");
       setError("자동 업데이트로 변경하기 전에 확인이 필요합니다.");
     } else if (reason instanceof InstallerClientError && reason.code === "INSTALLER_PROJECT_NOT_ALLOWED") {
@@ -326,6 +333,7 @@ export default function SetupPage() {
     if (!installerClient) { setError("설치 서버 연결 정보를 찾을 수 없어요. 페이지를 새로고침한 뒤 다시 시도해 주세요."); return; }
     setAuthorizing(true); setError(null); setMessage(null);
     try {
+      if (current && await restoreExistingSession()) return;
       const { authorizeUrl } = await installerClient.beginAuthorization();
       window.location.assign(authorizeUrl);
     } catch (reason) {
@@ -342,15 +350,34 @@ export default function SetupPage() {
   /** OAuth grant list is re-fetched on every mount (not just the one-time
    * redirect back) so a plain reload while the grant cookie is still live
    * restores the picker instead of stranding the teacher on a dead screen. */
+  const restoreExistingSession = async (): Promise<boolean> => {
+    if (!installerClient || !current) return false;
+    const target = existingInstallerTarget(current);
+    if (!target) return false;
+    let verified: VerifiedInstallerSession;
+    try { verified = await verifyInstallerSession(installerClient, { ...target, publishableKey: current.supabasePublishableKey }); }
+    catch (reason) {
+      if (reason instanceof InstallerClientError && (reason.status === 401 || reason.upstreamStatus === 401 || reason.code === 'INSTALLER_TARGET_MISMATCH')) return false;
+      throw reason;
+    }
+    await checkSupabaseConnection(current.supabaseUrl, current.supabasePublishableKey);
+    if (!setupActive.current) return true;
+    setFreshInstallerSession(verified); setInstallerStatus(verified.status.status); setInstallerDetails(verified.status);
+    setInstallerStatusError(false); setOauthAuthorized(true); setConnectionIssue(null); setOauthProjects(null);
+    if (returnToTeacher) await finishVerifiedReconnect(verified);
+    else persistStep(4);
+    return true;
+  };
   const loadOAuthProjects = async (autoBind: boolean, restoreSession = false) => {
     if (!installerClient) return;
     console.log("PROJECTS_LOAD_STARTED");
     setBusy(true); setError(null);
     try {
-      const result = await installerClient.listAccessibleProjects();
+      if ((restoreSession || !oauthCallbackPending) && current && await restoreExistingSession()) return;
+      const result = await installerClient.listAccessibleProjects(existingInstallerTarget(current));
       if (!result.projects.length) {
         setOauthProjects([]);
-        setError("선택할 수 있는 프로젝트가 없어요. Supabase에서 먼저 프로젝트를 만든 뒤 다시 연결해 주세요.");
+        if (current) setError('현재 로그인한 Supabase 계정에서는 기존 프로젝트를 확인할 수 없습니다. 처음 설치할 때 사용한 Supabase 계정으로 다시 로그인해 주세요.');
         return;
       }
       console.log("PROJECTS_LOAD_SUCCESS");
@@ -369,15 +396,7 @@ export default function SetupPage() {
     } catch (reason) {
       // A 401 here just means no OAuth grant is active yet (or it expired) --
       // that is the normal state before connecting, not an error to surface.
-      if (restoreSession && reason instanceof InstallerClientError && reason.code === "INSTALLER_OAUTH_GRANT_REQUIRED" && current) {
-        try {
-          const verified = await verifyInstallerSession(installerClient, installerTarget());
-          await checkSupabaseConnection(current.supabaseUrl, current.supabasePublishableKey);
-          if (!setupActive.current) return;
-          setFreshInstallerSession(verified);
-          await finishVerifiedReconnect(verified);
-        } catch (failure) { installerFailure(failure); }
-      } else if (returnToTeacher || oauthCallbackPending) {
+      if (current || returnToTeacher || oauthCallbackPending) {
         installerFailure(reason);
       } else if (!(reason instanceof InstallerClientError && reason.status === 401)) {
         setError("Supabase 연결은 됐지만 프로젝트 목록을 불러오지 못했습니다. 다시 연결해 주세요.");
@@ -392,7 +411,7 @@ export default function SetupPage() {
     setBusy(true); setError(null); setMessage(null); setFreshInstallerSession(null);
     try {
       const verified = await bindInstallerOAuthProject(installerClient, project, installationId.trim(),
-        returnToTeacher && current ? projectRefFromUrl(current.supabaseUrl) : null, checkSupabaseConnection);
+        current ? projectRefFromUrl(current.supabaseUrl) : null, checkSupabaseConnection);
       if (!setupActive.current) return;
       saveRuntimeSupabaseConfig(verified.config);
       setSupabaseUrl(verified.config.supabaseUrl); setConnectionVerified(true); setOauthAuthorized(true); setOauthProjects(null);
@@ -530,7 +549,7 @@ export default function SetupPage() {
             {oauthProjects.length ? <>
               <label className="label" htmlFor="installer-project-select">내 Supabase 프로젝트<select id="installer-project-select" className="field" value={selectedProjectRef} onChange={event => setSelectedProjectRef(event.target.value)}>{oauthProjects.map(project => <option value={project.ref} key={project.ref}>{project.name ?? project.ref}{project.region ? ` · ${project.region}` : ""}</option>)}</select></label>
               <button className="btn btn-primary" disabled={busy || !selectedProjectRef} onClick={() => selectOAuthProject()}>{busy ? "연결 중…" : "이 프로젝트 사용"}</button>
-            </> : <p className="notice">선택할 수 있는 프로젝트가 없어요. Supabase에서 먼저 프로젝트를 만든 뒤 다시 연결해 주세요.</p>}
+            </> : !current && <p className="notice">선택할 수 있는 프로젝트가 없어요. Supabase에서 먼저 프로젝트를 만든 뒤 다시 연결해 주세요.</p>}
           </> : connectionVerified ? (
             // A persisted "connected" config says nothing about whether
             // today's installer session still exists on the server -- only
@@ -617,9 +636,14 @@ export default function SetupPage() {
                     <dt>프로젝트</dt><dd>{installerDetails.project?.ref}</dd>
                     <dt>진단</dt><dd>{installerDetails.databaseReview.reason}</dd>
                     <dt>기준</dt><dd>{installerDetails.databaseReview.baseline}</dd>
+                    <dt>비교 기준</dt><dd>{installerDetails.databaseReview.comparisonBaseline}</dd>
                     <dt>객체 차이</dt><dd>{installerDetails.databaseReview.objects.length}</dd>
                     <dt>진단 코드</dt><dd>DBR-{installerDetails.databaseReview.reason}</dd>
                   </dl>}
+                {installerDetails?.databaseReview && <details>
+                  <summary>진단 상세</summary>
+                  <ul aria-label="차이 객체 목록">{installerDetails.databaseReview.objects.map((object, index) => <li key={`${object.key}-${index}`}><code>{object.key}</code> · {object.change}</li>)}</ul>
+                </details>}
                 </> : installerDetails?.requiredMigrationCount !== undefined && <p>데이터베이스 준비: {(installerDetails.appliedMigrationCount ?? 0) + (installerDetails.satisfiedMigrationCount ?? 0)}/{installerDetails.requiredMigrationCount}</p>}
                 {installerDetails?.legacyRecovery && <p>기존 설치를 확인했습니다. 기존 자료를 그대로 유지하고 최신 버전으로 준비합니다.</p>}
                 {installerDetails?.functions?.map(item => <p key={item.slug}>학생 로그인 기능 ({item.slug === "student-auth" ? "인증" : "학습"}): {item.status}</p>)}
