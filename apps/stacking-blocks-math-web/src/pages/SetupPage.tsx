@@ -69,6 +69,9 @@ export default function SetupPage() {
     setupActive.current = true;
     return () => { setupActive.current = false; };
   }, []);
+  // Concurrent navigation can change the URL before this page unmounts.
+  // A late response must not save config, update, or redirect after departure.
+  const isSetupActive = () => setupActive.current && /^\/setup\/?$/.test(window.location.pathname);
   const [returnToTeacher] = useState(() => {
     // Exact allowlist; preserve only this route across the existing OAuth redirect.
     const requested = new URLSearchParams(window.location.search).get("returnTo") === "/teacher";
@@ -78,7 +81,7 @@ export default function SetupPage() {
     } catch { return requested; }
   });
   const finishTeacherReconnect = () => {
-    if (!returnToTeacher || !setupActive.current) return false;
+    if (!returnToTeacher || !isSetupActive()) return false;
     try { sessionStorage.removeItem("stacking-teacher-return"); } catch { /* Storage may be unavailable. */ }
     clearInstallerResumeUpdate();
     navigate("/teacher", { replace: true });
@@ -214,7 +217,7 @@ export default function SetupPage() {
   }, [oauthCallbackPending, returnToTeacher, connectionVerified, installerClient, runtimeConfig?.supabasePublishableKey, step, supabaseUrl, vite.environment]);
 
   const finishVerifiedReconnect = async (verified: VerifiedInstallerSession) => {
-    if (!installerClient || !returnToTeacher || !setupActive.current) return;
+    if (!installerClient || !returnToTeacher || !isSetupActive()) return;
     await completeInstallerReconnect(installerClient, verified);
     finishTeacherReconnect();
   };
@@ -361,7 +364,7 @@ export default function SetupPage() {
       throw reason;
     }
     await checkSupabaseConnection(current.supabaseUrl, current.supabasePublishableKey);
-    if (!setupActive.current) return true;
+    if (!isSetupActive()) return true;
     setFreshInstallerSession(verified); setInstallerStatus(verified.status.status); setInstallerDetails(verified.status);
     setInstallerStatusError(false); setOauthAuthorized(true); setConnectionIssue(null); setOauthProjects(null);
     if (returnToTeacher) await finishVerifiedReconnect(verified);
@@ -412,7 +415,7 @@ export default function SetupPage() {
     try {
       const verified = await bindInstallerOAuthProject(installerClient, project, installationId.trim(),
         current ? projectRefFromUrl(current.supabaseUrl) : null, checkSupabaseConnection);
-      if (!setupActive.current) return;
+      if (!isSetupActive()) return;
       saveRuntimeSupabaseConfig(verified.config);
       setSupabaseUrl(verified.config.supabaseUrl); setConnectionVerified(true); setOauthAuthorized(true); setOauthProjects(null);
       setFreshInstallerSession(verified);
