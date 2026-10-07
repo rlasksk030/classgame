@@ -184,6 +184,28 @@ test('leaving setup during a slow bind cancels automatic update and teacher retu
   expect(await page.evaluate(() => sessionStorage.getItem('stacking-installer-resume-update'))).toBe('1');
 });
 
+test('a route change cancels a slow bind even while setup unmount is deferred', async ({ page }) => {
+  const calls = await fixture(page);
+  let release!: () => void;
+  let entered!: () => void;
+  const started = new Promise<void>(resolve => { entered = resolve; });
+  const delayed = new Promise<void>(resolve => { release = resolve; });
+  await page.route('**/api/installer/session', async route => {
+    entered(); await delayed;
+    await route.fulfill({ status: 201, json: { status: 'AUTHORIZED', publishableKey: 'sb_publishable_synthetic_new' } });
+  });
+  await page.goto('/setup?oauth=granted');
+  await started;
+  // Model a concurrent route transition: URL changes before the old page unmounts.
+  await page.evaluate(() => window.history.pushState(null, '', '/teacher'));
+  release();
+  await expect.poll(() => calls.includes('status')).toBe(true);
+  await page.waitForTimeout(400);
+  expect(await page.evaluate(() => JSON.parse(localStorage.getItem('stacking-installation-config')!).supabasePublishableKey)).toBe(config.supabasePublishableKey);
+  expect(calls).not.toContain('update');
+  expect(await page.evaluate(() => sessionStorage.getItem('stacking-installer-resume-update'))).toBe('1');
+});
+
 test('drift reconnect shows manual review without update, repeat OAuth, or teacher return', async ({ page }) => {
   const calls = await fixture(page, { drift: true });
   await page.goto('/setup?oauth=granted');

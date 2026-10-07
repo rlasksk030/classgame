@@ -1,7 +1,17 @@
-import { validateRuntimeSupabaseConfig, type RuntimeSupabaseConfig } from './config.ts';
+import { projectRefFromUrl, validateRuntimeSupabaseConfig, type RuntimeSupabaseConfig } from './config.ts';
 import { InstallerClientError, type InstallerAccessibleProject, type InstallerClient, type InstallerPublicTarget, type InstallerStatusResponse } from './installerClient.ts';
 
 export type VerifiedInstallerSession = { target: InstallerPublicTarget; status: InstallerStatusResponse };
+
+/** Recovery comes only from persisted public config, never a typed project ref. */
+export function existingInstallerTarget(config: RuntimeSupabaseConfig | null): InstallerPublicTarget | undefined {
+  if (!config) return undefined;
+  const projectRef = projectRefFromUrl(config.supabaseUrl);
+  if (!projectRef || !/^[a-z0-9-]{8,64}$/.test(projectRef) || config.supabaseUrl !== `https://${projectRef}.supabase.co`) {
+    throw new InstallerClientError('INSTALLER_EXISTING_CONFIG_INVALID', 0, '기존 설치 정보의 프로젝트 주소가 일치하지 않습니다. 기존 설치 링크를 확인해 주세요.');
+  }
+  return { projectRef, projectUrl: config.supabaseUrl, release: 'spatial-math-v1' };
+}
 
 /** Public local config is not proof of authorization. This GET must use the
  * HttpOnly session cookie issued by this bind (or restored after a reload). */

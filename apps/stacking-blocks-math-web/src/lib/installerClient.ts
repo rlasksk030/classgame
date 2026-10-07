@@ -124,8 +124,8 @@ export class InstallerClient {
   /** Projects the teacher's own OAuth authorization actually grants access to,
    * for a picker -- never a client-typed project ref. Requires having just
    * completed the OAuth redirect (the server reads its own grant cookie). */
-  listAccessibleProjects(): Promise<{ projects: InstallerAccessibleProject[] }> {
-    return this.request<{ projects: InstallerAccessibleProject[] }>("GET", "/api/installer/projects");
+  listAccessibleProjects(existingTarget?: InstallerPublicTarget): Promise<{ projects: InstallerAccessibleProject[] }> {
+    return this.request<{ projects: InstallerAccessibleProject[] }>("GET", "/api/installer/projects", existingTarget);
   }
 
   /** Creates the teacher's Supabase Auth account on the installed project so

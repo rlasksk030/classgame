@@ -94,6 +94,7 @@ interface PendingGrant {
   id: string;
   accessToken: EphemeralCredential;
   expiresAt: number;
+  recoveryTarget?: { projectRef: string; projectUrl: string };
 }
 
 /**
@@ -103,6 +104,14 @@ interface PendingGrant {
  * always removes it, whether the caller goes on to bind a session or not.
  */
 export class OAuthGrantStore {
+  authorizeRecovery(id: string, target: { projectRef: string; projectUrl: string }): void {
+    if (!this.peek(id)) throw new Error('OAUTH_GRANT_EXPIRED');
+    this.#grants.get(id)!.recoveryTarget = { ...target };
+  }
+
+  recoveryTarget(id: string): { projectRef: string; projectUrl: string } | undefined {
+    return this.peek(id) ? this.#grants.get(id)?.recoveryTarget : undefined;
+  }
   readonly #grants = new Map<string, PendingGrant>();
   readonly #ttlMs: number;
 

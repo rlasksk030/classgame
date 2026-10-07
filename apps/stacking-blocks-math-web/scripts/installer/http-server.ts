@@ -190,7 +190,11 @@ async function handleRequest(request: IncomingMessage, response: ServerResponse,
         // they granted access to, re-checked live (never trust the client echo).
         if (!options.createManagementExtras) throw new InstallerError("INSTALLER_OAUTH_NOT_CONFIGURED", "target", "OAuth 연결이 설정되지 않았습니다.");
         const accessible = await options.createManagementExtras(grantCredential).listAccessibleProjects();
-        if (!accessible.some((project) => project.ref === target.projectRef)) throw new InstallerError("INSTALLER_PROJECT_NOT_ALLOWED", "target", "권한이 없는 프로젝트입니다.");
+        if (!accessible.some((project) => project.ref === target.projectRef)) {
+          const recovery = grantStore.recoveryTarget(grantId!);
+          if (accessible.length || recovery?.projectRef !== target.projectRef || recovery.projectUrl !== target.projectUrl) throw new InstallerError("INSTALLER_PROJECT_NOT_ALLOWED", "target", "권한이 없는 프로젝트입니다.");
+          await inspectExistingProject(options, grantCredential, target);
+        }
       } else if (allowedProjectRefs.size > 0 && !allowedProjectRefs.has(target.projectRef)) {
         throw new InstallerError("INSTALLER_PROJECT_NOT_ALLOWED", "target", "허용된 TEST 프로젝트가 아닙니다.");
       }
@@ -281,6 +285,13 @@ async function handleRequest(request: IncomingMessage, response: ServerResponse,
       if (!credential) { sendError(response, 401, "INSTALLER_OAUTH_GRANT_REQUIRED", "Supabase 연결을 먼저 완료해 주세요."); return; }
       if (!options.createManagementExtras) { sendError(response, 501, "INSTALLER_OAUTH_NOT_CONFIGURED", "이 TEST 실행부에는 OAuth 연결이 설정되지 않았습니다."); return; }
       const projects = await options.createManagementExtras(credential).listAccessibleProjects();
+      if (!projects.length && url.searchParams.has('projectRef')) {
+        const target = parseTarget({ ...Object.fromEntries(url.searchParams), environment: 'TEST' });
+        const project = await inspectExistingProject(options, credential, target);
+        grantStore.authorizeRecovery(grantId!, { projectRef: target.projectRef, projectUrl: target.projectUrl });
+        sendJson(response, 200, { projects: [{ ref: project.ref, name: project.name, region: project.region }] });
+        return;
+      }
       const visible = projects.filter((project) => { try { assertSafeTarget({ environment: "TEST", projectRef: project.ref }, options.productionRef); return true; } catch { return false; } });
       sendJson(response, 200, { projects: visible });
       return;
@@ -350,6 +361,21 @@ async function handleRequest(request: IncomingMessage, response: ServerResponse,
     const detail = error instanceof InstallerError ? error : new InstallerError("INSTALLER_SERVER_ERROR", "target", "설치 실행부에서 오류가 발생했습니다.");
     const status = detail.code === "INSTALLER_MANUAL_REVIEW_REQUIRED" ? 409 : detail.code.includes("SESSION") || detail.code.includes("AUTH") ? 401 : detail.code === "PRODUCTION_TARGET_BLOCKED" || detail.code === "INSTALLER_TARGET_MISMATCH" ? 403 : 502;
     sendError(response, status, detail.code, detail.message, detail.stage, detail.upstreamStatus);
+  }
+}
+
+async function inspectExistingProject(options: InstallerHttpOptions, credential: EphemeralCredential, target: InstallerTarget): Promise<RemoteProject> {
+  assertSafeTarget(target, options.productionRef);
+  assertTargetBinding(target);
+  if (target.projectUrl !== `https://${target.projectRef}.supabase.co`) throw new InstallerError('INSTALLER_EXISTING_CONFIG_INVALID', 'target', '기존 설치 주소가 일치하지 않습니다.');
+  try {
+    const project = await options.createBackend(credential).inspectProject(target);
+    if (project.ref !== target.projectRef) throw new InstallerError('INSTALLER_TARGET_MISMATCH', 'target', '기존 설치 프로젝트가 일치하지 않습니다.');
+    return project;
+  } catch (error) {
+    if (error instanceof InstallerError && error.upstreamStatus === 403) throw new InstallerError('INSTALLER_EXISTING_PROJECT_FORBIDDEN', 'target', '기존 프로젝트를 만든 Supabase 계정으로 다시 로그인해 주세요.', 403);
+    if (error instanceof InstallerError && error.upstreamStatus === 404) throw new InstallerError('INSTALLER_EXISTING_PROJECT_NOT_FOUND', 'target', '기존 설치 정보에 해당하는 프로젝트를 확인하지 못했습니다.', 404);
+    throw error;
   }
 }
 

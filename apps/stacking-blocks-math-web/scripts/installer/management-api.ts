@@ -35,22 +35,17 @@ export class SupabaseManagementBackend implements InstallerBackend {
   }
 
   async inspectProject(target: InstallerTarget): Promise<RemoteProject> {
-    return this.request<RemoteProject>("target", `/v1/projects/${encodeURIComponent(target.projectRef)}`);
+    const response = await this.request<unknown>("target", `/v1/projects/${encodeURIComponent(target.projectRef)}`);
+    const project = parseRemoteProject(response);
+    if (!project) throw new InstallerError('INSTALLER_PROJECT_RESPONSE_INVALID', 'target', 'Supabase 프로젝트 응답을 해석할 수 없습니다.');
+    return project;
   }
 
   /** Lists every project this OAuth/PAT credential can see, for teacher-facing project pickers. */
   async listAccessibleProjects(): Promise<RemoteProject[]> {
     const response = await this.request<unknown>("target", "/v1/projects");
     if (!Array.isArray(response)) throw new InstallerError("INSTALLER_PROJECT_LIST_INVALID", "target", "Supabase 프로젝트 목록 응답을 해석할 수 없습니다.");
-    return response.flatMap((item) => {
-      if (!item || typeof item !== "object") return [];
-      const ref = (item as { id?: unknown }).id;
-      if (typeof ref !== "string") return [];
-      const name = typeof (item as { name?: unknown }).name === "string" ? (item as { name: string }).name : undefined;
-      const region = typeof (item as { region?: unknown }).region === "string" ? (item as { region: string }).region : undefined;
-      const status = typeof (item as { status?: unknown }).status === "string" ? (item as { status: string }).status : undefined;
-      return [{ ref, name, region, status }];
-    });
+    return response.flatMap(item => { const project = parseRemoteProject(item); return project ? [project] : []; });
   }
 
   /** Public anon/publishable key only; never touches service_role. Safe to send to the browser.
@@ -221,4 +216,14 @@ export class SupabaseManagementBackend implements InstallerBackend {
     if (parsed !== undefined) return parsed as T;
     try { return JSON.parse(raw) as T; } catch { throw new InstallerError("INSTALLER_RESPONSE_INVALID", stage, "관리 API 응답 형식이 올바르지 않습니다."); }
   }
+}
+
+/** Current API has ref; older responses used id as the project ref. Never
+ * substitute the requested ref for an absent or mismatching upstream value. */
+function parseRemoteProject(value: unknown): RemoteProject | undefined {
+  if (!value || typeof value !== 'object') return undefined;
+  const item = value as Record<string, unknown>;
+  const ref = item.ref === undefined ? item.id : item.ref;
+  if (typeof ref !== 'string' || !/^[a-z0-9-]{1,64}$/.test(ref)) return undefined;
+  return { ref, name: typeof item.name === 'string' ? item.name : undefined, region: typeof item.region === 'string' ? item.region : undefined, status: typeof item.status === 'string' ? item.status : undefined };
 }
