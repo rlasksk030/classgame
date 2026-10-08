@@ -6,6 +6,7 @@ import { readMathInstallerPlan } from './math-plan.ts';
 import { catalogAttributeFingerprints, catalogFingerprints, assessDatabaseState, type Catalog } from './database-state.ts';
 import { catalogDigestQuery, schemaDelta } from './legacy-sql.ts';
 import { classifyPermissionDifference, type PermissionSnapshot } from './permission-audit.ts';
+import { assertSupabaseDefaultDrift } from '../../tests/support/installer-default-grants.ts';
 
 if (process.env.CI !== 'true' || process.env.INSTALLER_PG_DISPOSABLE !== 'YES' || process.env.PGHOST !== '127.0.0.1' || process.env.PGDATABASE !== 'installer_catalog_ci' || process.env.PGUSER !== 'postgres') throw new Error('DISPOSABLE_LOCAL_POSTGRES_REQUIRED');
 function sql(query: string): string {
@@ -72,12 +73,10 @@ for (const mode of ['historical-defaults','crud-opt-out'] as const) {
   sql(`alter default privileges for role postgres in schema public grant all on tables to anon,authenticated,service_role;
 alter default privileges for role postgres in schema public grant all on functions to anon,authenticated,service_role;${mode==='crud-opt-out'?'alter default privileges for role postgres in schema public revoke select,insert,update,delete on tables from anon,authenticated;':''}`);
   for (const m of plan.migrations) sql(m.query);
-  const state = assessDatabaseState(plan,[],catalog());
-  assert.equal(state.drift,true);assert.equal(state.review!.objects.length,22,mode);
-  assert.ok(state.review!.objects.every(o=>o.attributes!.filter(a=>a.state==='DIFFERENT').every(a=>a.name==='acl')));
+  const state = assertSupabaseDefaultDrift(plan,catalog(),mode);
   const actual = permissions();
   assert.equal(classifyPermissionDifference({profile:latest,key:'tables::sb_students:',migrationHashes:plan.databaseBaseline!.migrationHashes,actual,structural:false}),'B_BROADER_PERMISSION');
   assert.ok(actual.objects['tables::sb_students:'].roles.anon.privileges.includes('TRUNCATE'));
-  console.log(`POSTGRES ${mode}: 22 ACL differences BLOCKED; TRUNCATE detected`);
+  console.log(`POSTGRES ${mode}: migration-release ACL differences=22; nearest=${state.review!.comparisonBaseline}, differences=${state.review!.objects.length}; BLOCKED, TRUNCATE detected`);
 }
 console.log(`POSTGRES PASS: ${plan.databaseBaseline!.profiles.length} exact profiles, SQL guards, legacy upgrade, retry, effective permissions and 2 Supabase-default fixtures; no remote activity`);

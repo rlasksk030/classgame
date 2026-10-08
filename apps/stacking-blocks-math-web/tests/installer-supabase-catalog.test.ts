@@ -5,6 +5,7 @@ import { emptyLegacyDb, readCatalog, legacyBackend } from './support/installer-l
 import { readMathInstallerPlan } from '../scripts/installer/math-plan.ts';
 import { catalogAttributeFingerprints, catalogFingerprints, inspectMigrationState } from '../scripts/installer/database-state.ts';
 import { runInstaller } from '../scripts/installer/orchestrator.ts';
+import { assertSupabaseDefaultDrift } from './support/installer-default-grants.ts';
 
 // Supabase historically grants these defaults before app migrations. This is
 // a reproducible SQL fixture, NOT evidence of any inaccessible teacher's ACL.
@@ -62,4 +63,18 @@ test('generated attribute data matches all 27 profiles and only stores digests',
     }
   }finally{await db.close();}
   assert.equal(readFileSync('scripts/installer/database-baseline.json','utf8').includes('CREATE OR REPLACE FUNCTION'),false);
+});
+
+test('Supabase CRUD opt-out retains 22 ACL differences from migration release; nearest manual profile is diagnostic only',async()=>{
+  const plan=await readMathInstallerPlan(process.cwd()),db=await emptyLegacyDb();
+  try {
+    await db.exec(supabaseDefaults+'alter default privileges for role postgres in schema public revoke select,insert,update,delete on tables from anon,authenticated;');
+    for(const m of plan.migrations) await db.exec(m.query.replace('create extension if not exists "pgcrypto";',''));
+    assertSupabaseDefaultDrift(plan,await readCatalog(db),'crud-opt-out');
+    const backend=legacyBackend(db,plan,[]),target={environment:'TEST' as const,projectRef:'synthetic-opt-out',projectUrl:'https://synthetic-opt-out.supabase.co',release:'test'};
+    await assert.rejects(runInstaller({target,plan,backend}),{code:'INSTALLER_MANUAL_REVIEW_REQUIRED'});
+    assert.equal(backend.calls.some(c=>/^(apply|deploy|setSecrets)/.test(c)),false);
+    const rights=(await db.query<{can_truncate:boolean;can_read:boolean}>("select has_table_privilege('anon','sb_students','TRUNCATE') can_truncate,has_table_privilege('anon','sb_students','SELECT') can_read")).rows[0];
+    assert.deepEqual(rights,{can_truncate:true,can_read:false});
+  }finally{await db.close();}
 });
