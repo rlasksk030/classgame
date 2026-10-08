@@ -127,7 +127,7 @@ test('normal new-install wizard still completes steps 1 through 8', async ({ pag
     if (!path.endsWith('/student-api')) return route.fulfill({ json: {} });
     const body = route.request().postDataJSON();
     if (body.action === 'teacher:classes') return route.fulfill({ json: { classes: createdClass ? [createdClass] : [] } });
-    if (body.action === 'teacher:class-upsert') { createdClass = { id: 'synthetic-class', name: body.name, class_code: 'SYNTHETIC' }; return route.fulfill({ json: { class: createdClass } }); }
+    if (body.action === 'teacher:class-upsert') { createdClass = { id: 'synthetic-class', name: body.name, class_code: body.classCode ?? 'SYNTHETIC' }; return route.fulfill({ json: { class: createdClass } }); }
     if (body.action === 'teacher:students:create') { const student = { id: 'synthetic-student', name: body.name, student_no: 1, status: 'active', pinPlain: '1234' }; students.push(student); return route.fulfill({ json: { student: { ...student, studentNo: 1 }, pinPlain: student.pinPlain } }); }
     return route.fulfill({ json: { students } });
   });

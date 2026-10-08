@@ -92,8 +92,9 @@ export class InstallerClientError extends Error {
 export class InstallerClient {
   readonly #baseUrl: string;
   readonly #fetch: FetchLike;
+  readonly #timeouts: { requestTimeoutMs: number; actionTimeoutMs: number };
 
-  constructor(endpoint: string, fetchImpl: FetchLike = (input, init) => fetch(input, init)) {
+  constructor(endpoint: string, fetchImpl: FetchLike = (input, init) => fetch(input, init), timeouts: Partial<{ requestTimeoutMs: number; actionTimeoutMs: number }> = {}) {
     let parsed: URL;
     try {
       parsed = new URL(endpoint);
@@ -105,6 +106,7 @@ export class InstallerClient {
     }
     this.#baseUrl = endpoint.replace(/\/$/, "");
     this.#fetch = fetchImpl;
+    this.#timeouts = { requestTimeoutMs: 60_000, actionTimeoutMs: 10 * 60_000, ...timeouts };
   }
 
   get endpoint(): string {
@@ -169,19 +171,37 @@ export class InstallerClient {
     const query = method === "GET" && target
       ? `?${new URLSearchParams({ projectRef: target.projectRef, projectUrl: target.projectUrl, ...(target.publishableKey ? { publishableKey: target.publishableKey } : {}), release: target.release }).toString()}`
       : "";
+    const controller = new AbortController();
+    const action = /^\/api\/installer\/(install|repair|update)$/.test(path);
+    const timeoutMs = action ? this.#timeouts.actionTimeoutMs : this.#timeouts.requestTimeoutMs;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const deadline = new Promise<never>((_resolve, reject) => {
+      timer = setTimeout(() => {
+        controller.abort();
+        reject(new InstallerClientError("INSTALLER_REQUEST_TIMEOUT", 0, "설치 서버의 응답을 기다리는 시간이 길어졌어요. 실행이 끝났을 수 있으므로 ‘설치 확인’으로 상태를 먼저 확인해 주세요."));
+      }, timeoutMs);
+    });
     let response: Response;
+    let raw: string;
     try {
-      response = await this.#fetch(`${this.#baseUrl}${path}${query}`, {
-        method,
-        credentials: "include",
-        headers: { accept: "application/json", ...(method === "POST" ? { "content-type": "application/json" } : {}) },
-        ...(method === "POST" && body ? { body: JSON.stringify(body) } : {}),
-      });
-    } catch {
+      // Bound both headers and body. Never replay a mutation after an unknown
+      // outcome: the next explicit status query recovers the server state.
+      const result = await Promise.race([deadline, (async () => {
+        const response = await this.#fetch(`${this.#baseUrl}${path}${query}`, {
+          method,
+          credentials: "include",
+          signal: controller.signal,
+          headers: { accept: "application/json", ...(method === "POST" ? { "content-type": "application/json" } : {}) },
+          ...(method === "POST" && body ? { body: JSON.stringify(body) } : {}),
+        });
+        return { response, raw: await response.text() };
+      })()]);
+      response = result.response; raw = result.raw;
+    } catch (reason) {
+      if (reason instanceof InstallerClientError) throw reason;
       throw new InstallerClientError("INSTALLER_NETWORK", 0, "설치 실행부에 연결하지 못했습니다.");
-    }
+    } finally { clearTimeout(timer); }
     const contentType = response.headers.get("content-type") ?? "";
-    const raw = await response.text();
     let payload: unknown;
     if (raw && contentType.includes("json")) {
       try { payload = JSON.parse(raw); } catch { payload = undefined; }

@@ -72,3 +72,27 @@ test("pending installation id survives a full page reload before any runtime con
   delete (globalThis as { window?: unknown }).window;
 });
 
+
+test("pending class creation reuses its code after reload and isolates teachers/installations", async () => {
+  const { getOrCreateInstallerClassDraft, readInstallerClassDraft, clearInstallerClassDraft } = await import('../src/lib/installer.ts');
+  const storage = new Map<string, string>();
+  Object.assign(globalThis, { sessionStorage: { getItem: (key: string) => storage.get(key) ?? null, setItem: (key: string, value: string) => storage.set(key, value), removeItem: (key: string) => storage.delete(key) } });
+  try {
+    const first = getOrCreateInstallerClassDraft('installation-a', 'teacher-a', 'Our class', () => 'ABCDEF1234');
+    assert.deepEqual(getOrCreateInstallerClassDraft('installation-a', 'teacher-a', 'Our class', () => 'DIFFERENT1'), first);
+    assert.equal(readInstallerClassDraft('installation-b', 'teacher-a'), null);
+    assert.equal(readInstallerClassDraft('installation-a', 'teacher-b'), null);
+    assert.throws(() => getOrCreateInstallerClassDraft('installation-a', 'teacher-a', 'Another name', () => 'DIFFERENT1'), /INSTALLER_CLASS_DRAFT_PENDING/);
+    clearInstallerClassDraft('installation-a', 'teacher-a', 'WRONGCODE1');
+    assert.deepEqual(readInstallerClassDraft('installation-a', 'teacher-a'), first);
+    clearInstallerClassDraft('installation-a', 'teacher-a', first.classCode);
+    assert.equal(getOrCreateInstallerClassDraft('installation-a', 'teacher-a', 'New class', () => 'NEWCLASS12').classCode, 'NEWCLASS12');
+  } finally { delete (globalThis as { sessionStorage?: unknown }).sessionStorage; }
+});
+
+test("class draft storage failure prevents creating a non-resumable intent", async () => {
+  const { getOrCreateInstallerClassDraft } = await import('../src/lib/installer.ts');
+  Object.assign(globalThis, { sessionStorage: { getItem: () => null, setItem: () => { throw new Error('storage unavailable'); } } });
+  try { assert.throws(() => getOrCreateInstallerClassDraft('install', 'teacher', 'Class', () => 'ABCDEF1234'), /storage unavailable/); }
+  finally { delete (globalThis as { sessionStorage?: unknown }).sessionStorage; }
+});
