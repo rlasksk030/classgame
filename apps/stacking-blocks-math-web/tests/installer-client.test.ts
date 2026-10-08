@@ -144,3 +144,23 @@ test("installer writes use their separate longer deadline", async () => {
   }, { requestTimeoutMs: 5, actionTimeoutMs: 100 });
   assert.equal((await client.repair(target)).status, 'COMPLETE');
 });
+
+test("recovery diagnosis sends the selected public target; only explicit execution sends consent", async () => {
+  const calls: Array<{ path: string; method?: string; body: unknown }> = [];
+  const client = new InstallerClient('https://installer.example', async (url, init) => {
+    calls.push({ path: new URL(url).pathname, method: init?.method, body: JSON.parse(String(init?.body)) });
+    return Response.json({ recoverable: false, reason: 'DATA_REVIEW_REQUIRED' });
+  });
+  await client.getRecoveryPlan(target);
+  assert.deepEqual(calls, [{ path: '/api/installer/recovery-plan', method: 'POST', body: target }]);
+  await client.executeRecovery('synthetic-reviewed-plan');
+  assert.deepEqual(calls[1], { path: '/api/installer/recovery-execute', method: 'POST', body: { planId: 'synthetic-reviewed-plan', approved: true } });
+  assert.equal(JSON.stringify(calls).includes('sql'), false);
+});
+
+test("recovery execution timeout never silently resends consent", async () => {
+  let calls = 0;
+  const client = new InstallerClient('https://installer.example', () => { calls++; return new Promise(() => {}); }, { requestTimeoutMs: 100, actionTimeoutMs: 5 });
+  await assert.rejects(client.executeRecovery('synthetic-reviewed-plan'), { code: 'INSTALLER_REQUEST_TIMEOUT' });
+  assert.equal(calls, 1);
+});

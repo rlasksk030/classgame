@@ -23,7 +23,9 @@ export function legacyBackend(db: PGlite, plan: InstallerPlan, history: string[]
   backend.inspectDatabaseCatalog = () => readCatalog(db);
   backend.inspectDataEvidence = async (_target,query) => {
     backend.calls.push('inspectDataEvidence');
-    return (await db.query<{evidence:DataEvidence}>(query)).rows[0].evidence;
+    await db.exec('begin read only; set local search_path=pg_catalog,public;');
+    try { return (await db.query<{evidence:DataEvidence}>(query)).rows[0].evidence; }
+    finally { await db.exec('rollback'); }
   };
   backend.applyLegacyTransition = async (_target, query) => { backend.calls.push('applyLegacyTransition'); await db.exec(query); };
   const apply = backend.applyMigration.bind(backend);
@@ -33,8 +35,7 @@ export function legacyBackend(db: PGlite, plan: InstallerPlan, history: string[]
 
 /** Deliberately includes an earned completion without reconstructable attempts:
  * an upgrade must preserve it, not demote it during a blanket backfill. */
-export async function seedProtectedRows(db: PGlite) {
-  await db.exec(`insert into auth.users values('11111111-1111-4111-8111-111111111111');
+export const protectedRowsFixtureSql = `insert into auth.users values('11111111-1111-4111-8111-111111111111');
 insert into sb_classes(id,teacher_id,name,class_code) values('22222222-2222-4222-8222-222222222222','11111111-1111-4111-8111-111111111111','합성 보존반','PRESERVE');
 insert into sb_students(id,class_id,name,student_no,pin_hash) values('33333333-3333-4333-8333-333333333333','22222222-2222-4222-8222-222222222222','합성 학생',1,'synthetic-hash');
 insert into sb_student_pin_vault(student_id,class_id,pin_plain) values('33333333-3333-4333-8333-333333333333','22222222-2222-4222-8222-222222222222','synthetic');
@@ -45,5 +46,5 @@ insert into sb_student_progress(student_id,lesson,completed,completed_at,stars) 
 insert into sb_projects(student_id,class_id,building_name,blocks,submitted) values('33333333-3333-4333-8333-333333333333','22222222-2222-4222-8222-222222222222','합성 작품','[{"x":0,"y":0,"z":0}]',true);
 insert into sb_student_rewards(student_id,total_xp,total_stars) values('33333333-3333-4333-8333-333333333333',999,3) on conflict(student_id) do update set total_xp=999;
 insert into sb_shared_challenges(id,class_id,author_id,share_code) values('44444444-4444-4444-8444-444444444444','22222222-2222-4222-8222-222222222222','33333333-3333-4333-8333-333333333333','PRESERVEC');
-insert into sb_challenge_solves(challenge_id,student_id,correct) values('44444444-4444-4444-8444-444444444444','33333333-3333-4333-8333-333333333333',true);`);
-}
+insert into sb_challenge_solves(challenge_id,student_id,correct) values('44444444-4444-4444-8444-444444444444','33333333-3333-4333-8333-333333333333',true);`;
+export async function seedProtectedRows(db: PGlite) { await db.exec(protectedRowsFixtureSql); }

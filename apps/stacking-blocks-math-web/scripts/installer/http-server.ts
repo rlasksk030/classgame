@@ -1,4 +1,4 @@
-import { inspectMigrationState, manualReview } from "./database-state.ts";
+import { assessDatabaseState, inspectMigrationState, manualReview } from "./database-state.ts";
 import { functionMatches } from "./orchestrator.ts";
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from "node:http";
 import { createHmac, randomBytes, timingSafeEqual } from "node:crypto";
@@ -8,6 +8,7 @@ import { InstallerError, type FunctionDeployment, type InstallState, type Instal
 import { assertSafeTarget, assertTargetBinding, EphemeralCredential } from "./security.ts";
 import { OAuthGrantStore, OAuthSessionStore, exchangeOAuthCode } from "./oauth.ts";
 import type { TeacherAccountResult } from "./teacher-account.ts";
+import { buildPermissionRecovery } from './permission-recovery.ts';
 
 /** Identifies this process instance in logs only -- never sent to a client
  * and not a credential. Exists to prove or rule out "the session was created
@@ -39,6 +40,7 @@ interface InstallerSession {
   credential?: EphemeralCredential;
   state?: InstallState;
   expiresAt: number;
+  recoveryPlan?: { id: string; expiresAt: number; fingerprint: string; projectRef: string; projectUrl: string; credential: EphemeralCredential; consumed: boolean };
 }
 
 /** Operations that need an OAuth/PAT credential but no InstallerTarget yet
@@ -121,6 +123,7 @@ export class InstallerSessionStore {
     const session = this.get(id);
     if (!session) throw new InstallerError("INSTALLER_SESSION_EXPIRED", "target", "설치 세션이 만료되었습니다.");
     session.credential?.dispose();
+    session.recoveryPlan = undefined;
     session.credential = new EphemeralCredential(value);
     session.expiresAt = this.#now() + this.#ttlMs;
     return session;
@@ -132,6 +135,7 @@ export class InstallerSessionStore {
     const session = this.get(id);
     if (!session) throw new InstallerError("INSTALLER_SESSION_EXPIRED", "target", "설치 세션이 만료되었습니다.");
     session.credential?.dispose();
+    session.recoveryPlan = undefined;
     session.credential = credential;
     session.expiresAt = this.#now() + this.#ttlMs;
     return session;
@@ -378,6 +382,46 @@ async function handleRequest(request: IncomingMessage, response: ServerResponse,
       sendJson(response, 200, await planFor(session, backend, options.plan));
       return;
     }
+    if (['/api/installer/recovery-plan','/api/installer/recovery-execute'].includes(url.pathname)) {
+      // A browser cannot silently submit a form/cross-site request to approve.
+      if (request.method !== 'POST') { sendError(response,405,'METHOD_NOT_ALLOWED','지원하지 않는 요청입니다.'); return; }
+      if (!request.headers.origin || !allowedOrigins.has(request.headers.origin)) { sendError(response,403,'INSTALLER_ORIGIN_BLOCKED','복구 요청 출처를 확인할 수 없습니다.'); return; }
+      assertSafeTarget(session.target, options.productionRef);
+      assertTargetBinding(session.target);
+      const now = options.now ?? Date.now;
+      if (url.pathname.endsWith('recovery-plan')) {
+        session.recoveryPlan = undefined;
+        const candidate = await recoveryCandidate(session,backend,options.plan);
+        if (!candidate.recoverable) { sendJson(response,200,candidate); return; }
+        if (credential.disposed || store.get(session.id) !== session) throw new InstallerError('INSTALLER_SESSION_EXPIRED','target','설치 권한을 다시 연결해 주세요.');
+        const id = randomBytes(24).toString('base64url');
+        const expiresAt = now() + 5*60*1000;
+        session.recoveryPlan = { id, expiresAt, fingerprint:candidate.fingerprint, projectRef:session.target.projectRef, projectUrl:session.target.projectUrl, credential, consumed:false };
+        sendJson(response,200,{recoverable:true,reason:'ACL_RECOVERY_READY',plan:{id,expiresAt:new Date(expiresAt).toISOString(),projectRef:session.target.projectRef,profile:candidate.profile,changes:candidate.changes,preservesStudentData:true}});
+        return;
+      }
+      const body = requested as {planId?:unknown;approved?:unknown} | null;
+      if (body?.approved !== true) throw new InstallerError('INSTALLER_RECOVERY_APPROVAL_REQUIRED','migrations','복구 내용을 확인한 뒤 승인해 주세요.');
+      const approved = session.recoveryPlan;
+      if (!approved || approved.id !== body.planId || approved.expiresAt <= now() || approved.consumed || approved.credential !== credential) throw new InstallerError('INSTALLER_RECOVERY_PLAN_EXPIRED','migrations','복구 계획을 다시 확인하고 승인해 주세요.');
+      if (approved.projectRef !== session.target.projectRef || approved.projectUrl !== session.target.projectUrl) throw new InstallerError('INSTALLER_TARGET_MISMATCH','target','현재 프로젝트를 다시 확인해 주세요.');
+      if (activeProjects.has(session.target.projectRef)) { sendError(response,409,'INSTALLER_RECOVERY_BUSY','이 프로젝트를 처리 중입니다. 잠시 후 다시 확인해 주세요.'); return; }
+      activeProjects.add(session.target.projectRef);
+      // Consume before awaiting: a double click or uncertain network response
+      // cannot replay this approval. A new diagnosis must precede any retry.
+      approved.consumed = true;
+      try {
+        const fresh = await recoveryCandidate(session,backend,options.plan);
+        if (!fresh.recoverable || fresh.fingerprint !== approved.fingerprint) throw new InstallerError('INSTALLER_RECOVERY_STATE_CHANGED','migrations','설치 상태가 달라졌습니다. 새 복구 내용을 확인해 주세요.');
+        if (approved.expiresAt <= now() || credential.disposed || store.get(session.id) !== session) throw new InstallerError('INSTALLER_RECOVERY_PLAN_EXPIRED','migrations','설치 권한 또는 복구 계획이 만료되었습니다. 다시 확인해 주세요.');
+        if (!backend.applyPermissionRecovery) throw new InstallerError('INSTALLER_RECOVERY_UNAVAILABLE','migrations','현재 실행부에서 복구를 지원하지 않습니다.');
+        await backend.applyPermissionRecovery(session.target,fresh.query);
+        const current = await statusFor(session,backend,options.plan);
+        if (current.status === 'DRIFT_REQUIRES_REVIEW') throw new InstallerError('INSTALLER_RECOVERY_VERIFY_REQUIRED','migrations','복구 후 추가 확인이 필요합니다. 기존 자료는 유지됩니다.');
+        sendJson(response,200,{status:'COMPLETE',action:'PERMISSION_RECOVERY',installationStatus:current.status});
+      } finally { activeProjects.delete(session.target.projectRef); }
+      return;
+    }
     if (url.pathname === "/api/installer/teacher-account" && request.method === "POST") {
       if (!options.createManagementExtras) { sendError(response, 501, "INSTALLER_TEACHER_ACCOUNT_NOT_CONFIGURED", "교사 계정 자동 생성이 설정되지 않았습니다."); return; }
       // The body was already consumed above (readJson) for the target-mismatch check; reuse it.
@@ -409,9 +453,26 @@ async function handleRequest(request: IncomingMessage, response: ServerResponse,
     sendError(response, 404, "INSTALLER_ROUTE_NOT_FOUND", "설치 경로를 찾을 수 없습니다.");
   } catch (error) {
     const detail = error instanceof InstallerError ? error : new InstallerError("INSTALLER_SERVER_ERROR", "target", "설치 실행부에서 오류가 발생했습니다.");
-    const status = detail.code === "INSTALLER_MANUAL_REVIEW_REQUIRED" ? 409 : detail.code.includes("SESSION") || detail.code.includes("AUTH") ? 401 : detail.code === "PRODUCTION_TARGET_BLOCKED" || detail.code === "INSTALLER_TARGET_MISMATCH" ? 403 : 502;
+    const status = detail.code === "INSTALLER_MANUAL_REVIEW_REQUIRED" || detail.code.startsWith("INSTALLER_RECOVERY_") ? 409 : detail.code.includes("SESSION") || detail.code.includes("AUTH") ? 401 : detail.code === "PRODUCTION_TARGET_BLOCKED" || detail.code === "INSTALLER_TARGET_MISMATCH" ? 403 : 502;
     sendError(response, status, detail.code, detail.message, detail.stage, detail.upstreamStatus);
   }
+}
+
+async function recoveryCandidate(session: InstallerSession, backend: InstallerBackend, plan: InstallerPlan) {
+  const project = await backend.inspectProject(session.target);
+  if (project.ref !== session.target.projectRef) throw new InstallerError('INSTALLER_TARGET_MISMATCH','target','설치 대상 프로젝트가 일치하지 않습니다.');
+  if (!backend.inspectDatabaseCatalog || !backend.inspectDatabasePermissions || !backend.applyPermissionRecovery) return {recoverable:false as const,reason:'RECOVERY_UNAVAILABLE'};
+  // Successful project-bound Management database/query inspection verifies the
+  // OAuth database endpoint scope. SQL ownership is rechecked in the transaction.
+  const [history,catalog,permissions] = await Promise.all([backend.listAppliedMigrations(session.target),backend.inspectDatabaseCatalog(session.target),backend.inspectDatabasePermissions(session.target)]);
+  const candidate = buildPermissionRecovery(plan,history,catalog,permissions);
+  if (!candidate.recoverable) return candidate;
+  const transition = plan.legacyRecovery?.transitions.find(t => t.from === candidate.profile);
+  if (!transition || !backend.inspectDataEvidence) return {recoverable:false as const,reason:'DATA_REVIEW_REQUIRED'};
+  const evidence = await backend.inspectDataEvidence(session.target,transition.evidenceQuery);
+  const dataState = assessDatabaseState(plan,history,candidate.normalizedCatalog,evidence);
+  if (dataState.drift) return {recoverable:false as const,reason:'DATA_REVIEW_REQUIRED'};
+  return candidate;
 }
 
 async function inspectExistingProject(options: InstallerHttpOptions, credential: EphemeralCredential, target: InstallerTarget): Promise<RemoteProject> {

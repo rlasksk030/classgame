@@ -8,8 +8,8 @@ import { runInstaller } from '../scripts/installer/orchestrator.ts';
 import { emptyLegacyDb, legacyBackend } from './support/installer-legacy-db.ts';
 
 const query = readFileSync('scripts/installer/permission-audit.sql','utf8');
-const target = {environment:'TEST' as const,projectRef:'permission-synthetic',projectUrl:'https://permission-synthetic.supabase.co',release:'test'};
-test('SQL effective permissions distinguish A/B/C/D/E without changing drift acceptance or writing data',async()=>{
+const target = {environment:'TEST' as const,projectRef:'permission-synthetic',projectUrl:'https://permission-synthetic.supabase.co',publishableKey:'sb_publishable_synthetic_fixture',release:'test'};
+test('SQL permissions distinguish A/B/C/D/E; only proven A equivalence passes without an ACL write',async()=>{
   const plan = await readMathInstallerPlan(process.cwd()), db = await emptyLegacyDb();
   const profile=`history-prefix-${plan.migrations.length}`;
   try {
@@ -21,11 +21,12 @@ test('SQL effective permissions distinguish A/B/C/D/E without changing drift acc
     assert.equal(classify(await snapshot(),'rpcs::sb_owns_class:target uuid'),'A_EQUIVALENT','NULL ACL and explicit PUBLIC execute');
     const backend = legacyBackend(db,plan,[]);
     backend.inspectDatabasePermissions = snapshot;
-    assert.equal((await inspectMigrationState(backend,target,plan)).review!.objects[0].category,'A_EQUIVALENT');
-    await assert.rejects(runInstaller({target,plan,backend}),{code:'INSTALLER_MANUAL_REVIEW_REQUIRED'});
+    assert.equal((await inspectMigrationState(backend,target,plan)).drift,false);
+    await runInstaller({target,plan,backend});
     assert.equal(backend.calls.some(c=>/^(apply|deploy|setSecrets)/.test(c)),false);
     await db.exec('grant truncate on sb_students to anon');
     assert.equal(classify(await snapshot()),'B_BROADER_PERMISSION');
+    await assert.rejects(runInstaller({target,plan,backend}),{code:'INSTALLER_MANUAL_REVIEW_REQUIRED'},'broader ACL still needs separate explicit consent');
     await db.exec('revoke truncate on sb_students from anon;revoke select on sb_students from authenticated');
     assert.equal(classify(await snapshot()),'C_MISSING_PERMISSION');
     assert.equal(classify(await snapshot(),'tables::sb_students:',true),'D_STRUCTURAL_CHANGE');

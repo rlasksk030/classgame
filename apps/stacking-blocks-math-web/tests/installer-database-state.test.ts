@@ -182,7 +182,7 @@ test('Evidence uses read_only aggregates, strips unexpected response fields and 
   let malformed=false;
   const query=plan.legacyRecovery!.transitions.find(t=>t.from==='history-prefix-17')!.evidenceQuery;
   const backend=new SupabaseManagementBackend({accessToken:credential,fetchImpl:async(_input,init)=>{
-    const body=JSON.parse(String(init?.body)); assert.equal(body.read_only,true); assert.equal(body.query,query);
+    const body=JSON.parse(String(init?.body)); assert.equal(body.read_only,true); assert.equal(body.query,`set local search_path=pg_catalog,public;\n${query}`);
     assert.equal(/\b(?:insert|update|delete|alter|drop|truncate)\s/i.test(query),false);
     return Response.json([{evidence:{seedMissing:malformed?'unknown':0,seedOutdated:0,storageMissing:0,progressMissing:0,dataConflict:0,unexpectedPrivateRow:'must-not-escape'}}]);
   }});

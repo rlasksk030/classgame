@@ -2,7 +2,8 @@ import { readFile, readdir } from "node:fs/promises";
 import { generateFunctionSecret, assertSafeTarget, assertTargetBinding } from "./security.ts";
 import { InstallerError, type FunctionBundle, type InstallState, type InstallerBackend, type InstallerTarget, type MigrationInput } from "./contract.ts";
 
-import { inspectMigrationState, manualReview, type DatabaseBaseline } from "./database-state.ts";
+import { catalogFingerprints, inspectMigrationState, manualReview, type DatabaseBaseline } from "./database-state.ts";
+import { prepareEquivalentLegacyTransition } from './permission-recovery.ts';
 
 export interface InstallerPlan {
   databaseBaseline?: DatabaseBaseline;
@@ -64,7 +65,19 @@ export async function runInstaller(options: InstallerRunOptions): Promise<Instal
     if (assessment.recovery) {
       const transition = plan.legacyRecovery?.transitions.find(t => t.from === assessment.baseline);
       if (!transition || !options.backend.applyLegacyTransition) throw manualReview();
-      await options.backend.applyLegacyTransition(target, transition.query);
+      let query = transition.query;
+      if (options.backend.inspectDatabaseCatalog && plan.databaseBaseline) {
+        const catalog = await options.backend.inspectDatabaseCatalog(target);
+        const expected = plan.databaseBaseline.profiles.find(p => p.name === transition.from)?.objects;
+        const actual = catalogFingerprints(catalog);
+        if (!expected || Object.keys(actual).length !== Object.keys(expected).length || Object.entries(expected).some(([key,digest]) => actual[key] !== digest)) {
+          const permissions = await options.backend.inspectDatabasePermissions?.(target);
+          const equivalent = prepareEquivalentLegacyTransition(plan,transition,catalog,permissions);
+          if (!equivalent) throw manualReview();
+          query = equivalent;
+        }
+      }
+      await options.backend.applyLegacyTransition(target, query);
       const verified = await inspectMigrationState(options.backend, target, plan);
       if (verified.drift || verified.recovery || verified.migrations.some(m => m.status === 'PENDING')) throw manualReview();
       state.missingMigrations = [];
