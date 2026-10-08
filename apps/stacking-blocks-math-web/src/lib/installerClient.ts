@@ -22,7 +22,7 @@ export interface InstallerStatusResponse {
   project?: { ref: string };
   legacyRecovery?: 'LEGACY_RESUME_CANDIDATE';
   matchedProfile?: string;
-  databaseReview?: { reason: string; baseline: string; comparisonBaseline: string; objects: Array<{key: string; change: string}> };
+  databaseReview?: { reason: string; baseline: string; comparisonBaseline: string; objects: Array<{key: string; change: string; attributes?: Array<{name: string; state: string}>}> };
   status: InstallerRemoteStatus;
   appliedMigrationCount?: number;
   satisfiedMigrationCount?: number;
@@ -50,7 +50,8 @@ export interface InstallerJobResponse {
 export interface InstallerSessionResponse {
   sessionId?: string;
   status: "CREATED" | "AUTHORIZED";
-  /** Present only when the session was just bound via OAuth: the project's own
+  publicKeyError?: { code: string; stage: string; upstreamStatus?: number };
+  /** Present after a successful OAuth bind or same-project retry: the project's own
    * public key, fetched server-side so the teacher never has to copy it. */
   publishableKey?: string;
 }

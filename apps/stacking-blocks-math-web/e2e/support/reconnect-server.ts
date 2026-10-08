@@ -1,15 +1,15 @@
 import { createServer, request as forward, type Server } from 'node:http';
 import { readFile } from 'node:fs/promises';
 import { extname } from 'node:path';
-import { createInstallerServer } from '../../scripts/installer/http-server.ts';
+import { createInstallerServer, type InstallerManagementExtras } from '../../scripts/installer/http-server.ts';
 import { createFakeInstallerBackend, createFakeManagementExtras, fakeBundle } from '../../scripts/installer/fake-backend.ts';
 import { EphemeralCredential } from '../../scripts/installer/security.ts';
 import type { InstallerPlan } from '../../scripts/installer/orchestrator.ts';
 import type { InstallerBackend } from '../../scripts/installer/contract.ts';
 
-export async function reconnectServer(dropSessionCookie = false, overrides?: { plan: InstallerPlan; backend: InstallerBackend; now?: () => number; emptyProjects?: boolean }) {
+export async function reconnectServer(dropSessionCookie = false, overrides?: { plan: InstallerPlan; backend: InstallerBackend; now?: () => number; emptyProjects?: boolean; extras?: InstallerManagementExtras }) {
   const backend = overrides?.backend ?? createFakeInstallerBackend();
-  const extras = createFakeManagementExtras({ accessibleProjects: overrides?.emptyProjects ? [] : [{ ref: 'reconnect-project' }], publishableKeys: { 'reconnect-project': 'sb_publishable_synthetic_new' } });
+  const extras = overrides?.extras ?? createFakeManagementExtras({ accessibleProjects: overrides?.emptyProjects ? [] : [{ ref: 'reconnect-project' }], publishableKeys: { 'reconnect-project': 'sb_publishable_synthetic_new' } });
   let upstream = '';
   const events: Array<{ path: string; method: string; grantSent: boolean; sessionSent: boolean }> = [];
   const frontend = createServer((req, res) => {

@@ -1,6 +1,6 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import { PGlite } from '@electric-sql/pglite';
-import { catalogFingerprints, type Catalog, type DatabaseBaseline } from './database-state.ts';
+import { catalogAttributeFingerprints, catalogFingerprints, type Catalog, type DatabaseBaseline } from './database-state.ts';
 import { readMigrationPlan } from './orchestrator.ts';
 import { createHash } from 'node:crypto';
 import { createFixture } from '../../qa/live-required-progress/installer-fixture.mjs';
@@ -21,7 +21,7 @@ create table storage.objects(id uuid primary key default gen_random_uuid(),bucke
 create function storage.foldername(text) returns text[] language sql as $$ select string_to_array($1,'/') $$;`);
 async function capture(database: PGlite, name: string, kind: DatabaseBaseline['profiles'][number]['kind'], prefix: number) {
   const snapshot = (await database.query<{ snapshot: Catalog }>(query)).rows[0].snapshot;
-  result.profiles.push({ name, kind, prefix, objects: catalogFingerprints(snapshot) });
+  result.profiles.push({ name, kind, prefix, objects: catalogFingerprints(snapshot), attributes: catalogAttributeFingerprints(snapshot) });
   const digest = (await database.query<{digest: string}>(catalogDigestQuery(query))).rows[0].digest;
   const seeds = snapshot.tables.some(t => t.name === 'sb_problems') ? (await database.query<Record<string,unknown>>('select * from sb_problems order by code')).rows : [];
   const storagePolicies = (await database.query<Record<string,unknown>>("select * from pg_policies where schemaname='storage' and tablename='objects' and policyname in ('sb_worksheet_files','sb_problem_crops') order by policyname")).rows;

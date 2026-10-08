@@ -6,7 +6,7 @@ export type MigrationDisposition = 'APPLIED_BY_HISTORY' | 'SATISFIED_BY_STATE' |
 export type Catalog = Record<string, Array<Record<string, unknown>>>;
 export interface DatabaseBaseline {
   migrationHashes: string[];
-  profiles: Array<{ name: string; kind: 'RELEASE' | 'RESUME' | 'MANUAL_DELTA_REQUIRED'; prefix: number; objects: Record<string, string> }>;
+  profiles: Array<{ name: string; kind: 'RELEASE' | 'RESUME' | 'MANUAL_DELTA_REQUIRED'; prefix: number; objects: Record<string, string>; attributes?: Record<string, Record<string, string>> }>;
 }
 export interface DataEvidence { seedMissing: number; seedOutdated: number; storageMissing: number; progressMissing: number; dataConflict: number }
 export interface MigrationAssessment {
@@ -21,7 +21,7 @@ export interface MigrationAssessment {
     reason: 'KNOWN_SCHEMA_HISTORY_MISMATCH' | 'REVIEWED_DELTA_REQUIRED' | 'UNRECOGNIZED_SCHEMA' | 'DATA_EVIDENCE_REQUIRED' | 'DATA_EVIDENCE_CONFLICT';
     baseline: string;
     comparisonBaseline: string;
-    objects: Array<{ key: string; change: 'MISSING' | 'ADDITIONAL' | 'CHANGED' }>;
+    objects: Array<{ key: string; change: 'MISSING' | 'ADDITIONAL' | 'CHANGED'; attributes?: Array<{ name: string; state: 'SAME' | 'DIFFERENT'; expectedDigest?: string; actualDigest?: string }> }>;
   };
 }
 const sections = ['tables', 'columns', 'constraints', 'indexes', 'policies', 'rpcs', 'rpc_definitions', 'triggers', 'column_acls', 'policy_modes'];
@@ -30,23 +30,33 @@ function canonical(value: unknown): unknown {
   if (value && typeof value === 'object') return Object.fromEntries(Object.entries(value).sort(([a], [b]) => a.localeCompare(b)).map(([k, v]) => [k, canonical(v)]));
   return value;
 }
-export function catalogFingerprints(catalog: Catalog): Record<string, string> {
-  const objects: Record<string, string> = {};
+/** Attribute digests explain a mismatch without exposing definitions or data.
+ * Object fingerprints are deliberately unchanged: a permission difference
+ * must not be accepted merely because it reproduces Supabase's defaults. */
+export function catalogAttributeFingerprints(catalog: Catalog): Record<string, Record<string, string>> {
+  return Object.fromEntries(catalogRows(catalog).map(([key,row]) => [key, Object.fromEntries(Object.entries(row).map(([attribute,value]) => [attribute, digest(value)]))]));
+}
+function digest(value: unknown): string { return createHash('sha256').update(JSON.stringify(canonical(value))).digest('hex'); }
+function catalogRows(catalog: Catalog): Array<[string, Record<string, unknown>]> {
+  const rows: Array<[string, Record<string, unknown>]> = [];
+  const seen = new Set<string>();
   for (const section of sections) {
     if (!Array.isArray(catalog[section])) throw manualReview();
     for (const original of catalog[section]) {
       const row = { ...original };
-      // PG18 exposes NOT NULL in pg_constraint; PG17 exposes it in columns.
       if (section === 'constraints' && row.type === 'n') continue;
-      // Physical column order is not part of the named runtime contract.
       if (section === 'columns') delete row.position;
       const key = `${section}:${row.table ?? ''}:${row.name ?? row.column ?? ''}:${row.arguments ?? ''}`;
-      if (objects[key]) throw manualReview();
-      objects[key] = createHash('sha256').update(JSON.stringify(canonical(row))).digest('hex');
+      if (seen.has(key)) throw manualReview();
+      seen.add(key); rows.push([key,row]);
     }
   }
-  return objects;
+  return rows;
 }
+export function catalogFingerprints(catalog: Catalog): Record<string, string> {
+  return Object.fromEntries(catalogRows(catalog).map(([key,row]) => [key,digest(row)]));
+}
+
 function differences(expected: Record<string, string>, actual: Record<string, string>): string[] {
   return [...new Set([...Object.keys(expected), ...Object.keys(actual)])].filter(k => expected[k] !== actual[k]).sort();
 }
@@ -64,6 +74,7 @@ export function assessDatabaseState(plan: InstallerPlan, history: string[], cata
   const hashes = plan.migrations.map(m => createHash('sha256').update(m.query).digest('hex'));
   if (JSON.stringify(hashes) !== JSON.stringify(baseline.migrationHashes) || !catalog) throw manualReview();
   const actual = catalogFingerprints(catalog);
+  const actualAttributes = catalogAttributeFingerprints(catalog);
   const matches = baseline.profiles.filter(p => differences(p.objects, actual).length === 0);
   const release = matches.find(p => p.kind === 'RELEASE');
   const manual = matches.find(p => p.kind === 'MANUAL_DELTA_REQUIRED');
@@ -92,7 +103,11 @@ export function assessDatabaseState(plan: InstallerPlan, history: string[], cata
       reason: evidenceConflict ? 'DATA_EVIDENCE_CONFLICT' as const : evidenceMissing ? 'DATA_EVIDENCE_REQUIRED' as const : historyConflict || knownSchema ? 'KNOWN_SCHEMA_HISTORY_MISMATCH' as const : manual ? 'REVIEWED_DELTA_REQUIRED' as const : 'UNRECOGNIZED_SCHEMA' as const,
       baseline: manual?.name ?? compared.name,
       comparisonBaseline: compared.name,
-      objects: changedObjects.map(key => ({ key, change: !(key in actual) ? 'MISSING' as const : !(key in compared.objects) ? 'ADDITIONAL' as const : 'CHANGED' as const })),
+      objects: changedObjects.map(key => ({ key, change: !(key in actual) ? 'MISSING' as const : !(key in compared.objects) ? 'ADDITIONAL' as const : 'CHANGED' as const,
+        // Attribute names are repository-owned too. Unknown remote fields must
+        // never become a route for leaking an identifier, SQL or a credential.
+        ...(compared.attributes?.[key] ? { attributes: Object.entries(compared.attributes[key]).map(([name, expectedDigest]) => ({ name, state: actualAttributes[key]?.[name] === expectedDigest ? 'SAME' as const : 'DIFFERENT' as const, expectedDigest, actualDigest: actualAttributes[key]?.[name] })) } : {}),
+      })),
     } } : {}),
     migrations: plan.migrations.map((m,i) => {
       const dataPending = evidenceValid && (([1,4].includes(i) && evidence.seedMissing > 0) || (i === 11 && evidence.seedOutdated > 0) || (i === 7 && evidence.storageMissing > 0) || ([21,23].includes(i) && evidence.progressMissing > 0));
@@ -108,7 +123,7 @@ export async function inspectMigrationState(backend: InstallerBackend, target: I
   const transition = plan.legacyRecovery?.transitions.find(t => t.from === structural.baseline);
   const finish = (assessment: MigrationAssessment) => {
     if (plan.databaseBaseline && assessment.review) {
-      assessment = { ...assessment, differences: assessment.differences.map(key => diagnosticObjectKey(key, plan.databaseBaseline!)), review: { ...assessment.review, objects: assessment.review.objects.map(({key, change}) => ({ key: diagnosticObjectKey(key, plan.databaseBaseline!), change })) } };
+      assessment = { ...assessment, differences: assessment.differences.map(key => diagnosticObjectKey(key, plan.databaseBaseline!)), review: { ...assessment.review, objects: assessment.review.objects.map(({key, ...difference}) => ({ key: diagnosticObjectKey(key, plan.databaseBaseline!), ...difference })) } };
     }
     if (assessment.drift && assessment.review) {
       const { reason, baseline, comparisonBaseline, objects } = assessment.review;

@@ -3,6 +3,9 @@ import type { Catalog } from "./database-state.ts";
 import { InstallerError, type FunctionBundle, type FunctionDeployment, type InstallerBackend, type InstallerTarget, type MigrationInput, type RemoteProject } from "./contract.ts";
 import { EphemeralCredential, redactInstallerObject } from "./security.ts";
 
+import { activeApiKey, publicKeyKind } from "./public-key.ts";
+import { assertTargetBinding } from "./security.ts";
+
 const MANAGEMENT_API = "https://api.supabase.com";
 
 interface FetchLike {
@@ -58,9 +61,45 @@ export class SupabaseManagementBackend implements InstallerBackend {
    * anything real. Try the new type first, then the legacy name, so a
    * project that has migrated to the new key system is still detected. */
   async getPublishableKey(target: InstallerTarget): Promise<string | undefined> {
-    const keys = await this.#listApiKeys(target);
-    const match = keys.find((key) => key.type === "publishable") ?? keys.find((key) => key.type === "legacy" && key.name === "anon") ?? keys.find((key) => key.type === undefined && key.name === "anon");
-    return match?.apiKey;
+    // Only fixed metadata reaches the log; never upstream messages or values.
+    const diagnostic = { event: 'public_key_lookup', projectRef: /^[a-z0-9-]{8,64}$/.test(target.projectRef) ? target.projectRef : '[invalid]', stage: 'management-api', httpStatus: 0, oauthPermissionError: false, responseArray: false, metadataCount: 0, publishableCount: 0, legacyAnonCount: 0, disabledCount: 0, valueFieldCount: 0, selectable: false, code: 'INSTALLER_PUBLIC_KEY_UNAVAILABLE' };
+    try {
+      const raw = await this.request<unknown>('target', `/v1/projects/${encodeURIComponent(target.projectRef)}/api-keys?reveal=true`);
+      diagnostic.httpStatus = 200; diagnostic.responseArray = Array.isArray(raw);
+      if (!Array.isArray(raw)) throw new InstallerError('INSTALLER_KEY_RESPONSE_INVALID', 'target', '프로젝트는 연결되었지만 공개 키 응답 형식을 확인하지 못했습니다. 다시 시도해 주세요.');
+      diagnostic.metadataCount = raw.length;
+      const keys = raw.filter((item): item is Record<string, unknown> => Boolean(item && typeof item === 'object' && !Array.isArray(item)));
+      const isAnon = (key: Record<string, unknown>) => (key.type === 'legacy' || key.type == null) && key.name === 'anon';
+      diagnostic.publishableCount = keys.filter(k => k.type === 'publishable').length;
+      diagnostic.legacyAnonCount = keys.filter(isAnon).length;
+      diagnostic.disabledCount = keys.filter(k => !activeApiKey(k)).length;
+      diagnostic.valueFieldCount = keys.filter(k => typeof k.api_key === 'string' && k.api_key.trim().length > 0).length;
+      const eligible = keys.filter(k => typeof k.name === 'string' && activeApiKey(k));
+      const match = eligible.find(k => k.type === 'publishable' && publicKeyKind(k.api_key,target.projectRef) === 'publishable') ?? eligible.find(k => isAnon(k) && publicKeyKind(k.api_key,target.projectRef) === 'anon');
+      diagnostic.selectable = Boolean(match); diagnostic.code = match ? 'PUBLIC_KEY_SELECTED' : diagnostic.code;
+      return match?.api_key as string | undefined;
+    } catch (error) {
+      const status = error instanceof InstallerError ? error.upstreamStatus : undefined;
+      diagnostic.httpStatus = status ?? diagnostic.httpStatus;
+      diagnostic.oauthPermissionError = status === 401 || status === 403;
+      const code = status === 403 ? 'INSTALLER_PUBLIC_KEY_FORBIDDEN' : status === 401 ? 'INSTALLER_PUBLIC_KEY_UNAUTHORIZED' : status === 404 ? 'INSTALLER_PUBLIC_KEY_NOT_FOUND' : status === 429 ? 'INSTALLER_PUBLIC_KEY_RATE_LIMITED' : status ? 'INSTALLER_PUBLIC_KEY_UPSTREAM_FAILED' : error instanceof InstallerError && ['INSTALLER_KEY_RESPONSE_INVALID','INSTALLER_RESPONSE_INVALID'].includes(error.code) ? 'INSTALLER_KEY_RESPONSE_INVALID' : 'INSTALLER_PUBLIC_KEY_NETWORK';
+      diagnostic.code = code;
+      throw new InstallerError(code, 'target', status === 403 ? '프로젝트는 연결되었지만 Supabase 계정의 API 키 조회 권한이 없습니다. API 키 조회 권한을 확인한 뒤 다시 시도해 주세요.' : status === 429 ? '공개 키 조회 요청이 잠시 제한되었습니다. 잠시 후 선택한 프로젝트에서 다시 시도해 주세요.' : '프로젝트는 연결되었지만 공개 키를 가져오지 못했습니다. 선택한 프로젝트에서 다시 시도해 주세요.', status);
+    } finally { console.error(JSON.stringify(diagnostic)); }
+  }
+
+  async verifyPublishableKey(target: InstallerTarget, key: string): Promise<void> {
+    assertTargetBinding(target);
+    if (!publicKeyKind(key,target.projectRef)) throw new InstallerError('INSTALLER_PUBLIC_KEY_INVALID', 'target', '공개 연결 키 형식을 확인하지 못했습니다.');
+    let response: Response;
+    try {
+      // Derive from the validated ref, not a caller-supplied path or redirect.
+      response = await this.#fetch(`https://${target.projectRef}.supabase.co/auth/v1/settings`, { method: 'GET', headers: { apikey: key }, redirect: 'error', signal: AbortSignal.timeout(15000) });
+    } catch { throw new InstallerError('INSTALLER_PUBLIC_KEY_PROBE_UNREACHABLE','target','선택한 프로젝트의 공개 연결을 확인하지 못했습니다. 잠시 후 다시 시도해 주세요.'); }
+    if (!response.ok) throw new InstallerError('INSTALLER_PUBLIC_KEY_PROBE_FAILED','target','공개 키를 받았지만 선택한 프로젝트가 연결 확인을 거부했습니다. 다시 시도해 주세요.',response.status);
+    // Success must be Auth settings, not an HTML proxy/error page.
+    const settings: unknown = await response.json().catch(() => undefined);
+    if (!settings || typeof settings !== 'object' || Array.isArray(settings) || !('external' in settings)) throw new InstallerError('INSTALLER_PUBLIC_KEY_PROBE_INVALID','target','프로젝트의 인증 설정 응답을 확인하지 못했습니다.');
   }
 
   /**

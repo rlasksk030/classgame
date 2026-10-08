@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { inspectMigrationState, catalogFingerprints, type Catalog } from '../scripts/installer/database-state.ts';
+import { inspectMigrationState, catalogAttributeFingerprints, catalogFingerprints, type Catalog } from '../scripts/installer/database-state.ts';
 import { createFakeInstallerBackend } from '../scripts/installer/fake-backend.ts';
 import type { InstallerPlan } from '../scripts/installer/orchestrator.ts';
 
@@ -11,7 +11,7 @@ test('schema review emits exact difference metadata, never SQL, rows, keys or cr
   expected.columns = Array.from({length: 22}, (_, i) => ({ table: 'sb_students', name: 'column_' + i, type: 'text' }));
   const actual = structuredClone(expected);
   actual.columns.forEach(c => { c.type = 'integer'; c.definition = 'select synthetic_sql_body'; c.token = 'synthetic-access-token'; c.pin = 'synthetic-pin'; c.rows = ['synthetic-student']; c.apiKey = 'synthetic-api-key'; });
-  const plan: InstallerPlan = { productionRef: 'blocked-project', appVersion: 'test', schemaVersion: 'test', functions: [], migrations: [{name: 'test', query: 'select 1'}], databaseBaseline: {migrationHashes:[createHash('sha256').update('select 1').digest('hex')], profiles:[{name:'history-prefix-24',kind:'RELEASE',prefix:1,objects:catalogFingerprints(expected)}]} };
+  const plan: InstallerPlan = { productionRef: 'blocked-project', appVersion: 'test', schemaVersion: 'test', functions: [], migrations: [{name: 'test', query: 'select 1'}], databaseBaseline: {migrationHashes:[createHash('sha256').update('select 1').digest('hex')], profiles:[{name:'history-prefix-24',kind:'RELEASE',prefix:1,objects:catalogFingerprints(expected),attributes:catalogAttributeFingerprints(expected)}]} };
   const backend = createFakeInstallerBackend(); backend.inspectDatabaseCatalog = async () => actual;
   const lines: string[] = []; const original = console.error;
   console.error = value => lines.push(String(value));

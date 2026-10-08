@@ -414,7 +414,7 @@ export default function SetupPage() {
     setBusy(true); setError(null); setMessage(null); setFreshInstallerSession(null);
     try {
       const verified = await bindInstallerOAuthProject(installerClient, project, installationId.trim(),
-        current ? projectRefFromUrl(current.supabaseUrl) : null, checkSupabaseConnection);
+        current ? projectRefFromUrl(current.supabaseUrl) : null, checkSupabaseConnection, current);
       if (!isSetupActive()) return;
       saveRuntimeSupabaseConfig(verified.config);
       setSupabaseUrl(verified.config.supabaseUrl); setConnectionVerified(true); setOauthAuthorized(true); setOauthProjects(null);
@@ -645,7 +645,7 @@ export default function SetupPage() {
                   </dl>}
                 {installerDetails?.databaseReview && <details>
                   <summary>진단 상세</summary>
-                  <ul aria-label="차이 객체 목록">{installerDetails.databaseReview.objects.map((object, index) => <li key={`${object.key}-${index}`}><code>{object.key}</code> · {object.change}</li>)}</ul>
+                  <ul aria-label="차이 객체 목록">{installerDetails.databaseReview.objects.map((object, index) => <li key={`${object.key}-${index}`}><code>{object.key}</code> · {object.change}{object.attributes && <span> · {object.attributes.map(attribute => `${attribute.name}: ${attribute.state === "SAME" ? "일치" : "다름"}`).join(", ")}</span>}</li>)}</ul>
                 </details>}
                 </> : installerDetails?.requiredMigrationCount !== undefined && <p>데이터베이스 준비: {(installerDetails.appliedMigrationCount ?? 0) + (installerDetails.satisfiedMigrationCount ?? 0)}/{installerDetails.requiredMigrationCount}</p>}
                 {installerDetails?.legacyRecovery && <p>기존 설치를 확인했습니다. 기존 자료를 그대로 유지하고 최신 버전으로 준비합니다.</p>}

@@ -44,6 +44,7 @@ export interface InstallerManagementExtras {
   /** Public anon/publishable key only, so a teacher who connected via OAuth
    * never has to visit Project Settings -> API by hand. Never the secret key. */
   getPublishableKey(target: InstallerTarget): Promise<string | undefined>;
+  verifyPublishableKey(target: InstallerTarget, key: string): Promise<void>;
 }
 
 export interface InstallerOAuthConfig {
@@ -183,6 +184,8 @@ async function handleRequest(request: IncomingMessage, response: ServerResponse,
       assertSafeTarget(target, options.productionRef);
       assertTargetBinding(target);
       if (options.mode === "TEST" && target.environment !== "TEST") throw new InstallerError("INSTALLER_TEST_TARGET_REQUIRED", "target", "TEST 프로젝트만 연결할 수 있습니다.");
+      const previous = getSession(request, store, options.sessionSecret);
+      const sameTarget = previous?.target.projectRef === target.projectRef && previous.target.projectUrl === target.projectUrl;
       const grantId = getOAuthGrantId(request, options.sessionSecret);
       const grantCredential = grantId ? grantStore.peek(grantId) : undefined;
       if (grantCredential) {
@@ -195,50 +198,40 @@ async function handleRequest(request: IncomingMessage, response: ServerResponse,
           if (accessible.length || recovery?.projectRef !== target.projectRef || recovery.projectUrl !== target.projectUrl) throw new InstallerError("INSTALLER_PROJECT_NOT_ALLOWED", "target", "권한이 없는 프로젝트입니다.");
           await inspectExistingProject(options, grantCredential, target);
         }
-      } else if (allowedProjectRefs.size > 0 && !allowedProjectRefs.has(target.projectRef)) {
+      } else if (!sameTarget && allowedProjectRefs.size > 0 && !allowedProjectRefs.has(target.projectRef)) {
         throw new InstallerError("INSTALLER_PROJECT_NOT_ALLOWED", "target", "허용된 TEST 프로젝트가 아닙니다.");
       }
-      const previous = getSession(request, store, options.sessionSecret);
-      const sameTarget = previous?.target.projectRef === target.projectRef && previous.target.projectUrl === target.projectUrl;
       const session = sameTarget ? previous! : store.create(target);
       logInstallerDiagnostic("session_created_or_reused", { reused: sameTarget, idPrefix: session.id.slice(0, 8), viaOAuth: Boolean(grantId && grantCredential) });
-      let publishableKey: string | undefined;
       if (grantId && grantCredential) {
         const bound = grantStore.consume(grantId);
         if (bound) store.setCredentialFromEphemeral(session.id, bound);
-        response.setHeader("set-cookie", [cookieHeader("installer_session", options.sessionSecret ? `${session.id}.${signSession(session.id, options.sessionSecret)}` : session.id, session.expiresAt, options), clearedCookieHeader("installer_oauth_grant", options)]);
-        if (bound && options.createManagementExtras) {
-          logInstallerDiagnostic("PUBLIC_KEY_FETCH_START", { idPrefix: session.id.slice(0, 8) });
-          try {
-            publishableKey = await options.createManagementExtras(bound).getPublishableKey(target);
-            if (publishableKey) {
-              // Non-fatal even here, but this is the fix for the actual bug:
-              // the fetched key was previously only ever put in the JSON
-              // response, never written back onto session.target, so
-              // probeFunction() (which reads session.target.publishableKey)
-              // always saw it as missing regardless of whether this call
-              // succeeded -- INSTALLER_PUBLIC_CONFIG_MISSING on every OAuth
-              // bind, independent of the key-detection logic itself.
-              session.target = { ...session.target, publishableKey };
-              logInstallerDiagnostic("PUBLIC_KEY_FETCH_SUCCESS", { idPrefix: session.id.slice(0, 8) });
-            } else {
-              logInstallerDiagnostic("PUBLIC_KEY_FETCH_FAIL", { idPrefix: session.id.slice(0, 8), reason: "no_publishable_key_in_response" });
-            }
-          } catch (error) {
-            // Non-fatal: the teacher can still enter it manually. Never log
-            // the key itself -- only stage/code/upstream status.
-            const fields: Record<string, string | number> = { idPrefix: session.id.slice(0, 8) };
-            if (error instanceof InstallerError) {
-              fields.code = error.code;
-              if (error.upstreamStatus !== undefined) fields.upstreamStatus = error.upstreamStatus;
-            }
-            logInstallerDiagnostic("PUBLIC_KEY_FETCH_FAIL", fields);
-          }
-        }
+        response.setHeader('set-cookie', [cookieHeader('installer_session', options.sessionSecret ? `${session.id}.${signSession(session.id, options.sessionSecret)}` : session.id, session.expiresAt, options), clearedCookieHeader('installer_oauth_grant', options)]);
       } else {
-        response.setHeader("set-cookie", cookieHeader("installer_session", options.sessionSecret ? `${session.id}.${signSession(session.id, options.sessionSecret)}` : session.id, session.expiresAt, options));
+        response.setHeader('set-cookie', cookieHeader('installer_session', options.sessionSecret ? `${session.id}.${signSession(session.id, options.sessionSecret)}` : session.id, session.expiresAt, options));
       }
-      sendJson(response, 201, { status: session.credential && !session.credential.disposed ? "AUTHORIZED" : "CREATED", ...(publishableKey ? { publishableKey } : {}) });
+      let publishableKey: string | undefined;
+      let publicKeyError: { code: string; stage: string; upstreamStatus?: number } | undefined;
+      if (session.credential && !session.credential.disposed && options.createManagementExtras) {
+        const extras = options.createManagementExtras(session.credential);
+        try {
+          // Consuming the OAuth grant must not consume the ability to retry.
+          // The credential and cached key belong to this exact bound session.
+          let lookupError: unknown;
+          try { publishableKey = await extras.getPublishableKey(target); } catch (error) { lookupError = error; }
+          publishableKey ??= sameTarget ? previous!.target.publishableKey ?? target.publishableKey : target.publishableKey;
+          if (!publishableKey) throw lookupError ?? new InstallerError('INSTALLER_PUBLIC_KEY_UNAVAILABLE','target','프로젝트는 연결되었지만 사용 가능한 공개 키가 없습니다.');
+          await extras.verifyPublishableKey(target,publishableKey);
+          if (session.credential.disposed) throw new InstallerError('INSTALLER_SESSION_EXPIRED','target','설치 권한이 만료되었습니다.');
+          session.target = { ...session.target, publishableKey };
+          logInstallerDiagnostic('PUBLIC_KEY_FETCH_SUCCESS', { projectRef: target.projectRef });
+        } catch (error) {
+          publishableKey = undefined;
+          publicKeyError = { code: error instanceof InstallerError ? error.code : 'INSTALLER_PUBLIC_KEY_UNAVAILABLE', stage: 'public-key', ...(error instanceof InstallerError && error.upstreamStatus !== undefined ? { upstreamStatus: error.upstreamStatus } : {}) };
+          logInstallerDiagnostic('PUBLIC_KEY_FETCH_FAIL', { projectRef: target.projectRef, ...publicKeyError });
+        }
+      }
+      sendJson(response, 201, { status: session.credential && !session.credential.disposed ? 'AUTHORIZED' : 'CREATED', ...(publishableKey ? { publishableKey } : {}), ...(publicKeyError ? { publicKeyError } : {}) });
       return;
     }
     if (url.pathname === "/api/installer/authorize" && request.method === "POST") {
@@ -282,7 +275,18 @@ async function handleRequest(request: IncomingMessage, response: ServerResponse,
     if (url.pathname === "/api/installer/projects" && request.method === "GET") {
       const grantId = getOAuthGrantId(request, options.sessionSecret);
       const credential = grantId ? grantStore.peek(grantId) : undefined;
-      if (!credential) { sendError(response, 401, "INSTALLER_OAUTH_GRANT_REQUIRED", "Supabase 연결을 먼저 완료해 주세요."); return; }
+      if (!credential) {
+        // Reload after a failed key lookup: the grant is already consumed, but
+        // its authenticated session may still be valid. Reveal only its bound
+        // project and re-check access; never discover another teacher's target.
+        const bound = getSession(request, store, options.sessionSecret);
+        if (bound?.credential && !bound.credential.disposed) {
+          if (url.searchParams.has('projectRef') && (url.searchParams.get('projectRef') !== bound.target.projectRef || url.searchParams.get('projectUrl') !== bound.target.projectUrl)) throw new InstallerError('INSTALLER_TARGET_MISMATCH','target','현재 연결된 프로젝트와 다릅니다.');
+          const project = await inspectExistingProject(options,bound.credential,bound.target);
+          sendJson(response,200,{projects:[{ref:project.ref,name:project.name,region:project.region}]}); return;
+        }
+        sendError(response, 401, 'INSTALLER_OAUTH_GRANT_REQUIRED', 'Supabase 연결을 먼저 완료해 주세요.'); return;
+      }
       if (!options.createManagementExtras) { sendError(response, 501, "INSTALLER_OAUTH_NOT_CONFIGURED", "이 TEST 실행부에는 OAuth 연결이 설정되지 않았습니다."); return; }
       const projects = await options.createManagementExtras(credential).listAccessibleProjects();
       if (!projects.length && url.searchParams.has('projectRef')) {
