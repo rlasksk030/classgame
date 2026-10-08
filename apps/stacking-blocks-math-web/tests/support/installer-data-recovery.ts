@@ -2,16 +2,24 @@ import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { readMathInstallerPlan } from '../../scripts/installer/math-plan.ts';
+import { catalogFingerprints } from '../../scripts/installer/database-state.ts';
 import type { PermissionSnapshot } from '../../scripts/installer/permission-audit.ts';
-import { emptyLegacyDb, legacyBackend, seedProtectedRows } from './installer-legacy-db.ts';
+import { createFixture } from '../../qa/live-required-progress/installer-fixture.mjs';
+import { legacyBackend, readCatalog, seedProtectedRows, storageStub } from './installer-legacy-db.ts';
 
-/** Synthetic known-old seed with saved attempts, blocks and progress. */
+/** The actual-use manual catalog, with synthetic known-old seed and learning.
+ * No remote rows or historical migration replay are used to build the schema. */
 export async function createDataRecoveryFixture(label = 'data-recovery') {
   const plan = await readMathInstallerPlan(process.cwd());
   const correction = plan.legacyRecovery?.knownSeedCorrection;
   assert(correction, 'reviewed static seed artifact required');
-  const db = await emptyLegacyDb();
-  for (const migration of plan.migrations) await db.exec(migration.query.replace('create extension if not exists "pgcrypto";', ''));
+  const db = await createFixture();
+  await db.exec(storageStub);
+  await db.exec(readFileSync('qa/live-required-progress/sql/20261003051402_actual_use_required_progress_delta.sql','utf8'));
+  const profile='manual-required-progress-contract';
+  const transition=plan.legacyRecovery!.transitions.find(t=>t.from===profile && t.to===profile)!;
+  await db.exec(transition.query);
+  assert.deepEqual(catalogFingerprints(await readCatalog(db)),plan.databaseBaseline!.profiles.find(p=>p.name===profile)!.objects,'HTTP/browser fixture must exactly match the actual-use manual profile');
   await seedProtectedRows(db);
   await db.exec(`insert into sb_student_progress(student_id,lesson,completed,completed_at)
     values ('33333333-3333-4333-8333-333333333333',9,false,null),
@@ -25,7 +33,12 @@ export async function createDataRecoveryFixture(label = 'data-recovery') {
   const target = { environment: 'TEST' as const, projectRef: `synthetic-${label}`, projectUrl: `https://synthetic-${label}.supabase.co`, publishableKey: 'sb_publishable_synthetic', release: 'test' };
   const backend = legacyBackend(db, plan, plan.migrations.map(m => m.name));
   backend.inspectDatabasePermissions = async () => (await db.query<{ snapshot: PermissionSnapshot }>(readFileSync('scripts/installer/permission-audit.sql', 'utf8'))).rows[0].snapshot;
-  backend.applyDataRecovery = async (_target, query) => { backend.calls.push('applyDataRecovery'); await db.exec(query); };
+  backend.applyDataRecovery = async (_target, query) => {
+    const catalog=await readCatalog(db),permissions=await backend.inspectDatabasePermissions!(target);
+    backend.calls.push('applyDataRecovery');await db.exec(query);
+    assert.deepEqual(await readCatalog(db),catalog,'approved data correction keeps the actual manual schema and ACLs');
+    assert.deepEqual(await backend.inspectDatabasePermissions!(target),permissions,'approved data correction keeps effective permissions');
+  };
   backend.applyPermissionRecovery = async (_target, query) => { backend.calls.push('applyPermissionRecovery'); await db.exec(query); };
   const tables = (await db.query<{ tablename: string }>("select tablename from pg_tables where schemaname='public' order by tablename")).rows;
   const query = tables.map(({ tablename }) => `select '${tablename}' table_name,to_jsonb(t) row_data from public."${tablename}" t`).join(' union all ');
