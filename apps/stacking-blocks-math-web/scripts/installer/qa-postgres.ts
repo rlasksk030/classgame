@@ -140,6 +140,8 @@ sql(schemaDelta(catalog(),manual));
 assertProfile('manual-previous-contract');
 sql(readFileSync('qa/live-required-progress/sql/20261003051402_actual_use_required_progress_delta.sql','utf8'));
 assertProfile('manual-required-progress-contract');
+for (const migration of plan.migrations.slice(20)) sql(migration.query);
+assertProfile('manual-live-v4-contract');
 
 for (const {mode,hosted} of [{mode:'historical-defaults',hosted:false},{mode:'crud-opt-out',hosted:false},{mode:'historical-defaults',hosted:true}] as const) {
   resetOwnedFixture();
@@ -201,12 +203,13 @@ alter default privileges for role postgres in schema public grant all on functio
 }
 // The one explicitly reviewed answer correction must keep linked historical
 // answers/completion/rewards and all other app rows, even across a failed write.
-for(const {dataProfile,hosted} of [{dataProfile:latest,hosted:false},{dataProfile:'manual-required-progress-contract',hosted:false},{dataProfile:'manual-required-progress-contract',hosted:true}]) {
+for(const {dataProfile,hosted} of [{dataProfile:latest,hosted:false},{dataProfile:'manual-required-progress-contract',hosted:false},{dataProfile:'manual-required-progress-contract',hosted:true},{dataProfile:'manual-live-v4-contract',hosted:false},{dataProfile:'manual-live-v4-contract',hosted:true}]) {
 resetOwnedFixture();
 if(dataProfile===latest) for (const m of plan.migrations) sql(m.query);
 else {
   sql(schemaDelta(catalog(),manual));
   sql(readFileSync('qa/live-required-progress/sql/20261003051402_actual_use_required_progress_delta.sql','utf8'));
+  if(dataProfile==='manual-live-v4-contract') for (const migration of plan.migrations.slice(20)) sql(migration.query);
 }
 assertProfile(dataProfile);
 const dataTransition=plan.legacyRecovery!.transitions.find(t=>t.from===dataProfile && t.to===dataProfile)!;
@@ -249,4 +252,4 @@ assert.equal(buildDataRecovery(plan,plan.migrations.map(m=>m.name),catalog(),per
 console.log(`POSTGRES ${hosted?'hosted executor ':''}${dataProfile} single known seed correction: 13 linked synthetic students, original answers/rewards/progress preserved; answer-only + existing timestamp trigger, rollback, no-op revisit PASS`);
 if(hosted) restoreLocalFixtureExecutor();
 }
-console.log(`POSTGRES PASS: ${plan.databaseBaseline!.profiles.length} exact profiles, SQL guards, legacy upgrade, retry, canonical read-only data evidence, effective permissions, 3 consent-repaired ACL scenarios and 3 latest/manual/hosted 13-student seed contexts; exact hosted graph/unknown-edge rejection verified; no remote activity`);
+console.log(`POSTGRES PASS: ${plan.databaseBaseline!.profiles.length} exact profiles, SQL guards, legacy upgrade, retry, canonical read-only data evidence, effective permissions, 3 consent-repaired ACL scenarios and 5 latest/manual/live-v4/hosted 13-student seed contexts; exact hosted graph/unknown-edge rejection verified; no remote activity`);

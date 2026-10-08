@@ -4,9 +4,9 @@ import { createDataRecoveryFixture } from '../tests/support/installer-data-recov
 
 // Only identity/initial UI metadata is synthetic. Every installer response and
 // approved change travels through the real HTTP handler and PGlite SQL.
-test('teacher acknowledges historical feedback and corrects one seed through real HTTP and SQL without changing saved learning', async ({ page, baseURL }, testInfo) => {
+for (const profile of ['manual-required-progress-contract','manual-live-v4-contract'] as const) test(`${profile}: teacher acknowledges historical feedback and corrects one seed through real HTTP and SQL without changing saved learning`, async ({ page, baseURL }, testInfo) => {
   test.setTimeout(120_000);
-  const f = await createDataRecoveryFixture('browser-data-recovery');
+  const f = await createDataRecoveryFixture('browser-data-recovery',profile);
   const origin = new URL(baseURL!).origin;
   const server = createInstallerServer({ plan: f.plan, productionRef: 'blocked-production', mode: 'TEST', allowedOrigins: [origin], allowedProjectRefs: [f.target.projectRef], sessionSecret: 'synthetic-data-browser-signature', sessionCookieSecure: false, createBackend: () => f.backend });
   try {

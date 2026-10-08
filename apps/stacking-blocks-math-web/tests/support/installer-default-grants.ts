@@ -4,8 +4,6 @@ import type { InstallerPlan } from '../../scripts/installer/orchestrator.ts';
 
 const oldTables=['sb_block_snapshots','sb_challenge_solves','sb_classes','sb_lesson_settings','sb_problem_attempts','sb_problems','sb_projects','sb_self_evaluations','sb_shared_challenges','sb_student_pin_vault','sb_student_progress','sb_student_rewards','sb_student_sessions','sb_students','sb_teacher_settings','sb_worksheet_imports'];
 const rpcKeys=['rpcs::sb_owns_class:target uuid','rpcs::sb_owns_student:target uuid','rpcs::sb_public_class_info:p_class_code text','rpcs::sb_reset_progress:p_student uuid, p_lesson integer','rpcs::sb_touch_updated_at:','rpcs::sb_track_challenge_author:'];
-const newTables=['sb_lesson_progress_records','sb_peer_problem_attempts','sb_practice_assignments','sb_project_exports','sb_student_created_problems','sb_student_lesson_reflections'];
-const building='sb_save_building:p_student uuid, p_class uuid, p_version integer, p_data jsonb';
 
 /** The nearest diagnostic profile can differ. Always compare the reported
  * 22-object incident against its actual history-prefix release as well. */
@@ -18,11 +16,10 @@ export function assertSupabaseDefaultDrift(plan: InstallerPlan, catalog: Catalog
   const state=assessDatabaseState(plan,[],catalog);
   assert.equal(state.drift,true);
   assert.ok(state.migrations.every(m=>m.status==='DRIFT_REQUIRES_REVIEW'));
-  const expected=mode==='historical-defaults'
-    ? differing.map(key=>({key,attributes:['acl']}))
-    : [...newTables.map(t=>({key:`tables::${t}:`,attributes:['acl']})),...rpcKeys.map(key=>({key,attributes:['acl']})),
-      {key:`rpcs::${building}`,attributes:['definition_md5']},{key:`rpc_definitions::${building}`,attributes:['definition']}].sort((a,b)=>a.key.localeCompare(b.key));
-  assert.equal(state.review!.comparisonBaseline,mode==='historical-defaults'?latest.name:'manual-required-progress-contract');
+  // The added exact manual/live-v4 model is closer, but never authorizes
+  // broader defaults. Keep the independent 22-object release check above.
+  const expected=[...rpcKeys,...(mode==='historical-defaults' ? oldTables.filter(t=>t!=='sb_student_sessions').map(t=>`tables::${t}:`) : [])].map(key=>({key,attributes:['acl']}));
+  assert.equal(state.review!.comparisonBaseline,'manual-live-v4-contract');
   assert.deepEqual(state.review!.objects.map(o=>({key:o.key,attributes:o.attributes!.filter(a=>a.state==='DIFFERENT').map(a=>a.name)})).sort((a,b)=>a.key.localeCompare(b.key)),expected.sort((a,b)=>a.key.localeCompare(b.key)));
   return state;
 }

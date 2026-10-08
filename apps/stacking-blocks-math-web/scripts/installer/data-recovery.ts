@@ -44,10 +44,10 @@ export function buildDataRecovery(plan:InstallerPlan,history:string[],catalog:Ca
     if (!normalized) return deny('UNSAFE_STRUCTURE');
     const fingerprints=catalogFingerprints(normalized);
     // A reviewed manual installation has no migration-prefix identity. Accept
-    // only the two complete, known structures, never an older/resume profile.
+    // only complete, explicitly reviewed structures, never an older/resume profile.
     const profile=plan.databaseBaseline?.profiles.find(p=>p.kind==='RELEASE'
       && ((p.name===`history-prefix-${plan.migrations.length}` && p.prefix===plan.migrations.length)
-        || (p.name==='manual-required-progress-contract' && p.prefix===0))
+        || (['manual-required-progress-contract','manual-live-v4-contract'].includes(p.name) && p.prefix===0))
       && equal(p.objects,fingerprints));
     const transition=profile ? plan.legacyRecovery?.transitions.find(t=>t.from===profile.name && t.to===profile.name) : undefined;
     if (!profile || !transition) return deny('UNSAFE_STRUCTURE');

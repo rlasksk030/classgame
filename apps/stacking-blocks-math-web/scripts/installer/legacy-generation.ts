@@ -93,7 +93,9 @@ export async function compileRecovery(profiles: CapturedProfile[], hashes: strin
   const digestQuery = catalogDigestQuery(catalogSql);
   const transitions: LegacyTransition[] = [];
   for (const p of profiles.filter(p => p.name !== 'fresh-empty')) {
-    const target = p.name.startsWith('manual-') ? manual : full;
+    // This complete, reviewed manual/live-v4 combination is a self-transition.
+    // Never restore the old wider authenticated ACL or default-size RPC.
+    const target = p.name === 'manual-live-v4-contract' ? p : p.name.startsWith('manual-') ? manual : full;
     const hasProgressEvidence = ['sb_challenge_solves', 'sb_projects'].every(n => p.catalog.tables.some(t => t.name === n)) && p.catalog.columns.some(c => c.table === 'sb_problems' && c.name === 'class_id');
     // Older profiles legitimately lack the Phase 5 tables. Only a proven absent
     // table means zero; an unexpected column contract yields unknown, not zero.

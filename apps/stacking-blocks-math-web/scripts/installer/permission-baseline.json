@@ -2418,6 +2418,85 @@
         "rpcs::sb_submit_challenge_v2:p_student uuid, p_challenge uuid, p_previous integer, p_state jsonb": "0651cffc9ce984b490796f778681ed12be7eebe05d45d721456d98cf1e6eb58b",
         "rpcs::sb_record_attempt:p_student uuid, p_problem uuid, p_expected integer, p_next jsonb, p_blocks jsonb": "0651cffc9ce984b490796f778681ed12be7eebe05d45d721456d98cf1e6eb58b"
       }
+    },
+    "manual-live-v4-contract": {
+      "roles": {
+        "anon": {
+          "inherit": true,
+          "bypassRls": false,
+          "superuser": false,
+          "memberships": 0
+        },
+        "postgres": {
+          "inherit": true,
+          "bypassRls": true,
+          "superuser": true,
+          "memberships": 0
+        },
+        "service_role": {
+          "inherit": true,
+          "bypassRls": true,
+          "superuser": false,
+          "memberships": 0
+        },
+        "authenticated": {
+          "inherit": true,
+          "bypassRls": false,
+          "superuser": false,
+          "memberships": 0
+        }
+      },
+      "schema": {
+        "owner": "pg_database_owner",
+        "usage": {
+          "anon": true,
+          "postgres": true,
+          "service_role": true,
+          "authenticated": true
+        },
+        "create": {
+          "anon": false,
+          "postgres": true,
+          "service_role": false,
+          "authenticated": false
+        }
+      },
+      "objects": {
+        "tables::sb_classes:": "f65080e1be3d591318138ca8911e2c843531eb015fe889a305c5be40d67b8401",
+        "tables::sb_problems:": "f65080e1be3d591318138ca8911e2c843531eb015fe889a305c5be40d67b8401",
+        "tables::sb_projects:": "f65080e1be3d591318138ca8911e2c843531eb015fe889a305c5be40d67b8401",
+        "tables::sb_students:": "f65080e1be3d591318138ca8911e2c843531eb015fe889a305c5be40d67b8401",
+        "rpcs::sb_touch_updated_at:": "635be30fd9b7624b047991458dbca9d731d3ac65718562d5e27c2fe41297a379",
+        "tables::sb_block_snapshots:": "f65080e1be3d591318138ca8911e2c843531eb015fe889a305c5be40d67b8401",
+        "tables::sb_lesson_settings:": "f65080e1be3d591318138ca8911e2c843531eb015fe889a305c5be40d67b8401",
+        "tables::sb_project_exports:": "7fbc8cae4f398654385fab2e9454c0740f135698c3b03f2229a29d6fee21ca27",
+        "tables::sb_student_rewards:": "f65080e1be3d591318138ca8911e2c843531eb015fe889a305c5be40d67b8401",
+        "tables::sb_challenge_solves:": "f65080e1be3d591318138ca8911e2c843531eb015fe889a305c5be40d67b8401",
+        "tables::sb_problem_attempts:": "f65080e1be3d591318138ca8911e2c843531eb015fe889a305c5be40d67b8401",
+        "tables::sb_self_evaluations:": "f65080e1be3d591318138ca8911e2c843531eb015fe889a305c5be40d67b8401",
+        "tables::sb_student_progress:": "f65080e1be3d591318138ca8911e2c843531eb015fe889a305c5be40d67b8401",
+        "tables::sb_student_sessions:": "b4c9d7d4576dda11698acb9cbb14a0914fc197f483fd4170eb94274286b3d82f",
+        "tables::sb_teacher_settings:": "f65080e1be3d591318138ca8911e2c843531eb015fe889a305c5be40d67b8401",
+        "tables::sb_shared_challenges:": "f65080e1be3d591318138ca8911e2c843531eb015fe889a305c5be40d67b8401",
+        "tables::sb_student_pin_vault:": "f65080e1be3d591318138ca8911e2c843531eb015fe889a305c5be40d67b8401",
+        "tables::sb_worksheet_imports:": "f65080e1be3d591318138ca8911e2c843531eb015fe889a305c5be40d67b8401",
+        "rpcs::sb_owns_class:target uuid": "635be30fd9b7624b047991458dbca9d731d3ac65718562d5e27c2fe41297a379",
+        "rpcs::sb_track_challenge_author:": "42c07260586eaaa5ee8756e1803d1842ca40a54831306566a160340967d3a60b",
+        "tables::sb_practice_assignments:": "7fbc8cae4f398654385fab2e9454c0740f135698c3b03f2229a29d6fee21ca27",
+        "rpcs::sb_owns_student:target uuid": "635be30fd9b7624b047991458dbca9d731d3ac65718562d5e27c2fe41297a379",
+        "tables::sb_peer_problem_attempts:": "7fbc8cae4f398654385fab2e9454c0740f135698c3b03f2229a29d6fee21ca27",
+        "tables::sb_lesson_progress_records:": "7fbc8cae4f398654385fab2e9454c0740f135698c3b03f2229a29d6fee21ca27",
+        "tables::sb_student_created_problems:": "7fbc8cae4f398654385fab2e9454c0740f135698c3b03f2229a29d6fee21ca27",
+        "tables::sb_student_lesson_reflections:": "7fbc8cae4f398654385fab2e9454c0740f135698c3b03f2229a29d6fee21ca27",
+        "rpcs::sb_public_class_info:p_class_code text": "281f586da922089df8a097669271ba631a0fb7e9fa1a6cbf440e8158bdbcbe55",
+        "rpcs::sb_reset_progress:p_student uuid, p_lesson integer": "8b7d1470bfbae972dd180c9066cc2c863fb8aa922dee25511d8f03d2c8ecc50f",
+        "rpcs::sb_set_reward_loadout:p_student uuid, p_material text, p_theme text": "0651cffc9ce984b490796f778681ed12be7eebe05d45d721456d98cf1e6eb58b",
+        "rpcs::sb_reset_class_progress:p_class uuid, p_teacher uuid, p_lesson integer": "0651cffc9ce984b490796f778681ed12be7eebe05d45d721456d98cf1e6eb58b",
+        "rpcs::sb_save_building:p_student uuid, p_class uuid, p_version integer, p_data jsonb": "0651cffc9ce984b490796f778681ed12be7eebe05d45d721456d98cf1e6eb58b",
+        "rpcs::sb_submit_challenge:p_student uuid, p_challenge uuid, p_previous integer, p_state jsonb": "0651cffc9ce984b490796f778681ed12be7eebe05d45d721456d98cf1e6eb58b",
+        "rpcs::sb_submit_challenge_v2:p_student uuid, p_challenge uuid, p_previous integer, p_state jsonb": "0651cffc9ce984b490796f778681ed12be7eebe05d45d721456d98cf1e6eb58b",
+        "rpcs::sb_record_attempt:p_student uuid, p_problem uuid, p_expected integer, p_next jsonb, p_blocks jsonb": "0651cffc9ce984b490796f778681ed12be7eebe05d45d721456d98cf1e6eb58b"
+      }
     }
   }
 }
