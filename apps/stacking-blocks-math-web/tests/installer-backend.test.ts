@@ -179,7 +179,7 @@ test("B49 management adapter carries the real upstream HTTP status on InstallerE
     const backend = new SupabaseManagementBackend({ accessToken: new EphemeralCredential("temporary-token"), fetchImpl, baseUrl: "https://management.invalid" });
     await assert.rejects(
       () => backend.listSecrets(target),
-      (error: unknown) => error instanceof InstallerError && error.upstreamStatus === upstreamStatus && error.stage === "secret" && error.code === `INSTALLER_MANAGEMENT_UPSTREAM_${upstreamStatus}`,
+      (error: unknown) => error instanceof InstallerError && error.upstreamStatus === upstreamStatus && error.stage === "secret" && error.code === `INSTALLER_MANAGEMENT_HTTP_${upstreamStatus}`,
     );
   }
 });
@@ -483,10 +483,10 @@ test("B41 getPublishableKey selects the new-style key by type, per the real Mana
 });
 
 test("B41b getPublishableKey falls back to the legacy anon key when no new-style publishable key exists", async () => {
-  const fetchImpl = async (): Promise<Response> => new Response(JSON.stringify([{ type: "legacy", name: "anon", api_key: "legacy-anon-jwt" }, { type: "legacy", name: "service_role", api_key: "legacy-service-role-jwt" }]), { status: 200, headers: { "content-type": "application/json" } });
+  const fetchImpl = async (): Promise<Response> => new Response(JSON.stringify([{ type: "legacy", name: "anon", api_key: `e30.${Buffer.from(JSON.stringify({role:"anon",ref:target.projectRef})).toString("base64url")}.synthetic` }, { type: "legacy", name: "service_role", api_key: "legacy-service-role-jwt" }]), { status: 200, headers: { "content-type": "application/json" } });
   const backend = new SupabaseManagementBackend({ accessToken: new EphemeralCredential("temporary-token"), fetchImpl, baseUrl: "https://management.invalid" });
   const publishable = await backend.getPublishableKey(target);
-  assert.equal(publishable, "legacy-anon-jwt");
+  assert.equal(publishable, `e30.${Buffer.from(JSON.stringify({role:"anon",ref:target.projectRef})).toString("base64url")}.synthetic`);
 });
 
 test("B41c getPublishableKey never selects a secret/service_role key, by type or by legacy name, even if it appears first", async () => {

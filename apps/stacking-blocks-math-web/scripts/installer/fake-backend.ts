@@ -74,6 +74,7 @@ export function createFakeManagementExtras(seed: FakeManagementExtrasSeed = {}):
       existingEmails.add(email.toLowerCase());
       return { created: true, alreadyExists: false };
     },
+    async verifyPublishableKey(target: InstallerTarget): Promise<void> { calls.push(`verifyPublishableKey:${target.projectRef}`); },
     async getPublishableKey(target: InstallerTarget): Promise<string | undefined> {
       calls.push(`getPublishableKey:${target.projectRef}`);
       return seed.publishableKeys?.[target.projectRef];

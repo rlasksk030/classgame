@@ -11,18 +11,17 @@ import {
   validateRuntimeSupabaseConfig,
   type RuntimeSupabaseConfig,
 } from "../lib/config";
-import { clearInstallerProgress, hasInstallerResumeUpdate, clearInstallerResumeUpdate, getOrCreatePendingInstallationId, readInstallerProgress, saveInstallerProgress, type InstallerStep } from "../lib/installer";
+import { clearInstallerProgress, readInstallerClassDraft, getOrCreateInstallerClassDraft, clearInstallerClassDraft, hasInstallerResumeUpdate, clearInstallerResumeUpdate, getOrCreatePendingInstallationId, readInstallerProgress, saveInstallerProgress, type InstallerStep } from "../lib/installer";
 import { getConfiguredInstallerClient, InstallerClientError, type InstallerAccessibleProject, type InstallerRemoteStatus, type InstallerStatusResponse } from "../lib/installerClient";
 import { bindInstallerOAuthProject, completeInstallerReconnect, existingInstallerTarget, verifyInstallerSession, type VerifiedInstallerSession } from "../lib/installerReconnect";
 import { getSupabase } from "../lib/supabase";
 import {
-  clearStudentToken,
   loginStudent,
-  setStudentToken,
   teacherCreateStudent,
   teacherListClasses,
   teacherListStudents,
   teacherUpsertClass,
+  StudentApiError,
   type ClassData,
   type TeacherStudentRow,
 } from "../lib/studentApi";
@@ -30,7 +29,7 @@ import {
 const STEP_TITLES = ["시작", "연결 준비", "연결", "자동 설치", "교사 확인", "학급 생성", "학생 생성", "설치 완료"] as const;
 
 async function checkSupabaseConnection(supabaseUrl: string, publishableKey: string): Promise<void> {
-  const response = await fetch(`${supabaseUrl.replace(/\/$/, "")}/auth/v1/settings`, { headers: { apikey: publishableKey } });
+  const response = await fetch(`${supabaseUrl.replace(/\/$/, "")}/auth/v1/settings`, { headers: { apikey: publishableKey }, signal: AbortSignal.timeout(15_000), redirect: "error" });
   if (!response.ok) throw new Error("주소와 Publishable key를 다시 확인해 주세요.");
 }
 
@@ -101,10 +100,21 @@ export default function SetupPage() {
   const [teacherEmail, setTeacherEmail] = useState("");
   const [teacherPassword, setTeacherPassword] = useState("");
   const [classes, setClasses] = useState<ClassData[]>([]);
-  const [classId, setClassId] = useState("");
+  const [classId, setClassId] = useState(() => readInstallerProgress(installationId)?.classId ?? "");
+  const activeClassId = useRef(classId);
+  activeClassId.current = classId;
+  const resumedStep = useRef(step);
+  const actionInFlight = useRef(false);
+  const viewRevision = useRef(0);
+  const currentView = () => {
+    const revision = viewRevision.current;
+    const projectUrl = getRuntimeSupabaseConfig()?.supabaseUrl;
+    return () => isSetupActive() && revision === viewRevision.current && projectUrl === getRuntimeSupabaseConfig()?.supabaseUrl;
+  };
   const [className, setClassName] = useState("");
   const [students, setStudents] = useState<TeacherStudentRow[]>([]);
   const [bulkNames, setBulkNames] = useState("");
+  const pendingStudentBatch = useRef<Array<{ name: string; studentNo: number }> | null>(null);
   const [newStudents, setNewStudents] = useState<Array<{ name: string; studentNo: number | null; pin: string }>>([]);
   const [studentSmokeVerified, setStudentSmokeVerified] = useState(false);
   const [installerStatus, setInstallerStatus] = useState<InstallerRemoteStatus | null>(null);
@@ -144,8 +154,9 @@ export default function SetupPage() {
     : "";
 
   const persistStep = (next: InstallerStep, extra: Partial<{ classId: string; className: string; studentCount: number }> = {}) => {
+    viewRevision.current += 1;
     setStep(next);
-    if (installationId.trim()) saveInstallerProgress({ installationId: installationId.trim(), step: next, ...extra, updatedAt: new Date().toISOString() });
+    if (installationId.trim()) saveInstallerProgress({ installationId: installationId.trim(), step: next, classId: classId || undefined, ...extra, updatedAt: new Date().toISOString() });
   };
 
   useEffect(() => {
@@ -182,22 +193,57 @@ export default function SetupPage() {
   useEffect(() => {
     if (step < 5 || !connectionVerified) return;
     let active = true;
-    void getSupabase().auth.getSession().then(({ data }) => { if (active) setTeacherSignedIn(Boolean(data.session)); }).catch(() => undefined);
+    void getSupabase().auth.getSession().then(({ data }) => {
+      if (!active) return;
+      setTeacherSignedIn(Boolean(data.session));
+      if (data.session && step === 6) {
+        const pending = readInstallerClassDraft(installationId, data.session.user.id);
+        if (pending) setClassName(pending.name);
+      }
+      if (!data.session && step >= 6) {
+        // Keep the saved destination/class, but require teacher authentication
+        // before loading their data after a reload or expired session.
+        resumedStep.current = step;
+        setTeacherAccountMode("login"); setStep(5);
+        setMessage("교사 로그인을 다시 확인하면 선택한 학급에서 이어서 진행합니다.");
+      }
+    }).catch(() => { if (active) setError("교사 로그인 상태를 확인하지 못했습니다. 다시 로그인해 주세요."); });
     return () => { active = false; };
   }, [step, connectionVerified]);
 
   useEffect(() => {
     if (step < 6 || !teacherSignedIn) return;
+    let active = true;
     void teacherListClasses().then((payload) => {
+      if (!active || !isSetupActive()) return;
       setClasses(payload.classes);
-      if (!classId && payload.classes[0]) setClassId(payload.classes[0].id);
-    }).catch(() => setError("학급 목록을 불러오지 못했습니다. 교사 권한과 설치 상태를 확인해 주세요."));
+      if (classId && !payload.classes.some(item => item.id === classId)) {
+        activeClassId.current = ""; setClassId(""); setStudents([]); setNewStudents([]); setStudentSmokeVerified(false);
+        persistStep(6, { classId: "" });
+        setError("이전에 선택한 학급을 현재 교사 계정에서 찾을 수 없습니다. 학급을 다시 선택해 주세요.");
+      } else if (!classId && payload.classes[0]) {
+        activeClassId.current = payload.classes[0].id; setClassId(payload.classes[0].id);
+      }
+    }).catch(() => { if (active) setError("학급 목록을 불러오지 못했습니다. 교사 권한과 설치 상태를 확인해 주세요."); });
+    return () => { active = false; };
   }, [step, teacherSignedIn, classId]);
 
   useEffect(() => {
     if (!classId || !teacherSignedIn) return;
-    void teacherListStudents(classId).then((payload) => setStudents(payload.students)).catch(() => undefined);
-  }, [classId, teacherSignedIn]);
+    let active = true;
+    const stillCurrent = currentView();
+    void teacherListStudents(classId).then((payload) => {
+      if (active && stillCurrent() && activeClassId.current === classId) setStudents(payload.students);
+    }).catch(() => { if (active && stillCurrent()) setError("학생 목록을 불러오지 못했습니다. 학급을 다시 선택해 주세요."); });
+    return () => { active = false; };
+  }, [classId, teacherSignedIn, step]);
+
+  const selectClass = (nextId: string) => {
+    viewRevision.current += 1;
+    activeClassId.current = nextId; setClassId(nextId);
+    setStudents([]); setNewStudents([]); setStudentSmokeVerified(false); setBulkNames(""); pendingStudentBatch.current = null;
+    persistStep(6, { classId: nextId });
+  };
 
   useEffect(() => {
     // Also runs on step 3: a persisted "connected" config from a past visit
@@ -224,12 +270,15 @@ export default function SetupPage() {
 
   const connect = async (event: FormEvent) => {
     event.preventDefault(); setError(null); setMessage(null);
+    if (actionInFlight.current) return;
+    const stillCurrent = currentView();
     const config: RuntimeSupabaseConfig = { installationId: installationId.trim(), supabaseUrl: supabaseUrl.trim(), supabasePublishableKey: publishableKey.trim() };
     if (!validateRuntimeSupabaseConfig(config)) { setError("HTTPS 형식의 Supabase URL, 공개 Publishable Key, 설치 ID를 확인해 주세요."); return; }
+    actionInFlight.current = true;
     setBusy(true);
-    try { await checkSupabaseConnection(config.supabaseUrl, config.supabasePublishableKey); saveRuntimeSupabaseConfig(config); if (!hasInstallerResumeUpdate() && finishTeacherReconnect()) return; setConnectionVerified(true); setPublishableKey(""); setMessage("Supabase 연결을 확인했어요."); persistStep(4); }
+    try { await checkSupabaseConnection(config.supabaseUrl, config.supabasePublishableKey); if (!stillCurrent()) return; saveRuntimeSupabaseConfig(config); if (!hasInstallerResumeUpdate() && finishTeacherReconnect()) return; setConnectionVerified(true); setPublishableKey(""); setMessage("Supabase 연결을 확인했어요."); persistStep(4); }
     catch (reason) { setError(reason instanceof Error ? reason.message : "Supabase 연결을 확인하지 못했습니다."); }
-    finally { setBusy(false); }
+    finally { actionInFlight.current = false; if (isSetupActive()) setBusy(false); }
   };
 
   const installerTarget = () => ({ projectRef: projectRefFromUrl(supabaseUrl) ?? "", projectUrl: supabaseUrl.trim(), publishableKey: runtimeConfig?.supabasePublishableKey, release: "spatial-math-v1" });
@@ -239,17 +288,18 @@ export default function SetupPage() {
    * retry re-checks the same way instead of just navigating away. */
   const checkInstallerConnection = async (isActive: () => boolean = () => true) => {
     if (!installerClient) return;
+    const stillCurrent = currentView();
     const projectRef = projectRefFromUrl(supabaseUrl);
     if (!projectRef) return;
     setInstallerStatusError(false); setConnectionIssue(null); setConnectionIssueDetail("");
     try {
       const result = await installerClient.getStatus({ projectRef, projectUrl: supabaseUrl.trim(), publishableKey: runtimeConfig?.supabasePublishableKey, release: "spatial-math-v1" });
-      if (!isActive()) return;
+      if (!isActive() || !stillCurrent()) return;
       console.log("STATUS_AFTER_BIND");
       setInstallerStatus(result.status); setInstallerDetails(result); setOauthAuthorized(true);
       if (step === 3) persistStep(4);
     } catch (reason) {
-      if (!isActive()) return;
+      if (!isActive() || !stillCurrent()) return;
       if (reason instanceof InstallerClientError && reason.code === "INSTALLER_MANUAL_REVIEW_REQUIRED") {
         setInstallerStatus("DRIFT_REQUIRES_REVIEW"); setError("자동 업데이트로 변경하기 전에 확인이 필요합니다."); return;
       }
@@ -275,17 +325,19 @@ export default function SetupPage() {
     }
   };
   const recheckInstallerConnection = async () => {
-    if (checkingConnection) return;
+    if (checkingConnection || actionInFlight.current) return;
+    const stillCurrent = currentView();
     setCheckingConnection(true);
     try {
       if (returnToTeacher && installerClient) {
         const verified = await verifyInstallerSession(installerClient, freshInstallerSession?.target ?? installerTarget());
         await checkSupabaseConnection(verified.target.projectUrl, verified.target.publishableKey ?? "");
+        if (!stillCurrent()) return;
         setFreshInstallerSession(verified);
         await finishVerifiedReconnect(verified);
       } else await checkInstallerConnection();
-    } catch (reason) { installerFailure(reason); }
-    finally { setCheckingConnection(false); }
+    } catch (reason) { if (stillCurrent()) installerFailure(reason); }
+    finally { if (isSetupActive()) setCheckingConnection(false); }
   };
   const installerFailure = (reason: unknown) => {
     if (reason instanceof InstallerClientError && reason.code === 'INSTALLER_EXISTING_PROJECT_FORBIDDEN') {
@@ -303,7 +355,9 @@ export default function SetupPage() {
       setInstallerStatus(null);
       setInstallerDetails(null); setOauthAuthorized(false); setConnectionIssue("session");
       setError("연결 세션이 저장되지 않았거나 권한이 만료되었습니다. Supabase를 다시 연결해 주세요.");
-    } else if (reason instanceof InstallerClientError && ["INSTALLER_TARGET_MISMATCH", "INSTALLER_PUBLIC_CONFIG_MISSING", "INSTALLER_STATUS_UNVERIFIED", "INSTALLER_UPDATE_INCOMPLETE", "INSTALLER_UPDATE_UNVERIFIED"].includes(reason.code)) {
+    } else if (reason instanceof InstallerClientError && (reason.code.startsWith("INSTALLER_PUBLIC_KEY_") || reason.code === "INSTALLER_KEY_RESPONSE_INVALID" || ["INSTALLER_TARGET_MISMATCH", "INSTALLER_PUBLIC_CONFIG_MISSING", "INSTALLER_STATUS_UNVERIFIED", "INSTALLER_UPDATE_INCOMPLETE", "INSTALLER_UPDATE_UNVERIFIED"].includes(reason.code))) {
+      setError(reason.message);
+    } else if (reason instanceof InstallerClientError && reason.code === "INSTALLER_REQUEST_TIMEOUT") {
       setError(reason.message);
     } else if (reason instanceof InstallerClientError && reason.code === "INSTALLER_BUSY") {
       setError("다른 창에서 이 프로젝트를 설치 중이에요. 잠시 후 상태를 확인해 주세요.");
@@ -311,35 +365,44 @@ export default function SetupPage() {
   };
   const refreshInstallerStatus = async () => {
     if (!installerClient) return;
+    const stillCurrent = currentView();
     const result = await installerClient.getStatus(installerTarget());
+    if (!stillCurrent()) return;
     setInstallerStatus(result.status); setInstallerDetails(result); setInstallerStatusError(false);
   };
   const connectInstallerAuthorization = async (event: FormEvent) => {
     event.preventDefault();
-    if (!installerClient || authorizing || !temporaryPat.trim()) return;
+    if (!installerClient || authorizing || actionInFlight.current || !temporaryPat.trim()) return;
+    actionInFlight.current = true;
+    const stillCurrent = currentView();
     setAuthorizing(true); setError(null); setMessage(null);
     const pat = temporaryPat.trim(); setTemporaryPat("");
     try {
       await installerClient.createSession(installerTarget());
+      if (!stillCurrent()) return;
       await installerClient.provideTemporaryCredential(pat);
+      if (!stillCurrent()) return;
       await refreshInstallerStatus();
+      if (!stillCurrent()) return;
       setMessage("설치 권한을 연결했어요. 대상과 상태를 확인하고 설치해 주세요.");
-    } catch (reason) { installerFailure(reason); }
-    finally { setAuthorizing(false); }
+    } catch (reason) { if (stillCurrent()) installerFailure(reason); }
+    finally { actionInFlight.current = false; if (isSetupActive()) setAuthorizing(false); }
   };
   const startOAuthConnect = async () => {
     // TEMP diagnostic (no secrets): proves whether a real browser click ever
     // reaches this function at all, independent of whether the authorize
     // network request shows up -- remove once live reconnect is confirmed.
     console.log("RECONNECT_CLICK_HANDLER_ENTERED");
-    if (authorizing) return;
+    if (authorizing || actionInFlight.current) return;
+    const stillCurrent = currentView();
     if (!installerClient) { setError("설치 서버 연결 정보를 찾을 수 없어요. 페이지를 새로고침한 뒤 다시 시도해 주세요."); return; }
     setAuthorizing(true); setError(null); setMessage(null);
     try {
       if (current && await restoreExistingSession()) return;
       const { authorizeUrl } = await installerClient.beginAuthorization();
-      window.location.assign(authorizeUrl);
+      if (stillCurrent()) window.location.assign(authorizeUrl);
     } catch (reason) {
+      if (!stillCurrent()) return;
       if (reason instanceof InstallerClientError && reason.status === 501) { setUseTemporaryPat(true); persistStep(3); }
       else setError("Supabase 연결을 시작하지 못했습니다. 다시 시도해 주세요.");
     } finally {
@@ -378,6 +441,7 @@ export default function SetupPage() {
     try {
       if ((restoreSession || !oauthCallbackPending) && current && await restoreExistingSession()) return;
       const result = await installerClient.listAccessibleProjects(existingInstallerTarget(current));
+      if (!isSetupActive()) return;
       if (!result.projects.length) {
         setOauthProjects([]);
         if (current) setError('현재 로그인한 Supabase 계정에서는 기존 프로젝트를 확인할 수 없습니다. 처음 설치할 때 사용한 Supabase 계정으로 다시 로그인해 주세요.');
@@ -399,6 +463,7 @@ export default function SetupPage() {
     } catch (reason) {
       // A 401 here just means no OAuth grant is active yet (or it expired) --
       // that is the normal state before connecting, not an error to surface.
+      if (!isSetupActive()) return;
       if (current || returnToTeacher || oauthCallbackPending) {
         installerFailure(reason);
       } else if (!(reason instanceof InstallerClientError && reason.status === 401)) {
@@ -414,7 +479,7 @@ export default function SetupPage() {
     setBusy(true); setError(null); setMessage(null); setFreshInstallerSession(null);
     try {
       const verified = await bindInstallerOAuthProject(installerClient, project, installationId.trim(),
-        current ? projectRefFromUrl(current.supabaseUrl) : null, checkSupabaseConnection);
+        current ? projectRefFromUrl(current.supabaseUrl) : null, checkSupabaseConnection, current);
       if (!isSetupActive()) return;
       saveRuntimeSupabaseConfig(verified.config);
       setSupabaseUrl(verified.config.supabaseUrl); setConnectionVerified(true); setOauthAuthorized(true); setOauthProjects(null);
@@ -436,11 +501,15 @@ export default function SetupPage() {
     if (project) void bindOAuthProject(project);
   };
   const runInstallerAction = async (action: "install" | "repair" | "update" | "status" | "revoke") => {
-    if (!installerClient || busy) return;
+    if (!installerClient || actionInFlight.current || busy) return;
+    actionInFlight.current = true;
+    const stillCurrent = currentView();
     setBusy(true); setError(null); setMessage(null);
     try {
       if (action === "revoke") {
-        await installerClient.revoke(); setInstallerStatus(null); setInstallerDetails(null);
+        await installerClient.revoke();
+        if (!stillCurrent()) return;
+        setInstallerStatus(null); setInstallerDetails(null); setOauthAuthorized(false); setFreshInstallerSession(null); setConnectionIssue("session");
         setMessage("설치 서버에 맡긴 권한을 해제했어요. Supabase에서 토큰도 폐기할 수 있어요."); return;
       }
       if (action !== "status") {
@@ -448,83 +517,160 @@ export default function SetupPage() {
         const target = installerTarget();
         await (action === "install" ? installerClient.startInstall(target) : action === "repair" ? installerClient.repair(target) : installerClient.update(target));
       }
-      await refreshInstallerStatus();
-    } catch (reason) { installerFailure(reason); }
-    finally { setBusy(false); }
+      if (stillCurrent()) await refreshInstallerStatus();
+    } catch (reason) { if (stillCurrent()) installerFailure(reason); }
+    finally { actionInFlight.current = false; if (isSetupActive()) setBusy(false); }
+  };
+
+  const teacherRequestFailure = (reason: unknown, message: string) => {
+    if (reason instanceof StudentApiError && reason.status === 401) {
+      resumedStep.current = step;
+      viewRevision.current += 1;
+      setTeacherSignedIn(false); setClasses([]); setStudents([]); setNewStudents([]); setStudentSmokeVerified(false);
+      setTeacherAccountMode("login"); setStep(5);
+      setError("교사 로그인이 만료되었습니다. 다시 로그인하면 기존 학급에서 이어서 진행합니다.");
+    } else setError(message);
   };
 
   const loginTeacher = async (event: FormEvent) => {
-    event.preventDefault(); setBusy(true); setError(null);
+    event.preventDefault();
+    if (actionInFlight.current) return;
+    actionInFlight.current = true;
+    const stillCurrent = currentView();
+    setBusy(true); setError(null);
     try {
       const { data, error: authError } = await getSupabase().auth.signInWithPassword({ email: teacherEmail.trim(), password: teacherPassword });
+      if (!stillCurrent()) return;
       if (authError || !data.session) throw authError ?? new Error("session missing");
-      setTeacherSignedIn(true); setTeacherPassword(""); setMessage("교사 로그인이 확인됐어요."); persistStep(6);
-    } catch (reason) { setError(friendlyAuthError(reason)); }
-    finally { setBusy(false); }
+      setTeacherSignedIn(true); setTeacherPassword(""); setMessage("교사 로그인이 확인됐어요.");
+      persistStep(resumedStep.current >= 6 ? resumedStep.current : 6);
+    } catch (reason) { if (stillCurrent()) setError(friendlyAuthError(reason)); }
+    finally { actionInFlight.current = false; if (isSetupActive()) setBusy(false); }
   };
 
   const createTeacherAccount = async (event: FormEvent) => {
     event.preventDefault();
-    if (!installerClient || teacherAccountBusy) return;
+    if (!installerClient || actionInFlight.current) return;
+    actionInFlight.current = true;
+    const stillCurrent = currentView();
     setTeacherAccountBusy(true); setError(null); setMessage(null);
     try {
       const result = await installerClient.createTeacherAccount(teacherEmail.trim(), teacherPassword);
+      if (!stillCurrent()) return;
       if (result.alreadyExists) { setMessage("이미 있는 계정이에요. 아래에서 로그인해 주세요."); setTeacherAccountMode("login"); return; }
       setMessage("교사 계정을 만들었어요. 이제 같은 정보로 로그인해 주세요.");
       setTeacherAccountMode("login");
-    } catch {
-      setError("교사 계정을 만들지 못했어요. 이메일 형식과 8자 이상 비밀번호를 확인해 주세요.");
-    } finally { setTeacherAccountBusy(false); }
+    } catch (reason) {
+      if (!stillCurrent()) return;
+      if (reason instanceof InstallerClientError && (reason.status === 401 || reason.code === "INSTALLER_REQUEST_TIMEOUT")) installerFailure(reason);
+      else setError("교사 계정을 만들지 못했어요. 이메일 형식과 8자 이상 비밀번호를 확인해 주세요.");
+    } finally { actionInFlight.current = false; if (isSetupActive()) setTeacherAccountBusy(false); }
   };
 
   const loadClasses = async () => {
+    if (actionInFlight.current) return;
+    actionInFlight.current = true;
+    const stillCurrent = currentView();
     setBusy(true); setError(null);
-    try { const payload = await teacherListClasses(); setClasses(payload.classes); if (!classId && payload.classes[0]) setClassId(payload.classes[0].id); }
-    catch { setError("학급 목록을 불러오지 못했습니다."); }
-    finally { setBusy(false); }
+    try {
+      const payload = await teacherListClasses();
+      if (!stillCurrent()) return;
+      setClasses(payload.classes);
+      if (!classId && payload.classes[0]) { activeClassId.current = payload.classes[0].id; setClassId(payload.classes[0].id); }
+    } catch (reason) { if (stillCurrent()) teacherRequestFailure(reason, "학급 목록을 불러오지 못했습니다."); }
+    finally { actionInFlight.current = false; if (isSetupActive()) setBusy(false); }
   };
 
   const createClass = async (event: FormEvent) => {
-    event.preventDefault(); if (!className.trim()) return;
+    event.preventDefault(); if (!className.trim() || actionInFlight.current) return;
+    actionInFlight.current = true;
+    const stillCurrent = currentView();
     setBusy(true); setError(null);
     try {
-      const result = await teacherUpsertClass({ name: className.trim() });
-      if (!result.class) throw new Error("학급 생성 응답이 없습니다.");
-      setClasses((items) => [...items, result.class!]); setClassId(result.class.id); setMessage(`“${result.class.name}” 학급을 만들었어요. 학급 코드: ${result.class.class_code}`); setClassName("");
+      const { data } = await getSupabase().auth.getSession();
+      if (!stillCurrent()) return;
+      if (!data.session) throw new StudentApiError("TEACHER_AUTH", "교사 로그인이 필요합니다.", 401);
+      const teacherId = data.session.user.id;
+      const draft = getOrCreateInstallerClassDraft(installationId, teacherId, className, () =>
+        Array.from(crypto.getRandomValues(new Uint8Array(10)), byte => "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"[byte % 32]).join(""));
+      const owned = await teacherListClasses();
+      if (!stillCurrent()) return;
+      const prior = owned.classes.find(item => item.class_code === draft.classCode);
+      if (prior && prior.name !== draft.name) throw new Error("INSTALLER_CLASS_DRAFT_CONFLICT");
+      const result = prior ? { class: prior } : await teacherUpsertClass({ name: draft.name, classCode: draft.classCode });
+      if (!stillCurrent()) return;
+      if (!result.class || result.class.class_code !== draft.classCode || result.class.name !== draft.name) throw new Error("INSTALLER_CLASS_RESULT_UNVERIFIED");
+      clearInstallerClassDraft(installationId, teacherId, draft.classCode);
+      setClasses((items) => [...items.filter(item => item.id !== result.class!.id), result.class!]);
+      activeClassId.current = result.class.id; setClassId(result.class.id);
+      setStudents([]); setNewStudents([]); setStudentSmokeVerified(false);
+      setMessage(`“${result.class.name}” 학급을 만들었어요. 학급 코드: ${result.class.class_code}`); setClassName("");
       persistStep(7, { classId: result.class.id, className: result.class.name, studentCount: 0 });
-    } catch { setError("학급을 만들지 못했습니다. 설치 상태와 교사 권한을 확인해 주세요."); }
-    finally { setBusy(false); }
+    } catch (reason) { if (stillCurrent()) teacherRequestFailure(reason, "학급 생성 결과를 확인하지 못했습니다. 같은 학급 이름으로 다시 누르면 생성된 학급부터 확인합니다. 이름을 바꾸지 말고 학급 목록도 확인해 주세요."); }
+    finally { actionInFlight.current = false; if (isSetupActive()) setBusy(false); }
   };
 
   const createStudents = async () => {
-    if (!classId || !namesPreview.length) return;
-    setBusy(true); setError(null); setMessage(null);
+    if (!classId || !namesPreview.length || actionInFlight.current) return;
+    actionInFlight.current = true;
+    const viewIsCurrent = currentView();
+    const stillCurrent = () => viewIsCurrent() && activeClassId.current === classId;
+    setBusy(true); setError(null); setMessage(null); setStudentSmokeVerified(false);
     try {
-      const created: Array<{ name: string; studentNo: number | null; pin: string }> = [];
-      for (const [index, studentName] of namesPreview.entries()) {
-        const result = await teacherCreateStudent(classId, studentName, index + 1);
-        created.push({ name: result.student.name, studentNo: result.student.studentNo, pin: result.pinPlain });
+      // Keep the original name+number pair across partial retries. Names alone
+      // are not identities: two pupils may share a name with different numbers.
+      const batch = pendingStudentBatch.current ?? namesPreview.map((name, index) => ({ name, studentNo: index + 1 }));
+      pendingStudentBatch.current = batch;
+      // Re-read after an interrupted/unknown request before sending a create.
+      const before = await teacherListStudents(classId);
+      if (!stillCurrent()) return;
+      setStudents(before.students);
+      const remaining = batch.filter(candidate => !before.students.some(student => student.name === candidate.name && student.student_no === candidate.studentNo));
+      pendingStudentBatch.current = remaining;
+      setBulkNames(remaining.map(student => student.name).join("\n"));
+      let createdCount = 0;
+      for (const candidate of remaining) {
+        if (!stillCurrent()) return;
+        const result = await teacherCreateStudent(classId, candidate.name, candidate.studentNo);
+        if (!stillCurrent()) return;
+        createdCount++;
+        setNewStudents(items => [...items, { name: result.student.name, studentNo: result.student.studentNo, pin: result.pinPlain }]);
+        // Preserve each successful result immediately; a later failure must
+        // not lose its PIN or leave this name in the pending submission.
+        pendingStudentBatch.current = pendingStudentBatch.current!.filter(item => item !== candidate);
+        setBulkNames(pendingStudentBatch.current.map(student => student.name).join("\n"));
       }
-      setNewStudents(created); setBulkNames(""); setMessage(`${created.length}명의 학생을 준비했어요. PIN은 이 화면에서만 확인할 수 있습니다.`);
-      const refreshed = await teacherListStudents(classId); setStudents(refreshed.students); persistStep(7, { classId, className: selectedClass?.name, studentCount: refreshed.students.length });
-    } catch { setError("학생 명단을 추가하지 못했습니다. 이미 등록된 이름·번호가 있는지 확인해 주세요."); }
-    finally { setBusy(false); }
+      const refreshed = await teacherListStudents(classId);
+      if (!stillCurrent()) return;
+      setStudents(refreshed.students);
+      pendingStudentBatch.current = null;
+      setMessage(`${createdCount}명의 학생을 추가했어요. 이미 등록된 같은 이름·번호의 학생은 보존했습니다.`);
+      persistStep(7, { classId, className: selectedClass?.name, studentCount: refreshed.students.length });
+    } catch (reason) { if (stillCurrent()) teacherRequestFailure(reason, "명단 추가가 중단됐습니다. 이미 만든 학생은 보존했습니다. 다시 누르면 현재 명단을 확인하고 남은 이름·번호만 추가합니다."); }
+    finally { actionInFlight.current = false; if (isSetupActive()) setBusy(false); }
   };
 
   const verifyStudentSmoke = async () => {
+    if (actionInFlight.current) return;
     const createdCandidate = newStudents[0];
     const existingCandidate = students.find((student) => student.pinPlain);
     const candidateName = createdCandidate?.name ?? existingCandidate?.name;
     const candidatePin = createdCandidate?.pin ?? existingCandidate?.pinPlain;
     const candidateNo = createdCandidate?.studentNo ?? existingCandidate?.student_no;
     if (!candidateName || !candidatePin || !selectedClass) { setError("학생 한 명을 먼저 준비해 주세요."); return; }
+    actionInFlight.current = true;
+    const viewIsCurrent = currentView();
+    const stillCurrent = () => viewIsCurrent() && activeClassId.current === classId;
     setBusy(true); setError(null);
     try {
       const result = await loginStudent({ classCode: selectedClass.class_code, name: candidateName, pin: candidatePin, studentNo: candidateNo });
+      if (!stillCurrent()) return;
       if (!("token" in result)) throw new Error("학생 로그인 확인에 번호 선택이 필요합니다.");
-      setStudentToken(result.token); clearStudentToken(); setStudentSmokeVerified(true); setMessage("학생 로그인 확인이 끝났어요. PIN은 저장하지 않았습니다.");
-    } catch { setError("학생 로그인 확인에 실패했습니다. 학생 PIN과 학급 코드를 확인해 주세요."); }
-    finally { setBusy(false); }
+      // The smoke token is never persisted: a shared-device student's session
+      // must not be overwritten or cleared by the teacher's setup check.
+      setStudentSmokeVerified(true); setMessage("학생 로그인 확인이 끝났어요. PIN은 저장하지 않았습니다.");
+    } catch { if (stillCurrent()) setError("학생 로그인 확인에 실패했습니다. 학생 PIN과 학급 코드를 확인해 주세요."); }
+    finally { actionInFlight.current = false; if (isSetupActive()) setBusy(false); }
   };
 
   const copyClassLink = async () => {
@@ -572,7 +718,7 @@ export default function SetupPage() {
             </> : connectionIssue === "network" ? <>
               <p className="notice">설치 서버에 연결하지 못했어요. 네트워크 상태를 확인한 뒤 다시 시도해 주세요.</p>
               {connectionIssueDetail && <p className="muted">{connectionIssueDetail}</p>}
-              <button type="button" className="btn" disabled={checkingConnection} onClick={() => void recheckInstallerConnection()}>{checkingConnection ? "확인 중…" : "다시 확인"}</button>
+              <button type="button" className="btn" disabled={busy || checkingConnection} onClick={() => void recheckInstallerConnection()}>{checkingConnection ? "확인 중…" : "다시 확인"}</button>
             </> : connectionIssue === "mismatch" ? <>
               <p className="notice">선택한 프로젝트 정보가 서버와 일치하지 않아요. Supabase를 다시 연결해 주세요.</p>
               <button type="button" className="btn btn-primary" disabled={authorizing} onClick={startOAuthConnect}>Supabase 다시 연결</button>
@@ -645,7 +791,7 @@ export default function SetupPage() {
                   </dl>}
                 {installerDetails?.databaseReview && <details>
                   <summary>진단 상세</summary>
-                  <ul aria-label="차이 객체 목록">{installerDetails.databaseReview.objects.map((object, index) => <li key={`${object.key}-${index}`}><code>{object.key}</code> · {object.change}</li>)}</ul>
+                  <ul aria-label="차이 객체 목록">{installerDetails.databaseReview.objects.map((object, index) => <li key={`${object.key}-${index}`}><code>{object.key}</code> · {object.change}{object.attributes && <span> · {object.attributes.map(attribute => `${attribute.name}: ${attribute.state === "SAME" ? "일치" : "다름"}`).join(", ")}</span>}</li>)}</ul>
                 </details>}
                 </> : installerDetails?.requiredMigrationCount !== undefined && <p>데이터베이스 준비: {(installerDetails.appliedMigrationCount ?? 0) + (installerDetails.satisfiedMigrationCount ?? 0)}/{installerDetails.requiredMigrationCount}</p>}
                 {installerDetails?.legacyRecovery && <p>기존 설치를 확인했습니다. 기존 자료를 그대로 유지하고 최신 버전으로 준비합니다.</p>}
@@ -661,7 +807,7 @@ export default function SetupPage() {
             </>}
           </> : <p className="notice">이 화면에 설치 서버가 연결되지 않았습니다. 공개 URL과 키만으로 설치를 완료할 수 없습니다.</p>}
           {error && <p className="error" role="alert">{error}</p>}
-          <div className="toolbar-row"><button className="btn" disabled={checkingConnection} onClick={() => void recheckInstallerConnection()}>{checkingConnection ? "확인 중…" : "연결 다시 확인"}</button><button className="btn btn-primary" disabled={busy || installerStatus !== "INSTALLED"} onClick={() => persistStep(5)}>교사 확인으로 계속</button></div>
+          <div className="toolbar-row"><button className="btn" disabled={busy || checkingConnection} onClick={() => void recheckInstallerConnection()}>{checkingConnection ? "확인 중…" : "연결 다시 확인"}</button><button className="btn btn-primary" disabled={busy || installerStatus !== "INSTALLED"} onClick={() => persistStep(5)}>교사 확인으로 계속</button></div>
         </div>}
 
         {step === 5 && <div className="installer-card stack">
@@ -682,7 +828,7 @@ export default function SetupPage() {
             {error && <p className="error" role="alert">{error}</p>}
             <div className="toolbar-row">
               <button className="btn btn-primary" type="submit" disabled={teacherAccountBusy}>{teacherAccountBusy ? "만드는 중…" : "계정 만들기"}</button>
-              <button className="btn btn-sm" type="button" onClick={() => setTeacherAccountMode("choose")}>취소</button>
+              <button className="btn btn-sm" type="button" disabled={teacherAccountBusy} onClick={() => setTeacherAccountMode("choose")}>취소</button>
             </div>
           </form>}
           {(!installerClient || teacherAccountMode === "login") && <form className="stack" onSubmit={loginTeacher}>
@@ -694,20 +840,20 @@ export default function SetupPage() {
             {error && <p className="error" role="alert">{error}</p>}
             <div className="toolbar-row">
               <button className="btn btn-primary" type="submit" disabled={busy}>{busy ? "확인 중…" : "교사 로그인"}</button>
-              {installerClient && <button className="btn btn-sm" type="button" onClick={() => setTeacherAccountMode("create")}>계정이 없어요, 새로 만들기</button>}
+              {installerClient && <button className="btn btn-sm" type="button" disabled={busy} onClick={() => setTeacherAccountMode("create")}>계정이 없어요, 새로 만들기</button>}
             </div>
           </form>}
           <p className="muted">비밀번호는 저장하거나 로그에 남기지 않습니다.</p>
         </div>}
 
-        {step === 6 && <div className="installer-card stack"><h2>우리 반 만들기</h2><p>학급 이름을 입력하면 학급 코드가 자동으로 만들어집니다.</p>{classes.length > 0 && <label className="label" htmlFor="installer-class-select">기존 학급 선택<select id="installer-class-select" className="field" value={classId} onChange={(event) => setClassId(event.target.value)}>{classes.map((item) => <option value={item.id} key={item.id}>{item.name} ({item.class_code})</option>)}</select></label>}<form className="toolbar-row" onSubmit={createClass}><input className="field" aria-label="새 학급 이름" placeholder="예: 6학년 1반" value={className} onChange={(event) => setClassName(event.target.value)} /><button className="btn btn-primary" type="submit" disabled={busy || !className.trim()}>학급 만들기</button></form>{selectedClass && <p className="success" role="status">선택한 학급: {selectedClass.name} · 코드 {selectedClass.class_code}</p>}{error && <p className="error" role="alert">{error}</p>}<button className="btn" disabled={!classId || busy} onClick={() => persistStep(7, { classId, className: selectedClass?.name, studentCount: students.length })}>학생 만들기로 계속</button><button className="btn btn-sm" onClick={() => void loadClasses()} disabled={busy}>학급 목록 새로고침</button></div>}
+        {step === 6 && <div className="installer-card stack"><h2>우리 반 만들기</h2><p>학급 이름을 입력하면 학급 코드가 자동으로 만들어집니다.</p>{classes.length > 0 && <label className="label" htmlFor="installer-class-select">기존 학급 선택<select id="installer-class-select" className="field" value={classId} onChange={(event) => selectClass(event.target.value)} disabled={busy}>{classes.map((item) => <option value={item.id} key={item.id}>{item.name} ({item.class_code})</option>)}</select></label>}<form className="toolbar-row" onSubmit={createClass}><input className="field" aria-label="새 학급 이름" placeholder="예: 6학년 1반" value={className} onChange={(event) => setClassName(event.target.value)} /><button className="btn btn-primary" type="submit" disabled={busy || !className.trim()}>학급 만들기</button></form>{selectedClass && <p className="success" role="status">선택한 학급: {selectedClass.name} · 코드 {selectedClass.class_code}</p>}{error && <p className="error" role="alert">{error}</p>}<button className="btn" disabled={!classId || busy} onClick={() => persistStep(7, { classId, className: selectedClass?.name, studentCount: students.length })}>학생 만들기로 계속</button><button className="btn btn-sm" onClick={() => void loadClasses()} disabled={busy}>학급 목록 새로고침</button></div>}
 
-        {step === 7 && <div className="installer-card stack"><h2>학생 만들기</h2><p>{selectedClass ? `${selectedClass.name} 학생 명단을 붙여 넣어 주세요.` : "먼저 학급을 선택해 주세요."}</p><textarea className="field installer-textarea" aria-label="학생 명단" placeholder="한 줄에 한 명씩 또는 쉼표로 입력" value={bulkNames} onChange={(event) => setBulkNames(event.target.value)} />{namesPreview.length > 0 && <p className="muted">{namesPreview.length}명 준비: {namesPreview.join(", ")}</p>}<button className="btn btn-primary" disabled={busy || !classId || !namesPreview.length} onClick={() => void createStudents()}>학생 계정 만들기</button>{students.length > 0 && <p className="success" role="status">현재 학급 학생 {students.length}명</p>}{error && <p className="error" role="alert">{error}</p>}<div className="toolbar-row"><button className="btn" onClick={() => persistStep(6)}>학급 다시 선택</button><button className="btn btn-sm" disabled={busy || (!newStudents.length && !students.some((student) => student.pinPlain))} onClick={() => void verifyStudentSmoke()}>학생 로그인 확인</button>{(newStudents.length > 0 || students.length > 0) && <button className="btn btn-primary" disabled={!studentSmokeVerified} onClick={() => persistStep(8, { classId, className: selectedClass?.name, studentCount: students.length })}>완료 화면으로</button>}</div>{newStudents.length > 0 && <div className="pin-list" aria-label="새 학생 PIN 목록"><h3>이번에 만든 학생 PIN</h3>{newStudents.map((student) => <p key={`${student.name}-${student.studentNo}`}><strong>{student.studentNo ?? ""}번 {student.name}</strong><code>{student.pin}</code></p>)}<p className="muted">이 목록을 필요한 곳에 안전하게 전달한 뒤, 창을 닫으면 다시 표시되지 않습니다.</p></div>}</div>}
+        {step === 7 && <div className="installer-card stack"><h2>학생 만들기</h2><p>{selectedClass ? `${selectedClass.name} 학생 명단을 붙여 넣어 주세요.` : "먼저 학급을 선택해 주세요."}</p><textarea disabled={busy} className="field installer-textarea" aria-label="학생 명단" placeholder="한 줄에 한 명씩 또는 쉼표로 입력" value={bulkNames} onChange={(event) => { pendingStudentBatch.current = null; setBulkNames(event.target.value); }} />{namesPreview.length > 0 && <p className="muted">{namesPreview.length}명 준비: {namesPreview.join(", ")}</p>}<button className="btn btn-primary" disabled={busy || !classId || !namesPreview.length} onClick={() => void createStudents()}>학생 계정 만들기</button>{students.length > 0 && <p className="success" role="status">현재 학급 학생 {students.length}명</p>}{error && <p className="error" role="alert">{error}</p>}<div className="toolbar-row"><button className="btn" disabled={busy} onClick={() => persistStep(6)}>학급 다시 선택</button><button className="btn btn-sm" disabled={busy || (!newStudents.length && !students.some((student) => student.pinPlain))} onClick={() => void verifyStudentSmoke()}>학생 로그인 확인</button>{(newStudents.length > 0 || students.length > 0) && <button className="btn btn-primary" disabled={!studentSmokeVerified} onClick={() => persistStep(8, { classId, className: selectedClass?.name, studentCount: students.length })}>완료 화면으로</button>}</div>{newStudents.length > 0 && <div className="pin-list" aria-label="새 학생 PIN 목록"><h3>이번에 만든 학생 PIN</h3>{newStudents.map((student) => <p key={`${student.name}-${student.studentNo}`}><strong>{student.studentNo ?? ""}번 {student.name}</strong><code>{student.pin}</code></p>)}<p className="muted">이 목록을 필요한 곳에 안전하게 전달한 뒤, 창을 닫으면 다시 표시되지 않습니다.</p></div>}</div>}
 
         {step === 8 && <div className="installer-card stack"><h2>설치 준비가 끝났어요</h2><div className="installer-checks"><p>✓ Supabase 연결</p><p>✓ 교사 로그인</p><p>✓ 학급 {selectedClass?.name ?? "선택됨"}</p><p>✓ 학생 계정 {students.length}명</p><p>{studentSmokeVerified ? "✓ 학생 로그인 확인" : "○ 학생 로그인 확인 필요"}</p></div>{classLink && <div className="class-link-card"><strong>학생 접속 링크</strong><a href={classLink}>{classLink}</a><button className="btn btn-sm" onClick={() => void copyClassLink()}>링크 복사</button><p className="muted">이 링크를 QR 생성기에 넣어 학급 QR로 배부할 수 있습니다.</p></div>}<p className="notice">이 웹앱에서 확인한 것은 연결·교사 인증·학급·학생 준비입니다. 자동 설치 상태와 별도로 학생의 첫 학습 저장·재접속 복원을 확인해야 수업 준비가 끝납니다.</p><div className="toolbar-row"><button className="btn btn-primary" onClick={() => navigate("/teacher")}>교사 화면 열기</button><Link className="btn" to="/">학생 화면 미리보기</Link><button className="btn btn-sm" onClick={() => persistStep(7)}>학생 로그인 확인으로 돌아가기</button><button className="btn btn-sm" onClick={resetWizard}>설정 상태 다시 확인</button></div><p className="muted">학생은 학급 링크 또는 QR로 접속해 이름과 PIN만 입력하면 됩니다.</p></div>}
 
         {message && <p className="success" role="status">{message}</p>}
-        <footer className="installer-footer"><Link to="/teacher">교사 화면</Link><span>·</span><button className="link-button" onClick={() => persistStep(3)}>설정 확인 / 복구</button></footer>
+        <footer className="installer-footer"><Link to="/teacher">교사 화면</Link><span>·</span><button className="link-button" disabled={busy || teacherAccountBusy || authorizing} onClick={() => persistStep(3)}>설정 확인 / 복구</button></footer>
       </section>
     </main>
   );

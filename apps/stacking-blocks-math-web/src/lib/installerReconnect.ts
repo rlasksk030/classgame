@@ -29,14 +29,21 @@ export async function bindInstallerOAuthProject(
   installationId: string,
   expectedProjectRef: string | null,
   verifyPublicConnection: (url: string, key: string) => Promise<void>,
+  savedConfig?: RuntimeSupabaseConfig | null,
 ): Promise<VerifiedInstallerSession & { config: RuntimeSupabaseConfig }> {
   if (expectedProjectRef && project.ref !== expectedProjectRef) {
     throw new InstallerClientError('INSTALLER_TARGET_MISMATCH', 403, '기존 수업 프로젝트와 다른 프로젝트입니다. 기존 프로젝트를 선택해 주세요.');
   }
   const projectUrl = `https://${project.ref}.supabase.co`;
-  const result = await client.createSession({ projectRef: project.ref, projectUrl, release: 'spatial-math-v1' });
+  const cached = savedConfig && existingInstallerTarget(savedConfig)?.projectRef === project.ref && validateRuntimeSupabaseConfig(savedConfig) ? savedConfig.supabasePublishableKey : undefined;
+  const result = await client.createSession({ projectRef: project.ref, projectUrl, release: 'spatial-math-v1', ...(cached ? {publishableKey: cached} : {}) });
   if (result.status !== 'AUTHORIZED') {
     throw new InstallerClientError('INSTALLER_SESSION_REQUIRED', 401, '연결 세션의 권한을 확인하지 못했습니다. 다시 연결해 주세요.');
+  }
+  if (result.publicKeyError) {
+    const code = result.publicKeyError.code;
+    const message = code === 'INSTALLER_PUBLIC_KEY_UNAUTHORIZED' ? 'Supabase 설치 권한이 만료되었습니다. 선택한 프로젝트를 유지하고 Supabase를 다시 연결해 주세요.' : code === 'INSTALLER_PUBLIC_KEY_FORBIDDEN' ? '프로젝트는 연결되었지만 Supabase 계정의 API 키 조회 권한이 없습니다. 권한을 확인한 뒤 같은 프로젝트에서 다시 시도해 주세요.' : code === 'INSTALLER_PUBLIC_KEY_RATE_LIMITED' ? '공개 키 조회 요청이 잠시 제한되었습니다. 잠시 후 다시 시도해 주세요.' : code.startsWith('INSTALLER_PUBLIC_KEY_PROBE_') ? '공개 키를 받았지만 프로젝트 연결 확인에 실패했습니다. 선택한 프로젝트에서 다시 시도해 주세요.' : '프로젝트는 연결되었지만 사용 가능한 공개 키를 확인하지 못했습니다. 선택한 프로젝트에서 다시 시도해 주세요.';
+    throw new InstallerClientError(code, 0, message);
   }
   const config = { installationId, supabaseUrl: projectUrl, supabasePublishableKey: result.publishableKey ?? '' };
   if (!validateRuntimeSupabaseConfig(config)) {

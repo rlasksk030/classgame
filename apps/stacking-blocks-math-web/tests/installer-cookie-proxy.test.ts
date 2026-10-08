@@ -56,7 +56,7 @@ test('same-origin proxy cookie jar: authorize/callback/grant/projects/session/st
     assert.equal((await call('/api/installer/projects')).status, 200);
     const created = await call('/api/installer/session', 'POST', target); assert.equal(created.status, 201);
     assert.equal((await created.json()).status, 'AUTHORIZED'); assert(jar.has('installer_session')); assert.equal(jar.has('installer_oauth_grant'), false);
-    assert.deepEqual(attributes, ['installer_oauth_grant', 'installer_session'].map(name => ({ name, path: '/api/installer', secure: true, httpOnly: true, sameSite: 'Lax' })));
+    assert.deepEqual(attributes, ['installer_oauth_browser', 'installer_oauth_grant', 'installer_session'].map(name => ({ name, path: '/api/installer', secure: true, httpOnly: true, sameSite: 'Lax' })));
     assert.equal((await call('/api/installer/status')).status, 200);
     assert.equal((await call('/api/installer/status', 'GET', undefined, true)).status, 401);
     assert.equal((await call('/api/installer/update', 'POST', target)).status, 200);

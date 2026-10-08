@@ -43,9 +43,11 @@ for (const outcome of ['success', '403', '404', 'mismatch', 'fresh', 'bad-url', 
     const address = server.address(); assert.ok(address && typeof address !== 'string');
     const base = `http://127.0.0.1:${address.port}`;
     try {
-      const auth = await (await fetch(base + '/api/installer/authorize', { method: 'POST', headers: { origin: 'https://frontend.example' } })).json();
+      const authorization = await fetch(base + '/api/installer/authorize', { method: 'POST', headers: { origin: 'https://frontend.example' } });
+      const browserCookie = authorization.headers.getSetCookie()[0].split(';')[0];
+      const auth = await authorization.json();
       const state = new URL(auth.authorizeUrl).searchParams.get('state');
-      const callback = await fetch(base + '/api/installer/oauth/callback?code=synthetic&state=' + state, { redirect: 'manual' });
+      const callback = await fetch(base + '/api/installer/oauth/callback?code=synthetic&state=' + state, { redirect: 'manual', headers: { cookie: browserCookie } });
       const cookie = callback.headers.getSetCookie()[0].split(';')[0];
       const requested = { ...target, projectUrl: outcome === 'bad-url' ? target.projectUrl + '?unexpected=yes' : target.projectUrl };
       if (outcome !== 'unverified-bind') {

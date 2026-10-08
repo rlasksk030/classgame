@@ -157,7 +157,11 @@ test('Review reports object-level missing/additional/changed metadata without ca
   assert.ok(objects.some(o => o.key === 'columns:sb_students:name:' && o.change === 'MISSING'));
   assert.ok(objects.some(o => o.key === 'columns:sb_students:unreviewed_column:' && o.change === 'ADDITIONAL'));
   assert.ok(objects.some(o => o.key === 'tables::sb_classes:' && o.change === 'CHANGED'));
-  assert.ok(objects.every(o => Object.keys(o).sort().join(',') === 'change,key'));
+  assert.ok(objects.every(o => Object.keys(o).every(key => ['change','key','attributes'].includes(key))));
+  const attrs = objects.find(o => o.key === 'tables::sb_classes:')!.attributes!;
+  assert.deepEqual(attrs.filter(a => a.state === 'DIFFERENT').map(a => a.name), ['rls']);
+  for (const attr of attrs) { assert.match(attr.expectedDigest!, /^[a-f0-9]{64}$/); assert.match(attr.actualDigest!, /^[a-f0-9]{64}$/); }
+  assert.equal(JSON.stringify(objects).includes('CREATE OR REPLACE'),false);
   assert.equal(assessDatabaseState(plan, [], latest, {seedMissing:0,seedOutdated:0,storageMissing:0,progressMissing:0,dataConflict:0}).review, undefined);
 });
 test('Catalog request is fixed server-only metadata SQL, read_only true; no rows or credentials returned', async () => {

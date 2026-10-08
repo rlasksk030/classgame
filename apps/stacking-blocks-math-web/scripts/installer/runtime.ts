@@ -64,6 +64,7 @@ function managementExtrasFor(config: InstallerRuntimeConfig, credential: Ephemer
     listAccessibleProjects: () => backend.listAccessibleProjects(),
     createTeacherAccount: (target, email, password) => provisioner.createTeacherAccount(target, email, password),
     getPublishableKey: (target) => backend.getPublishableKey(target),
+    verifyPublishableKey: (target,key) => backend.verifyPublishableKey(target,key),
   };
 }
 

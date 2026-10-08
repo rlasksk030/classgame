@@ -124,3 +124,37 @@ export function installerStorageIsScopedToInstallation(): boolean {
     return false;
   }
 }
+
+export interface InstallerClassDraft { name: string; classCode: string }
+const classDraftKey = (installationId: string, teacherId: string) => `stacking-installer-class-draft:${encodeURIComponent(installationId)}:${encodeURIComponent(teacherId)}`;
+
+/** Tab-local intent survives reload without merging different teachers' or
+ * tabs' deliberate class creations. Contains no credential or student data. */
+export function readInstallerClassDraft(installationId: string, teacherId: string): InstallerClassDraft | null {
+  if (typeof sessionStorage === "undefined") return null;
+  const raw = sessionStorage.getItem(classDraftKey(installationId, teacherId));
+  if (!raw) return null;
+  const value = JSON.parse(raw) as Partial<InstallerClassDraft>;
+  if (typeof value.name !== "string" || !value.name.trim() || typeof value.classCode !== "string" || !/^[A-Z0-9]{10}$/.test(value.classCode)) throw new Error("INSTALLER_CLASS_DRAFT_INVALID");
+  return { name: value.name, classCode: value.classCode };
+}
+
+export function getOrCreateInstallerClassDraft(installationId: string, teacherId: string, name: string, makeCode: () => string): InstallerClassDraft {
+  if (!installationId || !teacherId || !name.trim() || typeof sessionStorage === "undefined") throw new Error("INSTALLER_CLASS_DRAFT_UNAVAILABLE");
+  const existing = readInstallerClassDraft(installationId, teacherId);
+  if (existing) {
+    if (existing.name !== name.trim()) throw new Error("INSTALLER_CLASS_DRAFT_PENDING");
+    return existing;
+  }
+  const draft = { name: name.trim(), classCode: makeCode() };
+  if (!/^[A-Z0-9]{10}$/.test(draft.classCode)) throw new Error("INSTALLER_CLASS_DRAFT_INVALID");
+  // Fail closed if persistence is unavailable: an uncertain write must not be
+  // retried with a new class code after refresh.
+  sessionStorage.setItem(classDraftKey(installationId, teacherId), JSON.stringify(draft));
+  return draft;
+}
+
+export function clearInstallerClassDraft(installationId: string, teacherId: string, classCode: string): void {
+  const existing = readInstallerClassDraft(installationId, teacherId);
+  if (existing?.classCode === classCode) sessionStorage.removeItem(classDraftKey(installationId, teacherId));
+}

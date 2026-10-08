@@ -36,7 +36,7 @@ for (const dropped of [false, true]) {
         await expect(page).toHaveURL(server.origin + '/teacher');
         await expect(page.getByText('Supabase 연결이 필요합니다.', { exact: true })).toHaveCount(0);
         const cookies = (await context.cookies(server.origin + '/api/installer/status')).filter(c => c.name.startsWith('installer_'));
-        expect(cookies.map(({ name, path, httpOnly, secure, sameSite }) => ({ name, path, httpOnly, secure, sameSite }))).toEqual([{ name: 'installer_session', path: '/api/installer', httpOnly: true, secure: true, sameSite: 'Lax' }]);
+        expect(cookies.map(({ name, path, httpOnly, secure, sameSite }) => ({ name, path, httpOnly, secure, sameSite })).sort((a, b) => a.name.localeCompare(b.name))).toEqual(['installer_oauth_browser', 'installer_session'].map(name => ({ name, path: '/api/installer', httpOnly: true, secure: true, sameSite: 'Lax' })));
         expect(server.events.filter(e => e.path.endsWith('/update'))).toHaveLength(1);
         expect(server.events.find(e => e.path.endsWith('/session') && e.method === 'POST')?.grantSent).toBe(true);
         expect(server.events.filter(e => e.path.endsWith('/status')).slice(1).every(e => e.sessionSent)).toBe(true);

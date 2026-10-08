@@ -212,11 +212,12 @@ test("OAuth authorize -> callback -> project list -> session binds the OAuth cre
   try {
     const authorize = await fetch(`${running2.base}/api/installer/authorize`, { method: "POST", headers: { origin: "http://localhost:5173", "content-type": "application/json" }, body: "{}" });
     assert.equal(authorize.status, 200);
+    const browserCookie = findCookie(authorize.headers, "installer_oauth_browser")!;
     const { authorizeUrl } = await authorize.json();
     const state = new URL(authorizeUrl).searchParams.get("state");
     assert.ok(state);
 
-    const callback = await fetch(`${running2.base}/api/installer/oauth/callback?code=fake-code&state=${state}`, { redirect: "manual" });
+    const callback = await fetch(`${running2.base}/api/installer/oauth/callback?code=fake-code&state=${state}`, { redirect: "manual", headers: { cookie: browserCookie } });
     assert.equal(callback.status, 302);
     assert.equal(callback.headers.get("location"), "http://localhost:5173/setup?oauth=granted");
     assert.equal(running2.tokenRequests(), 1);
@@ -226,7 +227,7 @@ test("OAuth authorize -> callback -> project list -> session binds the OAuth cre
     // Replaying the same state must fail: OAuth state is one-time. A clean 400
     // (the callback handler's own explicit catch around consume()), not a
     // generic 502 from an uncaught throw falling through to the outer handler.
-    const replay = await fetch(`${running2.base}/api/installer/oauth/callback?code=fake-code&state=${state}`, { redirect: "manual" });
+    const replay = await fetch(`${running2.base}/api/installer/oauth/callback?code=fake-code&state=${state}`, { redirect: "manual", headers: { cookie: browserCookie } });
     assert.equal(replay.status, 400);
     assert.equal((await replay.json()).code, "INSTALLER_OAUTH_CALLBACK_INVALID");
 
@@ -312,7 +313,7 @@ async function authorizeFrom(base: string, origin: string) {
   const { authorizeUrl } = await response.json();
   const state = new URL(authorizeUrl).searchParams.get("state");
   assert.ok(state);
-  return state as string;
+  return { state: state as string, cookie: findCookie(response.headers, "installer_oauth_browser")! };
 }
 
 test("1/2. OAuth started from either allowlisted origin returns to that SAME origin, not a hardcoded/first-configured one", async (t) => {
@@ -321,12 +322,12 @@ test("1/2. OAuth started from either allowlisted origin returns to that SAME ori
   catch (error) { if (error && typeof error === "object" && "code" in error && (error as { code?: unknown }).code === "EPERM") { t.skip("이 환경은 localhost listen을 차단함"); return; } throw error; }
   try {
     const testState = await authorizeFrom(running.base, "https://test.example");
-    const testCallback = await fetch(`${running.base}/api/installer/oauth/callback?code=fake&state=${testState}`, { redirect: "manual" });
+    const testCallback = await fetch(`${running.base}/api/installer/oauth/callback?code=fake&state=${testState.state}`, { redirect: "manual", headers: { cookie: testState.cookie } });
     assert.equal(testCallback.status, 302);
     assert.equal(testCallback.headers.get("location"), "https://test.example/setup?oauth=granted");
 
     const prodState = await authorizeFrom(running.base, "https://production.example");
-    const prodCallback = await fetch(`${running.base}/api/installer/oauth/callback?code=fake&state=${prodState}`, { redirect: "manual" });
+    const prodCallback = await fetch(`${running.base}/api/installer/oauth/callback?code=fake&state=${prodState.state}`, { redirect: "manual", headers: { cookie: prodState.cookie } });
     assert.equal(prodCallback.status, 302);
     assert.equal(prodCallback.headers.get("location"), "https://production.example/setup?oauth=granted");
     assert.equal(running.tokenRequests(), 2);
@@ -344,10 +345,10 @@ test("3. two OAuth flows started interleaved (TEST second, production first to f
 
     // Finish the SECOND-started flow (TEST) FIRST -- order of completion must
     // not matter; each state independently carries its own bound origin.
-    const testCallback = await fetch(`${running.base}/api/installer/oauth/callback?code=fake&state=${testState}`, { redirect: "manual" });
+    const testCallback = await fetch(`${running.base}/api/installer/oauth/callback?code=fake&state=${testState.state}`, { redirect: "manual", headers: { cookie: testState.cookie } });
     assert.equal(testCallback.headers.get("location"), "https://test.example/setup?oauth=granted");
 
-    const prodCallback = await fetch(`${running.base}/api/installer/oauth/callback?code=fake&state=${prodState}`, { redirect: "manual" });
+    const prodCallback = await fetch(`${running.base}/api/installer/oauth/callback?code=fake&state=${prodState.state}`, { redirect: "manual", headers: { cookie: prodState.cookie } });
     assert.equal(prodCallback.headers.get("location"), "https://production.example/setup?oauth=granted");
   } finally { await new Promise<void>(resolve => running.server.close(() => resolve())); }
 });
@@ -381,9 +382,9 @@ test("5. a forged or already-consumed state is rejected, and never leaks which o
     assert.equal(JSON.stringify(forgedBody).includes("example"), false, "error body must never reveal an origin, bound or not");
 
     const state = await authorizeFrom(running.base, "https://test.example");
-    const first = await fetch(`${running.base}/api/installer/oauth/callback?code=fake&state=${state}`, { redirect: "manual" });
+    const first = await fetch(`${running.base}/api/installer/oauth/callback?code=fake&state=${state.state}`, { redirect: "manual", headers: { cookie: state.cookie } });
     assert.equal(first.status, 302);
-    const reused = await fetch(`${running.base}/api/installer/oauth/callback?code=fake&state=${state}`, { redirect: "manual" });
+    const reused = await fetch(`${running.base}/api/installer/oauth/callback?code=fake&state=${state.state}`, { redirect: "manual", headers: { cookie: state.cookie } });
     assert.equal(reused.status, 400);
     assert.equal((await reused.json()).code, "INSTALLER_OAUTH_CALLBACK_INVALID");
   } finally { await new Promise<void>(resolve => running.server.close(() => resolve())); }

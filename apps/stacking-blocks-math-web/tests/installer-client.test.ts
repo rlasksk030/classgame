@@ -119,3 +119,28 @@ test("default transport invokes browser fetch without an InstallerClient receive
   });
   assert.equal((await new InstallerClient("https://installer.example").createSession(target)).status, "CREATED");
 });
+
+test("installer client bounds a stalled response body and never retries a mutation", { timeout: 300 }, async () => {
+  let calls = 0;
+  let signal: AbortSignal | null | undefined;
+  const client = new InstallerClient("https://installer.example", async (_url, init) => {
+    calls++; signal = init?.signal;
+    return new Response(new ReadableStream({ start(controller) { controller.enqueue(new TextEncoder().encode('{')); } }), { headers: { 'content-type': 'application/json' } });
+  }, { requestTimeoutMs: 10, actionTimeoutMs: 10 });
+  await assert.rejects(client.startInstall(target), (error: unknown) => error instanceof InstallerClientError && error.code === 'INSTALLER_REQUEST_TIMEOUT' && !/test-ref|apikey|password/.test(error.message));
+  assert.equal(calls, 1);
+  assert.equal(signal?.aborted, true);
+});
+
+test("installer reads time out without waiting indefinitely for fetch", { timeout: 300 }, async () => {
+  const client = new InstallerClient("https://installer.example", () => new Promise(() => {}), { requestTimeoutMs: 10 });
+  await assert.rejects(client.getStatus(target), { code: 'INSTALLER_REQUEST_TIMEOUT' });
+});
+
+test("installer writes use their separate longer deadline", async () => {
+  const client = new InstallerClient("https://installer.example", async () => {
+    await new Promise(resolve => setTimeout(resolve, 20));
+    return Response.json({ jobId: 'synthetic', status: 'COMPLETE' });
+  }, { requestTimeoutMs: 5, actionTimeoutMs: 100 });
+  assert.equal((await client.repair(target)).status, 'COMPLETE');
+});

@@ -48,3 +48,13 @@ test('Reconnect manual review is an authorized state but never starts OAuth/upda
   await assert.rejects(completeInstallerReconnect(client, verified), { code: 'INSTALLER_MANUAL_REVIEW_REQUIRED' });
   assert.equal(calls.some(path => /update|authorize/.test(path)), false);
 });
+
+test('cached public config is offered only to an authenticated matching project and never saved on verification failure',async()=>{
+  const saved={installationId:'cached',supabaseUrl:'https://test-project.supabase.co',supabasePublishableKey:'sb_publishable_cached'};
+  for(const ref of ['test-project','other-project']){
+    let sent:Record<string,unknown>={};
+    const client=new InstallerClient('https://frontend.example',async(_input,init)=>{sent=JSON.parse(String(init?.body));return Response.json({status:'AUTHORIZED',publicKeyError:{code:'INSTALLER_PUBLIC_KEY_PROBE_FAILED',stage:'public-key',upstreamStatus:401}});});
+    await assert.rejects(bindInstallerOAuthProject(client,{ref},'cached',null,async()=>{},saved),{code:'INSTALLER_PUBLIC_KEY_PROBE_FAILED'});
+    assert.equal(sent.publishableKey,ref==='test-project'?saved.supabasePublishableKey:undefined);
+  }
+});
