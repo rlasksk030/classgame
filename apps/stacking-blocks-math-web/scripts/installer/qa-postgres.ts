@@ -18,6 +18,7 @@ const catalogQuery = readFileSync('scripts/installer/catalog.sql','utf8');
 const permissionQuery = readFileSync('scripts/installer/permission-audit.sql','utf8');
 const catalog = (): Catalog => JSON.parse(sql(catalogQuery));
 const permissions = (): PermissionSnapshot => JSON.parse(sql(permissionQuery));
+console.log('POSTGRES ENVIRONMENT: '+sql("select jsonb_build_object('version',current_setting('server_version'),'collation',datcollate,'ctype',datctype) from pg_database where datname=current_database()"));
 const bootstrap = `create schema auth;create table auth.users(id uuid primary key);
 create function auth.uid() returns uuid language sql stable as $$select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid$$;
 grant usage on schema auth,public to anon,authenticated,service_role;

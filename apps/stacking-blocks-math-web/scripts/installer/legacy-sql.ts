@@ -73,14 +73,16 @@ export function schemaDelta(from: Catalog, to: Catalog): string {
 }
 
 /** PG17/18-independent digest; remove physical column order and PG18's duplicate
- * NOT NULL constraint metadata. All remaining definitions/ACLs are compared. */
+ * NOT NULL constraint metadata. Pin lexical ordering to C: hosted databases can
+ * use en_US whereas the offline compiler uses C. Locale is not schema drift.
+ * All remaining definitions/ACLs are compared without permission normalization. */
 export function catalogDigestQuery(catalogQuery: string): string {
   return `select md5(jsonb_object_agg(k, v)::text) as digest from (
-    select entry.key k, coalesce(jsonb_agg(normalized.row order by normalized.row::text) filter(where item.value is not null and not(entry.key='constraints' and item.value->>'type'='n')), '[]'::jsonb) v
+    select entry.key k, coalesce(jsonb_agg(normalized.row order by normalized.row::text collate "C") filter(where item.value is not null and not(entry.key='constraints' and item.value->>'type'='n')), '[]'::jsonb) v
     from (${catalogQuery.trim().replace(/;$/, '')}) snapshot_source,
     lateral jsonb_each(snapshot_source.snapshot) entry
     left join lateral jsonb_array_elements(entry.value) item on true
-    left join lateral (select jsonb_object_agg(field.key,case when jsonb_typeof(field.value)='array' then (select coalesce(jsonb_agg(a.value order by a.value::text),'[]') from jsonb_array_elements(field.value) a) else field.value end) row from jsonb_each(case when entry.key='columns' then item.value-'position' else item.value end) field) normalized on true
+    left join lateral (select jsonb_object_agg(field.key,case when jsonb_typeof(field.value)='array' then (select coalesce(jsonb_agg(a.value order by a.value::text collate "C"),'[]') from jsonb_array_elements(field.value) a) else field.value end) row from jsonb_each(case when entry.key='columns' then item.value-'position' else item.value end) field) normalized on true
     group by entry.key) normalized_catalog`;
 }
 
