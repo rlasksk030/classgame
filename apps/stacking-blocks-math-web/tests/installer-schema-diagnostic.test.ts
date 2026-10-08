@@ -42,7 +42,7 @@ test('schema review emits exact difference metadata, never SQL, rows, keys or cr
       objects: { 'synthetic-access-token': { rawAcl: 'synthetic-api-key' } },
     });
     const hostile = await inspectMigrationState(backend, { environment:'TEST',projectRef:'existing-project',projectUrl:'https://existing-project.supabase.co',release:'test'}, plan);
-    assert.deepEqual(hostile.review?.permissionContext, { available: true, schemaOwnerKnown: false, defaultPrivilegeEntries: 1, applicationRoleContextChanged: true });
+    assert.deepEqual(hostile.review?.permissionContext, { available: true, schemaOwnerKnown: false, defaultPrivilegeEntries: 1, applicationRoleContextChanged: true, executorRoleModel: 'UNVERIFIED' });
     for (const sensitive of ['synthetic_sql_body','synthetic-access-token','synthetic-pin','synthetic-student','synthetic-api-key']) assert.equal(JSON.stringify(hostile).includes(sensitive) || lines.join('').includes(sensitive), false);
     assert.equal(hostile.review?.objects.filter(o => o.change === 'ADDITIONAL').length, 1);
     assert.equal(backend.calls.some(c=>/^(apply|setSecrets|deploy)/.test(c)),false);

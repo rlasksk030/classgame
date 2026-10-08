@@ -1,4 +1,5 @@
 import { readFileSync } from 'node:fs';
+import { permissionRoleContextMatches, type ExecutorGraph } from './hosted-role-proof.ts';
 
 /** A-E are diagnostic categories only. Even A never permits an installation. */
 export type PermissionCategory = 'A_EQUIVALENT' | 'B_BROADER_PERMISSION' | 'C_MISSING_PERMISSION' | 'D_STRUCTURAL_CHANGE' | 'E_UNKNOWN';
@@ -11,6 +12,7 @@ export interface PermissionSnapshot {
   schema: { owner: string; usage: Record<string, boolean>; create: Record<string, boolean> };
   defaultPrivileges: unknown[];
   objects: Record<string, PermissionObject>;
+  executorGraph?: ExecutorGraph;
 }
 interface PermissionBaseline {
   migrationHashes: string[];
@@ -43,15 +45,10 @@ export function classifyPermissionDifference(input: {
   if (!expected || JSON.stringify(input.migrationHashes) !== JSON.stringify(baseline.migrationHashes) || !isObject(input.actual) || !isObject(input.actual.objects) || !isObject(input.actual.roles) || !isObject(input.actual.schema) || !isObject(input.actual.schema.usage) || !isObject(input.actual.schema.create) || input.actual.schema.owner !== expected.schema.owner) return 'E_UNKNOWN';
   const old = baseline.models[expected.objects[input.key]], actual = input.actual.objects[input.key];
   if (!old || !validObject(actual) || actual.owner !== old.owner || actual.otherGrantees !== old.otherGrantees) return 'E_UNKNOWN';
+  if (!permissionRoleContextMatches(input.actual.roles,expected.roles,input.actual.executorGraph)) return 'E_UNKNOWN';
   let broader = false, missing = false;
   for (const role of roles) {
-    const context = input.actual.roles[role];
-    // A nonzero count alone cannot prove identical membership edges. Do not
-    // infer equivalence for any inherited-role graph we have not modeled.
-    if (!isObject(context) || context.memberships !== 0 || typeof input.actual.schema.usage[role] !== 'boolean' || typeof input.actual.schema.create[role] !== 'boolean') return 'E_UNKNOWN';
-    // Hosted postgres need not be superuser. Its effective object rights below
-    // still apply; application-role flags/membership changes need separate review.
-    if (role !== 'postgres' && ['superuser','bypassRls','inherit','memberships'].some(k => context[k] !== expected.roles[role][k as keyof PermissionSnapshot['roles'][string]])) return 'E_UNKNOWN';
+    if (typeof input.actual.schema.usage[role] !== 'boolean' || typeof input.actual.schema.create[role] !== 'boolean') return 'E_UNKNOWN';
     broader ||= input.actual.schema.usage[role] === true && !expected.schema.usage[role];
     missing ||= input.actual.schema.usage[role] === false && expected.schema.usage[role];
     broader ||= input.actual.schema.create[role] === true && !expected.schema.create[role];
@@ -65,9 +62,10 @@ export function classifyPermissionDifference(input: {
 }
 
 /** Bounded safe context for operator logs, never used to accept catalog drift. */
-export function permissionContext(actual: unknown): { available: boolean; schemaOwnerKnown?: boolean; defaultPrivilegeEntries?: number; applicationRoleContextChanged?: boolean } {
+export function permissionContext(actual: unknown): { available: boolean; schemaOwnerKnown?: boolean; defaultPrivilegeEntries?: number; applicationRoleContextChanged?: boolean; executorRoleModel?:'LOCAL_VERIFIED'|'HOSTED_VERIFIED'|'UNVERIFIED' } {
   if (!isObject(actual) || !isObject(actual.roles) || !isObject(actual.schema) || !Array.isArray(actual.defaultPrivileges)) return { available: false };
   const normal = baseline.profiles[`history-prefix-${baseline.migrationHashes.length}`];
   return { available: true, schemaOwnerKnown: ['postgres','supabase_admin','pg_database_owner'].includes(String(actual.schema.owner)), defaultPrivilegeEntries: actual.defaultPrivileges.length,
+    executorRoleModel:permissionRoleContextMatches(actual.roles,normal.roles,actual.executorGraph) ? (isObject(actual.roles.postgres) && actual.roles.postgres.memberships===9 ? 'HOSTED_VERIFIED' : 'LOCAL_VERIFIED') : 'UNVERIFIED',
     applicationRoleContextChanged: ['anon','authenticated','service_role'].some(role => !isObject(actual.roles[role]) || ['superuser','bypassRls','inherit','memberships'].some(k => (actual.roles[role] as Record<string,unknown>)[k] !== normal.roles[role][k as keyof PermissionSnapshot['roles'][string]])) };
 }

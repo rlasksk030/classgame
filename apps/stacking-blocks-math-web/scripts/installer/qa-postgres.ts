@@ -1,6 +1,7 @@
 /** Disposable CI PostgreSQL only. No Supabase, URLs, API tokens or remote DBs. */
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
+import { randomBytes } from 'node:crypto';
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -12,9 +13,12 @@ import { classifyPermissionDifference, type PermissionSnapshot } from './permiss
 import { buildPermissionRecovery, normalizeEquivalentCatalog, prepareEquivalentLegacyTransition } from './permission-recovery.ts';
 import { protectedRowsFixtureSql } from '../../tests/support/installer-legacy-db.ts';
 import { assertSupabaseDefaultDrift } from '../../tests/support/installer-default-grants.ts';
+import { hostedExecutorRolesSql } from '../../tests/support/installer-hosted-roles.ts';
+import { hasKnownHostedExecutorGraph } from './hosted-role-proof.ts';
 
 if (process.env.CI !== 'true' || process.env.INSTALLER_PG_DISPOSABLE !== 'YES' || process.env.PGHOST !== '127.0.0.1' || process.env.PGDATABASE !== 'installer_catalog_ci' || process.env.PGUSER !== 'postgres') throw new Error('DISPOSABLE_LOCAL_POSTGRES_REQUIRED');
-function sql(query: string): string {
+const fixtureAdminPassword=randomBytes(24).toString('hex');
+function sql(query: string, administrator=false): string {
   // psql can stop on an intentional guard failure before a large stdin pipe is
   // fully written. Feed a private file so Node's EPIPE cannot mask the real DB
   // error; keep ON_ERROR_STOP and every caller's exact failure assertion.
@@ -22,8 +26,12 @@ function sql(query: string): string {
   try {
     const input = join(directory,'query.sql');
     writeFileSync(input,query,{mode:0o600});
-    const result = spawnSync('psql',['-X','-qAt','-v','ON_ERROR_STOP=1','-f',input], { stdio:['ignore','pipe','pipe'], encoding: 'utf8', maxBuffer: 32*1024*1024, timeout: 120_000 });
-    if (result.error || result.status !== 0) throw new Error(`POSTGRES_SQL_FAILED: ${result.stderr?.trim() || result.error?.code || `EXIT_${result.status ?? result.signal ?? 'UNKNOWN'}`}`);
+    const result = spawnSync('psql',['-X','-qAt','-v','ON_ERROR_STOP=1','-f',input], { ...(administrator ? {env:{...process.env,PGUSER:'installer_fixture_admin',PGPASSWORD:fixtureAdminPassword}} : {}), stdio:['ignore','pipe','pipe'], encoding: 'utf8', maxBuffer: 32*1024*1024, timeout: 120_000 });
+    if (result.error || result.status !== 0) {
+      let detail=result.stderr?.trim() || result.error?.code || `EXIT_${result.status ?? result.signal ?? 'UNKNOWN'}`;
+      for(const credential of [fixtureAdminPassword,process.env.PGPASSWORD].filter((v):v is string=>Boolean(v))) detail=detail.replaceAll(credential,'[REDACTED]');
+      throw new Error(`POSTGRES_SQL_FAILED: ${detail}`);
+    }
     return result.stdout.trim();
   } finally { rmSync(directory,{recursive:true,force:true}); }
 }
@@ -41,9 +49,27 @@ create table storage.objects(id uuid primary key default gen_random_uuid(),bucke
 create function storage.foldername(text) returns text[] language sql as $$select string_to_array($1,'/')$$;`;
 // Refuse any populated DB even when someone supplies the same CI env names.
 assert.equal(sql("select count(*) from pg_tables where schemaname not in ('pg_catalog','information_schema')"),'0','database must start empty');
+// OID 10 can never lose SUPERUSER. Keep it as a fixture-only administrator,
+// then create the separate postgres owner that a hosted installation uses.
+sql(`create role installer_fixture_admin login superuser password ${literal(fixtureAdminPassword)};`);
+sql(`alter role postgres rename to installer_bootstrap_admin;
+create role postgres login superuser password ${literal(process.env.PGPASSWORD ?? '')};
+alter database installer_catalog_ci owner to postgres;`,true);
 sql('create role anon;create role authenticated;create role service_role bypassrls;'+bootstrap);
 function resetOwnedFixture() {
   sql(`drop schema auth,storage,public cascade;create schema public authorization pg_database_owner;grant usage on schema public to public;${bootstrap}`);
+}
+function enableHostedFixture() {
+  sql(hostedExecutorRolesSql);
+  const actual=permissions();
+  assert.equal(actual.roles.postgres.memberships,9);
+  assert.equal(hasKnownHostedExecutorGraph(actual.executorGraph),true,'actual SQL must prove every hosted role and membership option');
+  assert.deepEqual(JSON.parse(sql('begin read only;'+permissionQuery+'rollback;')),actual,'permission query remains read-only after demotion');
+}
+function restoreLocalFixtureExecutor() {
+  sql('alter role postgres superuser;',true);
+  sql('revoke anon,authenticated,service_role,authenticator,pg_create_subscription,pg_monitor,pg_read_all_data,pg_signal_backend,supabase_privileged_role from postgres;drop role authenticator;drop role supabase_privileged_role;');
+  assert.equal(permissions().roles.postgres.memberships,0);
 }
 function assertProfile(name: string) {
   const expected = plan.databaseBaseline!.profiles.find(p=>p.name===name)!;
@@ -115,11 +141,12 @@ assertProfile('manual-previous-contract');
 sql(readFileSync('qa/live-required-progress/sql/20261003051402_actual_use_required_progress_delta.sql','utf8'));
 assertProfile('manual-required-progress-contract');
 
-for (const mode of ['historical-defaults','crud-opt-out'] as const) {
+for (const {mode,hosted} of [{mode:'historical-defaults',hosted:false},{mode:'crud-opt-out',hosted:false},{mode:'historical-defaults',hosted:true}] as const) {
   resetOwnedFixture();
   sql(`alter default privileges for role postgres in schema public grant all on tables to anon,authenticated,service_role;
 alter default privileges for role postgres in schema public grant all on functions to anon,authenticated,service_role;${mode==='crud-opt-out'?'alter default privileges for role postgres in schema public revoke select,insert,update,delete on tables from anon,authenticated;':''}`);
   for (const m of plan.migrations) sql(m.query);
+  if(hosted) enableHostedFixture();
   const state = assertSupabaseDefaultDrift(plan,catalog(),mode);
   const actual = permissions();
   assert.equal(classifyPermissionDifference({profile:latest,key:'tables::sb_students:',migrationHashes:plan.databaseBaseline!.migrationHashes,actual,structural:false}),'B_BROADER_PERMISSION');
@@ -128,6 +155,17 @@ alter default privileges for role postgres in schema public grant all on functio
   const rowsBefore=allRowHashes(),defaultsBefore=sql(`select coalesce(jsonb_agg(to_jsonb(d) order by to_jsonb(d)::text collate "C"),'[]') from pg_default_acl d`);
   let recovery=requireRecovery();
   assert.equal(new Set(recovery.changes.map(c=>c.object)).size,22,'repair every real ACL difference without lowering the 22-object expectation');
+  if(hosted) {
+    sql('create role synthetic_unreviewed_executor;grant synthetic_unreviewed_executor to postgres;',true);
+    const unknown=permissions(),unknownCatalog=catalog();
+    assert.equal(hasKnownHostedExecutorGraph(unknown.executorGraph),false);
+    assert.equal(JSON.stringify(unknown.executorGraph).includes('synthetic_unreviewed_executor'),false,'unknown role names never leave the database');
+    assert.equal(classifyPermissionDifference({profile:latest,key:'tables::sb_students:',migrationHashes:plan.databaseBaseline!.migrationHashes,actual:unknown,structural:false}),'E_UNKNOWN');
+    assert.equal(buildPermissionRecovery(plan,plan.migrations.map(m=>m.name),unknownCatalog,unknown).recoverable,false);
+    assert.throws(()=>sql(recovery.query),/INSTALLER_PERMISSION_PLAN_STALE/,'a new role edge invalidates an already approved plan inside the transaction');
+    assert.deepEqual(catalog(),unknownCatalog);assert.deepEqual(permissions(),unknown);assert.deepEqual(allRowHashes(),rowsBefore);
+    sql('revoke synthetic_unreviewed_executor from postgres;drop role synthetic_unreviewed_executor;',true);
+  }
   // A changed prestate must invalidate the exact consent plan before any grant.
   sql('revoke truncate on table sb_students from anon;');
   const staleCatalog=catalog(),staleRights=permissions();
@@ -158,11 +196,12 @@ alter default privileges for role postgres in schema public grant all on functio
   for(const name of Object.keys(followupRows).filter(name=>name!=='sb_student_progress')) assert.equal(finalRows[name],followupRows[name],`${name} unchanged by progress-only continuation`);
   assert.equal(sql('select completed from sb_student_progress where lesson=1'),'t');
   assert.equal(sql('select total_xp from sb_student_rewards'),'999');
-  console.log(`POSTGRES ${mode}: 22 ACL objects repaired with explicit synthetic consent; stale plan/rollback/data preservation/defaults/no-op retry PASS; nearest before=${state.review!.comparisonBaseline}`);
+  console.log(`POSTGRES ${hosted?'hosted executor ':''}${mode}: 22 ACL objects repaired with explicit synthetic consent; stale plan/rollback/data preservation/defaults/no-op retry PASS; nearest before=${state.review!.comparisonBaseline}`);
+  if(hosted) restoreLocalFixtureExecutor();
 }
 // The one explicitly reviewed answer correction must keep linked historical
 // answers/completion/rewards and all other app rows, even across a failed write.
-for(const dataProfile of [latest,'manual-required-progress-contract']) {
+for(const {dataProfile,hosted} of [{dataProfile:latest,hosted:false},{dataProfile:'manual-required-progress-contract',hosted:false},{dataProfile:'manual-required-progress-contract',hosted:true}]) {
 resetOwnedFixture();
 if(dataProfile===latest) for (const m of plan.migrations) sql(m.query);
 else {
@@ -186,6 +225,7 @@ sql(`update sb_problems set answer=${literal(JSON.stringify(correction.before.an
 const oldEvidence=JSON.parse(sql(correctionEvidenceQuery));
 assert.equal(oldEvidence.seedOutdated,1);assert.equal(oldEvidence.progressMissing,0);
 assert.deepEqual(oldEvidence.outdatedSeedDetails,[{code:'L1-03',attemptCount:13,snapshotCount:13,progressCount:13,lessonProgressCount:13,practiceAssignmentCount:13}]);
+if(hosted) enableHostedFixture();
 const dataRecovery=buildDataRecovery(plan,plan.migrations.map(m=>m.name),catalog(),permissions(),oldEvidence);
 assert.equal(dataRecovery.recoverable,true);
 if(!dataRecovery.recoverable) throw new Error('DATA_REPAIR_EXPECTED');
@@ -206,6 +246,7 @@ assert.deepEqual(JSON.parse(sql(`select answer from sb_problems where id=${liter
 assert.equal(JSON.parse(sql(correctionEvidenceQuery)).seedOutdated,0);
 assert.deepEqual(catalog(),dataCatalog);assert.deepEqual(permissions(),dataPermissions);
 assert.equal(buildDataRecovery(plan,plan.migrations.map(m=>m.name),catalog(),permissions(),JSON.parse(sql(correctionEvidenceQuery))).recoverable,false);
-console.log(`POSTGRES ${dataProfile} single known seed correction: 13 linked synthetic students, original answers/rewards/progress preserved; answer-only + existing timestamp trigger, rollback, no-op revisit PASS`);
+console.log(`POSTGRES ${hosted?'hosted executor ':''}${dataProfile} single known seed correction: 13 linked synthetic students, original answers/rewards/progress preserved; answer-only + existing timestamp trigger, rollback, no-op revisit PASS`);
+if(hosted) restoreLocalFixtureExecutor();
 }
-console.log(`POSTGRES PASS: ${plan.databaseBaseline!.profiles.length} exact profiles, SQL guards, legacy upgrade, retry, canonical read-only data evidence, effective permissions, 2 consent-repaired Supabase-default fixtures and latest/manual 13-student single-seed correction; no remote activity`);
+console.log(`POSTGRES PASS: ${plan.databaseBaseline!.profiles.length} exact profiles, SQL guards, legacy upgrade, retry, canonical read-only data evidence, effective permissions, 3 consent-repaired ACL scenarios and 3 latest/manual/hosted 13-student seed contexts; exact hosted graph/unknown-edge rejection verified; no remote activity`);
