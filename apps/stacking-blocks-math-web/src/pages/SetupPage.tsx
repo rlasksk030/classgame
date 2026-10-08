@@ -303,7 +303,7 @@ export default function SetupPage() {
       setInstallerStatus(null);
       setInstallerDetails(null); setOauthAuthorized(false); setConnectionIssue("session");
       setError("연결 세션이 저장되지 않았거나 권한이 만료되었습니다. Supabase를 다시 연결해 주세요.");
-    } else if (reason instanceof InstallerClientError && ["INSTALLER_TARGET_MISMATCH", "INSTALLER_PUBLIC_CONFIG_MISSING", "INSTALLER_STATUS_UNVERIFIED", "INSTALLER_UPDATE_INCOMPLETE", "INSTALLER_UPDATE_UNVERIFIED"].includes(reason.code)) {
+    } else if (reason instanceof InstallerClientError && (reason.code.startsWith("INSTALLER_PUBLIC_KEY_") || reason.code === "INSTALLER_KEY_RESPONSE_INVALID" || ["INSTALLER_TARGET_MISMATCH", "INSTALLER_PUBLIC_CONFIG_MISSING", "INSTALLER_STATUS_UNVERIFIED", "INSTALLER_UPDATE_INCOMPLETE", "INSTALLER_UPDATE_UNVERIFIED"].includes(reason.code))) {
       setError(reason.message);
     } else if (reason instanceof InstallerClientError && reason.code === "INSTALLER_BUSY") {
       setError("다른 창에서 이 프로젝트를 설치 중이에요. 잠시 후 상태를 확인해 주세요.");
