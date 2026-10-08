@@ -102,7 +102,7 @@ test('authenticated activity renews the browser cookie as well as the server exp
 
 test('server restart requires reauthorization; an old signed cookie never restores a credential', async () => {
   const first = await start();
-  let cookie = '';
+  let cookie: string;
   try {
     cookie = cookies(await first.call('/session', 'POST', '', target));
     await first.call('/credential', 'POST', cookie, { pat: 'synthetic-test-only' });
