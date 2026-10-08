@@ -1,7 +1,9 @@
 /** Disposable CI PostgreSQL only. No Supabase, URLs, API tokens or remote DBs. */
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { readFileSync } from 'node:fs';
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { readMathInstallerPlan } from './math-plan.ts';
 import { catalogAttributeFingerprints, catalogFingerprints, assessDatabaseState, type Catalog } from './database-state.ts';
 import { catalogDigestQuery, schemaDelta } from './legacy-sql.ts';
@@ -12,9 +14,17 @@ import { assertSupabaseDefaultDrift } from '../../tests/support/installer-defaul
 
 if (process.env.CI !== 'true' || process.env.INSTALLER_PG_DISPOSABLE !== 'YES' || process.env.PGHOST !== '127.0.0.1' || process.env.PGDATABASE !== 'installer_catalog_ci' || process.env.PGUSER !== 'postgres') throw new Error('DISPOSABLE_LOCAL_POSTGRES_REQUIRED');
 function sql(query: string): string {
-  const result = spawnSync('psql',['-X','-qAt','-v','ON_ERROR_STOP=1'], { input: query, encoding: 'utf8', maxBuffer: 32*1024*1024, timeout: 120_000 });
-  if (result.status !== 0) throw new Error(`POSTGRES_SQL_FAILED: ${result.error?.code ?? result.stderr.trim()}`);
-  return result.stdout.trim();
+  // psql can stop on an intentional guard failure before a large stdin pipe is
+  // fully written. Feed a private file so Node's EPIPE cannot mask the real DB
+  // error; keep ON_ERROR_STOP and every caller's exact failure assertion.
+  const directory = mkdtempSync(join(tmpdir(),'installer-pg-query-'));
+  try {
+    const input = join(directory,'query.sql');
+    writeFileSync(input,query,{mode:0o600});
+    const result = spawnSync('psql',['-X','-qAt','-v','ON_ERROR_STOP=1','-f',input], { stdio:['ignore','pipe','pipe'], encoding: 'utf8', maxBuffer: 32*1024*1024, timeout: 120_000 });
+    if (result.error || result.status !== 0) throw new Error(`POSTGRES_SQL_FAILED: ${result.stderr?.trim() || result.error?.code || `EXIT_${result.status ?? result.signal ?? 'UNKNOWN'}`}`);
+    return result.stdout.trim();
+  } finally { rmSync(directory,{recursive:true,force:true}); }
 }
 const plan = await readMathInstallerPlan(process.cwd());
 const catalogQuery = readFileSync('scripts/installer/catalog.sql','utf8');
