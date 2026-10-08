@@ -16,6 +16,14 @@ import type { TeacherAccountResult } from "./teacher-account.ts";
  * missing right after binding, which no local test can reproduce. */
 const PROCESS_INSTANCE_ID = randomBytes(4).toString("hex");
 const PROCESS_STARTED_AT = new Date().toISOString();
+const PUBLIC_KEY_ERROR_CODES = new Set([
+  'INSTALLER_PUBLIC_KEY_UNAVAILABLE', 'INSTALLER_KEY_RESPONSE_INVALID',
+  'INSTALLER_PUBLIC_KEY_FORBIDDEN', 'INSTALLER_PUBLIC_KEY_UNAUTHORIZED', 'INSTALLER_PUBLIC_KEY_NOT_FOUND',
+  'INSTALLER_PUBLIC_KEY_RATE_LIMITED', 'INSTALLER_PUBLIC_KEY_UPSTREAM_FAILED', 'INSTALLER_PUBLIC_KEY_NETWORK',
+  'INSTALLER_PUBLIC_KEY_INVALID', 'INSTALLER_PUBLIC_KEY_PROBE_UNREACHABLE', 'INSTALLER_PUBLIC_KEY_PROBE_FAILED', 'INSTALLER_PUBLIC_KEY_PROBE_INVALID',
+  'INSTALLER_SESSION_EXPIRED', 'INSTALLER_EXISTING_PROJECT_FORBIDDEN', 'INSTALLER_EXISTING_PROJECT_NOT_FOUND',
+  'INSTALLER_TARGET_MISMATCH', 'INSTALLER_EXISTING_CONFIG_INVALID',
+]);
 
 /** Non-secret diagnostic line for Render's log stream: never includes a
  * credential, access token, PAT, or full cookie value -- only this
@@ -219,7 +227,16 @@ async function handleRequest(request: IncomingMessage, response: ServerResponse,
           // The credential and cached key belong to this exact bound session.
           let lookupError: unknown;
           try { publishableKey = await extras.getPublishableKey(target); } catch (error) { lookupError = error; }
-          publishableKey ??= sameTarget ? previous!.target.publishableKey ?? target.publishableKey : target.publishableKey;
+          if (!publishableKey) {
+            // An expired OAuth token cannot be repaired with a public key.
+            if (lookupError instanceof InstallerError && lookupError.upstreamStatus === 401) throw lookupError;
+            const cached = sameTarget ? previous!.target.publishableKey ?? target.publishableKey : target.publishableKey;
+            if (cached) {
+              // Public Auth settings alone do not prove management access.
+              await inspectExistingProject(options,session.credential,target);
+              publishableKey = cached;
+            }
+          }
           if (!publishableKey) throw lookupError ?? new InstallerError('INSTALLER_PUBLIC_KEY_UNAVAILABLE','target','프로젝트는 연결되었지만 사용 가능한 공개 키가 없습니다.');
           await extras.verifyPublishableKey(target,publishableKey);
           if (session.credential.disposed) throw new InstallerError('INSTALLER_SESSION_EXPIRED','target','설치 권한이 만료되었습니다.');
@@ -227,7 +244,7 @@ async function handleRequest(request: IncomingMessage, response: ServerResponse,
           logInstallerDiagnostic('PUBLIC_KEY_FETCH_SUCCESS', { projectRef: target.projectRef });
         } catch (error) {
           publishableKey = undefined;
-          publicKeyError = { code: error instanceof InstallerError ? error.code : 'INSTALLER_PUBLIC_KEY_UNAVAILABLE', stage: 'public-key', ...(error instanceof InstallerError && error.upstreamStatus !== undefined ? { upstreamStatus: error.upstreamStatus } : {}) };
+          publicKeyError = { code: error instanceof InstallerError && PUBLIC_KEY_ERROR_CODES.has(error.code) ? error.code : 'INSTALLER_PUBLIC_KEY_UNAVAILABLE', stage: 'public-key', ...(error instanceof InstallerError && error.upstreamStatus !== undefined ? { upstreamStatus: error.upstreamStatus } : {}) };
           logInstallerDiagnostic('PUBLIC_KEY_FETCH_FAIL', { projectRef: target.projectRef, ...publicKeyError });
         }
       }

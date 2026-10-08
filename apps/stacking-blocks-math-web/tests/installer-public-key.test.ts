@@ -109,6 +109,13 @@ test('two authenticated sessions keep cached keys isolated; cached recovery need
     // Cached success isn't sticky when the same project's gateway rejects it.
     extras.verifyPublishableKey=async()=>{throw new InstallerError('INSTALLER_PUBLIC_KEY_PROBE_FAILED','target','safe',401);};
     const invalid=await post('/api/installer/session',sessions[0].cookie,sessions[0].t);const result=await invalid.json();assert.equal(result.publishableKey,undefined);assert.equal(result.publicKeyError.code,'INSTALLER_PUBLIC_KEY_PROBE_FAILED');
+    extras.getPublishableKey=async()=>{throw new InstallerError('INSTALLER_PUBLIC_KEY_UNAUTHORIZED','target','safe',401);};
+    const expired=await post('/api/installer/session',sessions[0].cookie,sessions[0].t);const expiredBody=await expired.json();assert.equal(expiredBody.publishableKey,undefined);assert.equal(expiredBody.publicKeyError.code,'INSTALLER_PUBLIC_KEY_UNAUTHORIZED');
+    extras.getPublishableKey=async()=>{throw new InstallerError('INSTALLER_PUBLIC_KEY_FORBIDDEN','target','safe',403);};
+    backend.inspectProject=async()=>{throw new InstallerError('INSTALLER_MANAGEMENT_HTTP_403','target','safe',403);};
+    const revokedAccess=await post('/api/installer/session',sessions[0].cookie,sessions[0].t);const denied=await revokedAccess.json();assert.equal(denied.publishableKey,undefined);assert.equal(denied.publicKeyError.code,'INSTALLER_EXISTING_PROJECT_FORBIDDEN');
+    backend.inspectProject=async()=>{throw new InstallerError('synthetic-private-upstream-code','target','synthetic-private-body',500);};
+    const unsafe=await(await post('/api/installer/session',sessions[0].cookie,sessions[0].t)).json();assert.equal(unsafe.publicKeyError.code,'INSTALLER_PUBLIC_KEY_UNAVAILABLE');assert.equal(JSON.stringify(unsafe).includes('synthetic-private'),false);
     assert.equal(backend.calls.some(c=>/^(apply|deploy|setSecrets)/.test(c)),false);
   }finally{await new Promise<void>(r=>server.close(()=>r()));}
 });
