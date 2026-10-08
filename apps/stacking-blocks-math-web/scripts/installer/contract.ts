@@ -103,6 +103,7 @@ export interface InstallerBackend {
   applyLegacyTransition?(target: InstallerTarget, query: string): Promise<void>;
   /** Only an expiring, server-generated, explicitly approved ACL plan may call this. */
   applyPermissionRecovery?(target: InstallerTarget, query: string): Promise<void>;
+  applyDataRecovery?(target: InstallerTarget, query: string): Promise<void>;
   listAppliedMigrations(target: InstallerTarget): Promise<string[]>;
   applyMigration(target: InstallerTarget, migration: MigrationInput): Promise<void>;
   listSecrets(target: InstallerTarget): Promise<string[]>;

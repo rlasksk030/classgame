@@ -21,6 +21,7 @@ export type InstallerRemoteStatus =
 export interface InstallerDataEvidenceReview {
   classification: 'SAFE_NO_CHANGE' | 'SAFE_ADDITIVE' | 'REVIEW_REQUIRED' | 'UNSAFE';
   counts: Partial<Record<'seedMissing' | 'seedOutdated' | 'storageMissing' | 'progressMissing' | 'dataConflict' | 'duplicateSeedCount' | 'storageBucketConflictCount' | 'storagePolicyConflictCount' | 'customizedSeedCount' | 'classProblemCount' | 'duplicateSeedReferencedCount' | 'seedIdentityConflictCount', number>>;
+  outdatedSeeds?: Array<{code: string; attemptCount: number; snapshotCount: number; progressCount: number; lessonProgressCount: number; practiceAssignmentCount: number}>;
   triggers: string[];
   readOnly: true;
 }
@@ -38,6 +39,20 @@ export interface InstallerRecoveryPlanResponse {
   recoverable: boolean;
   reason: string;
   plan?: InstallerRecoveryPlan;
+}
+
+export interface InstallerDataRecoveryPlan {
+  id: string;
+  expiresAt: string;
+  projectRef: string;
+  profile: string;
+  changes: Array<{ code: string; fields: string[]; historicalFeedbackChanges: true; referenceCounts: { attemptCount: number; snapshotCount: number; progressCount: number; lessonProgressCount: number; practiceAssignmentCount: number } }>;
+  preservesStudentData: true;
+}
+export interface InstallerDataRecoveryPlanResponse {
+  recoverable: boolean;
+  reason: string;
+  plan?: InstallerDataRecoveryPlan;
 }
 
 export interface InstallerStatusResponse {
@@ -192,17 +207,25 @@ export class InstallerClient {
     return this.request<{ status: "COMPLETE" }>("POST", "/api/installer/recovery-execute", { planId, approved: true });
   }
 
+  getDataRecoveryPlan(target: InstallerPublicTarget): Promise<InstallerDataRecoveryPlanResponse> {
+    return this.request<InstallerDataRecoveryPlanResponse>("POST", "/api/installer/data-recovery-plan", target);
+  }
+
+  executeDataRecovery(planId: string): Promise<{ status: "COMPLETE" }> {
+    return this.request<{ status: "COMPLETE" }>("POST", "/api/installer/data-recovery-execute", { planId, approved: true, acknowledgesHistoricalFeedbackChange: true });
+  }
+
   revoke(): Promise<{ revoked: boolean }> {
     return this.request<{ revoked: boolean }>("DELETE", "/api/installer/session");
   }
 
-  private async request<T>(method: "GET" | "POST" | "DELETE", path: string, body?: InstallerPublicTarget | { pat: string } | { email: string; password: string } | { planId: string; approved: true }): Promise<T> {
+  private async request<T>(method: "GET" | "POST" | "DELETE", path: string, body?: InstallerPublicTarget | { pat: string } | { email: string; password: string } | { planId: string; approved: true; acknowledgesHistoricalFeedbackChange?: true }): Promise<T> {
     const target = body && "projectRef" in body ? body : undefined;
     const query = method === "GET" && target
       ? `?${new URLSearchParams({ projectRef: target.projectRef, projectUrl: target.projectUrl, ...(target.publishableKey ? { publishableKey: target.publishableKey } : {}), release: target.release }).toString()}`
       : "";
     const controller = new AbortController();
-    const action = /^\/api\/installer\/(install|repair|update|recovery-execute)$/.test(path);
+    const action = /^\/api\/installer\/(install|repair|update|recovery-execute|data-recovery-execute)$/.test(path);
     const timeoutMs = action ? this.#timeouts.actionTimeoutMs : this.#timeouts.requestTimeoutMs;
     let timer: ReturnType<typeof setTimeout> | undefined;
     const deadline = new Promise<never>((_resolve, reject) => {

@@ -200,6 +200,13 @@ export class SupabaseManagementBackend implements InstallerBackend {
     await this.request('migrations', `/v1/projects/${encodeURIComponent(target.projectRef)}/database/query`, { method: 'POST', body: JSON.stringify({ query, read_only: false }) });
   }
 
+  async applyDataRecovery(target: InstallerTarget, query: string): Promise<void> {
+    assertTargetBinding(target);
+    // Separate explicit consent is enforced by HTTP. The transaction pins the
+    // historical seed and preserves every student row. Never retry a write.
+    await this.request('migrations', `/v1/projects/${encodeURIComponent(target.projectRef)}/database/query`, { method:'POST', body:JSON.stringify({query,read_only:false}) });
+  }
+
   async applyMigration(target: InstallerTarget, migration: MigrationInput): Promise<void> {
     await this.request("migrations", `/v1/projects/${encodeURIComponent(target.projectRef)}/database/migrations`, {
       method: "POST",
