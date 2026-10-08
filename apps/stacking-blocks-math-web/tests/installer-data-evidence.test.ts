@@ -8,6 +8,28 @@ import { inspectMigrationState, type DataEvidence } from '../scripts/installer/d
 import { buildPermissionRecovery, prepareEquivalentLegacyTransition } from '../scripts/installer/permission-recovery.ts';
 import type { PermissionSnapshot } from '../scripts/installer/permission-audit.ts';
 import { runInstaller } from '../scripts/installer/orchestrator.ts';
+import { compileKnownSeedCorrection, type CapturedProfile } from '../scripts/installer/legacy-generation.ts';
+
+test('single reviewed seed correction fails closed if shipped identity or any reviewed content changes',async()=>{
+  const plan=await readMathInstallerPlan(process.cwd()), expected=plan.legacyRecovery!.knownSeedCorrection!;
+  assert.equal(expected.code,'L1-03');
+  const db=await emptyLegacyDb();
+  const catalog=await readCatalog(db);await db.close();
+  const profile=(prefix:number,data:Record<string,unknown>):CapturedProfile=>({name:`history-prefix-${prefix}`,prefix,catalog,digest:'synthetic',storagePolicies:[],seeds:[{...data,id:expected.id,code:expected.code,class_id:null}]});
+  const before=profile(2,expected.before), after=profile(24,expected.after);
+  assert.deepEqual(compileKnownSeedCorrection([before,after],after),expected);
+  const reject=(old:CapturedProfile,next:CapturedProfile)=>assert.throws(()=>compileKnownSeedCorrection([old,next],next),/KNOWN_SEED_CORRECTION_SOURCE_CHANGED/);
+  const changed=(source:CapturedProfile,patch:Record<string,unknown>)=>({...source,seeds:[{...source.seeds[0],...patch}]});
+  reject(changed(before,{answer:{kind:'count',value:7}}),after);
+  reject(before,changed(after,{prompt:'changed current instructions'}));
+  reject(changed(before,{prompt:'same but unreviewed instructions'}),changed(after,{prompt:'same but unreviewed instructions'}));
+  reject(changed(before,{problem_type:'COUNT'}),changed(after,{problem_type:'COUNT'}));
+  reject(changed(before,{id:'11111111-1111-4111-8111-111111111111'}),after);
+  reject(changed(before,{id:'11111111-1111-4111-8111-111111111111'}),changed(after,{id:'11111111-1111-4111-8111-111111111111'}));
+  reject(before,{...after,seeds:[]});
+  reject(before,{...after,seeds:[...after.seeds,...after.seeds]});
+  assert.throws(()=>compileKnownSeedCorrection([before,changed(before,{answer:{kind:'count',value:5}}),after],after),/KNOWN_SEED_CORRECTION_SOURCE_CHANGED/);
+});
 
 const target={environment:'TEST' as const,projectRef:'synthetic-evidence',projectUrl:'https://synthetic-evidence.supabase.co',publishableKey:'sb_publishable_synthetic',release:'test'};
 async function fixture(prefix=24) {
@@ -164,5 +186,47 @@ test('consented ACL recovery then pending progress repair reaches COMPLETE and r
     const final=await inspectMigrationState(backend,target,plan);assert.equal(final.drift,false);assert.equal(final.recovery,undefined);assert.equal(final.evidence!.progressMissing,0);
     const writes=backend.calls.filter(c=>/^(apply|setSecrets|deploy)/.test(c)).length;
     await runInstaller({target,plan,backend});assert.equal(backend.calls.filter(c=>/^(apply|setSecrets|deploy)/.test(c)).length,writes);
+  }finally{await db.close();}
+});
+
+
+test('outdated seed details expose only known codes and exact FK/non-FK reference counts; diagnostics never modify data',async()=>{
+  const {plan,db,evidence}=await fixture(11);
+  type Detail={code:string,attemptCount:number,snapshotCount:number,progressCount:number,lessonProgressCount:number,practiceAssignmentCount:number};
+  const details=async()=> ((await evidence()) as DataEvidence & {outdatedSeedDetails:Detail[]}).outdatedSeedDetails;
+  try {
+    const known=['L1-03','L2-01','L2-03','L5-01','L12-04'];
+    const first=await details();assert.equal(first.length,(await evidence()).seedOutdated);
+    assert.ok(first.length>0&&first.length<=5);
+    for(const d of first) {assert.ok(known.includes(d.code));assert.deepEqual(Object.keys(d).sort(),['code','attemptCount','snapshotCount','progressCount','lessonProgressCount','practiceAssignmentCount'].sort());assert.deepEqual(Object.values(d).filter(v=>typeof v==='number'),[0,0,0,0,0]);}
+    const fk=(await db.query<{source:string}>("select conrelid::regclass::text source from pg_constraint where contype='f' and confrelid='public.sb_problems'::regclass order by source")).rows.map(r=>r.source);
+    assert.deepEqual(fk,['sb_block_snapshots','sb_problem_attempts','sb_student_progress']);
+    const old=(await db.query<{row:Record<string,unknown>}>("select to_jsonb(p) row from sb_problems p where code='L2-01'")).rows[0].row;
+    await seedProtectedRows(db);
+    await db.exec(`insert into sb_problem_attempts(student_id,problem_id,lesson) select '33333333-3333-4333-8333-333333333333',id,lesson from sb_problems where code='L2-01';
+insert into sb_block_snapshots(student_id,problem_id,lesson) select '33333333-3333-4333-8333-333333333333',id,lesson from sb_problems where code='L2-01';
+insert into sb_student_progress(student_id,lesson,last_problem_id) select '33333333-3333-4333-8333-333333333333',lesson,id from sb_problems where code='L2-01';`);
+    assert.deepEqual((await details()).find(d=>d.code==='L2-01'),{code:'L2-01',attemptCount:1,snapshotCount:1,progressCount:1,lessonProgressCount:0,practiceAssignmentCount:0});
+    await db.exec("update sb_problems set code='REMOTE-PRIVATE-TEXT-NEVER-RETURN' where code='L2-01'");
+    assert.ok((await details()).some(d=>d.code==='L2-01'));assert.doesNotMatch(JSON.stringify(await details()),/REMOTE-PRIVATE|33333333|blocks|answer|prompt|title/);
+    await db.exec("update sb_problems set code='L2-01' where code='REMOTE-PRIVATE-TEXT-NEVER-RETURN'");
+    for(const m of plan.migrations.slice(11)) await db.exec(m.query.replace('create extension if not exists "pgcrypto";',''));
+    // Reproduce an applied-history DB retaining one exact historical row. This
+    // is disposable fixture setup, never a recommended remote mutation.
+    await db.query(`update sb_problems p set problem_type=s.problem_type,prompt=s.prompt,choices=s.choices,answer=s.answer,given_blocks=s.given_blocks,given=s.given from jsonb_populate_record(null::sb_problems,$1::jsonb) s where p.id=s.id`,[JSON.stringify(old)]);
+    const references=[String(old.id),'L2-01','seed:L2-01'];
+    for(const [i,reference] of references.entries()) {
+      await db.query(`insert into sb_lesson_progress_records(installation_id,class_id,student_id,curriculum_version,lesson,stage,set_id,problem_id,question_index) values('synthetic-evidence','22222222-2222-4222-8222-222222222222','33333333-3333-4333-8333-333333333333','synthetic',2,'solve',$1,$2,0)`,[`local-${i}`,reference]);
+      const ids=i===2?{nested:[{problemId:reference}]}:[reference];
+      await db.query(`insert into sb_practice_assignments(installation_id,class_id,student_id,lesson,curriculum_version,set_id,seed,problem_ids,target_total,active) values('synthetic-evidence','22222222-2222-4222-8222-222222222222','33333333-3333-4333-8333-333333333333',2,'synthetic',$1,1,$2::jsonb,5,false)`,[`local-${i}`,JSON.stringify(ids)]);
+    }
+    const latestQuery=plan.legacyRecovery!.transitions.find(t=>t.from==='history-prefix-24')!.evidenceQuery;
+    const latest=async()=> (await db.query<{evidence:DataEvidence & {outdatedSeedDetails:Detail[]}}>(latestQuery)).rows[0].evidence;
+    const snapshots=async()=> Promise.all(['sb_students','sb_problems','sb_problem_attempts','sb_block_snapshots','sb_student_progress','sb_lesson_progress_records','sb_practice_assignments'].map(async table=>(await db.query<{hash:string}>(`select md5(jsonb_agg(to_jsonb(t) order by to_jsonb(t)::text)::text) hash from ${table} t`)).rows[0].hash));
+    const before=await snapshots();const result=await latest();
+    assert.equal(result.seedOutdated,1);assert.deepEqual(result.outdatedSeedDetails,[{code:'L2-01',attemptCount:1,snapshotCount:1,progressCount:1,lessonProgressCount:3,practiceAssignmentCount:3}]);
+    assert.deepEqual(await snapshots(),before,'read-only diagnosis leaves all students, questions and referenced records unchanged');
+    await db.exec(`update sb_problems set given=given||'{"teacher_extension":true}'::jsonb where code='L2-01'`);
+    assert.equal((await latest()).seedOutdated,0);assert.deepEqual((await latest()).outdatedSeedDetails,[]);
   }finally{await db.close();}
 });

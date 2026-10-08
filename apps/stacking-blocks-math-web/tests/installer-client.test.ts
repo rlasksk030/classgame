@@ -164,3 +164,23 @@ test("recovery execution timeout never silently resends consent", async () => {
   await assert.rejects(client.executeRecovery('synthetic-reviewed-plan'), { code: 'INSTALLER_REQUEST_TIMEOUT' });
   assert.equal(calls, 1);
 });
+
+test('data recovery uses a separate consent contract including historical feedback acknowledgement', async () => {
+  const calls: Array<{ path: string; body: unknown }> = [];
+  const client = new InstallerClient('https://installer.example', async (url, init) => {
+    calls.push({ path: new URL(url).pathname, body: JSON.parse(String(init?.body)) });
+    return Response.json({ status: 'COMPLETE' });
+  });
+  await client.getDataRecoveryPlan(target);
+  assert.deepEqual(calls[0], { path: '/api/installer/data-recovery-plan', body: target });
+  await client.executeDataRecovery('synthetic-data-plan');
+  assert.deepEqual(calls[1], { path: '/api/installer/data-recovery-execute', body: { planId: 'synthetic-data-plan', approved: true, acknowledgesHistoricalFeedbackChange: true } });
+  assert.equal(JSON.stringify(calls).includes('answer'), false);
+});
+
+test('data recovery uses the mutation deadline without automatic consent replay', async () => {
+  let calls = 0;
+  const client = new InstallerClient('https://installer.example', () => { calls++; return new Promise(() => {}); }, { requestTimeoutMs: 100, actionTimeoutMs: 5 });
+  await assert.rejects(client.executeDataRecovery('synthetic-data-plan'), { code: 'INSTALLER_REQUEST_TIMEOUT' });
+  assert.equal(calls, 1);
+});

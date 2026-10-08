@@ -1,17 +1,45 @@
 // Offline compiler for reviewed known-profile -> release transitions.
 import { readFile } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
+import { isDeepStrictEqual } from 'node:util';
 import { catalogDigestQuery, identifier, literal, preservationGuard, schemaDelta } from './legacy-sql.ts';
 import type { Catalog } from './database-state.ts';
 
 export interface CapturedProfile { name: string; prefix: number; catalog: Catalog; digest: string; seeds: Record<string, unknown>[]; storagePolicies: Record<string, unknown>[] }
 export interface LegacyTransition { from: string; to: string; query: string; evidenceQuery: string; dataMigrations: number[] }
-export interface LegacyRecovery { migrationHashes: string[]; transitions: LegacyTransition[] }
+export interface KnownSeedCorrection { code:'L1-03'; id:string; before:Record<string,unknown>; after:Record<string,unknown> }
+export interface LegacyRecovery { migrationHashes: string[]; transitions: LegacyTransition[]; knownSeedCorrection?:KnownSeedCorrection }
 
 // Only the fields changed by the historical corrective migration. Personal
 // problems (class_id != null), activation flags, attempts and answer history stay put.
 const correctionFields = ['problem_type', 'prompt', 'choices', 'answer', 'given_blocks', 'given'];
 function content(row: Record<string, unknown>) { return Object.fromEntries(correctionFields.map(k => [k, row[k]])); }
 const contentSql = `jsonb_build_object(${correctionFields.flatMap(k => [literal(k), `p.${identifier(k)}`]).join(',')})`;
+
+/** One reviewed shipped defect, not a general seed overwrite policy. This
+ * server-only contract authorizes no write by itself; the separate consent
+ * planner must recheck the target row and all referenced learning records. */
+export function compileKnownSeedCorrection(profiles:CapturedProfile[], full:CapturedProfile):KnownSeedCorrection {
+  const fail=():never=>{throw new Error('KNOWN_SEED_CORRECTION_SOURCE_CHANGED');};
+  const rows=full.seeds.filter(row=>row.code==='L1-03'&&row.class_id===null);
+  if(rows.length!==1) return fail();
+  const row=rows[0];
+  if(row.id!=='95dd8f12-9215-430b-893c-d830c0368798') return fail();
+  const after=content(row);
+  const historical=profiles.filter(p=>p.prefix>0&&p.prefix<full.prefix).flatMap(p=>p.seeds.filter(s=>s.code==='L1-03'&&s.class_id===null));
+  if(historical.some(s=>s.id!==row.id)) return fail();
+  const variants=[...new Set(historical.map(s=>JSON.stringify(content(s))))].map(s=>JSON.parse(s) as Record<string,unknown>).filter(s=>!isDeepStrictEqual(s,after));
+  if(variants.length!==1) return fail();
+  const before=variants[0];
+  if(correctionFields.some(k=>before[k]===undefined||after[k]===undefined)||before.problem_type!=='FREE_BUILD'||after.problem_type!=='FREE_BUILD'||!isDeepStrictEqual(before.answer,{kind:'count',value:6})||!isDeepStrictEqual(after.answer,{kind:'blocks',blocks:[]})||correctionFields.some(k=>k!=='answer'&&!isDeepStrictEqual(before[k],after[k]))) return fail();
+  const canonical=(value:unknown):unknown=>Array.isArray(value)?value.map(canonical):value&&typeof value==='object'?Object.fromEntries(Object.entries(value).sort(([a],[b])=>a.localeCompare(b)).map(([k,v])=>[k,canonical(v)])):value;
+  const digest=(value:unknown)=>createHash('sha256').update(JSON.stringify(canonical(value))).digest('hex');
+  // Pin all six reviewed fields, including unchanged instructions/blocks. A
+  // future source change requires a new explicit review, never a wider match.
+  if(digest(before)!=='9ae71608349913413f7ffbd0bd5434152a89126a8e103be148c867c090928c81'||digest(after)!=='ef8a839a64c5c9376fa8e9ec480db85c95f8c0836518c5a944cd204c30624ce7') return fail();
+  return {code:'L1-03',id:row.id,before,after};
+}
+
 
 export async function compileRecovery(profiles: CapturedProfile[], hashes: string[], catalogSql: string): Promise<LegacyRecovery> {
   const full = profiles.find(p => p.name === 'history-prefix-24')!;
@@ -31,7 +59,7 @@ export async function compileRecovery(profiles: CapturedProfile[], hashes: strin
   const seedInsert = `insert into public.sb_problems(${seedColumns.map(identifier).join(',')}) select ${seedColumns.map(c => `s.${identifier(c)}`).join(',')} from jsonb_populate_recordset(null::public.sb_problems,${literal(JSON.stringify(seedInsertRows))}::jsonb) s where not exists(select 1 from public.sb_problems p where p.id=s.id or (p.class_id is null and p.code=s.code)) on conflict do nothing;`;
   // Corrections apply only to exact shipped historical content variants, never
   // overwrite a teacher's edited content or later code-driven seeds.
-  const corrections: string[] = []; const outdated: string[] = [];
+  const corrections: string[] = []; const outdated: string[] = []; const outdatedDetails: Array<{code:unknown,predicate:string}> = [];
   for (const row of full.seeds) {
     const expected = content(row);
     const old = [...new Set(profiles.filter(p => p.prefix > 0 && p.prefix < 24).flatMap(p => p.seeds.filter(s => s.id === row.id).map(s => JSON.stringify(content(s)))))].filter(s => s !== JSON.stringify(expected));
@@ -40,6 +68,9 @@ export async function compileRecovery(profiles: CapturedProfile[], hashes: strin
     // a match. Only exact known content may ever be corrected automatically.
     const predicate = `p.class_id is null and p.id=${literal(row.id)}::uuid and (${old.map(s => `${contentSql} = ${literal(s)}::jsonb`).join(' or ')})`;
     outdated.push(`(select count(*)::int from public.sb_problems p where ${predicate})`);
+    // Return checked-in codes and aggregate FK counts only, never the remote
+    // row's ID/code/title/answer or any student/attempt payload.
+    outdatedDetails.push({code:row.code,predicate});
     corrections.push(`update public.sb_problems p set ${correctionFields.map(c => `${identifier(c)}=s.${identifier(c)}`).join(',')} from jsonb_populate_record(null::public.sb_problems,${literal(JSON.stringify(expected))}::jsonb) s where ${predicate};`);
   }
   const missingSeeds = `(select count(*)::int from jsonb_array_elements(${literal(JSON.stringify(full.seeds.map(s => ({ id: s.id, code: s.code }))))}::jsonb) s where not exists(select 1 from public.sb_problems p where p.class_id is null and (p.id=(s->>'id')::uuid or p.code=s->>'code')))`;
@@ -64,7 +95,18 @@ export async function compileRecovery(profiles: CapturedProfile[], hashes: strin
   for (const p of profiles.filter(p => p.name !== 'fresh-empty')) {
     const target = p.name.startsWith('manual-') ? manual : full;
     const hasProgressEvidence = ['sb_challenge_solves', 'sb_projects'].every(n => p.catalog.tables.some(t => t.name === n)) && p.catalog.columns.some(c => c.table === 'sb_problems' && c.name === 'class_id');
-    const evidenceQuery = `select jsonb_build_object('seedMissing',${missingSeeds},'seedOutdated',${staleSeeds},'storageMissing',${storageEvidence},'dataConflict',${duplicateSeeds}+${storageBucketConflict}+${storagePolicyConflict}+${identityConflicts},'progressMissing',${hasProgressEvidence ? progressEvidence : '0'},'duplicateSeedCount',${duplicateSeeds},'storageBucketConflictCount',${storageBucketConflict},'storagePolicyConflictCount',${storagePolicyConflict},'seedIdentityConflictCount',${identityConflicts},'customizedSeedCount',${customizedSeeds},'classProblemCount',${classProblems},'duplicateSeedReferencedCount',${referencedDuplicates}) as evidence`;
+    // Older profiles legitimately lack the Phase 5 tables. Only a proven absent
+    // table means zero; an unexpected column contract yields unknown, not zero.
+    const optionalReference = (table:string,column:string,type:string,query:string) => !p.catalog.tables.some(t=>t.name===table) ? '0' : p.catalog.columns.some(c=>c.table===table&&c.name===column&&c.type===type) ? query : 'null';
+    const detailRows=outdatedDetails.map(({code,predicate})=>{
+      const lessonProgress=optionalReference('sb_lesson_progress_records','problem_id','text',`(select count(*)::int from public.sb_lesson_progress_records r where r.problem_id in (p.id::text,${literal(code)},${literal(`seed:${code}`)}))`);
+      // problem_ids accepts JSON in the current API. Inspect exact string values
+      // recursively so nested containers are not silently counted as no usage.
+      const practiceAssignment=optionalReference('sb_practice_assignments','problem_ids','jsonb',`(select count(*)::int from public.sb_practice_assignments a where jsonb_path_exists(a.problem_ids,'strict $.** ? (@ == $id || @ == $code || @ == $seed)',jsonb_build_object('id',p.id::text,'code',${literal(code)},'seed',${literal(`seed:${code}`)})))`);
+      return `select jsonb_build_object('code',${literal(code)},'attemptCount',(select count(*)::int from public.sb_problem_attempts a where a.problem_id=p.id),'snapshotCount',(select count(*)::int from public.sb_block_snapshots b where b.problem_id=p.id),'progressCount',(select count(*)::int from public.sb_student_progress r where r.last_problem_id=p.id),'lessonProgressCount',${lessonProgress},'practiceAssignmentCount',${practiceAssignment}) detail from public.sb_problems p where ${predicate}`;
+    });
+    const staleDetails = detailRows.length ? `(select coalesce(jsonb_agg(d.detail order by d.detail->>'code'),'[]'::jsonb) from (${detailRows.join(' union all ')}) d)` : `'[]'::jsonb`;
+    const evidenceQuery = `select jsonb_build_object('seedMissing',${missingSeeds},'seedOutdated',${staleSeeds},'storageMissing',${storageEvidence},'dataConflict',${duplicateSeeds}+${storageBucketConflict}+${storagePolicyConflict}+${identityConflicts},'progressMissing',${hasProgressEvidence ? progressEvidence : '0'},'duplicateSeedCount',${duplicateSeeds},'storageBucketConflictCount',${storageBucketConflict},'storagePolicyConflictCount',${storagePolicyConflict},'seedIdentityConflictCount',${identityConflicts},'customizedSeedCount',${customizedSeeds},'classProblemCount',${classProblems},'duplicateSeedReferencedCount',${referencedDuplicates},'outdatedSeedDetails',${staleDetails}) as evidence`;
     const ddl = p.name === previous.name
       // Preserve the already reviewed manual RPC bodies/defaults, apply the exact
       // existing delta inside our stronger whole-catalog transaction guard.
@@ -88,9 +130,9 @@ ${storageDelta}
 ${progressSql}
 ${protect.after}
 ${guard(target.digest)}
-do $evidence$ declare outcome jsonb; begin select evidence into outcome from (${latestEvidence}) q; if exists(select 1 from jsonb_each_text(outcome) where key in ('seedMissing','seedOutdated','storageMissing','progressMissing','dataConflict') and value::int<>0) then raise exception 'INSTALLER_DATA_POSTCONDITION_FAILED'; end if; end $evidence$;
+do $evidence$ declare outcome jsonb; begin select evidence into outcome from (${latestEvidence}) q; if exists(select 1 from jsonb_each_text(outcome) where case when key in ('seedMissing','seedOutdated','storageMissing','progressMissing','dataConflict') then value::int<>0 else false end) then raise exception 'INSTALLER_DATA_POSTCONDITION_FAILED'; end if; end $evidence$;
 commit;`;
     transitions.push({ from: p.name, to: target.name, query, evidenceQuery, dataMigrations: [2, 5, 8, 12, 22, 24] });
   }
-  return { migrationHashes: hashes, transitions };
+  return { migrationHashes: hashes, transitions, knownSeedCorrection:compileKnownSeedCorrection(profiles,full) };
 }

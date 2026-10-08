@@ -9,6 +9,7 @@ const conflict = {
       classification: 'REVIEW_REQUIRED', readOnly: true,
       counts: { seedMissing: 2, seedOutdated: 1, storageMissing: 0, progressMissing: 0, dataConflict: 3, duplicateSeedCount: 1, duplicateSeedReferencedCount: 1, storageBucketConflictCount: 1, storagePolicyConflictCount: 1, customizedSeedCount: 2, classProblemCount: 4 },
       triggers: ['DUPLICATE_SEED', 'STORAGE_BUCKET_CONFLICT', 'STORAGE_POLICY_CONFLICT', 'SEED_MISSING_WITH_HISTORY', 'SEED_OUTDATED_WITH_HISTORY'],
+      outdatedSeeds: [{code:'L1-03',attemptCount:17,snapshotCount:16,progressCount:5,lessonProgressCount:0,practiceAssignmentCount:0}],
     },
   },
 };
@@ -43,6 +44,8 @@ test('data evidence conflict shows safe per-kind counts with zero catalog differ
   await expect(details).toContainText('실제 수정이 필요한지 검토');
   await expect(details).toContainText('읽기 전용');
   await expect(details).toContainText('학생·PIN·문제·답안·진도·작품·보상을 변경하지 않습니다');
+  await expect(page.getByLabel('확인이 필요한 기본 문제')).toContainText('L1-03: 풀이 17건, 블록 저장 16건, 진도 위치 5건');
+  await expect(page.getByLabel('확인이 필요한 기본 문제')).toContainText('별도 승인 없이 내용을 변경하지 않습니다');
   await expect(page.getByLabel('설치 진단 정보').getByText('객체 차이', { exact: true }).locator('xpath=following-sibling::dd[1]')).toHaveText('0');
   await expect(page.getByText('기존 설치 구조 확인이 필요합니다.', { exact: true })).toHaveCount(0);
   await assertBlocked(page);

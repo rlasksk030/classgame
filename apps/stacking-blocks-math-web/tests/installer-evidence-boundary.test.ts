@@ -23,3 +23,17 @@ test('historical seed contradiction is not silently approved; ordinary missing a
   assert.equal(dataEvidenceReview({...clean,storageMissing:1,progressMissing:2},true,true).classification,'SAFE_ADDITIVE');
   assert.equal(dataEvidenceReview({...clean,seedMissing:1},false,false).readOnly,true);
 });
+test('outdated seed diagnostics expose only known codes and bounded aggregate references', () => {
+  const detail = {code:'L1-03',attemptCount:17,snapshotCount:16,progressCount:5,lessonProgressCount:0,practiceAssignmentCount:0};
+  const input = {...clean,seedOutdated:1,outdatedSeedDetails:[{...detail,id:'private-id',answer:'private-answer',studentRows:['private']}]};
+  assert.deepEqual(parseDataEvidence(input),{...clean,seedOutdated:1,outdatedSeedDetails:[detail]});
+  const review = dataEvidenceReview(input,true,true);
+  assert.deepEqual(review.outdatedSeeds,[detail]);
+  assert.equal('outdatedSeedDetails' in review.counts,false);
+  assert.equal(review.classification,'REVIEW_REQUIRED');
+  assert.equal(JSON.stringify(review).includes('private'),false);
+  for (const rows of [[{...detail,code:'custom-private-code'}],[{...detail,attemptCount:-1}],[{...detail,snapshotCount:null}],[{...detail,lessonProgressCount:'0'}],[],[detail,detail]]) {
+    assert.equal(parseDataEvidence({...clean,seedOutdated:1,outdatedSeedDetails:rows}),undefined);
+  }
+  assert.equal(parseDataEvidence({...clean,seedOutdated:2,outdatedSeedDetails:[detail,detail]}),undefined);
+});
