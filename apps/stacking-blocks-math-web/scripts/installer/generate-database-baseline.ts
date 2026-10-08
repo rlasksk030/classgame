@@ -11,6 +11,7 @@ const migrations = await readMigrationPlan('supabase/migrations');
 const query = await readFile('scripts/installer/catalog.sql', 'utf8');
 const result: DatabaseBaseline = { migrationHashes: migrations.map(m => createHash('sha256').update(m.query).digest('hex')), profiles: [] };
 const captured: CapturedProfile[] = [];
+const tableOwners = new Map<string, Record<string,string>>();
 const db = new PGlite();
 await db.exec(`create role anon; create role authenticated; create role service_role bypassrls;
 create schema auth; create table auth.users(id uuid primary key);
@@ -20,6 +21,8 @@ create schema storage;create table storage.buckets(id text primary key,name text
 create table storage.objects(id uuid primary key default gen_random_uuid(),bucket_id text,name text);alter table storage.objects enable row level security;
 create function storage.foldername(text) returns text[] language sql as $$ select string_to_array($1,'/') $$;`);
 async function capture(database: PGlite, name: string, kind: DatabaseBaseline['profiles'][number]['kind'], prefix: number) {
+  const owners = (await database.query<{name:string,owner:string}>("select c.relname name,pg_get_userbyid(c.relowner) owner from pg_class c join pg_namespace n on n.oid=c.relnamespace where n.nspname='public' and left(c.relname,3)='sb_' and c.relkind in ('r','p')")).rows;
+  tableOwners.set(name,Object.fromEntries(owners.map(o=>[o.name,o.owner])));
   const snapshot = (await database.query<{ snapshot: Catalog }>(query)).rows[0].snapshot;
   result.profiles.push({ name, kind, prefix, objects: catalogFingerprints(snapshot), attributes: catalogAttributeFingerprints(snapshot) });
   const digest = (await database.query<{digest: string}>(catalogDigestQuery(query))).rows[0].digest;
@@ -42,4 +45,13 @@ try {
 } finally { await manual.close(); }
 await writeFile('scripts/installer/database-baseline.json', JSON.stringify(result, null, 2) + '\n');
 await writeFile('scripts/installer/legacy-recovery.json', JSON.stringify(await compileRecovery(captured, result.migrationHashes, query), null, 2) + '\n');
+// Only trusted offline fixtures provide ACL repair targets. Never reconstruct
+// grants from untrusted remote ACL text or from a nearest-profile guess.
+await writeFile('scripts/installer/permission-recovery-baseline.json', JSON.stringify({
+  migrationHashes: result.migrationHashes,
+  profiles: Object.fromEntries(captured.map(p => [p.name, { objects: Object.fromEntries([
+    ...p.catalog.tables.map(t => [`tables::${t.name}:`, { kind: 'table', name: t.name, owner: tableOwners.get(p.name)![t.name], acl: t.acl }]),
+    ...p.catalog.rpcs.map(f => [`rpcs::${f.name}:${f.arguments}`, { kind: 'function', name: f.name, arguments: f.arguments, owner: p.catalog.rpc_definitions.find(d => d.name === f.name && d.arguments === f.arguments)?.owner, acl: f.acl }]),
+  ]) }])),
+}, null, 2)+'\n');
 console.log(`LOCAL baseline generated: ${result.profiles.length} supported profiles`);

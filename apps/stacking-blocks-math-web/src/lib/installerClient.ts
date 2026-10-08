@@ -18,11 +18,33 @@ export type InstallerRemoteStatus =
   | "BROKEN"
   | "UNKNOWN";
 
+export interface InstallerDataEvidenceReview {
+  classification: 'SAFE_NO_CHANGE' | 'SAFE_ADDITIVE' | 'REVIEW_REQUIRED' | 'UNSAFE';
+  counts: Partial<Record<'seedMissing' | 'seedOutdated' | 'storageMissing' | 'progressMissing' | 'dataConflict' | 'duplicateSeedCount' | 'storageBucketConflictCount' | 'storagePolicyConflictCount' | 'customizedSeedCount' | 'classProblemCount' | 'duplicateSeedReferencedCount' | 'seedIdentityConflictCount', number>>;
+  triggers: string[];
+  readOnly: true;
+}
+
+export interface InstallerRecoveryPlan {
+  id: string;
+  expiresAt: string;
+  projectRef: string;
+  profile: string;
+  changes: Array<{ object: string; kind: 'table' | 'function'; action: 'GRANT' | 'REVOKE'; role: string; privileges: string[] }>;
+  preservesStudentData: true;
+}
+
+export interface InstallerRecoveryPlanResponse {
+  recoverable: boolean;
+  reason: string;
+  plan?: InstallerRecoveryPlan;
+}
+
 export interface InstallerStatusResponse {
   project?: { ref: string };
   legacyRecovery?: 'LEGACY_RESUME_CANDIDATE';
   matchedProfile?: string;
-  databaseReview?: { reason: string; baseline: string; comparisonBaseline: string; objects: Array<{key: string; change: string; attributes?: Array<{name: string; state: string}>}> };
+  databaseReview?: { dataEvidence?: InstallerDataEvidenceReview; reason: string; baseline: string; comparisonBaseline: string; objects: Array<{key: string; change: string; attributes?: Array<{name: string; state: string}>}> };
   status: InstallerRemoteStatus;
   appliedMigrationCount?: number;
   satisfiedMigrationCount?: number;
@@ -162,17 +184,25 @@ export class InstallerClient {
     return this.request<InstallerJobResponse>("POST", "/api/installer/update", target);
   }
 
+  getRecoveryPlan(target: InstallerPublicTarget): Promise<InstallerRecoveryPlanResponse> {
+    return this.request<InstallerRecoveryPlanResponse>("POST", "/api/installer/recovery-plan", target);
+  }
+
+  executeRecovery(planId: string): Promise<{ status: "COMPLETE" }> {
+    return this.request<{ status: "COMPLETE" }>("POST", "/api/installer/recovery-execute", { planId, approved: true });
+  }
+
   revoke(): Promise<{ revoked: boolean }> {
     return this.request<{ revoked: boolean }>("DELETE", "/api/installer/session");
   }
 
-  private async request<T>(method: "GET" | "POST" | "DELETE", path: string, body?: InstallerPublicTarget | { pat: string } | { email: string; password: string }): Promise<T> {
+  private async request<T>(method: "GET" | "POST" | "DELETE", path: string, body?: InstallerPublicTarget | { pat: string } | { email: string; password: string } | { planId: string; approved: true }): Promise<T> {
     const target = body && "projectRef" in body ? body : undefined;
     const query = method === "GET" && target
       ? `?${new URLSearchParams({ projectRef: target.projectRef, projectUrl: target.projectUrl, ...(target.publishableKey ? { publishableKey: target.publishableKey } : {}), release: target.release }).toString()}`
       : "";
     const controller = new AbortController();
-    const action = /^\/api\/installer\/(install|repair|update)$/.test(path);
+    const action = /^\/api\/installer\/(install|repair|update|recovery-execute)$/.test(path);
     const timeoutMs = action ? this.#timeouts.actionTimeoutMs : this.#timeouts.requestTimeoutMs;
     let timer: ReturnType<typeof setTimeout> | undefined;
     const deadline = new Promise<never>((_resolve, reject) => {

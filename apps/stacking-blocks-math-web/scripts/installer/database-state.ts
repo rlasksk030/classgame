@@ -1,4 +1,7 @@
 import { createHash } from 'node:crypto';
+import { normalizeEquivalentCatalog } from './permission-recovery.ts';
+import { evidenceFields, parseDataEvidence, dataEvidenceReview, type DataEvidenceReview, type DataEvidence } from './data-evidence.ts';
+export type { DataEvidence } from './data-evidence.ts';
 import { InstallerError, type InstallerBackend, type InstallerTarget } from './contract.ts';
 import type { InstallerPlan } from './orchestrator.ts';
 import { classifyPermissionDifference, permissionContext, type PermissionCategory } from './permission-audit.ts';
@@ -9,7 +12,6 @@ export interface DatabaseBaseline {
   migrationHashes: string[];
   profiles: Array<{ name: string; kind: 'RELEASE' | 'RESUME' | 'MANUAL_DELTA_REQUIRED'; prefix: number; objects: Record<string, string>; attributes?: Record<string, Record<string, string>> }>;
 }
-export interface DataEvidence { seedMissing: number; seedOutdated: number; storageMissing: number; progressMissing: number; dataConflict: number }
 export interface MigrationAssessment {
   recovery?: 'LEGACY_RESUME_CANDIDATE';
   evidence?: DataEvidence;
@@ -23,6 +25,7 @@ export interface MigrationAssessment {
     baseline: string;
     comparisonBaseline: string;
     permissionContext?: ReturnType<typeof permissionContext>;
+    dataEvidence?: DataEvidenceReview;
     objects: Array<{ key: string; change: 'MISSING' | 'ADDITIONAL' | 'CHANGED'; category?: PermissionCategory; attributes?: Array<{ name: string; state: 'SAME' | 'DIFFERENT'; expectedDigest?: string; actualDigest?: string }> }>;
   };
 }
@@ -89,11 +92,12 @@ export function assessDatabaseState(plan: InstallerPlan, history: string[], cata
   const selected = release ?? (recoverySupported ? manual : undefined) ?? resume;
   const historyConflict = Boolean(selected && !release && plan.migrations.some((m,i) => applied.has(m.name) && i >= selected.prefix));
   const needsEvidence = recoverySupported && Boolean(selected && selected.name !== 'fresh-empty');
-  const evidenceValid = evidence && ['seedMissing','seedOutdated','storageMissing','progressMissing','dataConflict'].every(k => Number.isSafeInteger(evidence[k as keyof DataEvidence]) && evidence[k as keyof DataEvidence] >= 0);
+  evidence = parseDataEvidence(evidence);
+  const evidenceValid = evidence;
   const evidenceMissing = needsEvidence && !evidenceValid;
   const evidenceConflict = needsEvidence && evidenceValid && (evidence.dataConflict > 0 || (evidence.seedMissing > 0 && applied.has(plan.migrations[4].name)) || (evidence.seedOutdated > 0 && applied.has(plan.migrations[11].name)));
   const drift = !selected || historyConflict || evidenceMissing || Boolean(evidenceConflict);
-  const needsData = evidenceValid && Object.values(evidence).some(n => n > 0);
+  const needsData = evidenceValid && evidenceFields.some(k => evidence[k] > 0);
   const recovery = !drift && needsEvidence && (!release || needsData) ? 'LEGACY_RESUME_CANDIDATE' as const : undefined;
   const nearest = baseline.profiles.filter(p => p.kind === 'RELEASE').sort((a, b) => differences(a.objects, actual).length - differences(b.objects, actual).length)[0];
   const compared = selected || knownSchema || nearest;
@@ -105,6 +109,7 @@ export function assessDatabaseState(plan: InstallerPlan, history: string[], cata
       reason: evidenceConflict ? 'DATA_EVIDENCE_CONFLICT' as const : evidenceMissing ? 'DATA_EVIDENCE_REQUIRED' as const : historyConflict || knownSchema ? 'KNOWN_SCHEMA_HISTORY_MISMATCH' as const : manual ? 'REVIEWED_DELTA_REQUIRED' as const : 'UNRECOGNIZED_SCHEMA' as const,
       baseline: manual?.name ?? compared.name,
       comparisonBaseline: compared.name,
+      ...(evidenceConflict || evidenceMissing ? { dataEvidence: dataEvidenceReview(evidence, applied.has(plan.migrations[4].name), applied.has(plan.migrations[11].name)) } : {}),
       objects: changedObjects.map(key => ({ key, change: !(key in actual) ? 'MISSING' as const : !(key in compared.objects) ? 'ADDITIONAL' as const : 'CHANGED' as const,
         // Attribute names are repository-owned too. Unknown remote fields must
         // never become a route for leaking an identifier, SQL or a credential.
@@ -120,14 +125,22 @@ export function assessDatabaseState(plan: InstallerPlan, history: string[], cata
 export async function inspectMigrationState(backend: InstallerBackend, target: InstallerTarget, plan: InstallerPlan, history?: string[]): Promise<MigrationAssessment> {
   const applied = history ?? await backend.listAppliedMigrations(target);
   if (plan.databaseBaseline && !backend.inspectDatabaseCatalog) throw manualReview();
-  const catalog = plan.databaseBaseline ? await backend.inspectDatabaseCatalog!(target) : undefined;
-  const structural = assessDatabaseState(plan, applied, catalog);
+  let catalog = plan.databaseBaseline ? await backend.inspectDatabaseCatalog!(target) : undefined;
+  let structural = assessDatabaseState(plan, applied, catalog);
+  let permissions: unknown;
+  if (catalog && structural.drift && structural.differences.length && backend.inspectDatabasePermissions) {
+    permissions = await backend.inspectDatabasePermissions(target).catch(() => undefined);
+    // Exact structure + trusted direct/PUBLIC rights + effective roles only.
+    // The data evidence gate still runs below on the normalized representation.
+    const equivalent = normalizeEquivalentCatalog(plan,catalog,permissions);
+    if (equivalent) { catalog = equivalent; structural = assessDatabaseState(plan,applied,catalog); }
+  }
   const transition = plan.legacyRecovery?.transitions.find(t => t.from === structural.baseline);
   const finish = async (assessment: MigrationAssessment) => {
     if (assessment.review && plan.databaseBaseline) {
       // Optional diagnostics must neither weaken the original gate nor turn a
       // permission-query failure into a failure for otherwise recognized DBs.
-      const permissions = await backend.inspectDatabasePermissions?.(target).catch(() => undefined);
+      permissions ??= await backend.inspectDatabasePermissions?.(target).catch(() => undefined);
       assessment = { ...assessment, review: { ...assessment.review, permissionContext: permissionContext(permissions), objects: assessment.review.objects.map(object => ({ ...object,
         category: classifyPermissionDifference({ profile: assessment.review!.comparisonBaseline, key: object.key, migrationHashes: plan.databaseBaseline!.migrationHashes, actual: permissions,
           structural: object.change !== 'CHANGED' || Boolean(object.attributes?.some(a => a.state === 'DIFFERENT' && a.name !== 'acl')),
@@ -138,8 +151,8 @@ export async function inspectMigrationState(backend: InstallerBackend, target: I
       assessment = { ...assessment, differences: assessment.differences.map(key => diagnosticObjectKey(key, plan.databaseBaseline!)), review: { ...assessment.review, objects: assessment.review.objects.map(({key, ...difference}) => ({ key: diagnosticObjectKey(key, plan.databaseBaseline!), ...difference })) } };
     }
     if (assessment.drift && assessment.review) {
-      const { reason, baseline, comparisonBaseline, objects, permissionContext } = assessment.review;
-      console.error(JSON.stringify({ event: 'schema_review', projectRef: /^[a-z0-9-]{8,64}$/.test(target.projectRef) ? target.projectRef : '[invalid]', reason, baseline, comparisonBaseline, differenceCount: objects.length, objects, permissionContext }));
+      const { reason, baseline, comparisonBaseline, objects, permissionContext, dataEvidence } = assessment.review;
+      console.error(JSON.stringify({ event: 'schema_review', projectRef: /^[a-z0-9-]{8,64}$/.test(target.projectRef) ? target.projectRef : '[invalid]', reason, baseline, comparisonBaseline, differenceCount: objects.length, objects, permissionContext, dataEvidence }));
     }
     return assessment;
   };

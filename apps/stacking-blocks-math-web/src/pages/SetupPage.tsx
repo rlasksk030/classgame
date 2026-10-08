@@ -12,7 +12,7 @@ import {
   type RuntimeSupabaseConfig,
 } from "../lib/config";
 import { clearInstallerProgress, readInstallerClassDraft, getOrCreateInstallerClassDraft, clearInstallerClassDraft, hasInstallerResumeUpdate, clearInstallerResumeUpdate, getOrCreatePendingInstallationId, readInstallerProgress, saveInstallerProgress, type InstallerStep } from "../lib/installer";
-import { getConfiguredInstallerClient, InstallerClientError, type InstallerAccessibleProject, type InstallerRemoteStatus, type InstallerStatusResponse } from "../lib/installerClient";
+import { getConfiguredInstallerClient, InstallerClientError, type InstallerAccessibleProject, type InstallerDataEvidenceReview, type InstallerRecoveryPlanResponse, type InstallerRemoteStatus, type InstallerStatusResponse } from "../lib/installerClient";
 import { bindInstallerOAuthProject, completeInstallerReconnect, existingInstallerTarget, verifyInstallerSession, type VerifiedInstallerSession } from "../lib/installerReconnect";
 import { getSupabase } from "../lib/supabase";
 import {
@@ -32,6 +32,67 @@ async function checkSupabaseConnection(supabaseUrl: string, publishableKey: stri
   const response = await fetch(`${supabaseUrl.replace(/\/$/, "")}/auth/v1/settings`, { headers: { apikey: publishableKey }, signal: AbortSignal.timeout(15_000), redirect: "error" });
   if (!response.ok) throw new Error("주소와 Publishable key를 다시 확인해 주세요.");
 }
+
+const DATA_EVIDENCE_LABELS: Array<[keyof InstallerDataEvidenceReview['counts'], string]> = [
+  ['seedMissing', '기본 문제 누락'],
+  ['seedOutdated', '기본 문제 기준 내용 차이'],
+  ['storageMissing', '파일 저장소 준비 누락'],
+  ['progressMissing', '필수 진도 보완 대상'],
+  ['dataConflict', '데이터 충돌 합계'],
+  ['duplicateSeedCount', '기본 문제 중복'],
+  ['seedIdentityConflictCount', '기본 문제 식별자 충돌'],
+  ['duplicateSeedReferencedCount', '기존 풀이가 연결된 중복 문제'],
+  ['storageBucketConflictCount', '파일 저장소 설정 충돌'],
+  ['storagePolicyConflictCount', '파일 저장소 접근 정책 충돌'],
+  ['customizedSeedCount', '별도로 보존할 수정 문제'],
+  ['classProblemCount', '학급별 문제'],
+];
+const DATA_EVIDENCE_TRIGGERS: Record<string, string> = {
+  SEED_IDENTITY_CONFLICT: '기본 문제의 식별자가 학급 문제 또는 다른 문제와 겹칩니다. 기존 문제나 풀이를 덮어쓰지 않고 별도로 검토합니다.',
+  DUPLICATE_SEED: '기본 문제 중복을 확인했습니다. 기존 풀이와 연결되어 있을 수 있어 자동 삭제하지 않습니다.',
+  STORAGE_BUCKET_CONFLICT: '파일 저장소의 공개 여부 또는 설정이 현재 기준과 다릅니다.',
+  STORAGE_POLICY_CONFLICT: '파일 저장소 접근 정책이 현재 기준과 다릅니다. 표현 차이인지 실제 권한 차이인지 확인이 필요합니다.',
+  SEED_MISSING_WITH_HISTORY: '기본 문제를 준비한 이력은 있지만 필요한 문제 일부를 확인하지 못했습니다.',
+  SEED_OUTDATED_WITH_HISTORY: '문제 내용을 갱신한 이력과 현재 기본 문제 내용이 다릅니다. 기존 풀이와 교사의 수정 내용을 먼저 확인해야 합니다.',
+  UNCLASSIFIED_DATA_CONFLICT: '데이터 충돌은 확인했지만 세부 원인을 아직 분류하지 못했습니다.',
+  EVIDENCE_UNAVAILABLE: '데이터 검증 결과를 아직 확인하지 못했습니다. 미확인은 0건을 뜻하지 않습니다.',
+};
+const DATA_EVIDENCE_ACTIONS: Record<InstallerDataEvidenceReview['classification'], string> = {
+  SAFE_NO_CHANGE: '데이터 변경 없이 검사 로직을 확인할 수 있는 상태입니다. 서버에서 정상 상태를 확인하기 전에는 다음 단계로 진행하지 않습니다.',
+  SAFE_ADDITIVE: '누락 항목을 보완하는 계획이 필요합니다. 기존 자료 보존과 별도 승인 확인 전에는 추가하지 않습니다.',
+  REVIEW_REQUIRED: '실제 수정이 필요한지 검토해야 합니다. 문제 내용이나 접근 권한을 자동으로 덮어쓰지 않습니다.',
+  UNSAFE: '자동 복구 시 기존 자료에 영향을 줄 수 있어 중단했습니다. 제작자의 검토가 필요합니다.',
+};
+
+function DataEvidenceReview({ review }: { review?: InstallerDataEvidenceReview }) {
+  return <section className="stack" aria-label="데이터 검증 상세">
+    <h3>기존 데이터 확인 결과</h3>
+    <p>구조·접근 권한의 객체 차이와 별도로, 기존 문제와 파일 저장소·진도 정보를 대조한 결과입니다. 객체 차이가 0이어도 데이터 검증은 별도로 필요합니다.</p>
+    <dl>{DATA_EVIDENCE_LABELS.map(([key, label]) => {
+      const value = review?.counts?.[key];
+      return <div key={key}><dt>{label}</dt><dd>{Number.isSafeInteger(value) && (value ?? -1) >= 0 ? `${value}건` : '미확인'}</dd></div>;
+    })}</dl>
+    <ul aria-label="데이터 충돌 원인">{Object.entries(DATA_EVIDENCE_TRIGGERS).filter(([code]) => review?.triggers?.includes(code)).map(([code, text]) => <li key={code}>{text}</li>)}</ul>
+    <p>{review && Object.hasOwn(DATA_EVIDENCE_ACTIONS, review.classification) && DATA_EVIDENCE_ACTIONS[review.classification] || '실제 수정이 필요한지 아직 판단하지 못했습니다. 상세 진단을 먼저 확인해야 합니다.'}</p>
+    <p>이번 진단은 읽기 전용입니다. 학생·PIN·문제·답안·진도·작품·보상을 변경하지 않습니다.</p>
+    <p>‘설치 확인’으로 다시 조회할 수 있습니다. 계속 멈추면 이 진단의 종류와 개수만 제작자에게 알려 주세요. 프로젝트 삭제·초기화나 문제 전체 재등록은 하지 마세요.</p>
+  </section>;
+}
+
+const RECOVERY_REASON_LABELS: Record<string, string> = {
+  NO_PERMISSION_DRIFT: '조정할 접근 권한이 없습니다. 설치 확인으로 현재 상태를 다시 확인해 주세요.',
+  UNSAFE_STRUCTURE: '데이터베이스 구조 또는 보호 규칙이 기준과 다릅니다. 접근 권한만 바꾸는 자동 복구는 진행하지 않습니다.',
+  UNKNOWN_PERMISSION_CONTEXT: '권한의 적용 범위를 확실히 확인하지 못했습니다. 기존 자료를 보호하기 위해 자동 변경하지 않습니다.',
+  MIXED_PERMISSION_DIFFERENCE: '확인한 권한 차이 중 자동 복구할 수 없는 항목이 함께 있습니다. 제작자의 검토가 필요합니다.',
+  UNSUPPORTED_ACL: '현재 접근 권한을 안전한 복구 항목으로 확인하지 못했습니다. 자동 변경하지 않습니다.',
+  BASELINE_MISMATCH: '복구 기준과 현재 설치 구성이 다릅니다. 기존 설치를 다시 확인해야 합니다.',
+  HISTORY_MISMATCH: '설치 이력과 확인된 구성이 일치하지 않습니다. 접근 권한을 변경하지 않고 제작자의 확인을 기다립니다.',
+  NO_ACL_CHANGES: '조정할 접근 권한이 없습니다. 설치 확인으로 현재 상태를 다시 확인해 주세요.',
+  STRUCTURAL_REVIEW_REQUIRED: '데이터베이스 구조 또는 보호 규칙이 기준과 다릅니다. 접근 권한만 바꾸는 자동 복구는 진행하지 않습니다.',
+  PERMISSION_CONTEXT_UNKNOWN: '권한의 적용 범위를 확실히 확인하지 못했습니다. 기존 자료를 보호하기 위해 자동 변경하지 않습니다.',
+  DATA_REVIEW_REQUIRED: '기존 문제·파일 저장소·진도 정보에 별도 확인이 필요합니다. 접근 권한 복구로 데이터 충돌을 처리하지 않습니다.',
+  RECOVERY_UNAVAILABLE: '현재 상태의 안전한 복구 방법을 확인하지 못했습니다. 진단 결과를 제작자가 검토해야 합니다.',
+};
 
 function defaultInstallationId(): string {
   if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") return crypto.randomUUID();
@@ -141,6 +202,9 @@ export default function SetupPage() {
   const [teacherAccountMode, setTeacherAccountMode] = useState<"choose" | "create" | "login">("choose");
   const [teacherAccountBusy, setTeacherAccountBusy] = useState(false);
   const [installerDetails, setInstallerDetails] = useState<InstallerStatusResponse | null>(null);
+  const [recoveryResult, setRecoveryResult] = useState<InstallerRecoveryPlanResponse | null>(null);
+  const [recoveryDetailsOpen, setRecoveryDetailsOpen] = useState(false);
+  const [recoveryPlanExpired, setRecoveryPlanExpired] = useState(false);
   const installerClient = useMemo(() => getConfiguredInstallerClient(), []);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
@@ -152,6 +216,21 @@ export default function SetupPage() {
   const classLink = selectedClass && connectionVerified && runtimeConfig
     ? `${window.location.origin}/?class=${encodeURIComponent(selectedClass.class_code)}#install=${encodeInstallationConfig(runtimeConfig)}`
     : "";
+
+  const clearRecoveryPlan = () => {
+    setRecoveryResult(null); setRecoveryDetailsOpen(false); setRecoveryPlanExpired(false);
+  };
+  useEffect(() => {
+    clearRecoveryPlan();
+  }, [step, supabaseUrl]);
+  useEffect(() => {
+    const expiry = recoveryResult?.plan ? Date.parse(recoveryResult.plan.expiresAt) : NaN;
+    if (!Number.isFinite(expiry)) return;
+    const remaining = expiry - Date.now();
+    if (remaining <= 0) { setRecoveryPlanExpired(true); return; }
+    const timer = setTimeout(() => setRecoveryPlanExpired(true), Math.min(remaining, 2_147_483_647));
+    return () => clearTimeout(timer);
+  }, [recoveryResult]);
 
   const persistStep = (next: InstallerStep, extra: Partial<{ classId: string; className: string; studentCount: number }> = {}) => {
     viewRevision.current += 1;
@@ -357,6 +436,16 @@ export default function SetupPage() {
       setError("연결 세션이 저장되지 않았거나 권한이 만료되었습니다. Supabase를 다시 연결해 주세요.");
     } else if (reason instanceof InstallerClientError && (reason.code.startsWith("INSTALLER_PUBLIC_KEY_") || reason.code === "INSTALLER_KEY_RESPONSE_INVALID" || ["INSTALLER_TARGET_MISMATCH", "INSTALLER_PUBLIC_CONFIG_MISSING", "INSTALLER_STATUS_UNVERIFIED", "INSTALLER_UPDATE_INCOMPLETE", "INSTALLER_UPDATE_UNVERIFIED"].includes(reason.code))) {
       setError(reason.message);
+    } else if (reason instanceof InstallerClientError && ["INSTALLER_RECOVERY_PLAN_EXPIRED", "INSTALLER_RECOVERY_STATE_CHANGED"].includes(reason.code)) {
+      clearRecoveryPlan();
+      setError("복구 계획이 만료되었거나 확인한 설치 상태가 달라졌습니다. 기존 자료를 초기화하지 말고 ‘설치 문제 자동 진단’으로 다시 확인해 주세요.");
+    } else if (reason instanceof InstallerClientError && reason.code === "INSTALLER_RECOVERY_VERIFY_REQUIRED") {
+      clearRecoveryPlan();
+      setError("복구 요청 후 완료 상태를 확인하지 못했습니다. 다시 승인하지 말고 ‘설치 확인’으로 결과를 확인해 주세요. 기존 자료를 삭제하거나 초기화하지 마세요.");
+    } else if (reason instanceof InstallerClientError && reason.code === "INSTALLER_RECOVERY_APPROVAL_REQUIRED") {
+      clearRecoveryPlan(); setError("복구 내용을 확인한 뒤 승인해야 합니다. 자동 변경은 하지 않았습니다.");
+    } else if (reason instanceof InstallerClientError && reason.code === "INSTALLER_RECOVERY_BUSY") {
+      setError("다른 창에서 복구를 진행하고 있습니다. 다시 실행하지 말고 ‘설치 확인’으로 결과를 확인해 주세요.");
     } else if (reason instanceof InstallerClientError && reason.code === "INSTALLER_REQUEST_TIMEOUT") {
       setError(reason.message);
     } else if (reason instanceof InstallerClientError && reason.code === "INSTALLER_BUSY") {
@@ -369,6 +458,7 @@ export default function SetupPage() {
     const result = await installerClient.getStatus(installerTarget());
     if (!stillCurrent()) return;
     setInstallerStatus(result.status); setInstallerDetails(result); setInstallerStatusError(false);
+    if (result.status !== "DRIFT_REQUIRES_REVIEW") clearRecoveryPlan();
   };
   const connectInstallerAuthorization = async (event: FormEvent) => {
     event.preventDefault();
@@ -394,6 +484,7 @@ export default function SetupPage() {
     // network request shows up -- remove once live reconnect is confirmed.
     console.log("RECONNECT_CLICK_HANDLER_ENTERED");
     if (authorizing || actionInFlight.current) return;
+    clearRecoveryPlan();
     const stillCurrent = currentView();
     if (!installerClient) { setError("설치 서버 연결 정보를 찾을 수 없어요. 페이지를 새로고침한 뒤 다시 시도해 주세요."); return; }
     setAuthorizing(true); setError(null); setMessage(null);
@@ -502,6 +593,7 @@ export default function SetupPage() {
   };
   const runInstallerAction = async (action: "install" | "repair" | "update" | "status" | "revoke") => {
     if (!installerClient || actionInFlight.current || busy) return;
+    clearRecoveryPlan();
     actionInFlight.current = true;
     const stillCurrent = currentView();
     setBusy(true); setError(null); setMessage(null);
@@ -518,6 +610,47 @@ export default function SetupPage() {
         await (action === "install" ? installerClient.startInstall(target) : action === "repair" ? installerClient.repair(target) : installerClient.update(target));
       }
       if (stillCurrent()) await refreshInstallerStatus();
+    } catch (reason) { if (stillCurrent()) installerFailure(reason); }
+    finally { actionInFlight.current = false; if (isSetupActive()) setBusy(false); }
+  };
+
+  const diagnoseRecovery = async () => {
+    if (!installerClient || actionInFlight.current || busy) return;
+    actionInFlight.current = true;
+    const stillCurrent = currentView();
+    clearRecoveryPlan(); setBusy(true); setError(null); setMessage(null);
+    try {
+      const result = await installerClient.getRecoveryPlan(installerTarget());
+      if (!stillCurrent()) return;
+      const plan = result.plan;
+      const validPlan = plan && plan.projectRef === projectRefFromUrl(supabaseUrl) && plan.preservesStudentData === true
+        && plan.changes.length > 0 && Number.isFinite(Date.parse(plan.expiresAt)) && Date.parse(plan.expiresAt) > Date.now();
+      // A data conflict cannot be relabelled as an ACL repair in the browser.
+      if (installerDetails?.databaseReview?.reason.startsWith('DATA_EVIDENCE_')) {
+        setRecoveryResult({ recoverable: false, reason: 'DATA_REVIEW_REQUIRED' });
+      } else if (result.recoverable && !validPlan) {
+        setRecoveryResult({ recoverable: false, reason: 'RECOVERY_UNAVAILABLE' });
+      } else setRecoveryResult(result);
+    } catch (reason) { if (stillCurrent()) installerFailure(reason); }
+    finally { actionInFlight.current = false; if (isSetupActive()) setBusy(false); }
+  };
+
+  const approveRecovery = async () => {
+    const plan = recoveryResult?.plan;
+    if (!installerClient || actionInFlight.current || busy || !recoveryResult?.recoverable || !plan || !recoveryDetailsOpen
+      || recoveryPlanExpired || Date.parse(plan.expiresAt) <= Date.now() || plan.projectRef !== projectRefFromUrl(supabaseUrl)
+      || installerStatus !== "DRIFT_REQUIRES_REVIEW" || installerDetails?.databaseReview?.reason.startsWith('DATA_EVIDENCE_')) return;
+    actionInFlight.current = true;
+    const stillCurrent = currentView();
+    // Consume the displayed consent locally too. An uncertain response requires
+    // a status read or a newly inspected plan, never an automatic replay.
+    clearRecoveryPlan(); setBusy(true); setError(null); setMessage(null);
+    try {
+      const result = await installerClient.executeRecovery(plan.id);
+      if (!stillCurrent()) return;
+      if (result.status !== "COMPLETE") throw new InstallerClientError("INSTALLER_RECOVERY_VERIFY_REQUIRED", 409, "복구 후 확인이 필요합니다.");
+      await refreshInstallerStatus();
+      if (stillCurrent()) setMessage("승인한 접근 권한의 복구를 마쳤습니다. 기존 학급과 학생 기록은 유지했습니다. 설치 확인 결과에 따라 계속 진행해 주세요.");
     } catch (reason) { if (stillCurrent()) installerFailure(reason); }
     finally { actionInFlight.current = false; if (isSetupActive()) setBusy(false); }
   };
@@ -778,8 +911,13 @@ export default function SetupPage() {
               <div className="installer-checks" aria-live="polite">
                 <p>{installerStatus ? installerStatusLabel(installerStatus) : installerStatusError ? "설치 권한을 연결한 후 상태를 확인해 주세요." : "설치 상태 확인 중…"}</p>
                 {installerStatus === "DRIFT_REQUIRES_REVIEW" ? <>
-                  <p>기존 설치 구조 확인이 필요합니다.</p>
-                  <p className="muted">설치 이력이나 데이터베이스 구조를 현재 버전의 기준과 대조하지 못해 자동 변경을 멈췄습니다. 데이터가 없다는 뜻은 아니며, 이 확인 과정에서 기존 자료를 삭제하지 않습니다.</p>
+                  {installerDetails?.databaseReview?.reason.startsWith('DATA_EVIDENCE_') ? <>
+                    <p>기존 데이터 확인이 필요합니다.</p>
+                    <DataEvidenceReview review={installerDetails.databaseReview.dataEvidence} />
+                  </> : <>
+                    <p>기존 설치 구조 확인이 필요합니다.</p>
+                    <p className="muted">설치 이력이나 데이터베이스 구조를 현재 버전의 기준과 대조하지 못해 자동 변경을 멈췄습니다. 데이터가 없다는 뜻은 아니며, 이 확인 과정에서 기존 자료를 삭제하지 않습니다.</p>
+                  </>}
                   <p className="muted">프로젝트를 삭제하거나 새로 만들지 마세요. 이 화면의 진단 정보로 확인할 수 있습니다. 키·비밀번호·PIN은 보내지 마세요. 아래 ‘설치 확인’으로 다시 조회할 수 있습니다.</p>
                 {installerDetails?.databaseReview && <dl aria-label="설치 진단 정보">
                     <dt>프로젝트</dt><dd>{installerDetails.project?.ref}</dd>
@@ -789,7 +927,7 @@ export default function SetupPage() {
                     <dt>객체 차이</dt><dd>{installerDetails.databaseReview.objects.length}</dd>
                     <dt>진단 코드</dt><dd>DBR-{installerDetails.databaseReview.reason}</dd>
                   </dl>}
-                {installerDetails?.databaseReview && <details>
+                {installerDetails?.databaseReview && installerDetails.databaseReview.objects.length > 0 && <details>
                   <summary>진단 상세</summary>
                   <ul aria-label="차이 객체 목록">{installerDetails.databaseReview.objects.map((object, index) => <li key={`${object.key}-${index}`}><code>{object.key}</code> · {object.change}{object.attributes && <span> · {object.attributes.map(attribute => `${attribute.name}: ${attribute.state === "SAME" ? "일치" : "다름"}`).join(", ")}</span>}</li>)}</ul>
                 </details>}
@@ -797,6 +935,24 @@ export default function SetupPage() {
                 {installerDetails?.legacyRecovery && <p>기존 설치를 확인했습니다. 기존 자료를 그대로 유지하고 최신 버전으로 준비합니다.</p>}
                 {installerDetails?.functions?.map(item => <p key={item.slug}>학생 로그인 기능 ({item.slug === "student-auth" ? "인증" : "학습"}): {item.status}</p>)}
               </div>
+              {installerStatus === "DRIFT_REQUIRES_REVIEW" && <section className="stack" aria-label="기존 설치 안전 복구">
+                <h3>기존 설치 안전 복구</h3>
+                <p>현재 프로젝트를 읽기 전용으로 확인하고, 안전하게 조정할 수 있는 접근 권한만 복구 계획으로 제시합니다. 승인 전에는 변경하지 않습니다.</p>
+                <button type="button" className="btn" disabled={busy || authorizing} onClick={() => void diagnoseRecovery()}>설치 문제 자동 진단</button>
+                {recoveryResult && !recoveryResult.recoverable && <p role="status">{Object.hasOwn(RECOVERY_REASON_LABELS, recoveryResult.reason) ? RECOVERY_REASON_LABELS[recoveryResult.reason] : RECOVERY_REASON_LABELS.RECOVERY_UNAVAILABLE}</p>}
+                {recoveryResult?.recoverable && recoveryResult.plan && <>
+                  {!recoveryPlanExpired && <p>안전하게 복구할 수 있는 접근 권한 항목을 확인했습니다. 기존 학급과 학생 기록은 유지됩니다.</p>}
+                  <button type="button" className="btn" disabled={busy || recoveryPlanExpired} onClick={() => setRecoveryDetailsOpen(true)}>복구 내용 확인</button>
+                  {recoveryDetailsOpen && <div className="stack" aria-label="승인할 복구 내용">
+                    <p>대상 프로젝트: <strong>{recoveryResult.plan.projectRef}</strong></p>
+                    <p>변경 범위: {new Set(recoveryResult.plan.changes.map(change => change.object)).size}개 항목의 접근 권한 {recoveryResult.plan.changes.length}건. 문제 내용·학생·PIN·답안·진도·작품·보상·학급 코드는 변경하지 않습니다.</p>
+                    <ul>{recoveryResult.plan.changes.map((change, index) => <li key={index}>{change.kind === 'table' ? '자료' : '앱 기능'} <code>{change.object}</code> · {change.role} · {change.action === 'REVOKE' ? '불필요한 권한 회수' : '필요한 권한 복원'} ({change.privileges.join(', ')})</li>)}</ul>
+                    <p>아래 버튼은 이 프로젝트의 표시된 접근 권한 변경에 동의하는 것입니다. 실행 직전에 상태를 다시 확인하며 계획과 다르면 중단합니다.</p>
+                    <button type="button" className="btn btn-primary" disabled={busy || recoveryPlanExpired} onClick={() => void approveRecovery()}>복구 승인 및 진행</button>
+                  </div>}
+                  {recoveryPlanExpired && <p role="status">복구 계획이 만료되었습니다. ‘설치 문제 자동 진단’으로 새 계획을 확인해 주세요.</p>}
+                </>}
+              </section>}
               <div className="toolbar-row">
                 <button className="btn btn-primary" disabled={busy || authorizing || !installerStatus || installerStatus === "DRIFT_REQUIRES_REVIEW"} onClick={() => void runInstallerAction("install")}>{busy ? "처리 중…" : installerDetails?.legacyRecovery ? "기존 설치 계속하기" : "수학 앱 설치"}</button>
                 <button className="btn" disabled={busy || !installerStatus || installerStatus === "DRIFT_REQUIRES_REVIEW"} onClick={() => void runInstallerAction("repair")}>이어서 복구</button>

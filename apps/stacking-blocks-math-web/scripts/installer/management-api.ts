@@ -1,3 +1,4 @@
+import { parseDataEvidence } from './data-evidence.ts';
 import { readFile } from "node:fs/promises";
 import type { Catalog } from "./database-state.ts";
 import { InstallerError, type FunctionBundle, type FunctionDeployment, type InstallerBackend, type InstallerTarget, type MigrationInput, type RemoteProject } from "./contract.ts";
@@ -178,16 +179,24 @@ export class SupabaseManagementBackend implements InstallerBackend {
   }
 
   async inspectDataEvidence(target: InstallerTarget, query: string): Promise<import('./database-state.ts').DataEvidence> {
-    const rows = await this.request<Array<{evidence: import('./database-state.ts').DataEvidence}>>('migrations', `/v1/projects/${encodeURIComponent(target.projectRef)}/database/query`, { method: 'POST', body: JSON.stringify({ query, read_only: true }) });
-    if (!Array.isArray(rows) || rows.length !== 1 || !rows[0]?.evidence) throw new InstallerError('INSTALLER_MANUAL_REVIEW_REQUIRED', 'migrations', '데이터 보존 조건을 확인하지 못했습니다.');
-    const result = rows[0].evidence;
-    const fields = ['seedMissing','seedOutdated','storageMissing','progressMissing','dataConflict'] as const;
-    if (fields.some(k => !Number.isSafeInteger(result[k]) || result[k] < 0)) throw new InstallerError('INSTALLER_MANUAL_REVIEW_REQUIRED', 'migrations', '데이터 보존 조건을 확인하지 못했습니다.');
-    return Object.fromEntries(fields.map(k => [k, result[k]])) as unknown as import('./database-state.ts').DataEvidence;
+    // SET LOCAL only affects this Management API read-only transaction. Policy
+    // deparsing must use the same canonical namespaces as our captured baseline.
+    // It does not alter any role, function, policy, or persistent configuration.
+    const rows = await this.request<Array<{evidence: unknown}>>('migrations', `/v1/projects/${encodeURIComponent(target.projectRef)}/database/query`, { method: 'POST', body: JSON.stringify({ query: `set local search_path=pg_catalog,public;\n${query}`, read_only: true }) });
+    const result = Array.isArray(rows) && rows.length === 1 ? parseDataEvidence(rows[0]?.evidence) : undefined;
+    if (!result) throw new InstallerError('INSTALLER_MANUAL_REVIEW_REQUIRED', 'migrations', '데이터 보존 조건을 확인하지 못했습니다.');
+    return result;
   }
 
   async applyLegacyTransition(target: InstallerTarget, query: string): Promise<void> {
     // A real new transaction, not fabricated historical migration entries.
+    await this.request('migrations', `/v1/projects/${encodeURIComponent(target.projectRef)}/database/query`, { method: 'POST', body: JSON.stringify({ query, read_only: false }) });
+  }
+
+  async applyPermissionRecovery(target: InstallerTarget, query: string): Promise<void> {
+    // Supabase authorizes this exact project-bound database:write endpoint.
+    // HTTP layer owns approval; the generated transaction rechecks ownership,
+    // catalog, effective rights and all app rows. Uncertain writes never retry.
     await this.request('migrations', `/v1/projects/${encodeURIComponent(target.projectRef)}/database/query`, { method: 'POST', body: JSON.stringify({ query, read_only: false }) });
   }
 

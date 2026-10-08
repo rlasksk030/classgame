@@ -20,6 +20,12 @@ interface PermissionBaseline {
 const baseline: PermissionBaseline = JSON.parse(readFileSync(new URL('./permission-baseline.json', import.meta.url), 'utf8'));
 const roles = ['anon','authenticated','service_role','postgres'];
 const privileges = ['SELECT','INSERT','UPDATE','DELETE','TRUNCATE','REFERENCES','TRIGGER','MAINTAIN','EXECUTE'];
+/** Server-only trusted model. Callers never receive or supply baseline SQL. */
+export function expectedPermissionProfile(profile: string, migrationHashes: string[]): Omit<PermissionSnapshot, 'defaultPrivileges'> | undefined {
+  const expected = baseline.profiles[profile];
+  if (!expected || JSON.stringify(migrationHashes) !== JSON.stringify(baseline.migrationHashes)) return undefined;
+  return structuredClone({ roles: expected.roles, schema: expected.schema, objects: Object.fromEntries(Object.entries(expected.objects).map(([key, model]) => [key, baseline.models[model]])) });
+}
 const isObject = (v: unknown): v is Record<string, unknown> => Boolean(v && typeof v === 'object' && !Array.isArray(v));
 function validObject(value: unknown): value is PermissionObject {
   if (!isObject(value) || !['postgres','supabase_admin','OTHER'].includes(String(value.owner)) || !Number.isSafeInteger(value.otherGrantees) || Number(value.otherGrantees) < 0 || !isObject(value.roles)) return false;

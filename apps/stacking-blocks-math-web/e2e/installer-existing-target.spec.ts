@@ -63,6 +63,7 @@ test('drift details show all safe keys and changes; every mutation and step 5 st
     await page.getByRole('button',{name:'연결 화면으로',exact:true}).click();
   }
   await expect(page.getByText('4/8',{exact:true})).toBeVisible();
+  await expect(page.getByLabel('데이터 검증 상세')).toHaveCount(0);
   await page.getByText('진단 상세',{exact:true}).click();
   await expect(page.getByLabel('차이 객체 목록').getByRole('listitem')).toHaveCount(22);
   await expect(page.getByLabel('차이 객체 목록')).toContainText('columns:sb_students:column_21:');
