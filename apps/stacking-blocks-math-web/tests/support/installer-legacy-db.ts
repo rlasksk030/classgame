@@ -7,8 +7,16 @@ import { createFakeInstallerBackend } from '../../scripts/installer/fake-backend
 export const storageStub = `create schema storage; create table storage.buckets(id text primary key,name text,public boolean,file_size_limit bigint,allowed_mime_types text[]);
 create table storage.objects(id uuid primary key default gen_random_uuid(),bucket_id text,name text); alter table storage.objects enable row level security;
 create function storage.foldername(text) returns text[] language sql as $$select string_to_array($1,'/')$$;`;
-export async function emptyLegacyDb() {
+export async function emptyLegacyDb(nonBootstrapPostgres=false) {
   const db = new PGlite();
+  // PostgreSQL forbids demoting its bootstrap superuser (OID 10). Hosted
+  // postgres is a different owner role; reproduce it before creating app data.
+  if(nonBootstrapPostgres) await db.exec(`create role installer_fixture_admin login superuser;
+set session authorization installer_fixture_admin;
+alter role postgres rename to installer_bootstrap_admin;
+create role postgres login superuser;
+do $fixture$ begin execute format('alter database %I owner to postgres',current_database());end $fixture$;
+set session authorization postgres;`);
   await db.exec(`create role anon;create role authenticated;create role service_role bypassrls;
 create schema auth;create table auth.users(id uuid primary key);
 create function auth.uid() returns uuid language sql stable as $$select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid$$;

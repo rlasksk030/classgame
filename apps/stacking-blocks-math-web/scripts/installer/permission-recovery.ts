@@ -5,6 +5,7 @@ import { classifyPermissionDifference, expectedPermissionProfile, type Permissio
 import { identifier, literal } from './legacy-sql.ts';
 import type { InstallerPlan } from './orchestrator.ts';
 import type { LegacyTransition } from './legacy-generation.ts';
+import { permissionRoleContextMatches } from './hosted-role-proof.ts';
 
 export type PermissionRecoveryReason = 'NO_PERMISSION_DRIFT' | 'UNSAFE_STRUCTURE' | 'UNKNOWN_PERMISSION_CONTEXT' | 'UNSUPPORTED_ACL' | 'BASELINE_MISMATCH' | 'HISTORY_MISMATCH';
 export interface PermissionChange { object: string; kind: 'table' | 'function'; action: 'GRANT' | 'REVOKE'; role: string; privileges: string[] }
@@ -74,14 +75,7 @@ function candidates(plan: InstallerPlan, catalog: Catalog): Candidate[] {
 
 function contextMatches(candidate: Candidate, actual: PermissionSnapshot): boolean {
   if (!actual || !equal(actual.schema, candidate.expected.schema) || !Array.isArray(actual.defaultPrivileges) || !actual.objects || !actual.roles || !equal(Object.keys(actual.objects), Object.keys(candidate.expected.objects)) || !equal(Object.keys(actual.roles), roles)) return false;
-  // Hosted postgres is not necessarily superuser, but must own the exact
-  // objects and have no inherited role edges. Its effective rights still match.
-  for (const role of roles) {
-    const row = actual.roles[role];
-    if (!row || row.memberships !== 0 || ['superuser','bypassRls','inherit'].some(k => typeof row[k as keyof typeof row] !== 'boolean')) return false;
-    if (role !== 'postgres' && !equal(row, candidate.expected.roles[role])) return false;
-  }
-  return true;
+  return permissionRoleContextMatches(actual.roles,candidate.expected.roles,actual.executorGraph);
 }
 
 /** Read-only equivalence: direct PUBLIC rights must also agree, not just the
