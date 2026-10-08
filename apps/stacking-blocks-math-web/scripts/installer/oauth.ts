@@ -1,5 +1,6 @@
 import { createHash, randomBytes } from "node:crypto";
 import { EphemeralCredential } from "./security.ts";
+import { InstallerError } from "./contract.ts";
 
 const AUTHORIZE_ENDPOINT = "https://api.supabase.com/v1/oauth/authorize";
 const TOKEN_ENDPOINT = "https://api.supabase.com/v1/oauth/token";
@@ -15,6 +16,7 @@ interface PendingOAuth {
    * even when multiple distinct frontends share one installer backend. */
   origin: string;
   expiresAt: number;
+  browserBinding?: string;
 }
 
 export interface OAuthAuthorization {
@@ -31,38 +33,52 @@ export interface OAuthTokenPair {
 
 export class OAuthSessionStore {
   readonly #sessions = new Map<string, PendingOAuth>();
+  readonly #exchanges = new Map<string, PendingOAuth>();
   readonly #ttlMs: number;
 
   constructor(ttlMs = 10 * 60 * 1000) {
     this.#ttlMs = ttlMs;
   }
 
-  create(clientId: string, redirectUri: string, origin: string, organizationSlug?: string): OAuthAuthorization {
+  create(clientId: string, redirectUri: string, origin: string, organizationSlug?: string, browserBinding?: string): OAuthAuthorization {
     const now = Date.now();
     const state = randomBytes(32).toString("base64url");
     const codeVerifier = randomBytes(32).toString("base64url");
     const challenge = createHash("sha256").update(codeVerifier).digest("base64url");
     const expiresAt = now + this.#ttlMs;
-    this.#sessions.set(state, { state, codeVerifier, redirectUri, origin, expiresAt });
+    this.#sessions.set(state, { state, codeVerifier, redirectUri, origin, expiresAt, browserBinding });
     const params = new URLSearchParams({ client_id: clientId, redirect_uri: redirectUri, response_type: "code", state, code_challenge: challenge, code_challenge_method: "S256" });
     if (organizationSlug) params.set("organization_slug", organizationSlug);
     return { url: `${AUTHORIZE_ENDPOINT}?${params.toString()}`, state, expiresAt };
   }
 
-  /** Single-use: always deletes on lookup, valid or not, so a state can never be
-   * replayed. No expected-redirectUri parameter to compare against -- the stored
+  /** Single-use after browser validation, so a state can never be replayed.
+   * No expected-redirectUri parameter to compare against -- the stored
    * value came from a request whose Origin was already checked against
    * allowedOrigins at create() time, so it's trusted directly rather than compared
    * against a second caller-supplied copy of itself. */
-  consume(state: string): { codeVerifier: string; redirectUri: string; origin: string } {
+  consume(state: string, browserBinding?: string): { codeVerifier: string; redirectUri: string; origin: string } {
     const pending = this.#sessions.get(state);
+    // A callback copied into another browser must neither bind that browser to
+    // the attacker's account nor consume the legitimate browser's attempt.
+    if (pending?.browserBinding && pending.browserBinding !== browserBinding) throw new Error('OAUTH_STATE_INVALID');
     this.#sessions.delete(state);
     if (!pending || pending.expiresAt < Date.now()) throw new Error("OAUTH_STATE_INVALID");
+    this.#exchanges.set(state, pending);
     return { codeVerifier: pending.codeVerifier, redirectUri: pending.redirectUri, origin: pending.origin };
   }
 
+  revokeBrowser(browserBinding: string): void {
+    for (const [state, pending] of this.#sessions) if (pending.browserBinding === browserBinding) this.#sessions.delete(state);
+    for (const [state, pending] of this.#exchanges) if (pending.browserBinding === browserBinding) this.#exchanges.delete(state);
+  }
+
+  exchangeActive(state: string): boolean { this.clearExpired(); return this.#exchanges.has(state); }
+  finishExchange(state: string): void { this.#exchanges.delete(state); }
+
   clearExpired(now = Date.now()): void {
     for (const [state, pending] of this.#sessions) if (pending.expiresAt < now) this.#sessions.delete(state);
+    for (const [state, pending] of this.#exchanges) if (pending.expiresAt < now) this.#exchanges.delete(state);
   }
 
   get size(): number {
@@ -77,14 +93,25 @@ export interface OAuthTokenExchangeOptions {
   codeVerifier: string;
   redirectUri: string;
   fetchImpl?: (input: string | URL, init?: RequestInit) => Promise<Response>;
+  /** Injectable only for deterministic local deadline tests. */
+  timeoutMs?: number;
 }
 
 export async function exchangeOAuthCode(options: OAuthTokenExchangeOptions): Promise<OAuthTokenPair> {
   const fetchImpl = options.fetchImpl ?? fetch;
   const basic = await options.clientSecret.use(async (secret) => Buffer.from(`${options.clientId}:${secret}`).toString("base64"));
-  const response = await fetchImpl(TOKEN_ENDPOINT, { method: "POST", headers: { authorization: `Basic ${basic}`, "content-type": "application/x-www-form-urlencoded", accept: "application/json" }, body: new URLSearchParams({ grant_type: "authorization_code", code: options.code, code_verifier: options.codeVerifier, redirect_uri: options.redirectUri }).toString() });
-  if (!response.ok) throw new Error("OAUTH_TOKEN_EXCHANGE_FAILED");
-  const body: unknown = await response.json();
+  const controller = new AbortController();
+  let timeout: ReturnType<typeof setTimeout> | undefined;
+  const deadline = new Promise<never>((_resolve, reject) => { timeout = setTimeout(() => { controller.abort(); reject(new InstallerError('INSTALLER_OAUTH_TIMEOUT', 'target', 'Supabase 권한 연결 응답이 늦습니다. 다시 연결해 주세요.')); }, options.timeoutMs ?? 15_000); });
+  let body: unknown;
+  try {
+    // Authorization codes are single-use; never retry an uncertain exchange.
+    body = await Promise.race([deadline, (async () => {
+      const response = await fetchImpl(TOKEN_ENDPOINT, { method: "POST", redirect: 'error', signal: controller.signal, headers: { authorization: `Basic ${basic}`, "content-type": "application/x-www-form-urlencoded", accept: "application/json" }, body: new URLSearchParams({ grant_type: "authorization_code", code: options.code, code_verifier: options.codeVerifier, redirect_uri: options.redirectUri }).toString() });
+      if (!response.ok) throw new InstallerError('INSTALLER_OAUTH_EXCHANGE_FAILED', 'target', 'Supabase 권한 연결을 다시 시작해 주세요.', response.status);
+      return response.json();
+    })()]);
+  } finally { clearTimeout(timeout); }
   if (!body || typeof body !== "object" || typeof (body as { access_token?: unknown }).access_token !== "string") throw new Error("OAUTH_TOKEN_RESPONSE_INVALID");
   const refreshToken = typeof (body as { refresh_token?: unknown }).refresh_token === "string" ? new EphemeralCredential((body as { refresh_token: string }).refresh_token) : undefined;
   return { accessToken: new EphemeralCredential((body as { access_token: string }).access_token), refreshToken, expiresIn: typeof (body as { expires_in?: unknown }).expires_in === "number" ? (body as { expires_in: number }).expires_in : undefined };

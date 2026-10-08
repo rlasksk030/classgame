@@ -1,6 +1,7 @@
 import { createHash } from 'node:crypto';
 import { InstallerError, type InstallerBackend, type InstallerTarget } from './contract.ts';
 import type { InstallerPlan } from './orchestrator.ts';
+import { classifyPermissionDifference, permissionContext, type PermissionCategory } from './permission-audit.ts';
 
 export type MigrationDisposition = 'APPLIED_BY_HISTORY' | 'SATISFIED_BY_STATE' | 'PENDING' | 'DRIFT_REQUIRES_REVIEW';
 export type Catalog = Record<string, Array<Record<string, unknown>>>;
@@ -21,7 +22,8 @@ export interface MigrationAssessment {
     reason: 'KNOWN_SCHEMA_HISTORY_MISMATCH' | 'REVIEWED_DELTA_REQUIRED' | 'UNRECOGNIZED_SCHEMA' | 'DATA_EVIDENCE_REQUIRED' | 'DATA_EVIDENCE_CONFLICT';
     baseline: string;
     comparisonBaseline: string;
-    objects: Array<{ key: string; change: 'MISSING' | 'ADDITIONAL' | 'CHANGED'; attributes?: Array<{ name: string; state: 'SAME' | 'DIFFERENT'; expectedDigest?: string; actualDigest?: string }> }>;
+    permissionContext?: ReturnType<typeof permissionContext>;
+    objects: Array<{ key: string; change: 'MISSING' | 'ADDITIONAL' | 'CHANGED'; category?: PermissionCategory; attributes?: Array<{ name: string; state: 'SAME' | 'DIFFERENT'; expectedDigest?: string; actualDigest?: string }> }>;
   };
 }
 const sections = ['tables', 'columns', 'constraints', 'indexes', 'policies', 'rpcs', 'rpc_definitions', 'triggers', 'column_acls', 'policy_modes'];
@@ -121,13 +123,23 @@ export async function inspectMigrationState(backend: InstallerBackend, target: I
   const catalog = plan.databaseBaseline ? await backend.inspectDatabaseCatalog!(target) : undefined;
   const structural = assessDatabaseState(plan, applied, catalog);
   const transition = plan.legacyRecovery?.transitions.find(t => t.from === structural.baseline);
-  const finish = (assessment: MigrationAssessment) => {
+  const finish = async (assessment: MigrationAssessment) => {
+    if (assessment.review && plan.databaseBaseline) {
+      // Optional diagnostics must neither weaken the original gate nor turn a
+      // permission-query failure into a failure for otherwise recognized DBs.
+      const permissions = await backend.inspectDatabasePermissions?.(target).catch(() => undefined);
+      assessment = { ...assessment, review: { ...assessment.review, permissionContext: permissionContext(permissions), objects: assessment.review.objects.map(object => ({ ...object,
+        category: classifyPermissionDifference({ profile: assessment.review!.comparisonBaseline, key: object.key, migrationHashes: plan.databaseBaseline!.migrationHashes, actual: permissions,
+          structural: object.change !== 'CHANGED' || Boolean(object.attributes?.some(a => a.state === 'DIFFERENT' && a.name !== 'acl')),
+        }),
+      })) } };
+    }
     if (plan.databaseBaseline && assessment.review) {
       assessment = { ...assessment, differences: assessment.differences.map(key => diagnosticObjectKey(key, plan.databaseBaseline!)), review: { ...assessment.review, objects: assessment.review.objects.map(({key, ...difference}) => ({ key: diagnosticObjectKey(key, plan.databaseBaseline!), ...difference })) } };
     }
     if (assessment.drift && assessment.review) {
-      const { reason, baseline, comparisonBaseline, objects } = assessment.review;
-      console.error(JSON.stringify({ event: 'schema_review', projectRef: /^[a-z0-9-]{8,64}$/.test(target.projectRef) ? target.projectRef : '[invalid]', reason, baseline, comparisonBaseline, differenceCount: objects.length, objects }));
+      const { reason, baseline, comparisonBaseline, objects, permissionContext } = assessment.review;
+      console.error(JSON.stringify({ event: 'schema_review', projectRef: /^[a-z0-9-]{8,64}$/.test(target.projectRef) ? target.projectRef : '[invalid]', reason, baseline, comparisonBaseline, differenceCount: objects.length, objects, permissionContext }));
     }
     return assessment;
   };

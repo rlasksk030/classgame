@@ -1,0 +1,2423 @@
+{
+  "migrationHashes": [
+    "887ae981fc05880862b215fe3a1f2eba6e070741be8d0b1528977c9d1b82bb07",
+    "5041e89c0afb9983abb1a9aabde45530897d1d2bfe1ee73cc5340bbb51548d52",
+    "36f36d804591c4b3a9fff2e2ef4c196670cf23e9bff7925c65638d57bb7d2a2b",
+    "ac61ec65b6a575376673516361d0441ad125d1dbad7f2cebf2ef1772557cc7dc",
+    "a56be39e121a7c5c9336e1d18505f2bd5ca5811328267bbc8dab630ead68dd99",
+    "550325c9b3daf8122461ad214922cd3236788ad9411871d5742e0f2196c9498f",
+    "2873f95fe20464af7a915467d6c086712ae78271428424d78bfa7f4636250362",
+    "ccd7b78458651809b58e3da5f185107a357450caef052f8a873ad22a8fb5c7f0",
+    "4acd0d359959d5563b7b072111be7f3d3874fcef67c3ec1c07d71212e29b0101",
+    "4bffb3db33ed42aaca544e5953411501009f553a223317ee09d0c1f8b958ae5a",
+    "cc917bdc437e9d5c6ce42b226e0ab4011855a635f23e8bf53f8428bbeb96aa9d",
+    "86d109dc2711968bad99433bce42739df2a4e4da75e67acf5c7f52737f9ddffd",
+    "ef0924f58fbf77a93c68bf8dcbaf9db385920a2adcd1a2de78d700bdbdfb8666",
+    "c4309af218ca27fc244ea5e45ea23015bc8f73d8ba91671c74223b6d3e908c8b",
+    "f4beeee8c87916c94269638c422273a32aa7d6fdd3e5b3fe7db4877fdc969848",
+    "482ebfd8f8ae1b4f4a1fc6d969676846e26e19500c99932b4fb52308350be6cd",
+    "4b9bfd1079adfcf40381fec017b3ceecaa47b5ccabae23c18761e35472f2e76a",
+    "97cba586d5e28e8e65d5f992b01aa14ebba939670fdad4edda4b8f3ce1c6c2b5",
+    "9d8b96a6c8608dcf4f182e774c79189ad8ad0f18dd2b0835e9697a1abd7dc7c2",
+    "d2b899edabdea563abf6cb11f604f6bc4ee906896029a45cf5df1b7f639b1e11",
+    "6a4c8488311c718be58a077dca06934e9c03a9da678362453878e04e8f775e8e",
+    "252c8abecce265c1e718385d955f15f99f81d95bc35df76625f18d388d2d5f7e",
+    "3c51cd067c34f002d74765e0ba1a4a27703f483f11b58900027bb71e4a4d2081",
+    "c6cfafaed295d9fd89f03f806aff8321dac07b9d41f8a8050b9a58d4839d44dd"
+  ],
+  "models": {
+    "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073": {
+      "owner": "postgres",
+      "roles": {
+        "anon": {
+          "privileges": [],
+          "grantOptions": []
+        },
+        "postgres": {
+          "privileges": [
+            "DELETE",
+            "INSERT",
+            "MAINTAIN",
+            "REFERENCES",
+            "SELECT",
+            "TRIGGER",
+            "TRUNCATE",
+            "UPDATE"
+          ],
+          "grantOptions": [
+            "DELETE",
+            "INSERT",
+            "MAINTAIN",
+            "REFERENCES",
+            "SELECT",
+            "TRIGGER",
+            "TRUNCATE",
+            "UPDATE"
+          ]
+        },
+        "service_role": {
+          "privileges": [],
+          "grantOptions": []
+        },
+        "authenticated": {
+          "privileges": [],
+          "grantOptions": []
+        }
+      },
+      "otherGrantees": 0
+    },
+    "635be30fd9b7624b047991458dbca9d731d3ac65718562d5e27c2fe41297a379": {
+      "owner": "postgres",
+      "roles": {
+        "anon": {
+          "privileges": [
+            "EXECUTE"
+          ],
+          "grantOptions": []
+        },
+        "postgres": {
+          "privileges": [
+            "EXECUTE"
+          ],
+          "grantOptions": [
+            "EXECUTE"
+          ]
+        },
+        "service_role": {
+          "privileges": [
+            "EXECUTE"
+          ],
+          "grantOptions": []
+        },
+        "authenticated": {
+          "privileges": [
+            "EXECUTE"
+          ],
+          "grantOptions": []
+        }
+      },
+      "otherGrantees": 0
+    },
+    "281f586da922089df8a097669271ba631a0fb7e9fa1a6cbf440e8158bdbcbe55": {
+      "owner": "postgres",
+      "roles": {
+        "anon": {
+          "privileges": [
+            "EXECUTE"
+          ],
+          "grantOptions": []
+        },
+        "postgres": {
+          "privileges": [
+            "EXECUTE"
+          ],
+          "grantOptions": [
+            "EXECUTE"
+          ]
+        },
+        "service_role": {
+          "privileges": [],
+          "grantOptions": []
+        },
+        "authenticated": {
+          "privileges": [
+            "EXECUTE"
+          ],
+          "grantOptions": []
+        }
+      },
+      "otherGrantees": 0
+    },
+    "0651cffc9ce984b490796f778681ed12be7eebe05d45d721456d98cf1e6eb58b": {
+      "owner": "postgres",
+      "roles": {
+        "anon": {
+          "privileges": [],
+          "grantOptions": []
+        },
+        "postgres": {
+          "privileges": [
+            "EXECUTE"
+          ],
+          "grantOptions": [
+            "EXECUTE"
+          ]
+        },
+        "service_role": {
+          "privileges": [
+            "EXECUTE"
+          ],
+          "grantOptions": []
+        },
+        "authenticated": {
+          "privileges": [],
+          "grantOptions": []
+        }
+      },
+      "otherGrantees": 0
+    },
+    "8b7d1470bfbae972dd180c9066cc2c863fb8aa922dee25511d8f03d2c8ecc50f": {
+      "owner": "postgres",
+      "roles": {
+        "anon": {
+          "privileges": [],
+          "grantOptions": []
+        },
+        "postgres": {
+          "privileges": [
+            "EXECUTE"
+          ],
+          "grantOptions": [
+            "EXECUTE"
+          ]
+        },
+        "service_role": {
+          "privileges": [],
+          "grantOptions": []
+        },
+        "authenticated": {
+          "privileges": [
+            "EXECUTE"
+          ],
+          "grantOptions": []
+        }
+      },
+      "otherGrantees": 0
+    },
+    "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6": {
+      "owner": "postgres",
+      "roles": {
+        "anon": {
+          "privileges": [],
+          "grantOptions": []
+        },
+        "postgres": {
+          "privileges": [
+            "DELETE",
+            "INSERT",
+            "MAINTAIN",
+            "REFERENCES",
+            "SELECT",
+            "TRIGGER",
+            "TRUNCATE",
+            "UPDATE"
+          ],
+          "grantOptions": [
+            "DELETE",
+            "INSERT",
+            "MAINTAIN",
+            "REFERENCES",
+            "SELECT",
+            "TRIGGER",
+            "TRUNCATE",
+            "UPDATE"
+          ]
+        },
+        "service_role": {
+          "privileges": [
+            "DELETE",
+            "INSERT",
+            "SELECT",
+            "UPDATE"
+          ],
+          "grantOptions": []
+        },
+        "authenticated": {
+          "privileges": [
+            "DELETE",
+            "INSERT",
+            "SELECT",
+            "UPDATE"
+          ],
+          "grantOptions": []
+        }
+      },
+      "otherGrantees": 0
+    },
+    "6a9758ee09b104d3d4cbf071356993799ba35bee81947e8239bb49c95965c1d3": {
+      "owner": "postgres",
+      "roles": {
+        "anon": {
+          "privileges": [],
+          "grantOptions": []
+        },
+        "postgres": {
+          "privileges": [
+            "DELETE",
+            "INSERT",
+            "MAINTAIN",
+            "REFERENCES",
+            "SELECT",
+            "TRIGGER",
+            "TRUNCATE",
+            "UPDATE"
+          ],
+          "grantOptions": [
+            "DELETE",
+            "INSERT",
+            "MAINTAIN",
+            "REFERENCES",
+            "SELECT",
+            "TRIGGER",
+            "TRUNCATE",
+            "UPDATE"
+          ]
+        },
+        "service_role": {
+          "privileges": [
+            "DELETE",
+            "INSERT",
+            "SELECT",
+            "UPDATE"
+          ],
+          "grantOptions": []
+        },
+        "authenticated": {
+          "privileges": [],
+          "grantOptions": []
+        }
+      },
+      "otherGrantees": 0
+    },
+    "7fbc8cae4f398654385fab2e9454c0740f135698c3b03f2229a29d6fee21ca27": {
+      "owner": "postgres",
+      "roles": {
+        "anon": {
+          "privileges": [],
+          "grantOptions": []
+        },
+        "postgres": {
+          "privileges": [
+            "DELETE",
+            "INSERT",
+            "MAINTAIN",
+            "REFERENCES",
+            "SELECT",
+            "TRIGGER",
+            "TRUNCATE",
+            "UPDATE"
+          ],
+          "grantOptions": [
+            "DELETE",
+            "INSERT",
+            "MAINTAIN",
+            "REFERENCES",
+            "SELECT",
+            "TRIGGER",
+            "TRUNCATE",
+            "UPDATE"
+          ]
+        },
+        "service_role": {
+          "privileges": [
+            "DELETE",
+            "INSERT",
+            "MAINTAIN",
+            "REFERENCES",
+            "SELECT",
+            "TRIGGER",
+            "TRUNCATE",
+            "UPDATE"
+          ],
+          "grantOptions": []
+        },
+        "authenticated": {
+          "privileges": [
+            "SELECT"
+          ],
+          "grantOptions": []
+        }
+      },
+      "otherGrantees": 0
+    },
+    "42c07260586eaaa5ee8756e1803d1842ca40a54831306566a160340967d3a60b": {
+      "owner": "postgres",
+      "roles": {
+        "anon": {
+          "privileges": [],
+          "grantOptions": []
+        },
+        "postgres": {
+          "privileges": [
+            "EXECUTE"
+          ],
+          "grantOptions": [
+            "EXECUTE"
+          ]
+        },
+        "service_role": {
+          "privileges": [],
+          "grantOptions": []
+        },
+        "authenticated": {
+          "privileges": [],
+          "grantOptions": []
+        }
+      },
+      "otherGrantees": 0
+    },
+    "f65080e1be3d591318138ca8911e2c843531eb015fe889a305c5be40d67b8401": {
+      "owner": "postgres",
+      "roles": {
+        "anon": {
+          "privileges": [
+            "MAINTAIN",
+            "REFERENCES",
+            "TRIGGER",
+            "TRUNCATE"
+          ],
+          "grantOptions": []
+        },
+        "postgres": {
+          "privileges": [
+            "DELETE",
+            "INSERT",
+            "MAINTAIN",
+            "REFERENCES",
+            "SELECT",
+            "TRIGGER",
+            "TRUNCATE",
+            "UPDATE"
+          ],
+          "grantOptions": [
+            "DELETE",
+            "INSERT",
+            "MAINTAIN",
+            "REFERENCES",
+            "SELECT",
+            "TRIGGER",
+            "TRUNCATE",
+            "UPDATE"
+          ]
+        },
+        "service_role": {
+          "privileges": [
+            "DELETE",
+            "INSERT",
+            "MAINTAIN",
+            "REFERENCES",
+            "SELECT",
+            "TRIGGER",
+            "TRUNCATE",
+            "UPDATE"
+          ],
+          "grantOptions": []
+        },
+        "authenticated": {
+          "privileges": [
+            "DELETE",
+            "INSERT",
+            "MAINTAIN",
+            "REFERENCES",
+            "SELECT",
+            "TRIGGER",
+            "TRUNCATE",
+            "UPDATE"
+          ],
+          "grantOptions": []
+        }
+      },
+      "otherGrantees": 0
+    },
+    "0cdd8174f82795677189f0c4cf142325602b52f9f9725847035fb181401a456c": {
+      "owner": "postgres",
+      "roles": {
+        "anon": {
+          "privileges": [],
+          "grantOptions": []
+        },
+        "postgres": {
+          "privileges": [
+            "DELETE",
+            "INSERT",
+            "MAINTAIN",
+            "REFERENCES",
+            "SELECT",
+            "TRIGGER",
+            "TRUNCATE",
+            "UPDATE"
+          ],
+          "grantOptions": [
+            "DELETE",
+            "INSERT",
+            "MAINTAIN",
+            "REFERENCES",
+            "SELECT",
+            "TRIGGER",
+            "TRUNCATE",
+            "UPDATE"
+          ]
+        },
+        "service_role": {
+          "privileges": [
+            "DELETE",
+            "INSERT",
+            "MAINTAIN",
+            "REFERENCES",
+            "SELECT",
+            "TRIGGER",
+            "TRUNCATE",
+            "UPDATE"
+          ],
+          "grantOptions": []
+        },
+        "authenticated": {
+          "privileges": [
+            "MAINTAIN",
+            "REFERENCES",
+            "SELECT",
+            "TRIGGER",
+            "TRUNCATE"
+          ],
+          "grantOptions": []
+        }
+      },
+      "otherGrantees": 0
+    },
+    "b4c9d7d4576dda11698acb9cbb14a0914fc197f483fd4170eb94274286b3d82f": {
+      "owner": "postgres",
+      "roles": {
+        "anon": {
+          "privileges": [],
+          "grantOptions": []
+        },
+        "postgres": {
+          "privileges": [
+            "DELETE",
+            "INSERT",
+            "MAINTAIN",
+            "REFERENCES",
+            "SELECT",
+            "TRIGGER",
+            "TRUNCATE",
+            "UPDATE"
+          ],
+          "grantOptions": [
+            "DELETE",
+            "INSERT",
+            "MAINTAIN",
+            "REFERENCES",
+            "SELECT",
+            "TRIGGER",
+            "TRUNCATE",
+            "UPDATE"
+          ]
+        },
+        "service_role": {
+          "privileges": [
+            "DELETE",
+            "INSERT",
+            "MAINTAIN",
+            "REFERENCES",
+            "SELECT",
+            "TRIGGER",
+            "TRUNCATE",
+            "UPDATE"
+          ],
+          "grantOptions": []
+        },
+        "authenticated": {
+          "privileges": [],
+          "grantOptions": []
+        }
+      },
+      "otherGrantees": 0
+    }
+  },
+  "profiles": {
+    "fresh-empty": {
+      "roles": {
+        "anon": {
+          "inherit": true,
+          "bypassRls": false,
+          "superuser": false,
+          "memberships": 0
+        },
+        "postgres": {
+          "inherit": true,
+          "bypassRls": true,
+          "superuser": true,
+          "memberships": 0
+        },
+        "service_role": {
+          "inherit": true,
+          "bypassRls": true,
+          "superuser": false,
+          "memberships": 0
+        },
+        "authenticated": {
+          "inherit": true,
+          "bypassRls": false,
+          "superuser": false,
+          "memberships": 0
+        }
+      },
+      "schema": {
+        "owner": "pg_database_owner",
+        "usage": {
+          "anon": true,
+          "postgres": true,
+          "service_role": true,
+          "authenticated": true
+        },
+        "create": {
+          "anon": false,
+          "postgres": true,
+          "service_role": false,
+          "authenticated": false
+        }
+      },
+      "objects": {}
+    },
+    "history-prefix-1": {
+      "roles": {
+        "anon": {
+          "inherit": true,
+          "bypassRls": false,
+          "superuser": false,
+          "memberships": 0
+        },
+        "postgres": {
+          "inherit": true,
+          "bypassRls": true,
+          "superuser": true,
+          "memberships": 0
+        },
+        "service_role": {
+          "inherit": true,
+          "bypassRls": true,
+          "superuser": false,
+          "memberships": 0
+        },
+        "authenticated": {
+          "inherit": true,
+          "bypassRls": false,
+          "superuser": false,
+          "memberships": 0
+        }
+      },
+      "schema": {
+        "owner": "pg_database_owner",
+        "usage": {
+          "anon": true,
+          "postgres": true,
+          "service_role": true,
+          "authenticated": true
+        },
+        "create": {
+          "anon": false,
+          "postgres": true,
+          "service_role": false,
+          "authenticated": false
+        }
+      },
+      "objects": {
+        "tables::sb_classes:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "tables::sb_problems:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "tables::sb_projects:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "tables::sb_students:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "rpcs::sb_touch_updated_at:": "635be30fd9b7624b047991458dbca9d731d3ac65718562d5e27c2fe41297a379",
+        "tables::sb_block_snapshots:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "tables::sb_lesson_settings:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "tables::sb_student_rewards:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "tables::sb_challenge_solves:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "tables::sb_problem_attempts:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "tables::sb_student_progress:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "tables::sb_student_sessions:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "tables::sb_teacher_settings:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "tables::sb_shared_challenges:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "tables::sb_student_pin_vault:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "rpcs::sb_owns_class:target uuid": "635be30fd9b7624b047991458dbca9d731d3ac65718562d5e27c2fe41297a379",
+        "rpcs::sb_owns_student:target uuid": "635be30fd9b7624b047991458dbca9d731d3ac65718562d5e27c2fe41297a379",
+        "rpcs::sb_public_class_info:p_class_code text": "281f586da922089df8a097669271ba631a0fb7e9fa1a6cbf440e8158bdbcbe55"
+      }
+    },
+    "history-prefix-2": {
+      "roles": {
+        "anon": {
+          "inherit": true,
+          "bypassRls": false,
+          "superuser": false,
+          "memberships": 0
+        },
+        "postgres": {
+          "inherit": true,
+          "bypassRls": true,
+          "superuser": true,
+          "memberships": 0
+        },
+        "service_role": {
+          "inherit": true,
+          "bypassRls": true,
+          "superuser": false,
+          "memberships": 0
+        },
+        "authenticated": {
+          "inherit": true,
+          "bypassRls": false,
+          "superuser": false,
+          "memberships": 0
+        }
+      },
+      "schema": {
+        "owner": "pg_database_owner",
+        "usage": {
+          "anon": true,
+          "postgres": true,
+          "service_role": true,
+          "authenticated": true
+        },
+        "create": {
+          "anon": false,
+          "postgres": true,
+          "service_role": false,
+          "authenticated": false
+        }
+      },
+      "objects": {
+        "tables::sb_classes:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "tables::sb_problems:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "tables::sb_projects:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "tables::sb_students:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "rpcs::sb_touch_updated_at:": "635be30fd9b7624b047991458dbca9d731d3ac65718562d5e27c2fe41297a379",
+        "tables::sb_block_snapshots:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "tables::sb_lesson_settings:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "tables::sb_student_rewards:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "tables::sb_challenge_solves:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "tables::sb_problem_attempts:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "tables::sb_student_progress:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "tables::sb_student_sessions:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "tables::sb_teacher_settings:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "tables::sb_shared_challenges:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "tables::sb_student_pin_vault:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "rpcs::sb_owns_class:target uuid": "635be30fd9b7624b047991458dbca9d731d3ac65718562d5e27c2fe41297a379",
+        "rpcs::sb_owns_student:target uuid": "635be30fd9b7624b047991458dbca9d731d3ac65718562d5e27c2fe41297a379",
+        "rpcs::sb_public_class_info:p_class_code text": "281f586da922089df8a097669271ba631a0fb7e9fa1a6cbf440e8158bdbcbe55"
+      }
+    },
+    "history-prefix-3": {
+      "roles": {
+        "anon": {
+          "inherit": true,
+          "bypassRls": false,
+          "superuser": false,
+          "memberships": 0
+        },
+        "postgres": {
+          "inherit": true,
+          "bypassRls": true,
+          "superuser": true,
+          "memberships": 0
+        },
+        "service_role": {
+          "inherit": true,
+          "bypassRls": true,
+          "superuser": false,
+          "memberships": 0
+        },
+        "authenticated": {
+          "inherit": true,
+          "bypassRls": false,
+          "superuser": false,
+          "memberships": 0
+        }
+      },
+      "schema": {
+        "owner": "pg_database_owner",
+        "usage": {
+          "anon": true,
+          "postgres": true,
+          "service_role": true,
+          "authenticated": true
+        },
+        "create": {
+          "anon": false,
+          "postgres": true,
+          "service_role": false,
+          "authenticated": false
+        }
+      },
+      "objects": {
+        "tables::sb_classes:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "tables::sb_problems:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "tables::sb_projects:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "tables::sb_students:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "rpcs::sb_touch_updated_at:": "635be30fd9b7624b047991458dbca9d731d3ac65718562d5e27c2fe41297a379",
+        "tables::sb_block_snapshots:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "tables::sb_lesson_settings:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "tables::sb_student_rewards:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "tables::sb_challenge_solves:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "tables::sb_problem_attempts:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "tables::sb_student_progress:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "tables::sb_student_sessions:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "tables::sb_teacher_settings:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "tables::sb_shared_challenges:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "tables::sb_student_pin_vault:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "rpcs::sb_owns_class:target uuid": "635be30fd9b7624b047991458dbca9d731d3ac65718562d5e27c2fe41297a379",
+        "rpcs::sb_owns_student:target uuid": "635be30fd9b7624b047991458dbca9d731d3ac65718562d5e27c2fe41297a379",
+        "rpcs::sb_public_class_info:p_class_code text": "281f586da922089df8a097669271ba631a0fb7e9fa1a6cbf440e8158bdbcbe55"
+      }
+    },
+    "history-prefix-4": {
+      "roles": {
+        "anon": {
+          "inherit": true,
+          "bypassRls": false,
+          "superuser": false,
+          "memberships": 0
+        },
+        "postgres": {
+          "inherit": true,
+          "bypassRls": true,
+          "superuser": true,
+          "memberships": 0
+        },
+        "service_role": {
+          "inherit": true,
+          "bypassRls": true,
+          "superuser": false,
+          "memberships": 0
+        },
+        "authenticated": {
+          "inherit": true,
+          "bypassRls": false,
+          "superuser": false,
+          "memberships": 0
+        }
+      },
+      "schema": {
+        "owner": "pg_database_owner",
+        "usage": {
+          "anon": true,
+          "postgres": true,
+          "service_role": true,
+          "authenticated": true
+        },
+        "create": {
+          "anon": false,
+          "postgres": true,
+          "service_role": false,
+          "authenticated": false
+        }
+      },
+      "objects": {
+        "tables::sb_classes:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "tables::sb_problems:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "tables::sb_projects:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "tables::sb_students:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "rpcs::sb_touch_updated_at:": "635be30fd9b7624b047991458dbca9d731d3ac65718562d5e27c2fe41297a379",
+        "tables::sb_block_snapshots:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "tables::sb_lesson_settings:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "tables::sb_student_rewards:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "tables::sb_challenge_solves:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "tables::sb_problem_attempts:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "tables::sb_student_progress:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "tables::sb_student_sessions:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "tables::sb_teacher_settings:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "tables::sb_shared_challenges:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "tables::sb_student_pin_vault:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "rpcs::sb_owns_class:target uuid": "635be30fd9b7624b047991458dbca9d731d3ac65718562d5e27c2fe41297a379",
+        "rpcs::sb_owns_student:target uuid": "635be30fd9b7624b047991458dbca9d731d3ac65718562d5e27c2fe41297a379",
+        "rpcs::sb_public_class_info:p_class_code text": "281f586da922089df8a097669271ba631a0fb7e9fa1a6cbf440e8158bdbcbe55",
+        "rpcs::sb_record_attempt:p_student uuid, p_problem uuid, p_expected integer, p_next jsonb, p_blocks jsonb": "0651cffc9ce984b490796f778681ed12be7eebe05d45d721456d98cf1e6eb58b"
+      }
+    },
+    "history-prefix-5": {
+      "roles": {
+        "anon": {
+          "inherit": true,
+          "bypassRls": false,
+          "superuser": false,
+          "memberships": 0
+        },
+        "postgres": {
+          "inherit": true,
+          "bypassRls": true,
+          "superuser": true,
+          "memberships": 0
+        },
+        "service_role": {
+          "inherit": true,
+          "bypassRls": true,
+          "superuser": false,
+          "memberships": 0
+        },
+        "authenticated": {
+          "inherit": true,
+          "bypassRls": false,
+          "superuser": false,
+          "memberships": 0
+        }
+      },
+      "schema": {
+        "owner": "pg_database_owner",
+        "usage": {
+          "anon": true,
+          "postgres": true,
+          "service_role": true,
+          "authenticated": true
+        },
+        "create": {
+          "anon": false,
+          "postgres": true,
+          "service_role": false,
+          "authenticated": false
+        }
+      },
+      "objects": {
+        "tables::sb_classes:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "tables::sb_problems:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "tables::sb_projects:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "tables::sb_students:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "rpcs::sb_touch_updated_at:": "635be30fd9b7624b047991458dbca9d731d3ac65718562d5e27c2fe41297a379",
+        "tables::sb_block_snapshots:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "tables::sb_lesson_settings:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "tables::sb_student_rewards:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "tables::sb_challenge_solves:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "tables::sb_problem_attempts:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "tables::sb_student_progress:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "tables::sb_student_sessions:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "tables::sb_teacher_settings:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "tables::sb_shared_challenges:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "tables::sb_student_pin_vault:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "rpcs::sb_owns_class:target uuid": "635be30fd9b7624b047991458dbca9d731d3ac65718562d5e27c2fe41297a379",
+        "rpcs::sb_owns_student:target uuid": "635be30fd9b7624b047991458dbca9d731d3ac65718562d5e27c2fe41297a379",
+        "rpcs::sb_public_class_info:p_class_code text": "281f586da922089df8a097669271ba631a0fb7e9fa1a6cbf440e8158bdbcbe55",
+        "rpcs::sb_record_attempt:p_student uuid, p_problem uuid, p_expected integer, p_next jsonb, p_blocks jsonb": "0651cffc9ce984b490796f778681ed12be7eebe05d45d721456d98cf1e6eb58b"
+      }
+    },
+    "history-prefix-6": {
+      "roles": {
+        "anon": {
+          "inherit": true,
+          "bypassRls": false,
+          "superuser": false,
+          "memberships": 0
+        },
+        "postgres": {
+          "inherit": true,
+          "bypassRls": true,
+          "superuser": true,
+          "memberships": 0
+        },
+        "service_role": {
+          "inherit": true,
+          "bypassRls": true,
+          "superuser": false,
+          "memberships": 0
+        },
+        "authenticated": {
+          "inherit": true,
+          "bypassRls": false,
+          "superuser": false,
+          "memberships": 0
+        }
+      },
+      "schema": {
+        "owner": "pg_database_owner",
+        "usage": {
+          "anon": true,
+          "postgres": true,
+          "service_role": true,
+          "authenticated": true
+        },
+        "create": {
+          "anon": false,
+          "postgres": true,
+          "service_role": false,
+          "authenticated": false
+        }
+      },
+      "objects": {
+        "tables::sb_classes:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "tables::sb_problems:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "tables::sb_projects:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "tables::sb_students:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "rpcs::sb_touch_updated_at:": "635be30fd9b7624b047991458dbca9d731d3ac65718562d5e27c2fe41297a379",
+        "tables::sb_block_snapshots:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "tables::sb_lesson_settings:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "tables::sb_student_rewards:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "tables::sb_challenge_solves:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "tables::sb_problem_attempts:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "tables::sb_self_evaluations:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "tables::sb_student_progress:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "tables::sb_student_sessions:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "tables::sb_teacher_settings:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "tables::sb_shared_challenges:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "tables::sb_student_pin_vault:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "rpcs::sb_owns_class:target uuid": "635be30fd9b7624b047991458dbca9d731d3ac65718562d5e27c2fe41297a379",
+        "rpcs::sb_owns_student:target uuid": "635be30fd9b7624b047991458dbca9d731d3ac65718562d5e27c2fe41297a379",
+        "rpcs::sb_public_class_info:p_class_code text": "281f586da922089df8a097669271ba631a0fb7e9fa1a6cbf440e8158bdbcbe55",
+        "rpcs::sb_save_building:p_student uuid, p_class uuid, p_version integer, p_data jsonb": "0651cffc9ce984b490796f778681ed12be7eebe05d45d721456d98cf1e6eb58b",
+        "rpcs::sb_submit_challenge:p_student uuid, p_challenge uuid, p_previous integer, p_state jsonb": "0651cffc9ce984b490796f778681ed12be7eebe05d45d721456d98cf1e6eb58b",
+        "rpcs::sb_record_attempt:p_student uuid, p_problem uuid, p_expected integer, p_next jsonb, p_blocks jsonb": "0651cffc9ce984b490796f778681ed12be7eebe05d45d721456d98cf1e6eb58b"
+      }
+    },
+    "history-prefix-7": {
+      "roles": {
+        "anon": {
+          "inherit": true,
+          "bypassRls": false,
+          "superuser": false,
+          "memberships": 0
+        },
+        "postgres": {
+          "inherit": true,
+          "bypassRls": true,
+          "superuser": true,
+          "memberships": 0
+        },
+        "service_role": {
+          "inherit": true,
+          "bypassRls": true,
+          "superuser": false,
+          "memberships": 0
+        },
+        "authenticated": {
+          "inherit": true,
+          "bypassRls": false,
+          "superuser": false,
+          "memberships": 0
+        }
+      },
+      "schema": {
+        "owner": "pg_database_owner",
+        "usage": {
+          "anon": true,
+          "postgres": true,
+          "service_role": true,
+          "authenticated": true
+        },
+        "create": {
+          "anon": false,
+          "postgres": true,
+          "service_role": false,
+          "authenticated": false
+        }
+      },
+      "objects": {
+        "tables::sb_classes:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "tables::sb_problems:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "tables::sb_projects:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "tables::sb_students:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "rpcs::sb_touch_updated_at:": "635be30fd9b7624b047991458dbca9d731d3ac65718562d5e27c2fe41297a379",
+        "tables::sb_block_snapshots:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "tables::sb_lesson_settings:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "tables::sb_student_rewards:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "tables::sb_challenge_solves:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "tables::sb_problem_attempts:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "tables::sb_self_evaluations:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "tables::sb_student_progress:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "tables::sb_student_sessions:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "tables::sb_teacher_settings:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "tables::sb_shared_challenges:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "tables::sb_student_pin_vault:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "rpcs::sb_owns_class:target uuid": "635be30fd9b7624b047991458dbca9d731d3ac65718562d5e27c2fe41297a379",
+        "rpcs::sb_owns_student:target uuid": "635be30fd9b7624b047991458dbca9d731d3ac65718562d5e27c2fe41297a379",
+        "rpcs::sb_public_class_info:p_class_code text": "281f586da922089df8a097669271ba631a0fb7e9fa1a6cbf440e8158bdbcbe55",
+        "rpcs::sb_reset_progress:p_student uuid, p_lesson integer": "8b7d1470bfbae972dd180c9066cc2c863fb8aa922dee25511d8f03d2c8ecc50f",
+        "rpcs::sb_save_building:p_student uuid, p_class uuid, p_version integer, p_data jsonb": "0651cffc9ce984b490796f778681ed12be7eebe05d45d721456d98cf1e6eb58b",
+        "rpcs::sb_submit_challenge:p_student uuid, p_challenge uuid, p_previous integer, p_state jsonb": "0651cffc9ce984b490796f778681ed12be7eebe05d45d721456d98cf1e6eb58b",
+        "rpcs::sb_record_attempt:p_student uuid, p_problem uuid, p_expected integer, p_next jsonb, p_blocks jsonb": "0651cffc9ce984b490796f778681ed12be7eebe05d45d721456d98cf1e6eb58b"
+      }
+    },
+    "history-prefix-8": {
+      "roles": {
+        "anon": {
+          "inherit": true,
+          "bypassRls": false,
+          "superuser": false,
+          "memberships": 0
+        },
+        "postgres": {
+          "inherit": true,
+          "bypassRls": true,
+          "superuser": true,
+          "memberships": 0
+        },
+        "service_role": {
+          "inherit": true,
+          "bypassRls": true,
+          "superuser": false,
+          "memberships": 0
+        },
+        "authenticated": {
+          "inherit": true,
+          "bypassRls": false,
+          "superuser": false,
+          "memberships": 0
+        }
+      },
+      "schema": {
+        "owner": "pg_database_owner",
+        "usage": {
+          "anon": true,
+          "postgres": true,
+          "service_role": true,
+          "authenticated": true
+        },
+        "create": {
+          "anon": false,
+          "postgres": true,
+          "service_role": false,
+          "authenticated": false
+        }
+      },
+      "objects": {
+        "tables::sb_classes:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "tables::sb_problems:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "tables::sb_projects:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "tables::sb_students:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "rpcs::sb_touch_updated_at:": "635be30fd9b7624b047991458dbca9d731d3ac65718562d5e27c2fe41297a379",
+        "tables::sb_block_snapshots:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "tables::sb_lesson_settings:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "tables::sb_student_rewards:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "tables::sb_challenge_solves:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "tables::sb_problem_attempts:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "tables::sb_self_evaluations:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "tables::sb_student_progress:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "tables::sb_student_sessions:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "tables::sb_teacher_settings:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "tables::sb_shared_challenges:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "tables::sb_student_pin_vault:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "tables::sb_worksheet_imports:": "4630a29c2e2c5719df0ecab4e5b7002127214f92746efced5be1ef15fc028073",
+        "rpcs::sb_owns_class:target uuid": "635be30fd9b7624b047991458dbca9d731d3ac65718562d5e27c2fe41297a379",
+        "rpcs::sb_owns_student:target uuid": "635be30fd9b7624b047991458dbca9d731d3ac65718562d5e27c2fe41297a379",
+        "rpcs::sb_public_class_info:p_class_code text": "281f586da922089df8a097669271ba631a0fb7e9fa1a6cbf440e8158bdbcbe55",
+        "rpcs::sb_reset_progress:p_student uuid, p_lesson integer": "8b7d1470bfbae972dd180c9066cc2c863fb8aa922dee25511d8f03d2c8ecc50f",
+        "rpcs::sb_save_building:p_student uuid, p_class uuid, p_version integer, p_data jsonb": "0651cffc9ce984b490796f778681ed12be7eebe05d45d721456d98cf1e6eb58b",
+        "rpcs::sb_submit_challenge:p_student uuid, p_challenge uuid, p_previous integer, p_state jsonb": "0651cffc9ce984b490796f778681ed12be7eebe05d45d721456d98cf1e6eb58b",
+        "rpcs::sb_record_attempt:p_student uuid, p_problem uuid, p_expected integer, p_next jsonb, p_blocks jsonb": "0651cffc9ce984b490796f778681ed12be7eebe05d45d721456d98cf1e6eb58b"
+      }
+    },
+    "history-prefix-9": {
+      "roles": {
+        "anon": {
+          "inherit": true,
+          "bypassRls": false,
+          "superuser": false,
+          "memberships": 0
+        },
+        "postgres": {
+          "inherit": true,
+          "bypassRls": true,
+          "superuser": true,
+          "memberships": 0
+        },
+        "service_role": {
+          "inherit": true,
+          "bypassRls": true,
+          "superuser": false,
+          "memberships": 0
+        },
+        "authenticated": {
+          "inherit": true,
+          "bypassRls": false,
+          "superuser": false,
+          "memberships": 0
+        }
+      },
+      "schema": {
+        "owner": "pg_database_owner",
+        "usage": {
+          "anon": true,
+          "postgres": true,
+          "service_role": true,
+          "authenticated": true
+        },
+        "create": {
+          "anon": false,
+          "postgres": true,
+          "service_role": false,
+          "authenticated": false
+        }
+      },
+      "objects": {
+        "tables::sb_classes:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_problems:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_projects:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_students:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "rpcs::sb_touch_updated_at:": "635be30fd9b7624b047991458dbca9d731d3ac65718562d5e27c2fe41297a379",
+        "tables::sb_block_snapshots:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_lesson_settings:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_student_rewards:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_challenge_solves:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_problem_attempts:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_self_evaluations:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_student_progress:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_student_sessions:": "6a9758ee09b104d3d4cbf071356993799ba35bee81947e8239bb49c95965c1d3",
+        "tables::sb_teacher_settings:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_shared_challenges:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_student_pin_vault:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_worksheet_imports:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "rpcs::sb_owns_class:target uuid": "635be30fd9b7624b047991458dbca9d731d3ac65718562d5e27c2fe41297a379",
+        "rpcs::sb_owns_student:target uuid": "635be30fd9b7624b047991458dbca9d731d3ac65718562d5e27c2fe41297a379",
+        "rpcs::sb_public_class_info:p_class_code text": "281f586da922089df8a097669271ba631a0fb7e9fa1a6cbf440e8158bdbcbe55",
+        "rpcs::sb_reset_progress:p_student uuid, p_lesson integer": "8b7d1470bfbae972dd180c9066cc2c863fb8aa922dee25511d8f03d2c8ecc50f",
+        "rpcs::sb_save_building:p_student uuid, p_class uuid, p_version integer, p_data jsonb": "0651cffc9ce984b490796f778681ed12be7eebe05d45d721456d98cf1e6eb58b",
+        "rpcs::sb_submit_challenge:p_student uuid, p_challenge uuid, p_previous integer, p_state jsonb": "0651cffc9ce984b490796f778681ed12be7eebe05d45d721456d98cf1e6eb58b",
+        "rpcs::sb_record_attempt:p_student uuid, p_problem uuid, p_expected integer, p_next jsonb, p_blocks jsonb": "0651cffc9ce984b490796f778681ed12be7eebe05d45d721456d98cf1e6eb58b"
+      }
+    },
+    "history-prefix-10": {
+      "roles": {
+        "anon": {
+          "inherit": true,
+          "bypassRls": false,
+          "superuser": false,
+          "memberships": 0
+        },
+        "postgres": {
+          "inherit": true,
+          "bypassRls": true,
+          "superuser": true,
+          "memberships": 0
+        },
+        "service_role": {
+          "inherit": true,
+          "bypassRls": true,
+          "superuser": false,
+          "memberships": 0
+        },
+        "authenticated": {
+          "inherit": true,
+          "bypassRls": false,
+          "superuser": false,
+          "memberships": 0
+        }
+      },
+      "schema": {
+        "owner": "pg_database_owner",
+        "usage": {
+          "anon": true,
+          "postgres": true,
+          "service_role": true,
+          "authenticated": true
+        },
+        "create": {
+          "anon": false,
+          "postgres": true,
+          "service_role": false,
+          "authenticated": false
+        }
+      },
+      "objects": {
+        "tables::sb_classes:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_problems:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_projects:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_students:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "rpcs::sb_touch_updated_at:": "635be30fd9b7624b047991458dbca9d731d3ac65718562d5e27c2fe41297a379",
+        "tables::sb_block_snapshots:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_lesson_settings:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_student_rewards:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_challenge_solves:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_problem_attempts:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_self_evaluations:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_student_progress:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_student_sessions:": "6a9758ee09b104d3d4cbf071356993799ba35bee81947e8239bb49c95965c1d3",
+        "tables::sb_teacher_settings:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_shared_challenges:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_student_pin_vault:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_worksheet_imports:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "rpcs::sb_owns_class:target uuid": "635be30fd9b7624b047991458dbca9d731d3ac65718562d5e27c2fe41297a379",
+        "rpcs::sb_owns_student:target uuid": "635be30fd9b7624b047991458dbca9d731d3ac65718562d5e27c2fe41297a379",
+        "rpcs::sb_public_class_info:p_class_code text": "281f586da922089df8a097669271ba631a0fb7e9fa1a6cbf440e8158bdbcbe55",
+        "rpcs::sb_reset_progress:p_student uuid, p_lesson integer": "8b7d1470bfbae972dd180c9066cc2c863fb8aa922dee25511d8f03d2c8ecc50f",
+        "rpcs::sb_save_building:p_student uuid, p_class uuid, p_version integer, p_data jsonb": "0651cffc9ce984b490796f778681ed12be7eebe05d45d721456d98cf1e6eb58b",
+        "rpcs::sb_submit_challenge:p_student uuid, p_challenge uuid, p_previous integer, p_state jsonb": "0651cffc9ce984b490796f778681ed12be7eebe05d45d721456d98cf1e6eb58b",
+        "rpcs::sb_record_attempt:p_student uuid, p_problem uuid, p_expected integer, p_next jsonb, p_blocks jsonb": "0651cffc9ce984b490796f778681ed12be7eebe05d45d721456d98cf1e6eb58b"
+      }
+    },
+    "history-prefix-11": {
+      "roles": {
+        "anon": {
+          "inherit": true,
+          "bypassRls": false,
+          "superuser": false,
+          "memberships": 0
+        },
+        "postgres": {
+          "inherit": true,
+          "bypassRls": true,
+          "superuser": true,
+          "memberships": 0
+        },
+        "service_role": {
+          "inherit": true,
+          "bypassRls": true,
+          "superuser": false,
+          "memberships": 0
+        },
+        "authenticated": {
+          "inherit": true,
+          "bypassRls": false,
+          "superuser": false,
+          "memberships": 0
+        }
+      },
+      "schema": {
+        "owner": "pg_database_owner",
+        "usage": {
+          "anon": true,
+          "postgres": true,
+          "service_role": true,
+          "authenticated": true
+        },
+        "create": {
+          "anon": false,
+          "postgres": true,
+          "service_role": false,
+          "authenticated": false
+        }
+      },
+      "objects": {
+        "tables::sb_classes:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_problems:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_projects:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_students:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "rpcs::sb_touch_updated_at:": "635be30fd9b7624b047991458dbca9d731d3ac65718562d5e27c2fe41297a379",
+        "tables::sb_block_snapshots:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_lesson_settings:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_student_rewards:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_challenge_solves:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_problem_attempts:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_self_evaluations:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_student_progress:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_student_sessions:": "6a9758ee09b104d3d4cbf071356993799ba35bee81947e8239bb49c95965c1d3",
+        "tables::sb_teacher_settings:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_shared_challenges:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_student_pin_vault:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_worksheet_imports:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "rpcs::sb_owns_class:target uuid": "635be30fd9b7624b047991458dbca9d731d3ac65718562d5e27c2fe41297a379",
+        "rpcs::sb_owns_student:target uuid": "635be30fd9b7624b047991458dbca9d731d3ac65718562d5e27c2fe41297a379",
+        "rpcs::sb_public_class_info:p_class_code text": "281f586da922089df8a097669271ba631a0fb7e9fa1a6cbf440e8158bdbcbe55",
+        "rpcs::sb_reset_progress:p_student uuid, p_lesson integer": "8b7d1470bfbae972dd180c9066cc2c863fb8aa922dee25511d8f03d2c8ecc50f",
+        "rpcs::sb_save_building:p_student uuid, p_class uuid, p_version integer, p_data jsonb": "0651cffc9ce984b490796f778681ed12be7eebe05d45d721456d98cf1e6eb58b",
+        "rpcs::sb_submit_challenge:p_student uuid, p_challenge uuid, p_previous integer, p_state jsonb": "0651cffc9ce984b490796f778681ed12be7eebe05d45d721456d98cf1e6eb58b",
+        "rpcs::sb_record_attempt:p_student uuid, p_problem uuid, p_expected integer, p_next jsonb, p_blocks jsonb": "0651cffc9ce984b490796f778681ed12be7eebe05d45d721456d98cf1e6eb58b"
+      }
+    },
+    "history-prefix-12": {
+      "roles": {
+        "anon": {
+          "inherit": true,
+          "bypassRls": false,
+          "superuser": false,
+          "memberships": 0
+        },
+        "postgres": {
+          "inherit": true,
+          "bypassRls": true,
+          "superuser": true,
+          "memberships": 0
+        },
+        "service_role": {
+          "inherit": true,
+          "bypassRls": true,
+          "superuser": false,
+          "memberships": 0
+        },
+        "authenticated": {
+          "inherit": true,
+          "bypassRls": false,
+          "superuser": false,
+          "memberships": 0
+        }
+      },
+      "schema": {
+        "owner": "pg_database_owner",
+        "usage": {
+          "anon": true,
+          "postgres": true,
+          "service_role": true,
+          "authenticated": true
+        },
+        "create": {
+          "anon": false,
+          "postgres": true,
+          "service_role": false,
+          "authenticated": false
+        }
+      },
+      "objects": {
+        "tables::sb_classes:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_problems:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_projects:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_students:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "rpcs::sb_touch_updated_at:": "635be30fd9b7624b047991458dbca9d731d3ac65718562d5e27c2fe41297a379",
+        "tables::sb_block_snapshots:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_lesson_settings:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_student_rewards:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_challenge_solves:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_problem_attempts:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_self_evaluations:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_student_progress:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_student_sessions:": "6a9758ee09b104d3d4cbf071356993799ba35bee81947e8239bb49c95965c1d3",
+        "tables::sb_teacher_settings:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_shared_challenges:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_student_pin_vault:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_worksheet_imports:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "rpcs::sb_owns_class:target uuid": "635be30fd9b7624b047991458dbca9d731d3ac65718562d5e27c2fe41297a379",
+        "rpcs::sb_owns_student:target uuid": "635be30fd9b7624b047991458dbca9d731d3ac65718562d5e27c2fe41297a379",
+        "rpcs::sb_public_class_info:p_class_code text": "281f586da922089df8a097669271ba631a0fb7e9fa1a6cbf440e8158bdbcbe55",
+        "rpcs::sb_reset_progress:p_student uuid, p_lesson integer": "8b7d1470bfbae972dd180c9066cc2c863fb8aa922dee25511d8f03d2c8ecc50f",
+        "rpcs::sb_save_building:p_student uuid, p_class uuid, p_version integer, p_data jsonb": "0651cffc9ce984b490796f778681ed12be7eebe05d45d721456d98cf1e6eb58b",
+        "rpcs::sb_submit_challenge:p_student uuid, p_challenge uuid, p_previous integer, p_state jsonb": "0651cffc9ce984b490796f778681ed12be7eebe05d45d721456d98cf1e6eb58b",
+        "rpcs::sb_record_attempt:p_student uuid, p_problem uuid, p_expected integer, p_next jsonb, p_blocks jsonb": "0651cffc9ce984b490796f778681ed12be7eebe05d45d721456d98cf1e6eb58b"
+      }
+    },
+    "history-prefix-13": {
+      "roles": {
+        "anon": {
+          "inherit": true,
+          "bypassRls": false,
+          "superuser": false,
+          "memberships": 0
+        },
+        "postgres": {
+          "inherit": true,
+          "bypassRls": true,
+          "superuser": true,
+          "memberships": 0
+        },
+        "service_role": {
+          "inherit": true,
+          "bypassRls": true,
+          "superuser": false,
+          "memberships": 0
+        },
+        "authenticated": {
+          "inherit": true,
+          "bypassRls": false,
+          "superuser": false,
+          "memberships": 0
+        }
+      },
+      "schema": {
+        "owner": "pg_database_owner",
+        "usage": {
+          "anon": true,
+          "postgres": true,
+          "service_role": true,
+          "authenticated": true
+        },
+        "create": {
+          "anon": false,
+          "postgres": true,
+          "service_role": false,
+          "authenticated": false
+        }
+      },
+      "objects": {
+        "tables::sb_classes:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_problems:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_projects:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_students:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "rpcs::sb_touch_updated_at:": "635be30fd9b7624b047991458dbca9d731d3ac65718562d5e27c2fe41297a379",
+        "tables::sb_block_snapshots:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_lesson_settings:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_student_rewards:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_challenge_solves:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_problem_attempts:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_self_evaluations:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_student_progress:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_student_sessions:": "6a9758ee09b104d3d4cbf071356993799ba35bee81947e8239bb49c95965c1d3",
+        "tables::sb_teacher_settings:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_shared_challenges:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_student_pin_vault:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_worksheet_imports:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "rpcs::sb_owns_class:target uuid": "635be30fd9b7624b047991458dbca9d731d3ac65718562d5e27c2fe41297a379",
+        "rpcs::sb_owns_student:target uuid": "635be30fd9b7624b047991458dbca9d731d3ac65718562d5e27c2fe41297a379",
+        "rpcs::sb_public_class_info:p_class_code text": "281f586da922089df8a097669271ba631a0fb7e9fa1a6cbf440e8158bdbcbe55",
+        "rpcs::sb_reset_progress:p_student uuid, p_lesson integer": "8b7d1470bfbae972dd180c9066cc2c863fb8aa922dee25511d8f03d2c8ecc50f",
+        "rpcs::sb_save_building:p_student uuid, p_class uuid, p_version integer, p_data jsonb": "0651cffc9ce984b490796f778681ed12be7eebe05d45d721456d98cf1e6eb58b",
+        "rpcs::sb_submit_challenge:p_student uuid, p_challenge uuid, p_previous integer, p_state jsonb": "0651cffc9ce984b490796f778681ed12be7eebe05d45d721456d98cf1e6eb58b",
+        "rpcs::sb_record_attempt:p_student uuid, p_problem uuid, p_expected integer, p_next jsonb, p_blocks jsonb": "0651cffc9ce984b490796f778681ed12be7eebe05d45d721456d98cf1e6eb58b"
+      }
+    },
+    "history-prefix-14": {
+      "roles": {
+        "anon": {
+          "inherit": true,
+          "bypassRls": false,
+          "superuser": false,
+          "memberships": 0
+        },
+        "postgres": {
+          "inherit": true,
+          "bypassRls": true,
+          "superuser": true,
+          "memberships": 0
+        },
+        "service_role": {
+          "inherit": true,
+          "bypassRls": true,
+          "superuser": false,
+          "memberships": 0
+        },
+        "authenticated": {
+          "inherit": true,
+          "bypassRls": false,
+          "superuser": false,
+          "memberships": 0
+        }
+      },
+      "schema": {
+        "owner": "pg_database_owner",
+        "usage": {
+          "anon": true,
+          "postgres": true,
+          "service_role": true,
+          "authenticated": true
+        },
+        "create": {
+          "anon": false,
+          "postgres": true,
+          "service_role": false,
+          "authenticated": false
+        }
+      },
+      "objects": {
+        "tables::sb_classes:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_problems:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_projects:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_students:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "rpcs::sb_touch_updated_at:": "635be30fd9b7624b047991458dbca9d731d3ac65718562d5e27c2fe41297a379",
+        "tables::sb_block_snapshots:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_lesson_settings:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_student_rewards:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_challenge_solves:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_problem_attempts:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_self_evaluations:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_student_progress:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_student_sessions:": "6a9758ee09b104d3d4cbf071356993799ba35bee81947e8239bb49c95965c1d3",
+        "tables::sb_teacher_settings:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_shared_challenges:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_student_pin_vault:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_worksheet_imports:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "rpcs::sb_owns_class:target uuid": "635be30fd9b7624b047991458dbca9d731d3ac65718562d5e27c2fe41297a379",
+        "rpcs::sb_owns_student:target uuid": "635be30fd9b7624b047991458dbca9d731d3ac65718562d5e27c2fe41297a379",
+        "rpcs::sb_public_class_info:p_class_code text": "281f586da922089df8a097669271ba631a0fb7e9fa1a6cbf440e8158bdbcbe55",
+        "rpcs::sb_reset_progress:p_student uuid, p_lesson integer": "8b7d1470bfbae972dd180c9066cc2c863fb8aa922dee25511d8f03d2c8ecc50f",
+        "rpcs::sb_save_building:p_student uuid, p_class uuid, p_version integer, p_data jsonb": "0651cffc9ce984b490796f778681ed12be7eebe05d45d721456d98cf1e6eb58b",
+        "rpcs::sb_submit_challenge:p_student uuid, p_challenge uuid, p_previous integer, p_state jsonb": "0651cffc9ce984b490796f778681ed12be7eebe05d45d721456d98cf1e6eb58b",
+        "rpcs::sb_record_attempt:p_student uuid, p_problem uuid, p_expected integer, p_next jsonb, p_blocks jsonb": "0651cffc9ce984b490796f778681ed12be7eebe05d45d721456d98cf1e6eb58b"
+      }
+    },
+    "history-prefix-15": {
+      "roles": {
+        "anon": {
+          "inherit": true,
+          "bypassRls": false,
+          "superuser": false,
+          "memberships": 0
+        },
+        "postgres": {
+          "inherit": true,
+          "bypassRls": true,
+          "superuser": true,
+          "memberships": 0
+        },
+        "service_role": {
+          "inherit": true,
+          "bypassRls": true,
+          "superuser": false,
+          "memberships": 0
+        },
+        "authenticated": {
+          "inherit": true,
+          "bypassRls": false,
+          "superuser": false,
+          "memberships": 0
+        }
+      },
+      "schema": {
+        "owner": "pg_database_owner",
+        "usage": {
+          "anon": true,
+          "postgres": true,
+          "service_role": true,
+          "authenticated": true
+        },
+        "create": {
+          "anon": false,
+          "postgres": true,
+          "service_role": false,
+          "authenticated": false
+        }
+      },
+      "objects": {
+        "tables::sb_classes:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_problems:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_projects:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_students:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "rpcs::sb_touch_updated_at:": "635be30fd9b7624b047991458dbca9d731d3ac65718562d5e27c2fe41297a379",
+        "tables::sb_block_snapshots:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_lesson_settings:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_student_rewards:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_challenge_solves:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_problem_attempts:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_self_evaluations:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_student_progress:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_student_sessions:": "6a9758ee09b104d3d4cbf071356993799ba35bee81947e8239bb49c95965c1d3",
+        "tables::sb_teacher_settings:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_shared_challenges:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_student_pin_vault:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_worksheet_imports:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "rpcs::sb_owns_class:target uuid": "635be30fd9b7624b047991458dbca9d731d3ac65718562d5e27c2fe41297a379",
+        "rpcs::sb_owns_student:target uuid": "635be30fd9b7624b047991458dbca9d731d3ac65718562d5e27c2fe41297a379",
+        "rpcs::sb_public_class_info:p_class_code text": "281f586da922089df8a097669271ba631a0fb7e9fa1a6cbf440e8158bdbcbe55",
+        "rpcs::sb_reset_progress:p_student uuid, p_lesson integer": "8b7d1470bfbae972dd180c9066cc2c863fb8aa922dee25511d8f03d2c8ecc50f",
+        "rpcs::sb_save_building:p_student uuid, p_class uuid, p_version integer, p_data jsonb": "0651cffc9ce984b490796f778681ed12be7eebe05d45d721456d98cf1e6eb58b",
+        "rpcs::sb_submit_challenge:p_student uuid, p_challenge uuid, p_previous integer, p_state jsonb": "0651cffc9ce984b490796f778681ed12be7eebe05d45d721456d98cf1e6eb58b",
+        "rpcs::sb_record_attempt:p_student uuid, p_problem uuid, p_expected integer, p_next jsonb, p_blocks jsonb": "0651cffc9ce984b490796f778681ed12be7eebe05d45d721456d98cf1e6eb58b"
+      }
+    },
+    "history-prefix-16": {
+      "roles": {
+        "anon": {
+          "inherit": true,
+          "bypassRls": false,
+          "superuser": false,
+          "memberships": 0
+        },
+        "postgres": {
+          "inherit": true,
+          "bypassRls": true,
+          "superuser": true,
+          "memberships": 0
+        },
+        "service_role": {
+          "inherit": true,
+          "bypassRls": true,
+          "superuser": false,
+          "memberships": 0
+        },
+        "authenticated": {
+          "inherit": true,
+          "bypassRls": false,
+          "superuser": false,
+          "memberships": 0
+        }
+      },
+      "schema": {
+        "owner": "pg_database_owner",
+        "usage": {
+          "anon": true,
+          "postgres": true,
+          "service_role": true,
+          "authenticated": true
+        },
+        "create": {
+          "anon": false,
+          "postgres": true,
+          "service_role": false,
+          "authenticated": false
+        }
+      },
+      "objects": {
+        "tables::sb_classes:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_problems:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_projects:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_students:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "rpcs::sb_touch_updated_at:": "635be30fd9b7624b047991458dbca9d731d3ac65718562d5e27c2fe41297a379",
+        "tables::sb_block_snapshots:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_lesson_settings:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_student_rewards:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_challenge_solves:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_problem_attempts:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_self_evaluations:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_student_progress:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_student_sessions:": "6a9758ee09b104d3d4cbf071356993799ba35bee81947e8239bb49c95965c1d3",
+        "tables::sb_teacher_settings:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_shared_challenges:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_student_pin_vault:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_worksheet_imports:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "rpcs::sb_owns_class:target uuid": "635be30fd9b7624b047991458dbca9d731d3ac65718562d5e27c2fe41297a379",
+        "rpcs::sb_owns_student:target uuid": "635be30fd9b7624b047991458dbca9d731d3ac65718562d5e27c2fe41297a379",
+        "rpcs::sb_public_class_info:p_class_code text": "281f586da922089df8a097669271ba631a0fb7e9fa1a6cbf440e8158bdbcbe55",
+        "rpcs::sb_reset_progress:p_student uuid, p_lesson integer": "8b7d1470bfbae972dd180c9066cc2c863fb8aa922dee25511d8f03d2c8ecc50f",
+        "rpcs::sb_set_reward_loadout:p_student uuid, p_material text, p_theme text": "0651cffc9ce984b490796f778681ed12be7eebe05d45d721456d98cf1e6eb58b",
+        "rpcs::sb_save_building:p_student uuid, p_class uuid, p_version integer, p_data jsonb": "0651cffc9ce984b490796f778681ed12be7eebe05d45d721456d98cf1e6eb58b",
+        "rpcs::sb_submit_challenge:p_student uuid, p_challenge uuid, p_previous integer, p_state jsonb": "0651cffc9ce984b490796f778681ed12be7eebe05d45d721456d98cf1e6eb58b",
+        "rpcs::sb_record_attempt:p_student uuid, p_problem uuid, p_expected integer, p_next jsonb, p_blocks jsonb": "0651cffc9ce984b490796f778681ed12be7eebe05d45d721456d98cf1e6eb58b"
+      }
+    },
+    "history-prefix-17": {
+      "roles": {
+        "anon": {
+          "inherit": true,
+          "bypassRls": false,
+          "superuser": false,
+          "memberships": 0
+        },
+        "postgres": {
+          "inherit": true,
+          "bypassRls": true,
+          "superuser": true,
+          "memberships": 0
+        },
+        "service_role": {
+          "inherit": true,
+          "bypassRls": true,
+          "superuser": false,
+          "memberships": 0
+        },
+        "authenticated": {
+          "inherit": true,
+          "bypassRls": false,
+          "superuser": false,
+          "memberships": 0
+        }
+      },
+      "schema": {
+        "owner": "pg_database_owner",
+        "usage": {
+          "anon": true,
+          "postgres": true,
+          "service_role": true,
+          "authenticated": true
+        },
+        "create": {
+          "anon": false,
+          "postgres": true,
+          "service_role": false,
+          "authenticated": false
+        }
+      },
+      "objects": {
+        "tables::sb_classes:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_problems:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_projects:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_students:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "rpcs::sb_touch_updated_at:": "635be30fd9b7624b047991458dbca9d731d3ac65718562d5e27c2fe41297a379",
+        "tables::sb_block_snapshots:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_lesson_settings:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_project_exports:": "7fbc8cae4f398654385fab2e9454c0740f135698c3b03f2229a29d6fee21ca27",
+        "tables::sb_student_rewards:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_challenge_solves:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_problem_attempts:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_self_evaluations:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_student_progress:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_student_sessions:": "6a9758ee09b104d3d4cbf071356993799ba35bee81947e8239bb49c95965c1d3",
+        "tables::sb_teacher_settings:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_shared_challenges:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_student_pin_vault:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_worksheet_imports:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "rpcs::sb_owns_class:target uuid": "635be30fd9b7624b047991458dbca9d731d3ac65718562d5e27c2fe41297a379",
+        "tables::sb_practice_assignments:": "7fbc8cae4f398654385fab2e9454c0740f135698c3b03f2229a29d6fee21ca27",
+        "rpcs::sb_owns_student:target uuid": "635be30fd9b7624b047991458dbca9d731d3ac65718562d5e27c2fe41297a379",
+        "tables::sb_peer_problem_attempts:": "7fbc8cae4f398654385fab2e9454c0740f135698c3b03f2229a29d6fee21ca27",
+        "tables::sb_lesson_progress_records:": "7fbc8cae4f398654385fab2e9454c0740f135698c3b03f2229a29d6fee21ca27",
+        "tables::sb_student_created_problems:": "7fbc8cae4f398654385fab2e9454c0740f135698c3b03f2229a29d6fee21ca27",
+        "tables::sb_student_lesson_reflections:": "7fbc8cae4f398654385fab2e9454c0740f135698c3b03f2229a29d6fee21ca27",
+        "rpcs::sb_public_class_info:p_class_code text": "281f586da922089df8a097669271ba631a0fb7e9fa1a6cbf440e8158bdbcbe55",
+        "rpcs::sb_reset_progress:p_student uuid, p_lesson integer": "8b7d1470bfbae972dd180c9066cc2c863fb8aa922dee25511d8f03d2c8ecc50f",
+        "rpcs::sb_set_reward_loadout:p_student uuid, p_material text, p_theme text": "0651cffc9ce984b490796f778681ed12be7eebe05d45d721456d98cf1e6eb58b",
+        "rpcs::sb_save_building:p_student uuid, p_class uuid, p_version integer, p_data jsonb": "0651cffc9ce984b490796f778681ed12be7eebe05d45d721456d98cf1e6eb58b",
+        "rpcs::sb_submit_challenge:p_student uuid, p_challenge uuid, p_previous integer, p_state jsonb": "0651cffc9ce984b490796f778681ed12be7eebe05d45d721456d98cf1e6eb58b",
+        "rpcs::sb_record_attempt:p_student uuid, p_problem uuid, p_expected integer, p_next jsonb, p_blocks jsonb": "0651cffc9ce984b490796f778681ed12be7eebe05d45d721456d98cf1e6eb58b"
+      }
+    },
+    "history-prefix-18": {
+      "roles": {
+        "anon": {
+          "inherit": true,
+          "bypassRls": false,
+          "superuser": false,
+          "memberships": 0
+        },
+        "postgres": {
+          "inherit": true,
+          "bypassRls": true,
+          "superuser": true,
+          "memberships": 0
+        },
+        "service_role": {
+          "inherit": true,
+          "bypassRls": true,
+          "superuser": false,
+          "memberships": 0
+        },
+        "authenticated": {
+          "inherit": true,
+          "bypassRls": false,
+          "superuser": false,
+          "memberships": 0
+        }
+      },
+      "schema": {
+        "owner": "pg_database_owner",
+        "usage": {
+          "anon": true,
+          "postgres": true,
+          "service_role": true,
+          "authenticated": true
+        },
+        "create": {
+          "anon": false,
+          "postgres": true,
+          "service_role": false,
+          "authenticated": false
+        }
+      },
+      "objects": {
+        "tables::sb_classes:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_problems:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_projects:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_students:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "rpcs::sb_touch_updated_at:": "635be30fd9b7624b047991458dbca9d731d3ac65718562d5e27c2fe41297a379",
+        "tables::sb_block_snapshots:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_lesson_settings:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_project_exports:": "7fbc8cae4f398654385fab2e9454c0740f135698c3b03f2229a29d6fee21ca27",
+        "tables::sb_student_rewards:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_challenge_solves:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_problem_attempts:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_self_evaluations:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_student_progress:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_student_sessions:": "6a9758ee09b104d3d4cbf071356993799ba35bee81947e8239bb49c95965c1d3",
+        "tables::sb_teacher_settings:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_shared_challenges:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_student_pin_vault:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_worksheet_imports:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "rpcs::sb_owns_class:target uuid": "635be30fd9b7624b047991458dbca9d731d3ac65718562d5e27c2fe41297a379",
+        "tables::sb_practice_assignments:": "7fbc8cae4f398654385fab2e9454c0740f135698c3b03f2229a29d6fee21ca27",
+        "rpcs::sb_owns_student:target uuid": "635be30fd9b7624b047991458dbca9d731d3ac65718562d5e27c2fe41297a379",
+        "tables::sb_peer_problem_attempts:": "7fbc8cae4f398654385fab2e9454c0740f135698c3b03f2229a29d6fee21ca27",
+        "tables::sb_lesson_progress_records:": "7fbc8cae4f398654385fab2e9454c0740f135698c3b03f2229a29d6fee21ca27",
+        "tables::sb_student_created_problems:": "7fbc8cae4f398654385fab2e9454c0740f135698c3b03f2229a29d6fee21ca27",
+        "tables::sb_student_lesson_reflections:": "7fbc8cae4f398654385fab2e9454c0740f135698c3b03f2229a29d6fee21ca27",
+        "rpcs::sb_public_class_info:p_class_code text": "281f586da922089df8a097669271ba631a0fb7e9fa1a6cbf440e8158bdbcbe55",
+        "rpcs::sb_reset_progress:p_student uuid, p_lesson integer": "8b7d1470bfbae972dd180c9066cc2c863fb8aa922dee25511d8f03d2c8ecc50f",
+        "rpcs::sb_set_reward_loadout:p_student uuid, p_material text, p_theme text": "0651cffc9ce984b490796f778681ed12be7eebe05d45d721456d98cf1e6eb58b",
+        "rpcs::sb_save_building:p_student uuid, p_class uuid, p_version integer, p_data jsonb": "0651cffc9ce984b490796f778681ed12be7eebe05d45d721456d98cf1e6eb58b",
+        "rpcs::sb_submit_challenge:p_student uuid, p_challenge uuid, p_previous integer, p_state jsonb": "0651cffc9ce984b490796f778681ed12be7eebe05d45d721456d98cf1e6eb58b",
+        "rpcs::sb_submit_challenge_v2:p_student uuid, p_challenge uuid, p_previous integer, p_state jsonb": "0651cffc9ce984b490796f778681ed12be7eebe05d45d721456d98cf1e6eb58b",
+        "rpcs::sb_record_attempt:p_student uuid, p_problem uuid, p_expected integer, p_next jsonb, p_blocks jsonb": "0651cffc9ce984b490796f778681ed12be7eebe05d45d721456d98cf1e6eb58b"
+      }
+    },
+    "history-prefix-19": {
+      "roles": {
+        "anon": {
+          "inherit": true,
+          "bypassRls": false,
+          "superuser": false,
+          "memberships": 0
+        },
+        "postgres": {
+          "inherit": true,
+          "bypassRls": true,
+          "superuser": true,
+          "memberships": 0
+        },
+        "service_role": {
+          "inherit": true,
+          "bypassRls": true,
+          "superuser": false,
+          "memberships": 0
+        },
+        "authenticated": {
+          "inherit": true,
+          "bypassRls": false,
+          "superuser": false,
+          "memberships": 0
+        }
+      },
+      "schema": {
+        "owner": "pg_database_owner",
+        "usage": {
+          "anon": true,
+          "postgres": true,
+          "service_role": true,
+          "authenticated": true
+        },
+        "create": {
+          "anon": false,
+          "postgres": true,
+          "service_role": false,
+          "authenticated": false
+        }
+      },
+      "objects": {
+        "tables::sb_classes:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_problems:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_projects:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_students:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "rpcs::sb_touch_updated_at:": "635be30fd9b7624b047991458dbca9d731d3ac65718562d5e27c2fe41297a379",
+        "tables::sb_block_snapshots:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_lesson_settings:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_project_exports:": "7fbc8cae4f398654385fab2e9454c0740f135698c3b03f2229a29d6fee21ca27",
+        "tables::sb_student_rewards:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_challenge_solves:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_problem_attempts:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_self_evaluations:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_student_progress:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_student_sessions:": "6a9758ee09b104d3d4cbf071356993799ba35bee81947e8239bb49c95965c1d3",
+        "tables::sb_teacher_settings:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_shared_challenges:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_student_pin_vault:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_worksheet_imports:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "rpcs::sb_owns_class:target uuid": "635be30fd9b7624b047991458dbca9d731d3ac65718562d5e27c2fe41297a379",
+        "tables::sb_practice_assignments:": "7fbc8cae4f398654385fab2e9454c0740f135698c3b03f2229a29d6fee21ca27",
+        "rpcs::sb_owns_student:target uuid": "635be30fd9b7624b047991458dbca9d731d3ac65718562d5e27c2fe41297a379",
+        "tables::sb_peer_problem_attempts:": "7fbc8cae4f398654385fab2e9454c0740f135698c3b03f2229a29d6fee21ca27",
+        "tables::sb_lesson_progress_records:": "7fbc8cae4f398654385fab2e9454c0740f135698c3b03f2229a29d6fee21ca27",
+        "tables::sb_student_created_problems:": "7fbc8cae4f398654385fab2e9454c0740f135698c3b03f2229a29d6fee21ca27",
+        "tables::sb_student_lesson_reflections:": "7fbc8cae4f398654385fab2e9454c0740f135698c3b03f2229a29d6fee21ca27",
+        "rpcs::sb_public_class_info:p_class_code text": "281f586da922089df8a097669271ba631a0fb7e9fa1a6cbf440e8158bdbcbe55",
+        "rpcs::sb_reset_progress:p_student uuid, p_lesson integer": "8b7d1470bfbae972dd180c9066cc2c863fb8aa922dee25511d8f03d2c8ecc50f",
+        "rpcs::sb_set_reward_loadout:p_student uuid, p_material text, p_theme text": "0651cffc9ce984b490796f778681ed12be7eebe05d45d721456d98cf1e6eb58b",
+        "rpcs::sb_save_building:p_student uuid, p_class uuid, p_version integer, p_data jsonb": "0651cffc9ce984b490796f778681ed12be7eebe05d45d721456d98cf1e6eb58b",
+        "rpcs::sb_submit_challenge:p_student uuid, p_challenge uuid, p_previous integer, p_state jsonb": "0651cffc9ce984b490796f778681ed12be7eebe05d45d721456d98cf1e6eb58b",
+        "rpcs::sb_submit_challenge_v2:p_student uuid, p_challenge uuid, p_previous integer, p_state jsonb": "0651cffc9ce984b490796f778681ed12be7eebe05d45d721456d98cf1e6eb58b",
+        "rpcs::sb_record_attempt:p_student uuid, p_problem uuid, p_expected integer, p_next jsonb, p_blocks jsonb": "0651cffc9ce984b490796f778681ed12be7eebe05d45d721456d98cf1e6eb58b"
+      }
+    },
+    "history-prefix-20": {
+      "roles": {
+        "anon": {
+          "inherit": true,
+          "bypassRls": false,
+          "superuser": false,
+          "memberships": 0
+        },
+        "postgres": {
+          "inherit": true,
+          "bypassRls": true,
+          "superuser": true,
+          "memberships": 0
+        },
+        "service_role": {
+          "inherit": true,
+          "bypassRls": true,
+          "superuser": false,
+          "memberships": 0
+        },
+        "authenticated": {
+          "inherit": true,
+          "bypassRls": false,
+          "superuser": false,
+          "memberships": 0
+        }
+      },
+      "schema": {
+        "owner": "pg_database_owner",
+        "usage": {
+          "anon": true,
+          "postgres": true,
+          "service_role": true,
+          "authenticated": true
+        },
+        "create": {
+          "anon": false,
+          "postgres": true,
+          "service_role": false,
+          "authenticated": false
+        }
+      },
+      "objects": {
+        "tables::sb_classes:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_problems:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_projects:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_students:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "rpcs::sb_touch_updated_at:": "635be30fd9b7624b047991458dbca9d731d3ac65718562d5e27c2fe41297a379",
+        "tables::sb_block_snapshots:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_lesson_settings:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_project_exports:": "7fbc8cae4f398654385fab2e9454c0740f135698c3b03f2229a29d6fee21ca27",
+        "tables::sb_student_rewards:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_challenge_solves:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_problem_attempts:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_self_evaluations:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_student_progress:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_student_sessions:": "6a9758ee09b104d3d4cbf071356993799ba35bee81947e8239bb49c95965c1d3",
+        "tables::sb_teacher_settings:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_shared_challenges:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_student_pin_vault:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_worksheet_imports:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "rpcs::sb_owns_class:target uuid": "635be30fd9b7624b047991458dbca9d731d3ac65718562d5e27c2fe41297a379",
+        "tables::sb_practice_assignments:": "7fbc8cae4f398654385fab2e9454c0740f135698c3b03f2229a29d6fee21ca27",
+        "rpcs::sb_owns_student:target uuid": "635be30fd9b7624b047991458dbca9d731d3ac65718562d5e27c2fe41297a379",
+        "tables::sb_peer_problem_attempts:": "7fbc8cae4f398654385fab2e9454c0740f135698c3b03f2229a29d6fee21ca27",
+        "tables::sb_lesson_progress_records:": "7fbc8cae4f398654385fab2e9454c0740f135698c3b03f2229a29d6fee21ca27",
+        "tables::sb_student_created_problems:": "7fbc8cae4f398654385fab2e9454c0740f135698c3b03f2229a29d6fee21ca27",
+        "tables::sb_student_lesson_reflections:": "7fbc8cae4f398654385fab2e9454c0740f135698c3b03f2229a29d6fee21ca27",
+        "rpcs::sb_public_class_info:p_class_code text": "281f586da922089df8a097669271ba631a0fb7e9fa1a6cbf440e8158bdbcbe55",
+        "rpcs::sb_reset_progress:p_student uuid, p_lesson integer": "8b7d1470bfbae972dd180c9066cc2c863fb8aa922dee25511d8f03d2c8ecc50f",
+        "rpcs::sb_set_reward_loadout:p_student uuid, p_material text, p_theme text": "0651cffc9ce984b490796f778681ed12be7eebe05d45d721456d98cf1e6eb58b",
+        "rpcs::sb_save_building:p_student uuid, p_class uuid, p_version integer, p_data jsonb": "0651cffc9ce984b490796f778681ed12be7eebe05d45d721456d98cf1e6eb58b",
+        "rpcs::sb_submit_challenge:p_student uuid, p_challenge uuid, p_previous integer, p_state jsonb": "0651cffc9ce984b490796f778681ed12be7eebe05d45d721456d98cf1e6eb58b",
+        "rpcs::sb_submit_challenge_v2:p_student uuid, p_challenge uuid, p_previous integer, p_state jsonb": "0651cffc9ce984b490796f778681ed12be7eebe05d45d721456d98cf1e6eb58b",
+        "rpcs::sb_record_attempt:p_student uuid, p_problem uuid, p_expected integer, p_next jsonb, p_blocks jsonb": "0651cffc9ce984b490796f778681ed12be7eebe05d45d721456d98cf1e6eb58b"
+      }
+    },
+    "history-prefix-21": {
+      "roles": {
+        "anon": {
+          "inherit": true,
+          "bypassRls": false,
+          "superuser": false,
+          "memberships": 0
+        },
+        "postgres": {
+          "inherit": true,
+          "bypassRls": true,
+          "superuser": true,
+          "memberships": 0
+        },
+        "service_role": {
+          "inherit": true,
+          "bypassRls": true,
+          "superuser": false,
+          "memberships": 0
+        },
+        "authenticated": {
+          "inherit": true,
+          "bypassRls": false,
+          "superuser": false,
+          "memberships": 0
+        }
+      },
+      "schema": {
+        "owner": "pg_database_owner",
+        "usage": {
+          "anon": true,
+          "postgres": true,
+          "service_role": true,
+          "authenticated": true
+        },
+        "create": {
+          "anon": false,
+          "postgres": true,
+          "service_role": false,
+          "authenticated": false
+        }
+      },
+      "objects": {
+        "tables::sb_classes:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_problems:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_projects:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_students:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "rpcs::sb_touch_updated_at:": "635be30fd9b7624b047991458dbca9d731d3ac65718562d5e27c2fe41297a379",
+        "tables::sb_block_snapshots:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_lesson_settings:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_project_exports:": "7fbc8cae4f398654385fab2e9454c0740f135698c3b03f2229a29d6fee21ca27",
+        "tables::sb_student_rewards:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_challenge_solves:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_problem_attempts:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_self_evaluations:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_student_progress:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_student_sessions:": "6a9758ee09b104d3d4cbf071356993799ba35bee81947e8239bb49c95965c1d3",
+        "tables::sb_teacher_settings:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_shared_challenges:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_student_pin_vault:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_worksheet_imports:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "rpcs::sb_owns_class:target uuid": "635be30fd9b7624b047991458dbca9d731d3ac65718562d5e27c2fe41297a379",
+        "tables::sb_practice_assignments:": "7fbc8cae4f398654385fab2e9454c0740f135698c3b03f2229a29d6fee21ca27",
+        "rpcs::sb_owns_student:target uuid": "635be30fd9b7624b047991458dbca9d731d3ac65718562d5e27c2fe41297a379",
+        "tables::sb_peer_problem_attempts:": "7fbc8cae4f398654385fab2e9454c0740f135698c3b03f2229a29d6fee21ca27",
+        "tables::sb_lesson_progress_records:": "7fbc8cae4f398654385fab2e9454c0740f135698c3b03f2229a29d6fee21ca27",
+        "tables::sb_student_created_problems:": "7fbc8cae4f398654385fab2e9454c0740f135698c3b03f2229a29d6fee21ca27",
+        "tables::sb_student_lesson_reflections:": "7fbc8cae4f398654385fab2e9454c0740f135698c3b03f2229a29d6fee21ca27",
+        "rpcs::sb_public_class_info:p_class_code text": "281f586da922089df8a097669271ba631a0fb7e9fa1a6cbf440e8158bdbcbe55",
+        "rpcs::sb_reset_progress:p_student uuid, p_lesson integer": "8b7d1470bfbae972dd180c9066cc2c863fb8aa922dee25511d8f03d2c8ecc50f",
+        "rpcs::sb_set_reward_loadout:p_student uuid, p_material text, p_theme text": "0651cffc9ce984b490796f778681ed12be7eebe05d45d721456d98cf1e6eb58b",
+        "rpcs::sb_save_building:p_student uuid, p_class uuid, p_version integer, p_data jsonb": "0651cffc9ce984b490796f778681ed12be7eebe05d45d721456d98cf1e6eb58b",
+        "rpcs::sb_submit_challenge:p_student uuid, p_challenge uuid, p_previous integer, p_state jsonb": "0651cffc9ce984b490796f778681ed12be7eebe05d45d721456d98cf1e6eb58b",
+        "rpcs::sb_submit_challenge_v2:p_student uuid, p_challenge uuid, p_previous integer, p_state jsonb": "0651cffc9ce984b490796f778681ed12be7eebe05d45d721456d98cf1e6eb58b",
+        "rpcs::sb_record_attempt:p_student uuid, p_problem uuid, p_expected integer, p_next jsonb, p_blocks jsonb": "0651cffc9ce984b490796f778681ed12be7eebe05d45d721456d98cf1e6eb58b"
+      }
+    },
+    "history-prefix-22": {
+      "roles": {
+        "anon": {
+          "inherit": true,
+          "bypassRls": false,
+          "superuser": false,
+          "memberships": 0
+        },
+        "postgres": {
+          "inherit": true,
+          "bypassRls": true,
+          "superuser": true,
+          "memberships": 0
+        },
+        "service_role": {
+          "inherit": true,
+          "bypassRls": true,
+          "superuser": false,
+          "memberships": 0
+        },
+        "authenticated": {
+          "inherit": true,
+          "bypassRls": false,
+          "superuser": false,
+          "memberships": 0
+        }
+      },
+      "schema": {
+        "owner": "pg_database_owner",
+        "usage": {
+          "anon": true,
+          "postgres": true,
+          "service_role": true,
+          "authenticated": true
+        },
+        "create": {
+          "anon": false,
+          "postgres": true,
+          "service_role": false,
+          "authenticated": false
+        }
+      },
+      "objects": {
+        "tables::sb_classes:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_problems:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_projects:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_students:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "rpcs::sb_touch_updated_at:": "635be30fd9b7624b047991458dbca9d731d3ac65718562d5e27c2fe41297a379",
+        "tables::sb_block_snapshots:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_lesson_settings:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_project_exports:": "7fbc8cae4f398654385fab2e9454c0740f135698c3b03f2229a29d6fee21ca27",
+        "tables::sb_student_rewards:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_challenge_solves:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_problem_attempts:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_self_evaluations:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_student_progress:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_student_sessions:": "6a9758ee09b104d3d4cbf071356993799ba35bee81947e8239bb49c95965c1d3",
+        "tables::sb_teacher_settings:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_shared_challenges:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_student_pin_vault:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_worksheet_imports:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "rpcs::sb_owns_class:target uuid": "635be30fd9b7624b047991458dbca9d731d3ac65718562d5e27c2fe41297a379",
+        "rpcs::sb_track_challenge_author:": "42c07260586eaaa5ee8756e1803d1842ca40a54831306566a160340967d3a60b",
+        "tables::sb_practice_assignments:": "7fbc8cae4f398654385fab2e9454c0740f135698c3b03f2229a29d6fee21ca27",
+        "rpcs::sb_owns_student:target uuid": "635be30fd9b7624b047991458dbca9d731d3ac65718562d5e27c2fe41297a379",
+        "tables::sb_peer_problem_attempts:": "7fbc8cae4f398654385fab2e9454c0740f135698c3b03f2229a29d6fee21ca27",
+        "tables::sb_lesson_progress_records:": "7fbc8cae4f398654385fab2e9454c0740f135698c3b03f2229a29d6fee21ca27",
+        "tables::sb_student_created_problems:": "7fbc8cae4f398654385fab2e9454c0740f135698c3b03f2229a29d6fee21ca27",
+        "tables::sb_student_lesson_reflections:": "7fbc8cae4f398654385fab2e9454c0740f135698c3b03f2229a29d6fee21ca27",
+        "rpcs::sb_public_class_info:p_class_code text": "281f586da922089df8a097669271ba631a0fb7e9fa1a6cbf440e8158bdbcbe55",
+        "rpcs::sb_reset_progress:p_student uuid, p_lesson integer": "8b7d1470bfbae972dd180c9066cc2c863fb8aa922dee25511d8f03d2c8ecc50f",
+        "rpcs::sb_set_reward_loadout:p_student uuid, p_material text, p_theme text": "0651cffc9ce984b490796f778681ed12be7eebe05d45d721456d98cf1e6eb58b",
+        "rpcs::sb_save_building:p_student uuid, p_class uuid, p_version integer, p_data jsonb": "0651cffc9ce984b490796f778681ed12be7eebe05d45d721456d98cf1e6eb58b",
+        "rpcs::sb_submit_challenge:p_student uuid, p_challenge uuid, p_previous integer, p_state jsonb": "0651cffc9ce984b490796f778681ed12be7eebe05d45d721456d98cf1e6eb58b",
+        "rpcs::sb_submit_challenge_v2:p_student uuid, p_challenge uuid, p_previous integer, p_state jsonb": "0651cffc9ce984b490796f778681ed12be7eebe05d45d721456d98cf1e6eb58b",
+        "rpcs::sb_record_attempt:p_student uuid, p_problem uuid, p_expected integer, p_next jsonb, p_blocks jsonb": "0651cffc9ce984b490796f778681ed12be7eebe05d45d721456d98cf1e6eb58b"
+      }
+    },
+    "history-prefix-23": {
+      "roles": {
+        "anon": {
+          "inherit": true,
+          "bypassRls": false,
+          "superuser": false,
+          "memberships": 0
+        },
+        "postgres": {
+          "inherit": true,
+          "bypassRls": true,
+          "superuser": true,
+          "memberships": 0
+        },
+        "service_role": {
+          "inherit": true,
+          "bypassRls": true,
+          "superuser": false,
+          "memberships": 0
+        },
+        "authenticated": {
+          "inherit": true,
+          "bypassRls": false,
+          "superuser": false,
+          "memberships": 0
+        }
+      },
+      "schema": {
+        "owner": "pg_database_owner",
+        "usage": {
+          "anon": true,
+          "postgres": true,
+          "service_role": true,
+          "authenticated": true
+        },
+        "create": {
+          "anon": false,
+          "postgres": true,
+          "service_role": false,
+          "authenticated": false
+        }
+      },
+      "objects": {
+        "tables::sb_classes:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_problems:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_projects:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_students:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "rpcs::sb_touch_updated_at:": "635be30fd9b7624b047991458dbca9d731d3ac65718562d5e27c2fe41297a379",
+        "tables::sb_block_snapshots:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_lesson_settings:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_project_exports:": "7fbc8cae4f398654385fab2e9454c0740f135698c3b03f2229a29d6fee21ca27",
+        "tables::sb_student_rewards:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_challenge_solves:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_problem_attempts:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_self_evaluations:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_student_progress:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_student_sessions:": "6a9758ee09b104d3d4cbf071356993799ba35bee81947e8239bb49c95965c1d3",
+        "tables::sb_teacher_settings:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_shared_challenges:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_student_pin_vault:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_worksheet_imports:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "rpcs::sb_owns_class:target uuid": "635be30fd9b7624b047991458dbca9d731d3ac65718562d5e27c2fe41297a379",
+        "rpcs::sb_track_challenge_author:": "42c07260586eaaa5ee8756e1803d1842ca40a54831306566a160340967d3a60b",
+        "tables::sb_practice_assignments:": "7fbc8cae4f398654385fab2e9454c0740f135698c3b03f2229a29d6fee21ca27",
+        "rpcs::sb_owns_student:target uuid": "635be30fd9b7624b047991458dbca9d731d3ac65718562d5e27c2fe41297a379",
+        "tables::sb_peer_problem_attempts:": "7fbc8cae4f398654385fab2e9454c0740f135698c3b03f2229a29d6fee21ca27",
+        "tables::sb_lesson_progress_records:": "7fbc8cae4f398654385fab2e9454c0740f135698c3b03f2229a29d6fee21ca27",
+        "tables::sb_student_created_problems:": "7fbc8cae4f398654385fab2e9454c0740f135698c3b03f2229a29d6fee21ca27",
+        "tables::sb_student_lesson_reflections:": "7fbc8cae4f398654385fab2e9454c0740f135698c3b03f2229a29d6fee21ca27",
+        "rpcs::sb_public_class_info:p_class_code text": "281f586da922089df8a097669271ba631a0fb7e9fa1a6cbf440e8158bdbcbe55",
+        "rpcs::sb_reset_progress:p_student uuid, p_lesson integer": "8b7d1470bfbae972dd180c9066cc2c863fb8aa922dee25511d8f03d2c8ecc50f",
+        "rpcs::sb_set_reward_loadout:p_student uuid, p_material text, p_theme text": "0651cffc9ce984b490796f778681ed12be7eebe05d45d721456d98cf1e6eb58b",
+        "rpcs::sb_reset_class_progress:p_class uuid, p_teacher uuid, p_lesson integer": "0651cffc9ce984b490796f778681ed12be7eebe05d45d721456d98cf1e6eb58b",
+        "rpcs::sb_save_building:p_student uuid, p_class uuid, p_version integer, p_data jsonb": "0651cffc9ce984b490796f778681ed12be7eebe05d45d721456d98cf1e6eb58b",
+        "rpcs::sb_submit_challenge:p_student uuid, p_challenge uuid, p_previous integer, p_state jsonb": "0651cffc9ce984b490796f778681ed12be7eebe05d45d721456d98cf1e6eb58b",
+        "rpcs::sb_submit_challenge_v2:p_student uuid, p_challenge uuid, p_previous integer, p_state jsonb": "0651cffc9ce984b490796f778681ed12be7eebe05d45d721456d98cf1e6eb58b",
+        "rpcs::sb_record_attempt:p_student uuid, p_problem uuid, p_expected integer, p_next jsonb, p_blocks jsonb": "0651cffc9ce984b490796f778681ed12be7eebe05d45d721456d98cf1e6eb58b"
+      }
+    },
+    "history-prefix-24": {
+      "roles": {
+        "anon": {
+          "inherit": true,
+          "bypassRls": false,
+          "superuser": false,
+          "memberships": 0
+        },
+        "postgres": {
+          "inherit": true,
+          "bypassRls": true,
+          "superuser": true,
+          "memberships": 0
+        },
+        "service_role": {
+          "inherit": true,
+          "bypassRls": true,
+          "superuser": false,
+          "memberships": 0
+        },
+        "authenticated": {
+          "inherit": true,
+          "bypassRls": false,
+          "superuser": false,
+          "memberships": 0
+        }
+      },
+      "schema": {
+        "owner": "pg_database_owner",
+        "usage": {
+          "anon": true,
+          "postgres": true,
+          "service_role": true,
+          "authenticated": true
+        },
+        "create": {
+          "anon": false,
+          "postgres": true,
+          "service_role": false,
+          "authenticated": false
+        }
+      },
+      "objects": {
+        "tables::sb_classes:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_problems:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_projects:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_students:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "rpcs::sb_touch_updated_at:": "635be30fd9b7624b047991458dbca9d731d3ac65718562d5e27c2fe41297a379",
+        "tables::sb_block_snapshots:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_lesson_settings:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_project_exports:": "7fbc8cae4f398654385fab2e9454c0740f135698c3b03f2229a29d6fee21ca27",
+        "tables::sb_student_rewards:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_challenge_solves:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_problem_attempts:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_self_evaluations:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_student_progress:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_student_sessions:": "6a9758ee09b104d3d4cbf071356993799ba35bee81947e8239bb49c95965c1d3",
+        "tables::sb_teacher_settings:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_shared_challenges:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_student_pin_vault:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "tables::sb_worksheet_imports:": "8ada73703b02da55a3da31b7d8d4b0dca664462c4adc8029ad4a560e7cef7ed6",
+        "rpcs::sb_owns_class:target uuid": "635be30fd9b7624b047991458dbca9d731d3ac65718562d5e27c2fe41297a379",
+        "rpcs::sb_track_challenge_author:": "42c07260586eaaa5ee8756e1803d1842ca40a54831306566a160340967d3a60b",
+        "tables::sb_practice_assignments:": "7fbc8cae4f398654385fab2e9454c0740f135698c3b03f2229a29d6fee21ca27",
+        "rpcs::sb_owns_student:target uuid": "635be30fd9b7624b047991458dbca9d731d3ac65718562d5e27c2fe41297a379",
+        "tables::sb_peer_problem_attempts:": "7fbc8cae4f398654385fab2e9454c0740f135698c3b03f2229a29d6fee21ca27",
+        "tables::sb_lesson_progress_records:": "7fbc8cae4f398654385fab2e9454c0740f135698c3b03f2229a29d6fee21ca27",
+        "tables::sb_student_created_problems:": "7fbc8cae4f398654385fab2e9454c0740f135698c3b03f2229a29d6fee21ca27",
+        "tables::sb_student_lesson_reflections:": "7fbc8cae4f398654385fab2e9454c0740f135698c3b03f2229a29d6fee21ca27",
+        "rpcs::sb_public_class_info:p_class_code text": "281f586da922089df8a097669271ba631a0fb7e9fa1a6cbf440e8158bdbcbe55",
+        "rpcs::sb_reset_progress:p_student uuid, p_lesson integer": "8b7d1470bfbae972dd180c9066cc2c863fb8aa922dee25511d8f03d2c8ecc50f",
+        "rpcs::sb_set_reward_loadout:p_student uuid, p_material text, p_theme text": "0651cffc9ce984b490796f778681ed12be7eebe05d45d721456d98cf1e6eb58b",
+        "rpcs::sb_reset_class_progress:p_class uuid, p_teacher uuid, p_lesson integer": "0651cffc9ce984b490796f778681ed12be7eebe05d45d721456d98cf1e6eb58b",
+        "rpcs::sb_save_building:p_student uuid, p_class uuid, p_version integer, p_data jsonb": "0651cffc9ce984b490796f778681ed12be7eebe05d45d721456d98cf1e6eb58b",
+        "rpcs::sb_submit_challenge:p_student uuid, p_challenge uuid, p_previous integer, p_state jsonb": "0651cffc9ce984b490796f778681ed12be7eebe05d45d721456d98cf1e6eb58b",
+        "rpcs::sb_submit_challenge_v2:p_student uuid, p_challenge uuid, p_previous integer, p_state jsonb": "0651cffc9ce984b490796f778681ed12be7eebe05d45d721456d98cf1e6eb58b",
+        "rpcs::sb_record_attempt:p_student uuid, p_problem uuid, p_expected integer, p_next jsonb, p_blocks jsonb": "0651cffc9ce984b490796f778681ed12be7eebe05d45d721456d98cf1e6eb58b"
+      }
+    },
+    "manual-previous-contract": {
+      "roles": {
+        "anon": {
+          "inherit": true,
+          "bypassRls": false,
+          "superuser": false,
+          "memberships": 0
+        },
+        "postgres": {
+          "inherit": true,
+          "bypassRls": true,
+          "superuser": true,
+          "memberships": 0
+        },
+        "service_role": {
+          "inherit": true,
+          "bypassRls": true,
+          "superuser": false,
+          "memberships": 0
+        },
+        "authenticated": {
+          "inherit": true,
+          "bypassRls": false,
+          "superuser": false,
+          "memberships": 0
+        }
+      },
+      "schema": {
+        "owner": "pg_database_owner",
+        "usage": {
+          "anon": true,
+          "postgres": true,
+          "service_role": true,
+          "authenticated": true
+        },
+        "create": {
+          "anon": false,
+          "postgres": true,
+          "service_role": false,
+          "authenticated": false
+        }
+      },
+      "objects": {
+        "tables::sb_classes:": "f65080e1be3d591318138ca8911e2c843531eb015fe889a305c5be40d67b8401",
+        "tables::sb_problems:": "f65080e1be3d591318138ca8911e2c843531eb015fe889a305c5be40d67b8401",
+        "tables::sb_projects:": "f65080e1be3d591318138ca8911e2c843531eb015fe889a305c5be40d67b8401",
+        "tables::sb_students:": "f65080e1be3d591318138ca8911e2c843531eb015fe889a305c5be40d67b8401",
+        "rpcs::sb_touch_updated_at:": "635be30fd9b7624b047991458dbca9d731d3ac65718562d5e27c2fe41297a379",
+        "tables::sb_block_snapshots:": "f65080e1be3d591318138ca8911e2c843531eb015fe889a305c5be40d67b8401",
+        "tables::sb_lesson_settings:": "f65080e1be3d591318138ca8911e2c843531eb015fe889a305c5be40d67b8401",
+        "tables::sb_project_exports:": "0cdd8174f82795677189f0c4cf142325602b52f9f9725847035fb181401a456c",
+        "tables::sb_student_rewards:": "f65080e1be3d591318138ca8911e2c843531eb015fe889a305c5be40d67b8401",
+        "tables::sb_challenge_solves:": "f65080e1be3d591318138ca8911e2c843531eb015fe889a305c5be40d67b8401",
+        "tables::sb_problem_attempts:": "f65080e1be3d591318138ca8911e2c843531eb015fe889a305c5be40d67b8401",
+        "tables::sb_self_evaluations:": "f65080e1be3d591318138ca8911e2c843531eb015fe889a305c5be40d67b8401",
+        "tables::sb_student_progress:": "f65080e1be3d591318138ca8911e2c843531eb015fe889a305c5be40d67b8401",
+        "tables::sb_student_sessions:": "b4c9d7d4576dda11698acb9cbb14a0914fc197f483fd4170eb94274286b3d82f",
+        "tables::sb_teacher_settings:": "f65080e1be3d591318138ca8911e2c843531eb015fe889a305c5be40d67b8401",
+        "tables::sb_shared_challenges:": "f65080e1be3d591318138ca8911e2c843531eb015fe889a305c5be40d67b8401",
+        "tables::sb_student_pin_vault:": "f65080e1be3d591318138ca8911e2c843531eb015fe889a305c5be40d67b8401",
+        "tables::sb_worksheet_imports:": "f65080e1be3d591318138ca8911e2c843531eb015fe889a305c5be40d67b8401",
+        "rpcs::sb_owns_class:target uuid": "635be30fd9b7624b047991458dbca9d731d3ac65718562d5e27c2fe41297a379",
+        "tables::sb_practice_assignments:": "0cdd8174f82795677189f0c4cf142325602b52f9f9725847035fb181401a456c",
+        "rpcs::sb_owns_student:target uuid": "635be30fd9b7624b047991458dbca9d731d3ac65718562d5e27c2fe41297a379",
+        "tables::sb_peer_problem_attempts:": "0cdd8174f82795677189f0c4cf142325602b52f9f9725847035fb181401a456c",
+        "tables::sb_lesson_progress_records:": "0cdd8174f82795677189f0c4cf142325602b52f9f9725847035fb181401a456c",
+        "tables::sb_student_created_problems:": "0cdd8174f82795677189f0c4cf142325602b52f9f9725847035fb181401a456c",
+        "tables::sb_student_lesson_reflections:": "0cdd8174f82795677189f0c4cf142325602b52f9f9725847035fb181401a456c",
+        "rpcs::sb_public_class_info:p_class_code text": "281f586da922089df8a097669271ba631a0fb7e9fa1a6cbf440e8158bdbcbe55",
+        "rpcs::sb_reset_progress:p_student uuid, p_lesson integer": "8b7d1470bfbae972dd180c9066cc2c863fb8aa922dee25511d8f03d2c8ecc50f",
+        "rpcs::sb_set_reward_loadout:p_student uuid, p_material text, p_theme text": "0651cffc9ce984b490796f778681ed12be7eebe05d45d721456d98cf1e6eb58b",
+        "rpcs::sb_save_building:p_student uuid, p_class uuid, p_version integer, p_data jsonb": "0651cffc9ce984b490796f778681ed12be7eebe05d45d721456d98cf1e6eb58b",
+        "rpcs::sb_submit_challenge:p_student uuid, p_challenge uuid, p_previous integer, p_state jsonb": "0651cffc9ce984b490796f778681ed12be7eebe05d45d721456d98cf1e6eb58b",
+        "rpcs::sb_submit_challenge_v2:p_student uuid, p_challenge uuid, p_previous integer, p_state jsonb": "0651cffc9ce984b490796f778681ed12be7eebe05d45d721456d98cf1e6eb58b",
+        "rpcs::sb_record_attempt:p_student uuid, p_problem uuid, p_expected integer, p_next jsonb, p_blocks jsonb": "0651cffc9ce984b490796f778681ed12be7eebe05d45d721456d98cf1e6eb58b"
+      }
+    },
+    "manual-required-progress-contract": {
+      "roles": {
+        "anon": {
+          "inherit": true,
+          "bypassRls": false,
+          "superuser": false,
+          "memberships": 0
+        },
+        "postgres": {
+          "inherit": true,
+          "bypassRls": true,
+          "superuser": true,
+          "memberships": 0
+        },
+        "service_role": {
+          "inherit": true,
+          "bypassRls": true,
+          "superuser": false,
+          "memberships": 0
+        },
+        "authenticated": {
+          "inherit": true,
+          "bypassRls": false,
+          "superuser": false,
+          "memberships": 0
+        }
+      },
+      "schema": {
+        "owner": "pg_database_owner",
+        "usage": {
+          "anon": true,
+          "postgres": true,
+          "service_role": true,
+          "authenticated": true
+        },
+        "create": {
+          "anon": false,
+          "postgres": true,
+          "service_role": false,
+          "authenticated": false
+        }
+      },
+      "objects": {
+        "tables::sb_classes:": "f65080e1be3d591318138ca8911e2c843531eb015fe889a305c5be40d67b8401",
+        "tables::sb_problems:": "f65080e1be3d591318138ca8911e2c843531eb015fe889a305c5be40d67b8401",
+        "tables::sb_projects:": "f65080e1be3d591318138ca8911e2c843531eb015fe889a305c5be40d67b8401",
+        "tables::sb_students:": "f65080e1be3d591318138ca8911e2c843531eb015fe889a305c5be40d67b8401",
+        "rpcs::sb_touch_updated_at:": "635be30fd9b7624b047991458dbca9d731d3ac65718562d5e27c2fe41297a379",
+        "tables::sb_block_snapshots:": "f65080e1be3d591318138ca8911e2c843531eb015fe889a305c5be40d67b8401",
+        "tables::sb_lesson_settings:": "f65080e1be3d591318138ca8911e2c843531eb015fe889a305c5be40d67b8401",
+        "tables::sb_project_exports:": "0cdd8174f82795677189f0c4cf142325602b52f9f9725847035fb181401a456c",
+        "tables::sb_student_rewards:": "f65080e1be3d591318138ca8911e2c843531eb015fe889a305c5be40d67b8401",
+        "tables::sb_challenge_solves:": "f65080e1be3d591318138ca8911e2c843531eb015fe889a305c5be40d67b8401",
+        "tables::sb_problem_attempts:": "f65080e1be3d591318138ca8911e2c843531eb015fe889a305c5be40d67b8401",
+        "tables::sb_self_evaluations:": "f65080e1be3d591318138ca8911e2c843531eb015fe889a305c5be40d67b8401",
+        "tables::sb_student_progress:": "f65080e1be3d591318138ca8911e2c843531eb015fe889a305c5be40d67b8401",
+        "tables::sb_student_sessions:": "b4c9d7d4576dda11698acb9cbb14a0914fc197f483fd4170eb94274286b3d82f",
+        "tables::sb_teacher_settings:": "f65080e1be3d591318138ca8911e2c843531eb015fe889a305c5be40d67b8401",
+        "tables::sb_shared_challenges:": "f65080e1be3d591318138ca8911e2c843531eb015fe889a305c5be40d67b8401",
+        "tables::sb_student_pin_vault:": "f65080e1be3d591318138ca8911e2c843531eb015fe889a305c5be40d67b8401",
+        "tables::sb_worksheet_imports:": "f65080e1be3d591318138ca8911e2c843531eb015fe889a305c5be40d67b8401",
+        "rpcs::sb_owns_class:target uuid": "635be30fd9b7624b047991458dbca9d731d3ac65718562d5e27c2fe41297a379",
+        "rpcs::sb_track_challenge_author:": "42c07260586eaaa5ee8756e1803d1842ca40a54831306566a160340967d3a60b",
+        "tables::sb_practice_assignments:": "0cdd8174f82795677189f0c4cf142325602b52f9f9725847035fb181401a456c",
+        "rpcs::sb_owns_student:target uuid": "635be30fd9b7624b047991458dbca9d731d3ac65718562d5e27c2fe41297a379",
+        "tables::sb_peer_problem_attempts:": "0cdd8174f82795677189f0c4cf142325602b52f9f9725847035fb181401a456c",
+        "tables::sb_lesson_progress_records:": "0cdd8174f82795677189f0c4cf142325602b52f9f9725847035fb181401a456c",
+        "tables::sb_student_created_problems:": "0cdd8174f82795677189f0c4cf142325602b52f9f9725847035fb181401a456c",
+        "tables::sb_student_lesson_reflections:": "0cdd8174f82795677189f0c4cf142325602b52f9f9725847035fb181401a456c",
+        "rpcs::sb_public_class_info:p_class_code text": "281f586da922089df8a097669271ba631a0fb7e9fa1a6cbf440e8158bdbcbe55",
+        "rpcs::sb_reset_progress:p_student uuid, p_lesson integer": "8b7d1470bfbae972dd180c9066cc2c863fb8aa922dee25511d8f03d2c8ecc50f",
+        "rpcs::sb_set_reward_loadout:p_student uuid, p_material text, p_theme text": "0651cffc9ce984b490796f778681ed12be7eebe05d45d721456d98cf1e6eb58b",
+        "rpcs::sb_reset_class_progress:p_class uuid, p_teacher uuid, p_lesson integer": "0651cffc9ce984b490796f778681ed12be7eebe05d45d721456d98cf1e6eb58b",
+        "rpcs::sb_save_building:p_student uuid, p_class uuid, p_version integer, p_data jsonb": "0651cffc9ce984b490796f778681ed12be7eebe05d45d721456d98cf1e6eb58b",
+        "rpcs::sb_submit_challenge:p_student uuid, p_challenge uuid, p_previous integer, p_state jsonb": "0651cffc9ce984b490796f778681ed12be7eebe05d45d721456d98cf1e6eb58b",
+        "rpcs::sb_submit_challenge_v2:p_student uuid, p_challenge uuid, p_previous integer, p_state jsonb": "0651cffc9ce984b490796f778681ed12be7eebe05d45d721456d98cf1e6eb58b",
+        "rpcs::sb_record_attempt:p_student uuid, p_problem uuid, p_expected integer, p_next jsonb, p_blocks jsonb": "0651cffc9ce984b490796f778681ed12be7eebe05d45d721456d98cf1e6eb58b"
+      }
+    }
+  }
+}

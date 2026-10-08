@@ -1,5 +1,6 @@
 import { InstallerError, type InstallerTarget } from "./contract.ts";
 import type { SupabaseManagementBackend } from "./management-api.ts";
+import { assertTargetBinding } from './security.ts';
 
 interface FetchLike {
   (input: string | URL, init?: RequestInit): Promise<Response>;
@@ -26,22 +27,32 @@ export interface TeacherAccountProvisioner {
 export class ManagementTeacherAccountProvisioner implements TeacherAccountProvisioner {
   readonly #management: SupabaseManagementBackend;
   readonly #fetch: FetchLike;
+  readonly #timeoutMs: number;
 
-  constructor(management: SupabaseManagementBackend, fetchImpl: FetchLike = fetch) {
+  constructor(management: SupabaseManagementBackend, fetchImpl: FetchLike = fetch, timeoutMs = 15_000) {
     this.#management = management;
     this.#fetch = fetchImpl;
+    this.#timeoutMs = timeoutMs;
   }
 
   async createTeacherAccount(target: InstallerTarget, email: string, password: string): Promise<TeacherAccountResult> {
+    assertTargetBinding(target);
     const trimmedEmail = email.trim();
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) throw new InstallerError("INSTALLER_TEACHER_ACCOUNT_EMAIL_INVALID", "target", "이메일 주소를 확인해 주세요.");
     if (password.length < 8) throw new InstallerError("INSTALLER_TEACHER_ACCOUNT_PASSWORD_WEAK", "target", "비밀번호는 8자 이상이어야 합니다.");
     const serviceRole = await this.#management.getServiceRoleCredential(target);
     if (!serviceRole) throw new InstallerError("INSTALLER_TEACHER_ACCOUNT_KEY_MISSING", "target", "교사 계정을 만들 권한 키를 찾을 수 없습니다.");
+    const controller = new AbortController();
+    let timeout: ReturnType<typeof setTimeout> | undefined;
+    const deadline = new Promise<never>((_resolve, reject) => { timeout = setTimeout(() => { controller.abort(); reject(new InstallerError('INSTALLER_TEACHER_ACCOUNT_TIMEOUT', 'target', '교사 계정 생성 응답이 늦습니다. 먼저 로그인을 확인한 뒤 다시 시도해 주세요.')); }, this.#timeoutMs); });
     try {
-      return await serviceRole.use(async (key) => {
-        const response = await this.#fetch(`${target.projectUrl.replace(/\/$/, "")}/auth/v1/admin/users`, {
+      // A timed-out create can already have succeeded upstream. Never retry
+      // this write automatically; the normal duplicate-email path is safe.
+      return await Promise.race([deadline, serviceRole.use(async (key) => {
+        const response = await this.#fetch(`https://${target.projectRef}.supabase.co/auth/v1/admin/users`, {
           method: "POST",
+          redirect: 'error',
+          signal: controller.signal,
           headers: { apikey: key, authorization: `Bearer ${key}`, "content-type": "application/json" },
           body: JSON.stringify({ email: trimmedEmail, password, email_confirm: true }),
         });
@@ -53,8 +64,12 @@ export class ManagementTeacherAccountProvisioner implements TeacherAccountProvis
         }
         if (!response.ok) throw new InstallerError("INSTALLER_TEACHER_ACCOUNT_FAILED", "target", "교사 계정을 만들지 못했습니다.");
         return { created: true, alreadyExists: false };
-      });
+      })]);
+    } catch (error) {
+      if (error instanceof InstallerError) throw error;
+      throw new InstallerError('INSTALLER_TEACHER_ACCOUNT_FAILED', 'target', '교사 계정을 만들지 못했습니다. 연결 상태를 확인해 주세요.');
     } finally {
+      clearTimeout(timeout);
       serviceRole.dispose();
     }
   }

@@ -110,7 +110,7 @@ export async function runInstaller(options: InstallerRunOptions): Promise<Instal
     return state;
   } catch (error) {
     const detail = error instanceof InstallerError ? error : new InstallerError("INSTALLER_RUN_FAILED", "target", "설치 실행에 실패했습니다.");
-    state.status = detail.code === "INSTALLER_MANUAL_REVIEW_REQUIRED" ? "DRIFT_REQUIRES_REVIEW" : detail.code === "INSTALLER_MANAGEMENT_NETWORK" ? "RECOVERABLE" : "FAILED";
+    state.status = detail.code === "INSTALLER_MANUAL_REVIEW_REQUIRED" ? "DRIFT_REQUIRES_REVIEW" : ["INSTALLER_MANAGEMENT_NETWORK", "INSTALLER_MANAGEMENT_TIMEOUT"].includes(detail.code) ? "RECOVERABLE" : "FAILED";
     state.lastError = { code: detail.code, stage: detail.stage };
     await save(state, onState);
     throw detail;

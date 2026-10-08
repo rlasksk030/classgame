@@ -179,7 +179,7 @@ test("B49 management adapter carries the real upstream HTTP status on InstallerE
     const backend = new SupabaseManagementBackend({ accessToken: new EphemeralCredential("temporary-token"), fetchImpl, baseUrl: "https://management.invalid" });
     await assert.rejects(
       () => backend.listSecrets(target),
-      (error: unknown) => error instanceof InstallerError && error.upstreamStatus === upstreamStatus && error.stage === "secret" && error.code === `INSTALLER_MANAGEMENT_UPSTREAM_${upstreamStatus}`,
+      (error: unknown) => error instanceof InstallerError && error.upstreamStatus === upstreamStatus && error.stage === "secret" && error.code === `INSTALLER_MANAGEMENT_HTTP_${upstreamStatus}`,
     );
   }
 });

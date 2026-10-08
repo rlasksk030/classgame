@@ -226,7 +226,20 @@ async function handleRequest(request: IncomingMessage, response: ServerResponse,
           // Consuming the OAuth grant must not consume the ability to retry.
           // The credential and cached key belong to this exact bound session.
           let lookupError: unknown;
-          try { publishableKey = await extras.getPublishableKey(target); } catch (error) { lookupError = error; }
+          let verifiedCachedKey = false;
+          if (sameTarget && previous!.target.publishableKey) {
+            // Avoid another privileged key-list request after a successful
+            // bind, but never use public Auth settings as management proof.
+            await inspectExistingProject(options, session.credential, target);
+            try {
+              await extras.verifyPublishableKey(target, previous!.target.publishableKey);
+              publishableKey = previous!.target.publishableKey;
+              verifiedCachedKey = true;
+            } catch { /* A rotated/invalid public key can be fetched again. */ }
+          }
+          if (!publishableKey) {
+            try { publishableKey = await extras.getPublishableKey(target); } catch (error) { lookupError = error; }
+          }
           if (!publishableKey) {
             // An expired OAuth token cannot be repaired with a public key.
             if (lookupError instanceof InstallerError && lookupError.upstreamStatus === 401) throw lookupError;
@@ -238,7 +251,7 @@ async function handleRequest(request: IncomingMessage, response: ServerResponse,
             }
           }
           if (!publishableKey) throw lookupError ?? new InstallerError('INSTALLER_PUBLIC_KEY_UNAVAILABLE','target','프로젝트는 연결되었지만 사용 가능한 공개 키가 없습니다.');
-          await extras.verifyPublishableKey(target,publishableKey);
+          if (!verifiedCachedKey) await extras.verifyPublishableKey(target,publishableKey);
           if (session.credential.disposed) throw new InstallerError('INSTALLER_SESSION_EXPIRED','target','설치 권한이 만료되었습니다.');
           session.target = { ...session.target, publishableKey };
           logInstallerDiagnostic('PUBLIC_KEY_FETCH_SUCCESS', { projectRef: target.projectRef });
@@ -265,7 +278,11 @@ async function handleRequest(request: IncomingMessage, response: ServerResponse,
       const origin = request.headers.origin;
       if (!origin || !allowedOrigins.has(origin)) { sendError(response, 403, "INSTALLER_ORIGIN_BLOCKED", "설치 요청 출처를 확인할 수 없습니다."); return; }
       const redirectUri = `${origin}/api/installer/oauth/callback`;
-      const authorization = oauthStore.create(options.oauth.clientId, redirectUri, origin);
+      const browserBinding = readCookieId(request, 'installer_oauth_browser', options.sessionSecret) ?? randomBytes(24).toString('base64url');
+      const authorization = oauthStore.create(options.oauth.clientId, redirectUri, origin, undefined, browserBinding);
+      // Lax permits the top-level callback from Supabase while keeping the
+      // browser binding HttpOnly. Multiple tabs reuse the same opaque binding.
+      response.setHeader('set-cookie', cookieHeader('installer_oauth_browser', options.sessionSecret ? `${browserBinding}.${signSession(browserBinding, options.sessionSecret)}` : browserBinding, authorization.expiresAt, { ...options, sessionCookieSameSite: 'Lax' }));
       sendJson(response, 200, { authorizeUrl: authorization.url });
       return;
     }
@@ -275,18 +292,24 @@ async function handleRequest(request: IncomingMessage, response: ServerResponse,
       const state = url.searchParams.get("state");
       if (!code || !state) { sendError(response, 400, "INSTALLER_OAUTH_CALLBACK_INVALID", "OAuth 콜백 요청이 올바르지 않습니다."); return; }
       let pending: { codeVerifier: string; redirectUri: string; origin: string };
-      try { pending = oauthStore.consume(state); }
+      try { pending = oauthStore.consume(state, readCookieId(request, 'installer_oauth_browser', options.sessionSecret)); }
       catch { sendError(response, 400, "INSTALLER_OAUTH_CALLBACK_INVALID", "OAuth 콜백 요청이 올바르지 않습니다."); return; }
       // Defense in depth against an open redirect: re-check the bound origin is
       // still allowlisted (not just "was allowlisted when /authorize ran"), so
       // config changed mid-flow can never send a browser somewhere unlisted.
       if (!allowedOrigins.has(pending.origin)) { sendError(response, 403, "INSTALLER_ORIGIN_BLOCKED", "설치 요청 출처를 확인할 수 없습니다."); return; }
-      const tokens = await exchangeOAuthCode({ clientId: options.oauth.clientId, clientSecret: options.oauth.clientSecret, code, codeVerifier: pending.codeVerifier, redirectUri: pending.redirectUri, fetchImpl: options.oauth.fetchImpl });
-      tokens.refreshToken?.dispose(); // Not persisted in this TEST-scope flow; each install re-authorizes.
-      const grantId = grantStore.create(tokens.accessToken);
-      response.setHeader("set-cookie", cookieHeader("installer_oauth_grant", options.sessionSecret ? `${grantId}.${signSession(grantId, options.sessionSecret)}` : grantId, Date.now() + 10 * 60 * 1000, options));
-      response.writeHead(302, { location: `${pending.origin}/setup?oauth=granted` });
-      response.end();
+      try {
+        const tokens = await exchangeOAuthCode({ clientId: options.oauth.clientId, clientSecret: options.oauth.clientSecret, code, codeVerifier: pending.codeVerifier, redirectUri: pending.redirectUri, fetchImpl: options.oauth.fetchImpl });
+        tokens.refreshToken?.dispose(); // Not persisted; an expired access token requires reauthorization.
+        if (!oauthStore.exchangeActive(state)) {
+          tokens.accessToken.dispose();
+          throw new InstallerError('INSTALLER_SESSION_EXPIRED', 'target', '설치 권한 연결이 해제되었거나 만료되었습니다.');
+        }
+        const grantId = grantStore.create(tokens.accessToken);
+        response.setHeader("set-cookie", cookieHeader("installer_oauth_grant", options.sessionSecret ? `${grantId}.${signSession(grantId, options.sessionSecret)}` : grantId, Date.now() + 10 * 60 * 1000, options));
+        response.writeHead(302, { location: `${pending.origin}/setup?oauth=granted` });
+        response.end();
+      } finally { oauthStore.finishExchange(state); }
       return;
     }
     if (url.pathname === "/api/installer/projects" && request.method === "GET") {
@@ -298,6 +321,7 @@ async function handleRequest(request: IncomingMessage, response: ServerResponse,
         // project and re-check access; never discover another teacher's target.
         const bound = getSession(request, store, options.sessionSecret);
         if (bound?.credential && !bound.credential.disposed) {
+          refreshSessionCookie(response, bound, options);
           if (url.searchParams.has('projectRef') && (url.searchParams.get('projectRef') !== bound.target.projectRef || url.searchParams.get('projectUrl') !== bound.target.projectUrl)) throw new InstallerError('INSTALLER_TARGET_MISMATCH','target','현재 연결된 프로젝트와 다릅니다.');
           const project = await inspectExistingProject(options,bound.credential,bound.target);
           sendJson(response,200,{projects:[{ref:project.ref,name:project.name,region:project.region}]}); return;
@@ -320,11 +344,16 @@ async function handleRequest(request: IncomingMessage, response: ServerResponse,
     const session = getSession(request, store, options.sessionSecret);
     if (url.pathname === "/api/installer/session" && request.method === "DELETE") {
       if (session) store.delete(session.id);
-      response.setHeader("set-cookie", clearedCookieHeader("installer_session", options));
+      const grantId = getOAuthGrantId(request, options.sessionSecret);
+      if (grantId) grantStore.delete(grantId);
+      const browserBinding = readCookieId(request, 'installer_oauth_browser', options.sessionSecret);
+      if (browserBinding) oauthStore.revokeBrowser(browserBinding);
+      response.setHeader("set-cookie", ['installer_session', 'installer_oauth_grant', 'installer_oauth_browser'].map(name => clearedCookieHeader(name, options)));
       sendJson(response, 200, { revoked: true });
       return;
     }
     if (!session) { sendError(response, 401, "INSTALLER_SESSION_REQUIRED", "설치 권한 연결이 필요합니다."); return; }
+    refreshSessionCookie(response, session, options);
     if (url.pathname === "/api/installer/credential" && request.method === "POST") {
       const body = await readJson(request);
       const pat = body && typeof body === "object" && typeof (body as { pat?: unknown }).pat === "string" ? (body as { pat: string }).pat : "";
@@ -394,6 +423,7 @@ async function inspectExistingProject(options: InstallerHttpOptions, credential:
     if (project.ref !== target.projectRef) throw new InstallerError('INSTALLER_TARGET_MISMATCH', 'target', '기존 설치 프로젝트가 일치하지 않습니다.');
     return project;
   } catch (error) {
+    if (error instanceof InstallerError && error.upstreamStatus === 401) throw new InstallerError('INSTALLER_SESSION_EXPIRED', 'target', 'Supabase 설치 권한이 만료되었습니다. 다시 연결해 주세요.', 401);
     if (error instanceof InstallerError && error.upstreamStatus === 403) throw new InstallerError('INSTALLER_EXISTING_PROJECT_FORBIDDEN', 'target', '기존 프로젝트를 만든 Supabase 계정으로 다시 로그인해 주세요.', 403);
     if (error instanceof InstallerError && error.upstreamStatus === 404) throw new InstallerError('INSTALLER_EXISTING_PROJECT_NOT_FOUND', 'target', '기존 설치 정보에 해당하는 프로젝트를 확인하지 못했습니다.', 404);
     throw error;
@@ -522,6 +552,11 @@ function cookieHeader(name: string, value: string, expiresAt: number, options: I
 function clearedCookieHeader(name: string, options: InstallerHttpOptions): string {
   const sameSite = resolveSessionCookieSameSite(options.sessionCookieSecure, options.sessionCookieSameSite);
   return `${name}=; Max-Age=0; HttpOnly; Path=/api/installer; SameSite=${sameSite}${options.sessionCookieSecure ? "; Secure" : ""}`;
+}
+
+function refreshSessionCookie(response: ServerResponse, session: InstallerSession, options: InstallerHttpOptions): void {
+  const value = options.sessionSecret ? `${session.id}.${signSession(session.id, options.sessionSecret)}` : session.id;
+  response.setHeader('set-cookie', cookieHeader('installer_session', value, session.expiresAt, options));
 }
 
 function applyCors(request: IncomingMessage, response: ServerResponse, allowedOrigins: Set<string>): void {

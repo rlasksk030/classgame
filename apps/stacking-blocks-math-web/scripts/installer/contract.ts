@@ -95,6 +95,8 @@ export interface InstallerBackend {
   inspectProject(target: InstallerTarget): Promise<RemoteProject>;
   /** Server-only catalog metadata; never reads application rows. */
   inspectDatabaseCatalog?(target: InstallerTarget): Promise<import("./database-state.ts").Catalog>;
+  /** Best-effort read-only permission diagnostics. Never authorizes a repair. */
+  inspectDatabasePermissions?(target: InstallerTarget): Promise<unknown>;
   /** Read-only aggregate evidence, no application rows returned. */
   inspectDataEvidence?(target: InstallerTarget, query: string): Promise<import('./database-state.ts').DataEvidence>;
   /** Exact known-profile transaction; never rewrites migration history. */

@@ -68,8 +68,8 @@ test('consumed OAuth grant: same-session key retry succeeds, project cannot chan
   await new Promise<void>(r=>server.listen(0,'127.0.0.1',r));const addr=server.address();assert.ok(addr&&typeof addr!=='string');const base=`http://127.0.0.1:${addr.port}`;
   const post=(path:string,cookie:string,body:unknown)=>fetch(base+path,{method:'POST',headers:{cookie,origin:'https://frontend.example','content-type':'application/json'},body:JSON.stringify(body)});
   try {
-    const auth=await(await post('/api/installer/authorize','',{})).json();const state=new URL(auth.authorizeUrl).searchParams.get('state');
-    const callback=await fetch(base+'/api/installer/oauth/callback?code=synthetic&state='+state,{redirect:'manual'});
+    const authorization=await post('/api/installer/authorize','',{});const browserCookie=authorization.headers.getSetCookie()[0].split(';')[0];const auth=await authorization.json();const state=new URL(auth.authorizeUrl).searchParams.get('state');
+    const callback=await fetch(base+'/api/installer/oauth/callback?code=synthetic&state='+state,{redirect:'manual',headers:{cookie:browserCookie}});
     const grant=callback.headers.getSetCookie()[0].split(';')[0];
     const first=await post('/api/installer/session',grant,target);const body=await first.json();assert.equal(body.status,'AUTHORIZED');assert.equal(body.publicKeyError.code,'INSTALLER_PUBLIC_KEY_FORBIDDEN');assert.equal(body.publishableKey,undefined);
     const cookie=first.headers.getSetCookie().find(c=>c.startsWith('installer_session='))!.split(';')[0];
@@ -94,8 +94,8 @@ test('two authenticated sessions keep cached keys isolated; cached recovery need
   const post=(path:string,cookie:string,body:unknown)=>fetch(base+path,{method:'POST',headers:{cookie,origin:'https://frontend.example','content-type':'application/json'},body:JSON.stringify(body)});
   try{
     const sessions=await Promise.all(projects.map(async ref=>{
-      const auth=await(await post('/api/installer/authorize','',{})).json();const state=new URL(auth.authorizeUrl).searchParams.get('state');
-      const callback=await fetch(base+'/api/installer/oauth/callback?code=synthetic&state='+state,{redirect:'manual'});
+      const authorization=await post('/api/installer/authorize','',{});const browserCookie=authorization.headers.getSetCookie()[0].split(';')[0];const auth=await authorization.json();const state=new URL(auth.authorizeUrl).searchParams.get('state');
+      const callback=await fetch(base+'/api/installer/oauth/callback?code=synthetic&state='+state,{redirect:'manual',headers:{cookie:browserCookie}});
       const t={...target,projectRef:ref,projectUrl:`https://${ref}.supabase.co`,publishableKey:keys[ref]};
       const res=await post('/api/installer/session',callback.headers.getSetCookie()[0].split(';')[0],t);assert.equal((await res.json()).publishableKey,keys[ref]);
       return {t,cookie:res.headers.getSetCookie().find(c=>c.startsWith('installer_session='))!.split(';')[0]};
