@@ -1,0 +1,307 @@
+{
+  "result": "PARTIAL",
+  "targetProject": "aivukrimmqkolikgxqny",
+  "liveSource": "303a54f6c1fbe8e57a151f04413eec2beff8434a",
+  "qaSource": "ab25df7834d488663a6c07b1c0fe0fc82a6f8cb7",
+  "beforeRepair": {
+    "evidence": "actual Render schema_review log 2026-10-09T15:11:13.833389488Z",
+    "displayBaseline": "manual-live-v4-contract",
+    "displayDifferenceCount": 21,
+    "originalReleaseComparison": {
+      "baseline": "history-prefix-24",
+      "count": 22,
+      "tableCount": 16,
+      "rpcCount": 6,
+      "method": "Compare logged actual attribute digests against release baseline; unchanged objects inferred from exhaustive nearest-baseline diagnostic. No raw pre-repair catalog was captured.",
+      "differences": [
+        {
+          "key": "tables::sb_block_snapshots:",
+          "attributes": [
+            "acl"
+          ]
+        },
+        {
+          "key": "tables::sb_challenge_solves:",
+          "attributes": [
+            "acl"
+          ]
+        },
+        {
+          "key": "tables::sb_classes:",
+          "attributes": [
+            "acl"
+          ]
+        },
+        {
+          "key": "tables::sb_lesson_settings:",
+          "attributes": [
+            "acl"
+          ]
+        },
+        {
+          "key": "tables::sb_problem_attempts:",
+          "attributes": [
+            "acl"
+          ]
+        },
+        {
+          "key": "tables::sb_problems:",
+          "attributes": [
+            "acl"
+          ]
+        },
+        {
+          "key": "tables::sb_projects:",
+          "attributes": [
+            "acl"
+          ]
+        },
+        {
+          "key": "tables::sb_self_evaluations:",
+          "attributes": [
+            "acl"
+          ]
+        },
+        {
+          "key": "tables::sb_shared_challenges:",
+          "attributes": [
+            "acl"
+          ]
+        },
+        {
+          "key": "tables::sb_student_pin_vault:",
+          "attributes": [
+            "acl"
+          ]
+        },
+        {
+          "key": "tables::sb_student_progress:",
+          "attributes": [
+            "acl"
+          ]
+        },
+        {
+          "key": "tables::sb_student_rewards:",
+          "attributes": [
+            "acl"
+          ]
+        },
+        {
+          "key": "tables::sb_student_sessions:",
+          "attributes": [
+            "acl"
+          ]
+        },
+        {
+          "key": "tables::sb_students:",
+          "attributes": [
+            "acl"
+          ]
+        },
+        {
+          "key": "tables::sb_teacher_settings:",
+          "attributes": [
+            "acl"
+          ]
+        },
+        {
+          "key": "tables::sb_worksheet_imports:",
+          "attributes": [
+            "acl"
+          ]
+        },
+        {
+          "key": "rpcs::sb_owns_class:target uuid",
+          "attributes": [
+            "acl"
+          ]
+        },
+        {
+          "key": "rpcs::sb_owns_student:target uuid",
+          "attributes": [
+            "acl"
+          ]
+        },
+        {
+          "key": "rpcs::sb_public_class_info:p_class_code text",
+          "attributes": [
+            "acl"
+          ]
+        },
+        {
+          "key": "rpcs::sb_reset_progress:p_student uuid, p_lesson integer",
+          "attributes": [
+            "acl"
+          ]
+        },
+        {
+          "key": "rpcs::sb_touch_updated_at:",
+          "attributes": [
+            "acl"
+          ]
+        },
+        {
+          "key": "rpcs::sb_track_challenge_author:",
+          "attributes": [
+            "acl"
+          ]
+        }
+      ]
+    },
+    "actualAclDigests": [
+      {
+        "key": "rpcs::sb_owns_class:target uuid",
+        "digest": "810d5f13711e61928f54d42b9321d4f1cc5d0b3ac738aae4b4afe7bde8e8381b"
+      },
+      {
+        "key": "rpcs::sb_owns_student:target uuid",
+        "digest": "810d5f13711e61928f54d42b9321d4f1cc5d0b3ac738aae4b4afe7bde8e8381b"
+      },
+      {
+        "key": "rpcs::sb_public_class_info:p_class_code text",
+        "digest": "c5bba203d146bb5207beaa5c53f6bf8accae581086dbe1edafc058c23c288198"
+      },
+      {
+        "key": "rpcs::sb_reset_progress:p_student uuid, p_lesson integer",
+        "digest": "af482a5cc349a1afdda5bacaa95e7c2d89e84c7f815609be3e752e17be7a39f8"
+      },
+      {
+        "key": "rpcs::sb_touch_updated_at:",
+        "digest": "810d5f13711e61928f54d42b9321d4f1cc5d0b3ac738aae4b4afe7bde8e8381b"
+      },
+      {
+        "key": "rpcs::sb_track_challenge_author:",
+        "digest": "5e92c618c3c24cd7d23518d01fe92c08e05a98b8b2af80ef510e63491480df67"
+      },
+      {
+        "key": "tables::sb_block_snapshots:",
+        "digest": "c9fce12e1d22e3f3882e43a879c756da2370bfc18726ce608abf29394f5e8209"
+      },
+      {
+        "key": "tables::sb_challenge_solves:",
+        "digest": "c9fce12e1d22e3f3882e43a879c756da2370bfc18726ce608abf29394f5e8209"
+      },
+      {
+        "key": "tables::sb_classes:",
+        "digest": "c9fce12e1d22e3f3882e43a879c756da2370bfc18726ce608abf29394f5e8209"
+      },
+      {
+        "key": "tables::sb_lesson_settings:",
+        "digest": "c9fce12e1d22e3f3882e43a879c756da2370bfc18726ce608abf29394f5e8209"
+      },
+      {
+        "key": "tables::sb_problem_attempts:",
+        "digest": "c9fce12e1d22e3f3882e43a879c756da2370bfc18726ce608abf29394f5e8209"
+      },
+      {
+        "key": "tables::sb_problems:",
+        "digest": "c9fce12e1d22e3f3882e43a879c756da2370bfc18726ce608abf29394f5e8209"
+      },
+      {
+        "key": "tables::sb_projects:",
+        "digest": "c9fce12e1d22e3f3882e43a879c756da2370bfc18726ce608abf29394f5e8209"
+      },
+      {
+        "key": "tables::sb_self_evaluations:",
+        "digest": "c9fce12e1d22e3f3882e43a879c756da2370bfc18726ce608abf29394f5e8209"
+      },
+      {
+        "key": "tables::sb_shared_challenges:",
+        "digest": "c9fce12e1d22e3f3882e43a879c756da2370bfc18726ce608abf29394f5e8209"
+      },
+      {
+        "key": "tables::sb_student_pin_vault:",
+        "digest": "c9fce12e1d22e3f3882e43a879c756da2370bfc18726ce608abf29394f5e8209"
+      },
+      {
+        "key": "tables::sb_student_progress:",
+        "digest": "c9fce12e1d22e3f3882e43a879c756da2370bfc18726ce608abf29394f5e8209"
+      },
+      {
+        "key": "tables::sb_student_rewards:",
+        "digest": "c9fce12e1d22e3f3882e43a879c756da2370bfc18726ce608abf29394f5e8209"
+      },
+      {
+        "key": "tables::sb_students:",
+        "digest": "c9fce12e1d22e3f3882e43a879c756da2370bfc18726ce608abf29394f5e8209"
+      },
+      {
+        "key": "tables::sb_teacher_settings:",
+        "digest": "c9fce12e1d22e3f3882e43a879c756da2370bfc18726ce608abf29394f5e8209"
+      },
+      {
+        "key": "tables::sb_worksheet_imports:",
+        "digest": "c9fce12e1d22e3f3882e43a879c756da2370bfc18726ce608abf29394f5e8209"
+      }
+    ]
+  },
+  "repair": {
+    "approval": "User explicitly confirmed clicking the recovery approval button",
+    "browserResult": "Approved recovery completed; INSTALLED 24/24; both functions ACTIVE",
+    "postRepair": {
+      "extractionAll12DefinitionHashesMatch": true,
+      "migrationCount": 24,
+      "orderedNamesMatch": true,
+      "normalizedEquivalent": true,
+      "differences": [],
+      "knownHostedRoleGraph": true,
+      "recoveryReason": "NO_PERMISSION_DRIFT",
+      "drift": false,
+      "rowCounts": {
+        "sb_classes": 0,
+        "sb_problems": 30,
+        "sb_projects": 0,
+        "sb_students": 0,
+        "sb_block_snapshots": 0,
+        "sb_lesson_settings": 0,
+        "sb_project_exports": 0,
+        "sb_student_rewards": 0,
+        "sb_challenge_solves": 0,
+        "sb_problem_attempts": 0,
+        "sb_self_evaluations": 0,
+        "sb_student_progress": 0,
+        "sb_student_sessions": 0,
+        "sb_teacher_settings": 0,
+        "sb_shared_challenges": 0,
+        "sb_student_pin_vault": 0,
+        "sb_worksheet_imports": 0,
+        "sb_practice_assignments": 0,
+        "sb_peer_problem_attempts": 0,
+        "sb_lesson_progress_records": 0,
+        "sb_student_created_problems": 0,
+        "sb_student_lesson_reflections": 0
+      },
+      "dataEvidence": {
+        "seedMissing": 0,
+        "dataConflict": 0,
+        "seedOutdated": 0,
+        "storageMissing": 0,
+        "progressMissing": 0,
+        "classProblemCount": 0,
+        "duplicateSeedCount": 0,
+        "customizedSeedCount": 0,
+        "outdatedSeedDetails": [],
+        "seedIdentityConflictCount": 0,
+        "storageBucketConflictCount": 0,
+        "storagePolicyConflictCount": 0,
+        "duplicateSeedReferencedCount": 0
+      },
+      "baseline": "history-prefix-24",
+      "migrationStatuses": [
+        "APPLIED_BY_HISTORY"
+      ]
+    },
+    "dataPreservation": "Transaction guard enforces all app-row and default-ACL equality. Independent before/after row snapshot NOT_CAPTURED; first snapshot was after repair. No student data existed in the first snapshot."
+  },
+  "wizard": {
+    "steps1to4": "PASS_WITH_ASSISTANCE",
+    "step4to5": "PASS",
+    "steps5to8": "WAITING_FOR_USER_TEACHER_ACCOUNT",
+    "studentLogin": "NOT_RUN",
+    "progressSaveReload": "NOT_RUN",
+    "teacherProgress": "NOT_RUN"
+  },
+  "productionChanges": "NONE",
+  "databaseReset": false,
+  "applicationCodeChanges": false
+}
