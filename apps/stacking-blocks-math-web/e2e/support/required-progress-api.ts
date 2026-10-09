@@ -92,6 +92,11 @@ export async function requiredProgressApi() {
     }
     const student = sessions.get(headers['x-student-token'] ?? '');
     if (!student) return response({ error: { code: 'SESSION_INVALID', message: '합성 학생 로그인 필요' } }, 401);
+    if (action === 'progress:save') {
+      await db.query(`insert into sb_lesson_progress_records(installation_id,class_id,student_id,curriculum_version,lesson,stage,set_id,problem_id,problem_version,question_index,answer) values($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) on conflict(installation_id,class_id,student_id,lesson,set_id,problem_id,problem_version) do update set answer=excluded.answer`, [body.installationId,student.class_id,student.id,body.curriculumVersion,body.lesson,body.stage,body.setId,body.problemId,body.problemVersion,body.questionIndex,JSON.stringify(body.answer)]);
+      return response({ progress: { answer: body.answer } });
+    }
+    if (action === 'progress:get') return response({ progress: (await db.query('select problem_id,problem_version,answer from sb_lesson_progress_records where installation_id=$1 and class_id=$2 and student_id=$3 and lesson=$4 and set_id=$5', [body.installationId,student.class_id,student.id,body.lesson,body.setId])).rows });
     if (action === 'home') {
       const progress = (await db.query<{lesson:number;completed:boolean;practice_seed:number;stars:number}>('select lesson,completed,practice_seed,stars from sb_student_progress where student_id=$1',[student.id])).rows;
       const problems = (await db.query<PublicProblemRow>('select * from sb_problems where active and (class_id is null or class_id=$1)',[student.class_id])).rows;

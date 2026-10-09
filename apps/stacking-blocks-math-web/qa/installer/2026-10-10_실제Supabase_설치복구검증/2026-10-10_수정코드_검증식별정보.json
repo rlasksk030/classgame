@@ -6,7 +6,9 @@
     "shared/submittedAnswer.ts": "677b25b440e4e6b5f05c46468fbcc5d696dcc10d88a3d772cbd0b3936a7f0546",
     "tests/submitted-answer.test.ts": "8c6d201a4d065b5b6fb9601dd0320f3cd9f6e7ea209d42f95b0284be5814b9e1",
     "e2e/live-flow.spec.ts": "e63ccbfde73e57b9d6be5dd89bf431b896582e9063c7410a11c0e97cc5f5a51e",
-    "e2e/support/live-api.ts": "09e0d6a2a4bd7b93c8690a24ba412411bc97df7745b78dfeb690fac712843000"
+    "e2e/support/live-api.ts": "09e0d6a2a4bd7b93c8690a24ba412411bc97df7745b78dfeb690fac712843000",
+    "e2e/support/required-progress-api.ts": "d2d85eff7ca0d3f90c1ca8ceda2329ac5556bdb4a3a36c23dadb85ff72e8a37f",
+    "e2e/teacher-required-progress.spec.ts": "94911aac9d8170381620411129b4e38ae9f0550096aa08761289ddd764145427"
   },
   "hostedTarget": "aivukrimmqkolikgxqny",
   "localUnit": {
@@ -20,5 +22,20 @@
   },
   "hostedAnswerRestore": "BLOCKED_BROWSER_CONNECTION",
   "otherTeachersInstall": "NOT_VERIFIED",
-  "productionChanges": "NONE"
+  "productionChanges": "NONE",
+  "runtimeCodeCommit": "239f3da56e0536efe1588cc13609bcd173214e1e",
+  "ciFirstRun": {
+    "url": "https://github.com/rlasksk030/classgame/actions/runs/37960476618",
+    "unitPass": 795,
+    "unitFail": 0,
+    "postgresProfilesPass": 28,
+    "browserPass": 99,
+    "browserFail": 1,
+    "typecheck": "PASS",
+    "lint": "PASS",
+    "build": "PASS",
+    "edge": "PASS",
+    "security": "PASS",
+    "failedBrowser": "teacher-required-progress synthetic API lacked progress:save/get"
+  }
 }
