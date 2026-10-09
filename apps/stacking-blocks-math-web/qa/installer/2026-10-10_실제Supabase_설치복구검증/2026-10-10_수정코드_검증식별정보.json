@@ -37,5 +37,23 @@
     "edge": "PASS",
     "security": "PASS",
     "failedBrowser": "teacher-required-progress synthetic API lacked progress:save/get"
-  }
+  },
+  "verifiedCodeCommit": "84694180949a6946b9d216e1fc92763d170a4ec8",
+  "finalCi": {
+    "url": "https://github.com/rlasksk030/classgame/actions/runs/37962208352",
+    "status": "PASS",
+    "unitPass": 795,
+    "unitFail": 0,
+    "browserPass": 100,
+    "browserFail": 0,
+    "postgresProfilesPass": 28,
+    "typecheck": "PASS",
+    "lint": "PASS",
+    "build": "PASS",
+    "edge": "PASS",
+    "security": "PASS"
+  },
+  "localFocusedTeacherBrowser": "TIMEOUT_BEFORE_SUBMISSION; same test passed in final CI",
+  "releaseProductionHead": "303a54f6c1fbe8e57a151f04413eec2beff8434a",
+  "deployment": "NOT_RUN"
 }
