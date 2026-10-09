@@ -4,8 +4,8 @@ import { createInstallerServer } from '../scripts/installer/http-server.ts';
 import { createDataRecoveryFixture } from './support/installer-data-recovery.ts';
 
 const origin = 'https://synthetic-data-correction.example';
-async function start() {
-  const fixture = await createDataRecoveryFixture();
+async function start(profile: 'manual-required-progress-contract' | 'manual-live-v4-contract' = 'manual-required-progress-contract') {
+  const fixture = await createDataRecoveryFixture('data-recovery',profile);
   const clock = { now: Date.now() };
   const server = createInstallerServer({ plan: fixture.plan, productionRef: 'blocked-production', mode: 'TEST', allowedOrigins: [origin], allowedProjectRefs: [fixture.target.projectRef], now: () => clock.now, sessionSecret: 'synthetic-correction-signature', createBackend: () => fixture.backend });
   try { await new Promise<void>((resolve, reject) => { server.once('error', reject); server.listen(0, '127.0.0.1', resolve); }); }
@@ -59,8 +59,8 @@ test('data correction requires both approvals and is distinct from ACL; invalid 
   } finally { await f.close(); }
 });
 
-test('explicit data correction applies once under concurrent clicks and preserves linked attempts, snapshots, progress, XP and all other rows', async () => {
-  const f = await start();
+for (const profile of ['manual-required-progress-contract','manual-live-v4-contract'] as const) test(`${profile}: explicit data correction applies once under concurrent clicks and preserves linked attempts, snapshots, progress, XP and all other rows`, async () => {
+  const f = await start(profile);
   try {
     const before = await f.protectedHash(), cookie = await f.session(), plan = await f.getPlan(cookie);
     assert.equal(f.writes(), 0);

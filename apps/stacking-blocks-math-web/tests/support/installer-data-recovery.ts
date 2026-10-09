@@ -11,7 +11,7 @@ import { hostedExecutorRolesSql } from './installer-hosted-roles.ts';
 
 /** The actual-use manual catalog, with synthetic known-old seed and learning.
  * No remote rows or historical migration replay are used to build the schema. */
-export async function createDataRecoveryFixture(label = 'data-recovery') {
+export async function createDataRecoveryFixture(label = 'data-recovery', profile: 'manual-required-progress-contract' | 'manual-live-v4-contract' = 'manual-required-progress-contract') {
   const plan = await readMathInstallerPlan(process.cwd());
   const correction = plan.legacyRecovery?.knownSeedCorrection;
   assert(correction, 'reviewed static seed artifact required');
@@ -19,7 +19,7 @@ export async function createDataRecoveryFixture(label = 'data-recovery') {
   const manualCatalog = JSON.parse(readFileSync('tests/fixtures/manual-installation-catalog.json', 'utf8')) as Catalog;
   await db.exec(schemaDelta(await readCatalog(db), manualCatalog));
   await db.exec(readFileSync('qa/live-required-progress/sql/20261003051402_actual_use_required_progress_delta.sql','utf8'));
-  const profile='manual-required-progress-contract';
+  if (profile === 'manual-live-v4-contract') for (const migration of plan.migrations.slice(20)) await db.exec(migration.query);
   const transition=plan.legacyRecovery!.transitions.find(t=>t.from===profile && t.to===profile)!;
   await db.exec(transition.query);
   assert.deepEqual(catalogFingerprints(await readCatalog(db)),plan.databaseBaseline!.profiles.find(p=>p.name===profile)!.objects,'HTTP/browser fixture must exactly match the actual-use manual profile');

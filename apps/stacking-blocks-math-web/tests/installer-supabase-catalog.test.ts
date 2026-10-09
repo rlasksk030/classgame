@@ -11,9 +11,6 @@ import { assertSupabaseDefaultDrift } from './support/installer-default-grants.t
 // a reproducible SQL fixture, NOT evidence of any inaccessible teacher's ACL.
 const supabaseDefaults = `alter default privileges for role postgres in schema public grant all on tables to anon, authenticated, service_role;
 alter default privileges for role postgres in schema public grant all on functions to anon, authenticated, service_role;`;
-const tables=['sb_block_snapshots','sb_challenge_solves','sb_classes','sb_lesson_settings','sb_problem_attempts','sb_problems','sb_projects','sb_self_evaluations','sb_shared_challenges','sb_student_pin_vault','sb_student_progress','sb_student_rewards','sb_student_sessions','sb_students','sb_teacher_settings','sb_worksheet_imports'];
-const rpcs=['sb_owns_class','sb_owns_student','sb_public_class_info','sb_reset_progress','sb_touch_updated_at','sb_track_challenge_author'];
-
 test('Supabase defaults reproduce all 22 reported object names: ACL only; real broader privileges remain BLOCKED',async()=>{
   const plan=await readMathInstallerPlan(process.cwd());const db=await emptyLegacyDb();
   try {
@@ -21,8 +18,9 @@ test('Supabase defaults reproduce all 22 reported object names: ACL only; real b
     for(const m of plan.migrations) await db.exec(m.query.replace('create extension if not exists "pgcrypto";',''));
     const backend=legacyBackend(db,plan,[]),target={environment:'TEST' as const,projectRef:'synthetic-catalog',projectUrl:'https://synthetic-catalog.supabase.co',release:'test'};
     const state=await inspectMigrationState(backend,target,plan);
-    assert.equal(state.drift,true);assert.equal(state.review?.comparisonBaseline,'history-prefix-24');
-    assert.deepEqual(state.review!.objects.map(o=>o.key.split(':')[0]+':'+o.key.split(':')[2]).sort(),[...tables.map(t=>'tables:'+t),...rpcs.map(r=>'rpcs:'+r)].sort());
+    assert.equal(state.drift,true);
+    assertSupabaseDefaultDrift(plan,await readCatalog(db),'historical-defaults');
+    assert.equal(state.review?.comparisonBaseline,'manual-live-v4-contract');
     for(const object of state.review!.objects) {
       assert.deepEqual(object.attributes!.filter(a=>a.state==='DIFFERENT').map(a=>a.name),['acl'],object.key);
       assert.ok(object.attributes!.filter(a=>a.name!=='acl').every(a=>a.state==='SAME'));
@@ -47,8 +45,8 @@ test('Supabase defaults reproduce all 22 reported object names: ACL only; real b
   }finally{await db.close();}
 });
 
-test('generated attribute data matches all 27 profiles and only stores digests',async()=>{
-  const plan=await readMathInstallerPlan(process.cwd());assert.equal(plan.databaseBaseline!.profiles.length,27);
+test('generated attribute data matches all 28 profiles and only stores digests',async()=>{
+  const plan=await readMathInstallerPlan(process.cwd());assert.equal(plan.databaseBaseline!.profiles.length,28);
   for(const profile of plan.databaseBaseline!.profiles){
     assert.deepEqual(Object.keys(profile.attributes!).sort(),Object.keys(profile.objects).sort());
     for(const attrs of Object.values(profile.attributes!)) for(const hash of Object.values(attrs)) assert.match(hash,/^[a-f0-9]{64}$/);

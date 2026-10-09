@@ -42,6 +42,11 @@ try {
   await capture(manual, 'manual-previous-contract', 'MANUAL_DELTA_REQUIRED', 20);
   await manual.exec(await readFile('qa/live-required-progress/sql/20261003051402_actual_use_required_progress_delta.sql', 'utf8'));
   await capture(manual, 'manual-required-progress-contract', 'RELEASE', 0);
+  // Reviewed real-world sequence: the existing manual delta followed by the
+  // four shipped October migrations. Capture the WHOLE schema, not eight
+  // ignored differences. The live-v4 RPC and tighter ACLs must stay intact.
+  for (const migration of migrations.slice(20)) await manual.exec(migration.query);
+  await capture(manual, 'manual-live-v4-contract', 'RELEASE', 0);
 } finally { await manual.close(); }
 await writeFile('scripts/installer/database-baseline.json', JSON.stringify(result, null, 2) + '\n');
 await writeFile('scripts/installer/legacy-recovery.json', JSON.stringify(await compileRecovery(captured, result.migrationHashes, query), null, 2) + '\n');

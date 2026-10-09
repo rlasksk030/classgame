@@ -25,6 +25,8 @@ try {
   await capture(manual,'manual-previous-contract');
   await manual.exec(await readFile('qa/live-required-progress/sql/20261003051402_actual_use_required_progress_delta.sql','utf8'));
   await capture(manual,'manual-required-progress-contract');
+  for (const migration of migrations.slice(20)) await manual.exec(migration.query);
+  await capture(manual,'manual-live-v4-contract');
 } finally { await manual.close(); }
 await writeFile('scripts/installer/permission-baseline.json',JSON.stringify({ migrationHashes: migrations.map(m=>createHash('sha256').update(m.query).digest('hex')),models,profiles },null,2)+'\n');
 console.log(`PERMISSION_BASELINE: ${Object.keys(profiles).length} profiles / ${Object.keys(models).length} distinct models`);

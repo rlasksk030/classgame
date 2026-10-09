@@ -13,14 +13,15 @@ import { applyAttempt } from '../shared/attempts.ts';
 
 const target={environment:'TEST' as const,projectRef:'synthetic-data-consent',projectUrl:'https://synthetic-data-consent.supabase.co',publishableKey:'sb_publishable_synthetic_fixture',release:'test'};
 const permissionSql=readFileSync('scripts/installer/permission-audit.sql','utf8');
-async function fixture(manual=false) {
+async function fixture(manual: boolean | 'live-v4'=false) {
   const plan=await readMathInstallerPlan(process.cwd()),db=await (manual ? createFixture() : emptyLegacyDb());
   if(manual) {
     await db.exec(storageStub);
     await db.exec(readFileSync('qa/live-required-progress/sql/20261003051402_actual_use_required_progress_delta.sql','utf8'));
+    if(manual==='live-v4') for(const m of plan.migrations.slice(20)) await db.exec(m.query);
   } else for(const m of plan.migrations) await db.exec(m.query.replace('create extension if not exists "pgcrypto";',''));
   await seedProtectedRows(db);
-  const profile=manual ? 'manual-required-progress-contract' : `history-prefix-${plan.migrations.length}`;
+  const profile=manual==='live-v4' ? 'manual-live-v4-contract' : manual ? 'manual-required-progress-contract' : `history-prefix-${plan.migrations.length}`;
   const history=manual ? [] : plan.migrations.map(m=>m.name),backend=legacyBackend(db,plan,history);
   await runInstaller({target,plan,backend});
   await db.exec(`insert into sb_students(id,class_id,name,student_no,pin_hash) select gen_random_uuid(),'22222222-2222-4222-8222-222222222222','합성보존학생'||n,10+n,'synthetic-hash-'||n from generate_series(1,12) n;
@@ -38,7 +39,7 @@ update sb_problems set answer='{"kind":"count","value":6}' where code='L1-03';`)
   return {plan,db,history,profile,evidence,permissions,build,rows};
 }
 
-for(const manual of [false,true]) test(`${manual ? 'manual' : 'latest'} explicit historical-answer correction preserves 13 students and every related row; replay is no-op`,async()=>{
+for(const manual of [false,true,'live-v4'] as const) test(`${manual==='live-v4' ? 'manual-live-v4' : manual ? 'manual' : 'latest'} explicit historical-answer correction preserves 13 students and every related row; replay is no-op`,async()=>{
   const f=await fixture(manual);
   try {
     const before=await f.rows(),catalog=await readCatalog(f.db),permissions=await f.permissions();
@@ -64,7 +65,7 @@ for(const manual of [false,true]) test(`${manual ? 'manual' : 'latest'} explicit
   }finally{await f.db.close();}
 });
 
-for(const manual of [false,true]) test(`${manual ? 'manual' : 'latest'} data correction refuses unrelated conflicts, RLS/ACL drift and tampered shipped content; stale references/rows rollback`,async()=>{
+for(const manual of [false,true,'live-v4'] as const) test(`${manual==='live-v4' ? 'manual-live-v4' : manual ? 'manual' : 'latest'} data correction refuses unrelated conflicts, RLS/ACL drift and tampered shipped content; stale references/rows rollback`,async()=>{
   const f=await fixture(manual);
   try {
     const catalog=await readCatalog(f.db),permissions=await f.permissions(),evidence=await f.evidence(),before=await f.rows();

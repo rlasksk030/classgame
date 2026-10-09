@@ -6268,6 +6268,355 @@
           ]
         }
       }
+    },
+    "manual-live-v4-contract": {
+      "objects": {
+        "tables::sb_block_snapshots:": {
+          "kind": "table",
+          "name": "sb_block_snapshots",
+          "owner": "postgres",
+          "acl": [
+            "postgres=arwdDxtm/postgres",
+            "anon=Dxtm/postgres",
+            "authenticated=arwdDxtm/postgres",
+            "service_role=arwdDxtm/postgres"
+          ]
+        },
+        "tables::sb_challenge_solves:": {
+          "kind": "table",
+          "name": "sb_challenge_solves",
+          "owner": "postgres",
+          "acl": [
+            "postgres=arwdDxtm/postgres",
+            "anon=Dxtm/postgres",
+            "authenticated=arwdDxtm/postgres",
+            "service_role=arwdDxtm/postgres"
+          ]
+        },
+        "tables::sb_classes:": {
+          "kind": "table",
+          "name": "sb_classes",
+          "owner": "postgres",
+          "acl": [
+            "postgres=arwdDxtm/postgres",
+            "anon=Dxtm/postgres",
+            "authenticated=arwdDxtm/postgres",
+            "service_role=arwdDxtm/postgres"
+          ]
+        },
+        "tables::sb_lesson_progress_records:": {
+          "kind": "table",
+          "name": "sb_lesson_progress_records",
+          "owner": "postgres",
+          "acl": [
+            "postgres=arwdDxtm/postgres",
+            "service_role=arwdDxtm/postgres",
+            "authenticated=r/postgres"
+          ]
+        },
+        "tables::sb_lesson_settings:": {
+          "kind": "table",
+          "name": "sb_lesson_settings",
+          "owner": "postgres",
+          "acl": [
+            "postgres=arwdDxtm/postgres",
+            "anon=Dxtm/postgres",
+            "authenticated=arwdDxtm/postgres",
+            "service_role=arwdDxtm/postgres"
+          ]
+        },
+        "tables::sb_peer_problem_attempts:": {
+          "kind": "table",
+          "name": "sb_peer_problem_attempts",
+          "owner": "postgres",
+          "acl": [
+            "postgres=arwdDxtm/postgres",
+            "service_role=arwdDxtm/postgres",
+            "authenticated=r/postgres"
+          ]
+        },
+        "tables::sb_practice_assignments:": {
+          "kind": "table",
+          "name": "sb_practice_assignments",
+          "owner": "postgres",
+          "acl": [
+            "postgres=arwdDxtm/postgres",
+            "service_role=arwdDxtm/postgres",
+            "authenticated=r/postgres"
+          ]
+        },
+        "tables::sb_problem_attempts:": {
+          "kind": "table",
+          "name": "sb_problem_attempts",
+          "owner": "postgres",
+          "acl": [
+            "postgres=arwdDxtm/postgres",
+            "anon=Dxtm/postgres",
+            "authenticated=arwdDxtm/postgres",
+            "service_role=arwdDxtm/postgres"
+          ]
+        },
+        "tables::sb_problems:": {
+          "kind": "table",
+          "name": "sb_problems",
+          "owner": "postgres",
+          "acl": [
+            "postgres=arwdDxtm/postgres",
+            "anon=Dxtm/postgres",
+            "authenticated=arwdDxtm/postgres",
+            "service_role=arwdDxtm/postgres"
+          ]
+        },
+        "tables::sb_project_exports:": {
+          "kind": "table",
+          "name": "sb_project_exports",
+          "owner": "postgres",
+          "acl": [
+            "postgres=arwdDxtm/postgres",
+            "service_role=arwdDxtm/postgres",
+            "authenticated=r/postgres"
+          ]
+        },
+        "tables::sb_projects:": {
+          "kind": "table",
+          "name": "sb_projects",
+          "owner": "postgres",
+          "acl": [
+            "postgres=arwdDxtm/postgres",
+            "anon=Dxtm/postgres",
+            "authenticated=arwdDxtm/postgres",
+            "service_role=arwdDxtm/postgres"
+          ]
+        },
+        "tables::sb_self_evaluations:": {
+          "kind": "table",
+          "name": "sb_self_evaluations",
+          "owner": "postgres",
+          "acl": [
+            "postgres=arwdDxtm/postgres",
+            "anon=Dxtm/postgres",
+            "authenticated=arwdDxtm/postgres",
+            "service_role=arwdDxtm/postgres"
+          ]
+        },
+        "tables::sb_shared_challenges:": {
+          "kind": "table",
+          "name": "sb_shared_challenges",
+          "owner": "postgres",
+          "acl": [
+            "postgres=arwdDxtm/postgres",
+            "anon=Dxtm/postgres",
+            "authenticated=arwdDxtm/postgres",
+            "service_role=arwdDxtm/postgres"
+          ]
+        },
+        "tables::sb_student_created_problems:": {
+          "kind": "table",
+          "name": "sb_student_created_problems",
+          "owner": "postgres",
+          "acl": [
+            "postgres=arwdDxtm/postgres",
+            "service_role=arwdDxtm/postgres",
+            "authenticated=r/postgres"
+          ]
+        },
+        "tables::sb_student_lesson_reflections:": {
+          "kind": "table",
+          "name": "sb_student_lesson_reflections",
+          "owner": "postgres",
+          "acl": [
+            "postgres=arwdDxtm/postgres",
+            "service_role=arwdDxtm/postgres",
+            "authenticated=r/postgres"
+          ]
+        },
+        "tables::sb_student_pin_vault:": {
+          "kind": "table",
+          "name": "sb_student_pin_vault",
+          "owner": "postgres",
+          "acl": [
+            "postgres=arwdDxtm/postgres",
+            "anon=Dxtm/postgres",
+            "authenticated=arwdDxtm/postgres",
+            "service_role=arwdDxtm/postgres"
+          ]
+        },
+        "tables::sb_student_progress:": {
+          "kind": "table",
+          "name": "sb_student_progress",
+          "owner": "postgres",
+          "acl": [
+            "postgres=arwdDxtm/postgres",
+            "anon=Dxtm/postgres",
+            "authenticated=arwdDxtm/postgres",
+            "service_role=arwdDxtm/postgres"
+          ]
+        },
+        "tables::sb_student_rewards:": {
+          "kind": "table",
+          "name": "sb_student_rewards",
+          "owner": "postgres",
+          "acl": [
+            "postgres=arwdDxtm/postgres",
+            "anon=Dxtm/postgres",
+            "authenticated=arwdDxtm/postgres",
+            "service_role=arwdDxtm/postgres"
+          ]
+        },
+        "tables::sb_student_sessions:": {
+          "kind": "table",
+          "name": "sb_student_sessions",
+          "owner": "postgres",
+          "acl": [
+            "postgres=arwdDxtm/postgres",
+            "service_role=arwdDxtm/postgres"
+          ]
+        },
+        "tables::sb_students:": {
+          "kind": "table",
+          "name": "sb_students",
+          "owner": "postgres",
+          "acl": [
+            "postgres=arwdDxtm/postgres",
+            "anon=Dxtm/postgres",
+            "authenticated=arwdDxtm/postgres",
+            "service_role=arwdDxtm/postgres"
+          ]
+        },
+        "tables::sb_teacher_settings:": {
+          "kind": "table",
+          "name": "sb_teacher_settings",
+          "owner": "postgres",
+          "acl": [
+            "postgres=arwdDxtm/postgres",
+            "anon=Dxtm/postgres",
+            "authenticated=arwdDxtm/postgres",
+            "service_role=arwdDxtm/postgres"
+          ]
+        },
+        "tables::sb_worksheet_imports:": {
+          "kind": "table",
+          "name": "sb_worksheet_imports",
+          "owner": "postgres",
+          "acl": [
+            "postgres=arwdDxtm/postgres",
+            "anon=Dxtm/postgres",
+            "authenticated=arwdDxtm/postgres",
+            "service_role=arwdDxtm/postgres"
+          ]
+        },
+        "rpcs::sb_owns_class:target uuid": {
+          "kind": "function",
+          "name": "sb_owns_class",
+          "arguments": "target uuid",
+          "owner": "postgres",
+          "acl": null
+        },
+        "rpcs::sb_owns_student:target uuid": {
+          "kind": "function",
+          "name": "sb_owns_student",
+          "arguments": "target uuid",
+          "owner": "postgres",
+          "acl": null
+        },
+        "rpcs::sb_public_class_info:p_class_code text": {
+          "kind": "function",
+          "name": "sb_public_class_info",
+          "arguments": "p_class_code text",
+          "owner": "postgres",
+          "acl": [
+            "postgres=X/postgres",
+            "anon=X/postgres",
+            "authenticated=X/postgres"
+          ]
+        },
+        "rpcs::sb_record_attempt:p_student uuid, p_problem uuid, p_expected integer, p_next jsonb, p_blocks jsonb": {
+          "kind": "function",
+          "name": "sb_record_attempt",
+          "arguments": "p_student uuid, p_problem uuid, p_expected integer, p_next jsonb, p_blocks jsonb",
+          "owner": "postgres",
+          "acl": [
+            "postgres=X/postgres",
+            "service_role=X/postgres"
+          ]
+        },
+        "rpcs::sb_reset_class_progress:p_class uuid, p_teacher uuid, p_lesson integer": {
+          "kind": "function",
+          "name": "sb_reset_class_progress",
+          "arguments": "p_class uuid, p_teacher uuid, p_lesson integer",
+          "owner": "postgres",
+          "acl": [
+            "postgres=X/postgres",
+            "service_role=X/postgres"
+          ]
+        },
+        "rpcs::sb_reset_progress:p_student uuid, p_lesson integer": {
+          "kind": "function",
+          "name": "sb_reset_progress",
+          "arguments": "p_student uuid, p_lesson integer",
+          "owner": "postgres",
+          "acl": [
+            "postgres=X/postgres",
+            "authenticated=X/postgres"
+          ]
+        },
+        "rpcs::sb_save_building:p_student uuid, p_class uuid, p_version integer, p_data jsonb": {
+          "kind": "function",
+          "name": "sb_save_building",
+          "arguments": "p_student uuid, p_class uuid, p_version integer, p_data jsonb",
+          "owner": "postgres",
+          "acl": [
+            "postgres=X/postgres",
+            "service_role=X/postgres"
+          ]
+        },
+        "rpcs::sb_set_reward_loadout:p_student uuid, p_material text, p_theme text": {
+          "kind": "function",
+          "name": "sb_set_reward_loadout",
+          "arguments": "p_student uuid, p_material text, p_theme text",
+          "owner": "postgres",
+          "acl": [
+            "postgres=X/postgres",
+            "service_role=X/postgres"
+          ]
+        },
+        "rpcs::sb_submit_challenge:p_student uuid, p_challenge uuid, p_previous integer, p_state jsonb": {
+          "kind": "function",
+          "name": "sb_submit_challenge",
+          "arguments": "p_student uuid, p_challenge uuid, p_previous integer, p_state jsonb",
+          "owner": "postgres",
+          "acl": [
+            "postgres=X/postgres",
+            "service_role=X/postgres"
+          ]
+        },
+        "rpcs::sb_submit_challenge_v2:p_student uuid, p_challenge uuid, p_previous integer, p_state jsonb": {
+          "kind": "function",
+          "name": "sb_submit_challenge_v2",
+          "arguments": "p_student uuid, p_challenge uuid, p_previous integer, p_state jsonb",
+          "owner": "postgres",
+          "acl": [
+            "postgres=X/postgres",
+            "service_role=X/postgres"
+          ]
+        },
+        "rpcs::sb_touch_updated_at:": {
+          "kind": "function",
+          "name": "sb_touch_updated_at",
+          "arguments": "",
+          "owner": "postgres",
+          "acl": null
+        },
+        "rpcs::sb_track_challenge_author:": {
+          "kind": "function",
+          "name": "sb_track_challenge_author",
+          "arguments": "",
+          "owner": "postgres",
+          "acl": [
+            "postgres=X/postgres"
+          ]
+        }
+      }
     }
   }
 }
