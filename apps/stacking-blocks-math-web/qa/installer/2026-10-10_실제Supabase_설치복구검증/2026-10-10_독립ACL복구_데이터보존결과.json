@@ -1,0 +1,303 @@
+{
+  "target": "aivukrimmqkolikgxqny",
+  "baseline": "history-prefix-24",
+  "reproducedDifferences": [
+    {
+      "key": "tables::sb_block_snapshots:",
+      "attributes": [
+        "acl"
+      ]
+    },
+    {
+      "key": "tables::sb_challenge_solves:",
+      "attributes": [
+        "acl"
+      ]
+    },
+    {
+      "key": "tables::sb_classes:",
+      "attributes": [
+        "acl"
+      ]
+    },
+    {
+      "key": "tables::sb_lesson_settings:",
+      "attributes": [
+        "acl"
+      ]
+    },
+    {
+      "key": "tables::sb_problem_attempts:",
+      "attributes": [
+        "acl"
+      ]
+    },
+    {
+      "key": "tables::sb_problems:",
+      "attributes": [
+        "acl"
+      ]
+    },
+    {
+      "key": "tables::sb_projects:",
+      "attributes": [
+        "acl"
+      ]
+    },
+    {
+      "key": "tables::sb_self_evaluations:",
+      "attributes": [
+        "acl"
+      ]
+    },
+    {
+      "key": "tables::sb_shared_challenges:",
+      "attributes": [
+        "acl"
+      ]
+    },
+    {
+      "key": "tables::sb_student_pin_vault:",
+      "attributes": [
+        "acl"
+      ]
+    },
+    {
+      "key": "tables::sb_student_progress:",
+      "attributes": [
+        "acl"
+      ]
+    },
+    {
+      "key": "tables::sb_student_rewards:",
+      "attributes": [
+        "acl"
+      ]
+    },
+    {
+      "key": "tables::sb_student_sessions:",
+      "attributes": [
+        "acl"
+      ]
+    },
+    {
+      "key": "tables::sb_students:",
+      "attributes": [
+        "acl"
+      ]
+    },
+    {
+      "key": "tables::sb_teacher_settings:",
+      "attributes": [
+        "acl"
+      ]
+    },
+    {
+      "key": "tables::sb_worksheet_imports:",
+      "attributes": [
+        "acl"
+      ]
+    },
+    {
+      "key": "rpcs::sb_owns_class:target uuid",
+      "attributes": [
+        "acl"
+      ]
+    },
+    {
+      "key": "rpcs::sb_owns_student:target uuid",
+      "attributes": [
+        "acl"
+      ]
+    },
+    {
+      "key": "rpcs::sb_public_class_info:p_class_code text",
+      "attributes": [
+        "acl"
+      ]
+    },
+    {
+      "key": "rpcs::sb_reset_progress:p_student uuid, p_lesson integer",
+      "attributes": [
+        "acl"
+      ]
+    },
+    {
+      "key": "rpcs::sb_touch_updated_at:",
+      "attributes": [
+        "acl"
+      ]
+    },
+    {
+      "key": "rpcs::sb_track_challenge_author:",
+      "attributes": [
+        "acl"
+      ]
+    }
+  ],
+  "afterDifferences": [],
+  "rowPreservation": [
+    {
+      "table": "sb_classes",
+      "count": 1,
+      "beforeHash": "a7ad5ae4d5487cc6a632d232862fa13e",
+      "afterHash": "a7ad5ae4d5487cc6a632d232862fa13e",
+      "unchanged": true
+    },
+    {
+      "table": "sb_problems",
+      "count": 45,
+      "beforeHash": "920f6994b9ffda2a19f73ea26c881390",
+      "afterHash": "920f6994b9ffda2a19f73ea26c881390",
+      "unchanged": true
+    },
+    {
+      "table": "sb_projects",
+      "count": 0,
+      "beforeHash": "d41d8cd98f00b204e9800998ecf8427e",
+      "afterHash": "d41d8cd98f00b204e9800998ecf8427e",
+      "unchanged": true
+    },
+    {
+      "table": "sb_students",
+      "count": 1,
+      "beforeHash": "bead979823179a65daef798971d5c3d6",
+      "afterHash": "bead979823179a65daef798971d5c3d6",
+      "unchanged": true
+    },
+    {
+      "table": "sb_block_snapshots",
+      "count": 0,
+      "beforeHash": "d41d8cd98f00b204e9800998ecf8427e",
+      "afterHash": "d41d8cd98f00b204e9800998ecf8427e",
+      "unchanged": true
+    },
+    {
+      "table": "sb_lesson_settings",
+      "count": 12,
+      "beforeHash": "0b16628f5ed5df03f34c2983596753fd",
+      "afterHash": "0b16628f5ed5df03f34c2983596753fd",
+      "unchanged": true
+    },
+    {
+      "table": "sb_project_exports",
+      "count": 0,
+      "beforeHash": "d41d8cd98f00b204e9800998ecf8427e",
+      "afterHash": "d41d8cd98f00b204e9800998ecf8427e",
+      "unchanged": true
+    },
+    {
+      "table": "sb_student_rewards",
+      "count": 1,
+      "beforeHash": "36d8ff679eab856c021c792543441183",
+      "afterHash": "36d8ff679eab856c021c792543441183",
+      "unchanged": true
+    },
+    {
+      "table": "sb_challenge_solves",
+      "count": 0,
+      "beforeHash": "d41d8cd98f00b204e9800998ecf8427e",
+      "afterHash": "d41d8cd98f00b204e9800998ecf8427e",
+      "unchanged": true
+    },
+    {
+      "table": "sb_problem_attempts",
+      "count": 1,
+      "beforeHash": "671209c6d6de64fd7330bb1f4da9f2da",
+      "afterHash": "671209c6d6de64fd7330bb1f4da9f2da",
+      "unchanged": true
+    },
+    {
+      "table": "sb_self_evaluations",
+      "count": 0,
+      "beforeHash": "d41d8cd98f00b204e9800998ecf8427e",
+      "afterHash": "d41d8cd98f00b204e9800998ecf8427e",
+      "unchanged": true
+    },
+    {
+      "table": "sb_student_progress",
+      "count": 1,
+      "beforeHash": "2290193a610b3851acc27d1abbf2cdfc",
+      "afterHash": "2290193a610b3851acc27d1abbf2cdfc",
+      "unchanged": true
+    },
+    {
+      "table": "sb_student_sessions",
+      "count": 3,
+      "beforeHash": "1c8d188107a9a69c03f583b7da31560c",
+      "afterHash": "1c8d188107a9a69c03f583b7da31560c",
+      "unchanged": true
+    },
+    {
+      "table": "sb_teacher_settings",
+      "count": 0,
+      "beforeHash": "d41d8cd98f00b204e9800998ecf8427e",
+      "afterHash": "d41d8cd98f00b204e9800998ecf8427e",
+      "unchanged": true
+    },
+    {
+      "table": "sb_shared_challenges",
+      "count": 0,
+      "beforeHash": "d41d8cd98f00b204e9800998ecf8427e",
+      "afterHash": "d41d8cd98f00b204e9800998ecf8427e",
+      "unchanged": true
+    },
+    {
+      "table": "sb_student_pin_vault",
+      "count": 1,
+      "beforeHash": "c16643fda3a4af20aa3c0e9179bc3e8e",
+      "afterHash": "c16643fda3a4af20aa3c0e9179bc3e8e",
+      "unchanged": true
+    },
+    {
+      "table": "sb_worksheet_imports",
+      "count": 0,
+      "beforeHash": "d41d8cd98f00b204e9800998ecf8427e",
+      "afterHash": "d41d8cd98f00b204e9800998ecf8427e",
+      "unchanged": true
+    },
+    {
+      "table": "sb_practice_assignments",
+      "count": 0,
+      "beforeHash": "d41d8cd98f00b204e9800998ecf8427e",
+      "afterHash": "d41d8cd98f00b204e9800998ecf8427e",
+      "unchanged": true
+    },
+    {
+      "table": "sb_peer_problem_attempts",
+      "count": 0,
+      "beforeHash": "d41d8cd98f00b204e9800998ecf8427e",
+      "afterHash": "d41d8cd98f00b204e9800998ecf8427e",
+      "unchanged": true
+    },
+    {
+      "table": "sb_lesson_progress_records",
+      "count": 0,
+      "beforeHash": "d41d8cd98f00b204e9800998ecf8427e",
+      "afterHash": "d41d8cd98f00b204e9800998ecf8427e",
+      "unchanged": true
+    },
+    {
+      "table": "sb_student_created_problems",
+      "count": 0,
+      "beforeHash": "d41d8cd98f00b204e9800998ecf8427e",
+      "afterHash": "d41d8cd98f00b204e9800998ecf8427e",
+      "unchanged": true
+    },
+    {
+      "table": "sb_student_lesson_reflections",
+      "count": 0,
+      "beforeHash": "d41d8cd98f00b204e9800998ecf8427e",
+      "afterHash": "d41d8cd98f00b204e9800998ecf8427e",
+      "unchanged": true
+    }
+  ],
+  "catalogRestored": true,
+  "permissionsRestored": true,
+  "defaultAclUnchanged": true,
+  "migrationHistoryUnchanged": true,
+  "recoveryReason": "NO_PERMISSION_DRIFT",
+  "coverageLimit": "Projects, block snapshots and raw-answer records were empty during the ACL preservation window. Nonempty artwork/raw-answer preservation remains NOT_VERIFIED.",
+  "productionAccess": false,
+  "otherTeachersInstall": "NOT_VERIFIED"
+}

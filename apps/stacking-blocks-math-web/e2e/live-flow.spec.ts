@@ -144,3 +144,36 @@ test('P1 progression: completed solve unlocks practice after reload and relogin 
  expect(api.submissions.length).toBe(submissions);
  }finally{await api.close();}
 });
+
+
+test('P1 submitted answer survives a new browser context using server storage',async({page,browser})=>{
+ const api=await liveApi();let fresh:BrowserContext|undefined;try{
+ await connect(page,api);await login(page);await page.goto('/lesson/12/solve');
+ const p=SEED_PROBLEMS.find(p=>p.code==='L12-01')!;if(p.answer.kind!=='count')throw Error('count fixture required');
+ await page.getByPlaceholder('전체 개수',{exact:true}).fill(String(p.answer.value));
+ await page.getByRole('button',{name:'정답 확인',exact:true}).click();await expect(page.getByText(/완료 \+ XP/)).toBeVisible();
+ const stored=await api.pg.query<{answer:unknown}>('select answer from sb_lesson_progress_records where student_id=$1',[STUDENTS[0]]);
+ expect(stored.rows.map(r=>r.answer)).toEqual([{kind:'count',value:p.answer.value}]);
+ fresh=await browser.newContext({baseURL:'http://127.0.0.1:4173'});const reopened=await fresh.newPage();await connect(reopened,api);await login(reopened);
+ await reopened.goto('/lesson/12/solve');await expect(reopened.getByText('이 문제는 이미 완료했습니다.',{exact:true})).toBeVisible();
+ await expect(reopened.getByPlaceholder('전체 개수',{exact:true})).toHaveValue(String(p.answer.value));
+ await reopened.reload();await expect(reopened.getByPlaceholder('전체 개수',{exact:true})).toHaveValue(String(p.answer.value));
+ expect(api.submissions).toHaveLength(1);
+ await reopened.goto('/world');await reopened.getByRole('button',{name:'나가기',exact:true}).click();await login(reopened,'QA학생2');await reopened.goto('/lesson/12/solve');
+ await expect(reopened.getByPlaceholder('전체 개수',{exact:true})).toHaveValue('');
+ }finally{await fresh?.close();await api.close();}
+});
+
+test('P1 answer storage failure blocks grading and a retry does not submit twice',async({page})=>{
+ const api=await liveApi();try{
+ await connect(page,api);await login(page);await page.goto('/lesson/12/solve');
+ let fail=true;await page.route('https://math-e2e.invalid/functions/v1/student-api',async route=>{
+  if(route.request().postDataJSON()?.action==='progress:save'&&fail){fail=false;await route.fulfill({status:503,contentType:'application/json',body:JSON.stringify({error:{code:'PROGRESS_SAVE_FAILED',message:'답안 저장 실패'}})});return;}
+  await route.fallback();
+ });
+ await page.getByPlaceholder('전체 개수',{exact:true}).fill('0');await page.getByRole('button',{name:'정답 확인',exact:true}).click();
+ await expect(page.getByText('답안 저장 실패',{exact:true})).toBeVisible();expect(api.submissions).toHaveLength(0);
+ await page.getByRole('button',{name:'정답 확인',exact:true}).click();await expect.poll(()=>api.submissions.length).toBe(1);
+ expect((await api.pg.query<{answer:unknown}>('select answer from sb_lesson_progress_records')).rows[0].answer).toEqual({kind:'count',value:0});
+ }finally{await api.close();}
+});

@@ -1,0 +1,24 @@
+{
+  "baseHead": "b0ac8e202b5d02b15c73e7cd659a4a41cafccfc6",
+  "changedSourceHashes": {
+    "src/lib/studentApi.ts": "00512a62d8872943f397842456f698f3b5e168e61e2e79c672b8289d8771726d",
+    "src/pages/LessonPage.tsx": "5989afcf85d3556e41302ea06304f2fe274f5de0fa4f5fafb0168753fc270e5e",
+    "shared/submittedAnswer.ts": "677b25b440e4e6b5f05c46468fbcc5d696dcc10d88a3d772cbd0b3936a7f0546",
+    "tests/submitted-answer.test.ts": "8c6d201a4d065b5b6fb9601dd0320f3cd9f6e7ea209d42f95b0284be5814b9e1",
+    "e2e/live-flow.spec.ts": "e63ccbfde73e57b9d6be5dd89bf431b896582e9063c7410a11c0e97cc5f5a51e",
+    "e2e/support/live-api.ts": "09e0d6a2a4bd7b93c8690a24ba412411bc97df7745b78dfeb690fac712843000"
+  },
+  "hostedTarget": "aivukrimmqkolikgxqny",
+  "localUnit": {
+    "pass": 11,
+    "fail": 0
+  },
+  "typecheck": "PASS",
+  "lint": "PASS",
+  "secretLiteralScan": {
+    "matches": 0
+  },
+  "hostedAnswerRestore": "BLOCKED_BROWSER_CONNECTION",
+  "otherTeachersInstall": "NOT_VERIFIED",
+  "productionChanges": "NONE"
+}
