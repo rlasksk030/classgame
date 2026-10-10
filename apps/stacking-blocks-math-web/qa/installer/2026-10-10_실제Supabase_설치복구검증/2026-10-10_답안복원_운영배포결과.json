@@ -1,0 +1,43 @@
+{
+  "result": "SUCCESS",
+  "pr": 13,
+  "prHead": "4b3202e9f179fee50b6a5929342cecf2c120b8ef",
+  "merge": "d84980fb1069a017151960ac6c46203a1b09222e",
+  "ci": {
+    "run": 38011741551,
+    "unit": 795,
+    "chromium": 100,
+    "postgresProfiles": 28,
+    "status": "PASS"
+  },
+  "frontend": {
+    "id": "dep-db4p2inavr4c73eemcpg",
+    "status": "live"
+  },
+  "installer": {
+    "id": "dep-db4p2inavr4c73eemcrg",
+    "status": "live",
+    "runtimeChanged": false
+  },
+  "publicSmoke": {
+    "frontendHttp": 200,
+    "mainAsset": "/assets/index-DNh0oZEF.js",
+    "lessonChunkCount": 2,
+    "scopeMarker": true,
+    "saveAction": true,
+    "getAction": true,
+    "installerHttp": 200,
+    "installerOk": true,
+    "installerService": "stacking-blocks-installer"
+  },
+  "testPinRotation": "USER_CONFIRMED",
+  "productionDatabaseWrites": false,
+  "otherTeachersActualInstall": "NOT_VERIFIED",
+  "mergeCi": {
+    "run": 38012352334,
+    "status": "SUCCESS",
+    "unit": 795,
+    "chromium": 100,
+    "postgresProfiles": 28
+  }
+}
