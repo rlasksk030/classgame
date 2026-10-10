@@ -55,6 +55,12 @@ export async function liveApi(options:{liveStages?:boolean;students?:Array<{id:s
   const action=String(body.action),key=`${sid}:${body.problemId}`;
   if(action==='project:save')return phase5ProjectSaveRequest(db as unknown as Parameters<typeof phase5ProjectSaveRequest>[0],body,{studentId:sid,classId:students.find(s=>s.id===sid)!.classId});
   if(action.startsWith('activity:'))return activityRequest(db as unknown as Parameters<typeof activityRequest>[0],body,{studentId:sid,classId:students.find(s=>s.id===sid)!.classId});
+  // Same installed progress contract, persisted in SQL rather than browser storage.
+  if(action==='progress:save'){
+   await pg.query(`insert into sb_lesson_progress_records(installation_id,class_id,student_id,curriculum_version,lesson,stage,set_id,problem_id,problem_version,question_index,answer) values($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) on conflict(installation_id,class_id,student_id,lesson,set_id,problem_id,problem_version) do update set answer=excluded.answer`,[body.installationId,students.find(s=>s.id===sid)!.classId,sid,body.curriculumVersion,body.lesson,body.stage,body.setId,body.problemId,body.problemVersion,body.questionIndex,JSON.stringify(body.answer)]);
+   return response({progress:{answer:body.answer}});
+  }
+  if(action==='progress:get')return response({progress:(await pg.query('select problem_id,problem_version,answer from sb_lesson_progress_records where installation_id=$1 and class_id=$2 and student_id=$3 and lesson=$4 and set_id=$5',[body.installationId,students.find(s=>s.id===sid)!.classId,sid,body.lesson,body.setId])).rows});
   if(action==='home')return response({student:{classId:CLASS,className:'합성 QA반',rewards:{totalXp:0,totalStars:0,badges:[],streak:0},lessons:Array.from({length:12},(_,i)=>({lesson:i+1,locked:false,totalProblems:problems.filter(p=>p.lesson===i+1).length,completedProblems:problems.filter(p=>p.lesson===i+1&&attempts.get(`${sid}:${p.id}`)?.completed).length,completed:false,stars:0}))}});
   if(action==='lessonProblems'){const ps=problems.filter(p=>p.lesson===Number(body.lesson));return response({problems:ps.map(publicProblem),seedFallback:false,requiredComplete:requiredSolveIds(ps).length>0&&requiredSolveIds(ps).every(id=>attempts.get(`${sid}:${id}`)?.completed),currentProblemId:positions.get(`${sid}:${body.lesson}`)});}
   const p=problems.find(p=>p.id===body.problemId);

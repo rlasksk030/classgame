@@ -68,7 +68,7 @@ async function start(fixtures: Fixture[]) {
     ...(body === undefined ? {} : { body: JSON.stringify(body) }), redirect: 'manual',
   });
   return {
-    clock, call,
+    clock, call, base,
     async session(f: Fixture) {
       const response = await call('/session', '', f.target); assert.equal(response.status, 201);
       const cookie = response.headers.getSetCookie().map(v => v.split(';')[0]).join('; ');
@@ -139,6 +139,38 @@ test('two simultaneous HTTP approvals execute one real ACL transaction and prese
     assert.equal(again.recoverable, false); assert.equal(again.reason, 'NO_PERMISSION_DRIFT');
     assert.equal(f.writes(), 1);
   } finally { await server.close(); await f.db.close(); }
+});
+
+test('disconnect during approved recovery never replays the write; reconnect reads the committed result and preserved rows', { timeout: 30_000 }, async () => {
+  const f = await fixture(); const server = await start([f]);
+  let release!: () => void, started!: () => void, finished!: () => void;
+  const hold = new Promise<void>(resolve => { release = resolve; });
+  const applying = new Promise<void>(resolve => { started = resolve; });
+  const applied = new Promise<void>(resolve => { finished = resolve; });
+  const apply = f.backend.applyPermissionRecovery!;
+  f.backend.applyPermissionRecovery = async (target, query) => {
+    started(); await hold;
+    try { await apply(target, query); } finally { finished(); }
+  };
+  try {
+    const before = await dataHash(f), cookie = await server.session(f), recovery = await server.recovery(cookie);
+    const controller = new AbortController();
+    const request = fetch(server.base + '/recovery-execute', {
+      method: 'POST', headers: { origin, cookie, 'content-type': 'application/json' },
+      body: JSON.stringify({ planId: recovery.id, approved: true }), signal: controller.signal,
+    });
+    const disconnected = assert.rejects(request, { name: 'AbortError' });
+    await applying;
+    controller.abort(); await disconnected;
+    assert.equal(f.writes(), 0);
+    await expectCode(await server.call('/recovery-execute', cookie, { planId: recovery.id, approved: true }), 409, 'INSTALLER_RECOVERY_PLAN_EXPIRED');
+    release(); await applied;
+    assert.equal((await (await server.call('/status', cookie)).json()).status, 'INSTALLED');
+    const diagnosis = await (await server.call('/recovery-plan', cookie, {})).json();
+    assert.equal(diagnosis.reason, 'NO_PERMISSION_DRIFT');
+    assert.equal(f.writes(), 1);
+    assert.equal(await dataHash(f), before);
+  } finally { release(); await server.close(); await f.db.close(); }
 });
 
 test('HTTP recovery rejects a changed catalog after approval without writing', async () => {

@@ -20,6 +20,8 @@ import {
   getProblemImage,
   getProblem,
   getSnapshot,
+  getSubmittedAnswer,
+  saveSubmittedAnswer,
   saveSnapshot,
   submitAttempt,
   startNewPracticeSet,
@@ -38,6 +40,7 @@ import { getResolvedSupabaseConfig } from "../lib/config";
 
 import { draftKey, readDraft, writeDraft, acknowledgeDraft } from "../lib/snapshotDraft";
 import { duplicateTaskCount } from "../../shared/practiceTask";
+import { submittedAnswerDraft } from "../../shared/submittedAnswer";
 
 type ProblemAttempt = {
   wrongCount: number;
@@ -251,10 +254,10 @@ export default function LessonPage() {
   // 단계 페이지를 오가거나 새로고침해도 현재 입력을 같은 문항에만 복원합니다.
   // PIN·세션 같은 민감한 값은 저장하지 않고, 답안 초안만 세션 범위에 둡니다.
   useEffect(() => {
-    if (!problem?.stage || problem.id.startsWith("seed:")) return;
+    if (restoring || !problem?.stage || problem.id.startsWith("seed:")) return;
     const draft: AnswerDraft = { countInput, directionValue, choiceIndex, topMap, frontMap, sideMap, heightMap, layerMaps };
     try { window.sessionStorage.setItem(stageAnswerKey(lessonNum, problem.stage, problem.id), JSON.stringify(draft)); } catch { /* private mode */ }
-  }, [choiceIndex, countInput, directionValue, frontMap, heightMap, layerMaps, lessonNum, problem?.id, problem?.stage, sideMap, topMap]);
+  }, [choiceIndex, countInput, directionValue, frontMap, heightMap, layerMaps, lessonNum, problem?.id, problem?.stage, restoring, sideMap, topMap]);
 
   const canUndo = undoStack.current.length > 0;
   const canRedo = redoStack.current.length > 0;
@@ -393,16 +396,37 @@ export default function LessonPage() {
   const restoreProblemState = useCallback(
     async (next: StudentProblem) => {
       const token = ++restoreToken.current;
+      const localAnswer = readAnswerDraft(lessonNum, next);
 
       if (next.id.startsWith("seed:")) { setRestoring(false); return; }
 
       try {
-        const [snapshotPayload, envelope] = await Promise.all([
+        let answerReadFailed = false;
+        const [snapshotPayload, envelope, submitted] = await Promise.all([
           getSnapshot(next.id),
           getProblem(next.id, lessonNum),
+          isBuildType(next.problemType) ? Promise.resolve(null) : getSubmittedAnswer(next).catch(() => { answerReadFailed = true; return null; }),
         ]);
 
         if (restoreToken.current !== token) return;
+
+        if (answerReadFailed) setSaveStatus("저장된 답안을 불러오지 못했어요. 연결을 확인하고 다시 열어 주세요.");
+        const draft = submittedAnswerDraft(submitted);
+        // Keep unsubmitted local edits. Completed problems use the submitted
+        // server input, so a fresh device also displays the student's answer.
+        if (draft && (!localAnswer || envelope.attempt.completed)) {
+          if (draft.countInput !== undefined) setCountInput(draft.countInput);
+          if (draft.directionValue !== undefined) setDirectionValue(draft.directionValue);
+          if (draft.choiceIndex !== undefined) {
+            setChoiceIndex(draft.choiceIndex);
+            if (next.problemType === 'BLOCK_POSITION') setBlockPositionPicked(true);
+          }
+          if (draft.topMap) setTopMap(draft.topMap);
+          if (draft.frontMap) setFrontMap(draft.frontMap);
+          if (draft.sideMap) setSideMap(draft.sideMap);
+          if (draft.heightMap) setHeightMap(draft.heightMap);
+          if (draft.layerMaps) setLayerMaps(draft.layerMaps);
+        }
 
         const local = readDraft(draftKey(getStudentToken(), next.id));
         if (local?.dirty) { setBlocks(canonicalize(local.blocks)); }
@@ -572,7 +596,7 @@ export default function LessonPage() {
   }, [flushSnapshot]);
 
   const submit = async () => {
-    if (!problem) return;
+    if (!problem || busy || restoring || attempt.completed) return;
 
     const submission = buildProblemSubmission(problem);
     if (!submission) {
@@ -581,11 +605,15 @@ export default function LessonPage() {
     }
 
     const submissionView = restoreToken.current;
+    const submissionOwner = getStudentToken();
     setBusy(true);
     setMessage(null);
 
     try {
       await flushSnapshot();
+      if (restoreToken.current !== submissionView || getStudentToken() !== submissionOwner) return;
+      if (submission.kind !== 'blocks') await saveSubmittedAnswer(problem, submission);
+      if (restoreToken.current !== submissionView || getStudentToken() !== submissionOwner) return;
       const response = await submitAttempt(problem.id, submission);
       if(restoreToken.current!==submissionView) return;
       setResult(response.grade);
