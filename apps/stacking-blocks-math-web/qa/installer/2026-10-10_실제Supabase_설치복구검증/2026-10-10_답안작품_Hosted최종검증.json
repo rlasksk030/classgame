@@ -1,0 +1,150 @@
+{
+  "target": "aivukrimmqkolikgxqny",
+  "runtimeCommit": "239f3da56e0536efe1588cc13609bcd173214e1e",
+  "verifiedCodeCommit": "84694180949a6946b9d216e1fc92763d170a4ec8",
+  "executionTree": "907d46a427be853be84fde8e192b6b5830156139",
+  "browser": "independent Playwright Chromium",
+  "frontend": "http://127.0.0.1:4184",
+  "checks": [
+    {
+      "check": "numeric-zero",
+      "result": "HOSTED_PASS",
+      "freshContext": true,
+      "distinctToken": true,
+      "answer": {
+        "kind": "count",
+        "value": 0
+      }
+    },
+    {
+      "check": "numeric-correct-restore",
+      "result": "HOSTED_PASS",
+      "answer": 5
+    },
+    {
+      "check": "choice-zero-restore",
+      "result": "HOSTED_PASS",
+      "answer": 0,
+      "refresh": true
+    },
+    {
+      "check": "student-isolation",
+      "result": "HOSTED_PASS",
+      "spoofedIdIgnored": true
+    },
+    {
+      "check": "save-failure",
+      "result": "PASS",
+      "kind": "injected-503",
+      "attemptSent": false,
+      "rewardUnchanged": true,
+      "progressUnchanged": true
+    },
+    {
+      "check": "project-save-restore",
+      "result": "HOSTED_PASS",
+      "blocks": 3,
+      "independentLogin": true,
+      "refresh": true,
+      "rewardPreserved": true,
+      "lesson1And5ProgressPreserved": true,
+      "studentIsolation": true
+    }
+  ],
+  "fixture": "separate synthetic class and two synthetic students",
+  "network": "actual Supabase API; only failure test uses injected HTTP 503",
+  "apiAndDatabaseAnswers": [
+    {
+      "problem": "L1-02",
+      "answer": {
+        "kind": "count",
+        "value": 5
+      }
+    },
+    {
+      "problem": "L5-02",
+      "answer": {
+        "kind": "choice",
+        "index": 0
+      }
+    }
+  ],
+  "project": {
+    "blocks": [
+      {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      {
+        "x": 1,
+        "y": 0,
+        "z": 0
+      },
+      {
+        "x": 0,
+        "y": 1,
+        "z": 0
+      }
+    ],
+    "version": 3,
+    "width": 10,
+    "depth": 10
+  },
+  "productionWrites": false,
+  "aclWrites": false,
+  "independentDatabaseRead": {
+    "numericZeroBeforeCorrect": {
+      "kind": "count",
+      "value": 0
+    },
+    "finalAnswers": [
+      {
+        "problem": "L1-02",
+        "answer": {
+          "kind": "count",
+          "value": 5
+        }
+      },
+      {
+        "problem": "L5-02",
+        "answer": {
+          "kind": "choice",
+          "index": 0
+        }
+      }
+    ],
+    "projectBlocks": [
+      {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      {
+        "x": 1,
+        "y": 0,
+        "z": 0
+      },
+      {
+        "x": 0,
+        "y": 1,
+        "z": 0
+      }
+    ],
+    "projectVersion": 3,
+    "protectedOriginalRecords": {
+      "attempts": {
+        "before": "7d165db03530328fd3f5b0f0692e5b83",
+        "after": "7d165db03530328fd3f5b0f0692e5b83"
+      },
+      "progress": {
+        "before": "c8308428cc59eec0e3bd87afaa7bb5f1",
+        "after": "c8308428cc59eec0e3bd87afaa7bb5f1"
+      },
+      "rewards": {
+        "before": "7b94dac0f1981c91a01136c149adbc52",
+        "after": "7b94dac0f1981c91a01136c149adbc52"
+      }
+    }
+  }
+}
