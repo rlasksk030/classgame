@@ -37,6 +37,7 @@ test('required progress persists through real UI submission, polling, reloads an
     await page.getByRole('button', { name: '정답 확인', exact: true }).click();
     await expect(page.getByRole('button', { name: '② 문제 풀기 · 완료', exact: true })).toBeVisible();
     expect(api.submissions).toHaveLength(1); expect(api.submissions[0].correct).toBe(true);
+    expect((await api.db.query<{answer:unknown}>('select answer from sb_lesson_progress_records where student_id=$1 and lesson=1', [STUDENTS[0]])).rows.map(r => r.answer)).toEqual([{kind:'count',value:5}]);
     expect((await api.db.query<{ completed: boolean }>('select completed from sb_student_progress where student_id=$1 and lesson=1', [STUDENTS[0]])).rows[0].completed).toBe(true);
     await teacher.bringToFront();
     await expect(studentRow(teacher, 1).getByRole('cell', { name: '1/12', exact: true })).toBeVisible({ timeout: 15000 });
@@ -78,6 +79,7 @@ test('required progress persists through real UI submission, polling, reloads an
     await page.goto('/world'); await page.getByRole('button', { name: '나가기', exact: true }).click();
     await studentLogin(page); await page.goto('/lesson/1/solve');
     await expect(page.getByRole('button', { name: '정답 확인', exact: true })).toBeDisabled();
+    await expect(page.getByPlaceholder('전체 개수', { exact: true })).toHaveValue('5');
     await teacher.reload(); await expect(studentRow(teacher, 1).getByRole('cell', { name: '3/12', exact: true })).toBeVisible();
     await teacher.getByRole('button', { name: '교사 로그아웃', exact: true }).click();
     await teacherLogin(teacher); await expect(studentRow(teacher, 1).getByRole('cell', { name: '3/12', exact: true })).toBeVisible();

@@ -309,6 +309,34 @@ export function submitAttempt(problemId: string, submission: StudentSubmissionPa
   );
 }
 
+// Reuse the installed progress API for raw input. Completion/XP remain owned
+// exclusively by the existing authoritative attempt RPC, never this record.
+function submittedAnswerScope(problem: StudentProblem) {
+  const config = getResolvedSupabaseConfig();
+  return {
+    installationId: config?.installationId ?? 'live-default',
+    curriculumVersion: 'live-submitted-answer-v1',
+    lesson: problem.lesson,
+    stage: problem.stage === 'more' ? 'practice' : problem.stage === 'concept' ? 'learn' : 'solve',
+    setId: `live-answer:${problem.id}`,
+    problemId: problem.id,
+    problemVersion: problem.generatorVersion ?? 1,
+    questionIndex: Math.max(0, problem.orderIndex - 1),
+  };
+}
+
+export async function getSubmittedAnswer(problem: StudentProblem): Promise<unknown> {
+  const scope = submittedAnswerScope(problem);
+  const result = await callFunction<{ progress: Array<{ problem_id: string; problem_version: number; answer: unknown }> }>(
+    'student-api', { action: 'progress:get', ...scope }, true,
+  );
+  return result.progress.find(row => row.problem_id === scope.problemId && row.problem_version === scope.problemVersion)?.answer ?? null;
+}
+
+export async function saveSubmittedAnswer(problem: StudentProblem, answer: StudentSubmissionPayload): Promise<void> {
+  await callFunction('student-api', { action: 'progress:save', ...submittedAnswerScope(problem), answer }, true);
+}
+
 export function saveSnapshot(
   problemId: string,
   lesson: number,

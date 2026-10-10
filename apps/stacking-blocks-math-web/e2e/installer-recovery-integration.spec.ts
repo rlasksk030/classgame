@@ -9,7 +9,7 @@ import { emptyLegacyDb, legacyBackend, seedProtectedRows } from '../tests/suppor
 // Browser requests are proxied to the real local installer HTTP handler. Only
 // identity/initial installation metadata is synthetic; no success/status/plan
 // response is stubbed, and approved recovery runs the real SQL on PGlite.
-test('actual setup consent executes one local SQL recovery, preserves rows and reaches teacher step after reload', async ({ page, baseURL }, testInfo) => {
+for (const refreshDuringRecovery of [false, true]) test(`actual setup consent executes one local SQL recovery and preserves rows: ${refreshDuringRecovery ? 'refresh during recovery' : 'ordinary completion'}`, async ({ page, baseURL }, testInfo) => {
   test.setTimeout(120_000);
   const origin = new URL(baseURL!).origin;
   const plan = await readMathInstallerPlan(process.cwd());
@@ -17,7 +17,15 @@ test('actual setup consent executes one local SQL recovery, preserves rows and r
   const target = { environment: 'TEST' as const, projectRef: 'synthetic-browser-recovery', projectUrl: 'https://synthetic-browser-recovery.supabase.co', publishableKey: 'sb_publishable_synthetic_integration', release: 'test' };
   const backend = legacyBackend(db, plan, plan.migrations.map(m => m.name));
   backend.inspectDatabasePermissions = async () => (await db.query<{ snapshot: PermissionSnapshot }>(readFileSync('scripts/installer/permission-audit.sql', 'utf8'))).rows[0].snapshot;
-  backend.applyPermissionRecovery = async (_target, query) => { backend.calls.push('applyPermissionRecovery'); await db.exec(query); };
+  let release!: () => void, started!: () => void, finished!: () => void;
+  const hold = new Promise<void>(resolve => { release = resolve; });
+  const applying = new Promise<void>(resolve => { started = resolve; });
+  const applied = new Promise<void>(resolve => { finished = resolve; });
+  backend.applyPermissionRecovery = async (_target, query) => {
+    started();
+    if (refreshDuringRecovery) await hold;
+    try { backend.calls.push('applyPermissionRecovery'); await db.exec(query); } finally { finished(); }
+  };
   const server = createInstallerServer({
     plan, productionRef: 'blocked-production', mode: 'TEST', allowedOrigins: [origin], allowedProjectRefs: [target.projectRef],
     sessionSecret: 'synthetic-browser-session-signature', sessionCookieSecure: false,
@@ -78,6 +86,16 @@ test('actual setup consent executes one local SQL recovery, preserves rows and r
     await expect(page.getByLabel('승인할 복구 내용')).toContainText('22개 항목');
     expect(writes()).toBe(0);
     await page.getByRole('button', { name: '복구 승인 및 진행', exact: true }).click();
+    if (refreshDuringRecovery) {
+      await applying;
+      await page.reload();
+      await expect(page.getByRole('button', { name: '설치 문제 자동 진단', exact: true })).toBeVisible();
+      await expect(page.getByRole('button', { name: '복구 승인 및 진행', exact: true })).toHaveCount(0);
+      await expect(page.getByRole('button', { name: '교사 확인으로 계속', exact: true })).toBeDisabled();
+      expect(writes()).toBe(0);
+      release(); await applied;
+      await page.getByRole('button', { name: '설치 확인', exact: true }).click();
+    }
     await expect(page.getByRole('button', { name: '교사 확인으로 계속', exact: true })).toBeEnabled();
     expect(writes()).toBe(1);
     expect(backend.calls.filter(c => c === 'applyPermissionRecovery')).toHaveLength(1);
@@ -96,6 +114,7 @@ test('actual setup consent executes one local SQL recovery, preserves rows and r
     await expect(page.getByText('5/8', { exact: true })).toBeVisible();
     expect(await dataHash()).toBe(before);
   } finally {
+    release();
     await new Promise<void>(resolve => server.close(() => resolve()));
     await db.close();
   }
