@@ -102,6 +102,7 @@ export default function BlockWorld(props: WorldProps) {
   useEffect(() => { scene.current?.setView(props.preset, orthographic); }, [props.preset, orthographic]);
 
   const place = () => {
+    if (props.disabled) return;
     const result = props.selected ? moveBlock(props.blocks, props.selected, cellX, cellZ, props.grid) : placeOnColumn(props.blocks, cellX, cellZ, props.grid);
     if (result.check.ok) { commit(result.blocks); props.onSelect(null); }
     props.onMessage(result.check.message ?? '쌓기나무를 놓았어요.');
@@ -139,7 +140,7 @@ export default function BlockWorld(props: WorldProps) {
         role="button"
         tabIndex={0}
         aria-label="쌓기나무 보관함. 블록을 작업판에 놓기"
-        onPointerDown={e => { e.preventDefault(); markPaletteUse(); scene.current?.beginPalette(e.nativeEvent); }}
+        onPointerDown={e => { e.preventDefault(); markPaletteUse(); scene.current?.beginPalette(e.nativeEvent, e.currentTarget); }}
         onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); markPaletteUse(); scene.current?.armPalette(); } }}
       >
         <svg className="palette-cube" viewBox="0 0 96 100" aria-hidden="true" focusable="false">
@@ -147,8 +148,9 @@ export default function BlockWorld(props: WorldProps) {
           <polygon points="12,29 48,50 48,92 12,71" className="palette-cube-left" />
           <polygon points="48,50 84,29 84,71 48,92" className="palette-cube-right" />
         </svg>
-        <div><strong>쌓기나무 보관함</strong><small>블록을 잡아 작업판에 놓아 보세요.</small></div>
+        <div><strong>쌓기나무 보관함</strong><small>한 번 누르고 → 작업판을 눌러요. 끌어서 놓아도 돼요.</small></div>
       </div>
+      <button type="button" className="btn" onClick={() => { markPaletteUse(); scene.current?.armPalette(); }}>터치로 놓기</button>
       <button type="button" className="btn" disabled={!props.selected} onClick={() => {
         if (!props.selected) return;
         const result = removeBlock(props.blocks, props.selected);
@@ -162,6 +164,6 @@ export default function BlockWorld(props: WorldProps) {
       </details>
     </div>}
     <p className="muted" style={{ padding: '0 12px' }}>{props.allowRotate === false ? '지금은 지정된 시점으로만 살펴볼 수 있어요.' : '빈 곳을 끌면 회전 · 두 손가락이나 휠로 확대 · 블록을 잡으면 이동'}</p>
-    {!props.disabled && props.allowRotate !== false && showFirstUseHint && <p className="first-use-hint">처음 사용: 1) 블록을 잡아요 2) 작업판에 놓아요 3) 빈 곳을 끌어 돌려요 4) 두 손가락이나 휠로 확대해요</p>}
+    {!props.disabled && props.allowRotate !== false && showFirstUseHint && <p className="first-use-hint">블록 놓기: 보관함을 한 번 누르고, 놓을 칸을 한 번 눌러요. 2층은 블록 위를 눌러요. 어렵다면 ‘버튼으로 놓기’에서 가로·세로를 고르고 ‘쌓기’를 눌러요.</p>}
   </div>;
 }

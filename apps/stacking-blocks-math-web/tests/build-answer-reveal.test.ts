@@ -64,9 +64,9 @@ test("client: answerGhost is populated generically from revealedAnswer.blocks wi
   assert.match(page, /answerGhost=\{answerVisible \? \(attempt\.revealedAnswer\?\.blocks \?\? result\?\.revealedAnswer\?\.blocks\) : undefined\}/);
 });
 
-test("D. editing (undo/redo/reset/save + BlockWorld's own edit toolbar via disabled) is locked while the answer ghost is visible for any build type, and unlocked otherwise -- generic on isBuildType + answerRevealed + answerVisible, no lesson number involved", async () => {
+test("D. editing (undo/redo/reset/save + BlockWorld's own edit toolbar via disabled) is locked while the answer ghost is visible for any build type, as well as during concept review and on completed problems -- no lesson number involved", async () => {
   const page = await readSource("../src/pages/LessonPage.tsx");
-  assert.match(page, /const answerLocked = isBuildType\(problem\.problemType\) && attempt\.answerRevealed && answerVisible;/);
+  assert.match(page, /const answerLocked = conceptReview \|\| attempt\.completed \|\| \(isBuildType\(problem\.problemType\) && attempt\.answerRevealed && answerVisible\);/);
   assert.match(page, /onClick=\{doUndo\} disabled=\{!canUndo \|\| answerLocked\}/);
   assert.match(page, /onClick=\{doRedo\} disabled=\{!canRedo \|\| answerLocked\}/);
   assert.match(page, /onClick=\{doReset\} disabled=\{answerLocked\}/);

@@ -824,6 +824,8 @@ button {
   cursor: grab;
   touch-action: none;
   user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
 }
 .block-palette:active { cursor: grabbing; }
 .block-palette:focus-visible { outline: 3px solid #276ef1; outline-offset: 2px; }
@@ -873,3 +875,10 @@ button {
 .palette-material-pastel { --block-top:#f3d0e2; --block-front:#e9b8d1; --block-side:#bc91a7; }
 .palette-material-brick { --block-top:#dda18f; --block-front:#c97b68; --block-side:#9f5e4e; }
 .palette-material-tile { --block-top:#bad8e5; --block-front:#8eb8c9; --block-side:#6b93a4; }
+
+/* Review inputs stay visible without changing saved answers. */
+.answer-review-fieldset { border: 0; padding: 0; margin: 0; min-width: 0; }
+@media (pointer: coarse) {
+  .world-wrap .btn, .world-wrap summary, .world-wrap input[type="number"] { min-height: 48px; }
+  .world-wrap summary { display: flex; align-items: center; cursor: pointer; }
+}
