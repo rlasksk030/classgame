@@ -70,7 +70,7 @@ export class BlockScene {
   private ghost: Mesh;
   private state: SceneState = { blocks: [], selected: null, layerMax: null };
   private resize: ResizeObserver;
-  private drag: { id: number; from: BlockCoord | null; startX: number; startY: number; moved: boolean } | null = null;
+  private drag: { id: number; from: BlockCoord | null; startX: number; startY: number; moved: boolean; placing: boolean; slop: number; owner: Element } | null = null;
   private candidate: { x: number; z: number } | null = null;
   private paletteArmed = false;
   private cameraTween: { start: number; alpha: number; beta: number; radius: number; targetAlpha: number; targetBeta: number; targetRadius: number } | null = null;
@@ -98,6 +98,7 @@ export class BlockScene {
     window.addEventListener('pointermove', this.move, true);
     window.addEventListener('pointerup', this.up, true);
     window.addEventListener('pointercancel', this.cancel, true);
+    window.addEventListener('lostpointercapture', this.cancel, true);
     window.addEventListener('blur', this.blur);
     this.camera.attachControl(canvas, true);
     new HemisphericLight('light', new Vector3(-0.4, 1, -0.6), this.scene).intensity = 1.1;
@@ -183,6 +184,7 @@ export class BlockScene {
 
   update(state: SceneState) {
     this.state = state;
+    if (state.disabled) { this.paletteArmed = false; this.finish(); }
     if (state.allowRotate === false) this.camera.detachControl();
     else if (!this.drag) this.camera.attachControl(this.canvas, true);
     const keys = new Set(state.blocks.map(keyOf));
@@ -247,11 +249,13 @@ export class BlockScene {
     return this.scene.pick(event.clientX - rect.left, event.clientY - rect.top, mesh => mesh.isEnabled() && (mesh.metadata?.floor || mesh.metadata?.block) && (!this.drag?.from || keyOf(mesh.metadata?.block ?? { x: -1, y: -1, z: -1 }) !== keyOf(this.drag.from)));
   }
 
-  beginPalette(event: PointerEvent) {
-    if (this.state.disabled) return;
+  beginPalette(event: PointerEvent, owner: Element = this.canvas) {
+    if (this.state.disabled || event.button !== 0) return;
+    this.pointers.add(event.pointerId);
+    if (this.pointers.size > 1) { this.paletteArmed = false; this.finish(); return; }
     this.finish();
     this.paletteArmed = false;
-    this.startDrag(event, null);
+    this.startDrag(event, null, owner);
   }
 
   armPalette() {
@@ -261,10 +265,12 @@ export class BlockScene {
     this.callbacks.message('쌓기나무를 선택했어요. 작업판을 눌러 놓아 보세요.');
   }
 
-  private startDrag(event: PointerEvent, from: BlockCoord | null) {
+  private startDrag(event: PointerEvent, from: BlockCoord | null, owner: Element = this.canvas) {
     this.cameraTween = null;
     this.camera.detachControl();
-    this.drag = { id: event.pointerId, from, startX: event.clientX, startY: event.clientY, moved: from !== null };
+    this.drag = { id: event.pointerId, from, startX: event.clientX, startY: event.clientY, moved: false, placing: false, slop: event.pointerType === 'mouse' ? 5 : 14, owner };
+    // Keep receiving the same finger's events when it leaves the palette/canvas.
+    try { owner.setPointerCapture(event.pointerId); } catch { /* already cancelled or synthetic input */ }
     this.callbacks.select(from);
     event.preventDefault();
   }
@@ -285,7 +291,7 @@ export class BlockScene {
       this.paletteArmed = false;
       this.startDrag(event, null);
       if (!this.drag) return;
-      this.drag.moved = true;
+      this.drag.placing = true;
       this.updateCandidate(picked);
       return;
     }
@@ -302,13 +308,15 @@ export class BlockScene {
   private move = (event: PointerEvent) => {
     if (!this.drag || this.drag.id !== event.pointerId) return;
     event.preventDefault();
-    if (Math.hypot(event.clientX - this.drag.startX, event.clientY - this.drag.startY) > 5) this.drag.moved = true;
+    if (Math.hypot(event.clientX - this.drag.startX, event.clientY - this.drag.startY) > this.drag.slop) this.drag.moved = true;
     const picked = this.pick(event);
-    if (!picked || !this.drag.moved) { this.candidate = null; this.ghost.setEnabled(false); return; }
+    if (!picked || (!this.drag.moved && !this.drag.placing)) { this.candidate = null; this.ghost.setEnabled(false); return; }
     this.updateCandidate(picked);
   };
 
-  private updateCandidate(picked: ReturnType<Scene['pick']>) {
+  private updateCandidate(picked: ReturnType<Scene['pick']> | null) {
+    this.candidate = null;
+    this.ghost.setEnabled(false);
     const point = picked?.pickedPoint;
     if (!point) return;
     const block = picked?.pickedMesh?.metadata?.block as BlockCoord | undefined;
@@ -329,18 +337,29 @@ export class BlockScene {
   private up = (event: PointerEvent) => {
     this.pointers.delete(event.pointerId);
     if (!this.drag || this.drag.id !== event.pointerId) return;
-    if (this.candidate && this.drag.moved) {
+    // pointerup can arrive at a different position without a final pointermove.
+    // Never commit a stale candidate, especially outside the board.
+    this.updateCandidate(this.pick(event));
+    if (!this.state.disabled && this.candidate && (this.drag.moved || this.drag.placing)) {
       const result = this.result(this.candidate.x, this.candidate.z);
       if (result.check.ok) { this.callbacks.change(canonicalize(result.blocks)); this.callbacks.select(null); this.callbacks.message('쌓기나무를 놓았어요.'); }
-    } else if (this.drag.from === null && !this.drag.moved) {
-      this.paletteArmed = true;
-      this.callbacks.message('쌓기나무를 선택했어요. 작업판을 눌러 놓아 보세요.');
+    } else if (!this.state.disabled && this.drag.from === null && !this.drag.moved && !this.drag.placing) {
+      const rect = this.drag.owner.getBoundingClientRect();
+      if (event.clientX >= rect.left && event.clientX <= rect.right && event.clientY >= rect.top && event.clientY <= rect.bottom) {
+        this.paletteArmed = true;
+        this.callbacks.message('쌓기나무를 선택했어요. 작업판의 칸이나 블록 위를 한 번 눌러 주세요.');
+      }
     }
     this.finish();
   };
-  private cancel = (event: PointerEvent) => { this.pointers.delete(event.pointerId); if (this.drag?.id === event.pointerId) this.finish(); };
-  private blur = () => { this.pointers.clear(); this.finish(); };
-  private finish() { this.drag = null; this.candidate = null; this.ghost?.setEnabled(false); if (this.state.allowRotate !== false) this.camera.attachControl(this.canvas, true); }
+  private cancel = (event: PointerEvent) => { this.pointers.delete(event.pointerId); if (this.drag?.id === event.pointerId) { this.paletteArmed = false; this.finish(); } };
+  private blur = () => { this.pointers.clear(); this.paletteArmed = false; this.finish(); };
+  private finish() {
+    const drag = this.drag;
+    this.drag = null; this.candidate = null; this.ghost?.setEnabled(false);
+    if (drag) { try { if (drag.owner.hasPointerCapture(drag.id)) drag.owner.releasePointerCapture(drag.id); } catch { /* browser already released */ } }
+    if (this.state.allowRotate !== false) this.camera.attachControl(this.canvas, true);
+  }
 
   dispose() {
     this.resize.disconnect();
@@ -348,6 +367,7 @@ export class BlockScene {
     window.removeEventListener('pointermove', this.move, true);
     window.removeEventListener('pointerup', this.up, true);
     window.removeEventListener('pointercancel', this.cancel, true);
+    window.removeEventListener('lostpointercapture', this.cancel, true);
     window.removeEventListener('blur', this.blur);
     this.engine.stopRenderLoop();
     this.scene.dispose();

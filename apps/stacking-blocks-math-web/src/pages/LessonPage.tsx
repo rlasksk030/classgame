@@ -166,7 +166,8 @@ export default function LessonPage() {
   const location = useLocation();
   const { lesson } = useParams();
   const lessonNum = Number(lesson ?? 1);
-  const routeStage: "check" | "more" | null = location.pathname.endsWith("/solve") ? "check" : location.pathname.endsWith("/practice") ? "more" : null;
+  const conceptReview = new URLSearchParams(location.search).get("review") === "concept";
+  const routeStage: "concept" | "check" | "more" | null = conceptReview ? "concept" : location.pathname.endsWith("/solve") ? "check" : location.pathname.endsWith("/practice") ? "more" : null;
 
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
@@ -254,15 +255,16 @@ export default function LessonPage() {
   // 단계 페이지를 오가거나 새로고침해도 현재 입력을 같은 문항에만 복원합니다.
   // PIN·세션 같은 민감한 값은 저장하지 않고, 답안 초안만 세션 범위에 둡니다.
   useEffect(() => {
-    if (restoring || !problem?.stage || problem.id.startsWith("seed:")) return;
+    if (conceptReview || restoring || !problem?.stage || problem.id.startsWith("seed:")) return;
     const draft: AnswerDraft = { countInput, directionValue, choiceIndex, topMap, frontMap, sideMap, heightMap, layerMaps };
     try { window.sessionStorage.setItem(stageAnswerKey(lessonNum, problem.stage, problem.id), JSON.stringify(draft)); } catch { /* private mode */ }
-  }, [choiceIndex, countInput, directionValue, frontMap, heightMap, layerMaps, lessonNum, problem?.id, problem?.stage, restoring, sideMap, topMap]);
+  }, [conceptReview, choiceIndex, countInput, directionValue, frontMap, heightMap, layerMaps, lessonNum, problem?.id, problem?.stage, restoring, sideMap, topMap]);
 
   const canUndo = undoStack.current.length > 0;
   const canRedo = redoStack.current.length > 0;
 
   const setBlocksWithHistory = (next: StudentProblem["givenBlocks"]) => {
+    if (conceptReview || attemptRef.current.completed) return;
     undoStack.current.push(blocksRef.current);
     redoStack.current = [];
     blocksRef.current = next;
@@ -470,7 +472,7 @@ export default function LessonPage() {
   );
 
   const flushSnapshot = useCallback(async (strict = false) => {
-    if (!problem || restoring) return;
+    if (conceptReview || !problem || restoring || attemptRef.current.completed) return;
     if (problem.id.startsWith("seed:")) return;
     const key = draftKey(getStudentToken(), problem.id);
     const draft = readDraft(key);
@@ -491,7 +493,7 @@ export default function LessonPage() {
       setSaveStatus("현재 기기에 임시 저장했어요. 인터넷이 연결되면 다시 저장할게요.");
       if (strict) throw new Error("저장하지 못했어요. 연결을 확인한 뒤 다시 이동해 주세요.");
     }
-  }, [blocks, lessonNum, problem, restoring]);
+  }, [blocks, lessonNum, problem, restoring, conceptReview]);
 
   useEffect(()=>{let active=true;setProblemImage("");if(problem?.hasImage)void getProblemImage(problem.id).then(data=>{if(active)setProblemImage(data.url);}).catch(()=>setMessage("문제 그림을 불러오지 못했습니다. 다시 접속해 주세요."));return()=>{active=false;};},[problem?.id]);
 
@@ -512,7 +514,7 @@ export default function LessonPage() {
       setLoading(true);
       setMessage(null);
       try {
-        const list = await getLessonProblems(lessonNum);
+        const list = await getLessonProblems(lessonNum, conceptReview ? {markGuidedComplete:false} : undefined);
         if (cancelled) return;
 
         const parsed = list.problems ?? [];
@@ -596,7 +598,7 @@ export default function LessonPage() {
   }, [flushSnapshot]);
 
   const submit = async () => {
-    if (!problem || busy || restoring || attempt.completed) return;
+    if (conceptReview || !problem || busy || restoring || attempt.completed) return;
 
     const submission = buildProblemSubmission(problem);
     if (!submission) {
@@ -650,10 +652,10 @@ export default function LessonPage() {
     setMoving(true);
     try {
       await flushSnapshot(true);
-      if (next && !next.id.startsWith("seed:")) await saveProblemPosition(next.id, lessonNum);
+      if (!conceptReview && next && !next.id.startsWith("seed:")) await saveProblemPosition(next.id, lessonNum);
       if (!next) { navigate("/world"); return; }
       const targetStage = stage ?? stageFilter;
-      saveStageCursor(lessonNum, targetStage, next.id);
+      if (!conceptReview) saveStageCursor(lessonNum, targetStage, next.id);
       setStageFilter(targetStage);
       setProblemIndex(problems.filter(p => p.stage === targetStage).findIndex(p => p.id === next.id));
       if (stage) navigate(`/lesson/${lessonNum}/${stage === "check" ? "solve" : stage === "more" ? "practice" : "learn"}`);
@@ -663,6 +665,15 @@ export default function LessonPage() {
   };
 
   const moveToStage = (stage: "concept" | "check" | "more") => {
+    if (stage === "concept") {
+      if (navigationPending.current || busy || restoring) return;
+      navigationPending.current = true;
+      setMoving(true);
+      void flushSnapshot(true).then(() => navigate(`/lesson/${lessonNum}/learn?review=1`))
+        .catch(error => setMessage(error instanceof Error ? error.message : "저장 후 다시 이동해 주세요."))
+        .finally(() => { navigationPending.current = false; setMoving(false); });
+      return;
+    }
     if (stage === "more" && !requiredComplete) {
       setMessage("③ 선택 연습은 ② 문제 풀기를 완료한 뒤 열려요.");
       return;
@@ -676,8 +687,8 @@ export default function LessonPage() {
   // "다음 문제"는 학생이 현재 문항에서 정답 확인을 최소 한 번 눌러야 활성화된다 (result is
   // reset to null per-problem in applyProblem). 그렇지 않으면 아무 입력도 없이 문제를
   // 계속 건너뛸 수 있었다.
-  const hasCheckedCurrent = result !== null || attempt.completed;
-  const canNavigate = Boolean(!busy && !restoring && !moving && problem && visibleProblems.length > 0 && hasCheckedCurrent && (problemIndex < visibleProblems.length - 1 || attempt.completed));
+  const hasCheckedCurrent = conceptReview || result !== null || attempt.completed;
+  const canNavigate = Boolean(!busy && !restoring && !moving && problem && visibleProblems.length > 0 && hasCheckedCurrent && (conceptReview || problemIndex < visibleProblems.length - 1 || attempt.completed));
   const nextStage = currentStage === "concept" ? "check" : currentStage === "check" && requiredComplete && problems.some(p => p.stage === "more") ? "more" : null;
   const nextActionLabel = problemIndex < visibleProblems.length - 1 ? "다음 문제" : nextStage ? "다음 단계" : "학습 완료";
   const goNext = () => {
@@ -721,7 +732,7 @@ export default function LessonPage() {
   // very next wrong submission (still wrongCount>=3) re-reveals immediately
   // via shared/attempts.ts, never re-earning eligibility from scratch.
   const retryAfterReveal = () => {
-    if (!problem) return;
+    if (!problem || conceptReview || attempt.completed) return;
     setAnswerVisible(false);
     if (isBuildType(problem.problemType)) {
       setBlocksWithHistory(problem.startBlocks);
@@ -910,7 +921,7 @@ export default function LessonPage() {
   // compare rather than edit over it. Camera rotate/view presets stay free
   // -- only editing is blocked (BlockWorld's disabled prop already keeps
   // those two independent).
-  const answerLocked = isBuildType(problem.problemType) && attempt.answerRevealed && answerVisible;
+  const answerLocked = conceptReview || attempt.completed || (isBuildType(problem.problemType) && attempt.answerRevealed && answerVisible);
 
   return (
     <div className="screen app-max">
@@ -932,6 +943,7 @@ export default function LessonPage() {
 
         <section className="panel stack" aria-label="차시 학습 단계">
           <strong>학습 단계</strong>
+          {conceptReview && <p role="status">개념 문제 복습 · 답안과 점수는 바뀌지 않아요.</p>}
           <div className="toolbar-row">
             {([['concept','① 개념 배우기'],['check','② 문제 풀기'],['more','③ 선택 연습']] as const).map(([value,label])=><button key={value} className={`btn btn-sm ${currentStage===value?'btn-primary':''}`} aria-current={currentStage===value?'step':undefined} disabled={moving || busy || restoring || (value==='more'&&!requiredComplete)} onClick={()=>moveToStage(value)}>{label}{value==='check'&&requiredComplete?' · 완료':''} {value==='more'&&!requiredComplete?'(필수 학습 후 열림)':''}</button>)}
           </div>
@@ -939,7 +951,7 @@ export default function LessonPage() {
               showing that raw count here made 선택 연습 look like a required
               n/n target instead of an optional pool. */}
           <p className="muted">① {problems.filter(item=>item.stage==='concept').length}문제 · ② {problems.filter(item=>item.stage==='check').length}문제 · ③ 선택 연습{requiredComplete?' · 이용 가능':''}{requiredComplete?'':' · ② 문제 풀기를 먼저 완료해 주세요.'}</p>
-          {requiredComplete && problems.some(item => item.stage === 'more') && (
+          {!conceptReview && requiredComplete && problems.some(item => item.stage === 'more') && (
             <div className="toolbar-row">
               {allowRetry && <button className="btn btn-sm" disabled={!wrongProblemIds.length} onClick={() => {
                 const more = problems.filter(item => item.stage === 'more');
@@ -1022,7 +1034,7 @@ export default function LessonPage() {
               <button className="btn btn-sm" onClick={() => void flushSnapshot()} disabled={restoring || answerLocked}>저장</button>
               <span role="status">{saveStatus}</span>
               {isBuildType(problem.problemType) && !restrictedView && <span className="muted">블록 수: {blocks.length}</span>}
-              {answerLocked && <span className="muted" role="status">정답 보기 중 · 편집이 잠겼어요</span>}
+              {answerLocked && <span className="muted" role="status">{conceptReview ? "개념 복습 중 · 읽기 전용이에요" : attempt.completed ? "완료한 문제 · 기록을 보존해요" : "정답 보기 중 · 편집이 잠겼어요"}</span>}
             </div>
 
             {allowLayer ? (
@@ -1068,7 +1080,7 @@ export default function LessonPage() {
               onMessage={setMessage}
               answerGhost={answerVisible ? (attempt.revealedAnswer?.blocks ?? result?.revealedAnswer?.blocks) : undefined}
               referenceBlocks={problem.given.referenceBlock ? [problem.given.referenceBlock] : undefined}
-              inspectable={problem.problemType === "BLOCK_POSITION" && !attempt.completed}
+              inspectable={problem.problemType === "BLOCK_POSITION" && !attempt.completed && !conceptReview}
               disabled={restoring || attempt.completed || !isBuildType(problem.problemType) || answerLocked}
               onSnapshotChange={() => undefined}
             />
@@ -1099,22 +1111,22 @@ export default function LessonPage() {
                 className="answer-box"
                 data-answer-renderer={problem.presentation ? (answerRendererFor(problem.presentation.answerInput) ?? "missing") : "missing"}
                 aria-label="문제 유형에 맞는 답안 입력"
-              >{renderEditor()}</div>
+              >{conceptReview ? <fieldset className="answer-review-fieldset" disabled>{renderEditor()}</fieldset> : renderEditor()}</div>
 
               {result?.completed ? (
                 <p className="result-banner result-banner-success">완료 + XP {result.xpEarned}, ⭐ {result.stars}</p>
               ) : null}
 
               <div className="toolbar-row" style={{ marginTop: 12 }}>
-                <button className="btn" onClick={submit} disabled={restoring || busy || moving || attempt.completed || answerUnavailable}>
+                <button className="btn" onClick={submit} disabled={conceptReview || restoring || busy || moving || attempt.completed || answerUnavailable}>
                   {busy ? "채점 중…" : "정답 확인"}
                 </button>
                 <button className="btn btn-sm" onClick={() => {
                   void flushSnapshot();
                   if (problemIndex > 0) {
                     const previous = visibleProblems[problemIndex - 1];
-                  if (previous && !previous.id.startsWith("seed:")) void saveProblemPosition(previous.id, lessonNum);
-                    if (previous?.stage) saveStageCursor(lessonNum, previous.stage, previous.id);
+                  if (!conceptReview && previous && !previous.id.startsWith("seed:")) void saveProblemPosition(previous.id, lessonNum);
+                    if (!conceptReview && previous?.stage) saveStageCursor(lessonNum, previous.stage, previous.id);
                     setProblemIndex((value) => value - 1);
                   }
                 }} disabled={problemIndex === 0}>
@@ -1141,7 +1153,7 @@ export default function LessonPage() {
                 {attempt.revealedAnswer?.heightMap && <ProjectionGrid title="정답 · 숫자 지도" rows={attempt.revealedAnswer.heightMap} orientation="floor" editable={false} onChange={() => undefined} valueType="number" />}
                 {attempt.revealedAnswer?.layers?.map((rows, index) => <ProjectionGrid key={`revealed-layer-${index}`} title={`정답 · ${index + 1}층`} rows={rows} orientation="floor" editable={false} onChange={() => undefined} valueType="boolean" />)}
                 <p>{attempt.revealedAnswer?.explanation}</p>
-                <button className="btn" onClick={retryAfterReveal}>{isBuildType(problem.problemType) ? "정답 모양대로 다시 쌓기" : "다시 풀어 보기"}</button>
+                <button className="btn" disabled={conceptReview || attempt.completed} onClick={retryAfterReveal}>{isBuildType(problem.problemType) ? "정답 모양대로 다시 쌓기" : "다시 풀어 보기"}</button>
               </div>}
 
               {message ? <p className="muted">{message}</p> : null}
