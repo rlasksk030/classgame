@@ -37,7 +37,9 @@
 - 확장 회귀: 신규/부분 완료 이어하기, ①→②→③, 필수 미완료 차단, 개념 읽기 전용, 터치 두 번 2층/선택/이동/삭제/저장·reload, 취소, 관찰·완료 제한 등 **9/9 PASS (Chromium 합성 데이터)**.
 - 전체 unit: **795/795 PASS**, 기존 보안 검사 **1/1 PASS**, Edge typecheck/seed/typecheck/lint/build PASS.
 - 첫 unit 실행의 loopback listen EPERM은 sandbox 제약으로 구분하고, 허용된 로컬 실행에서 전체를 재실행했다.
-- WebKit, 전체 E2E, GitHub CI, LIVE 검증은 아래 최종 증거에 추가한다. 확인 전 PASS로 기록하지 않는다.
+- WebKit 엔진: **6/6 PASS**, Chromium CDP 전용 입력 3개는 명시적으로 skip. 복습/필수 잠금/터치 두 번 2층 쌓기/이동·삭제·저장 복원/편집 제한/PointerEvent 취소 경로를 확인했다. 물리 iPad Safari 검증으로 보고하지 않는다.
+- 최종 보호 조건 보정 후 typecheck/lint/build 및 관련 계약 검사 **44/44 PASS**.
+- 전체 E2E 포함 GitHub CI와 LIVE 검증은 최종 배포 보고서에서 확정한다. 확인 전 PASS로 기록하지 않는다.
 
 ## 수정 파일
 
