@@ -94,7 +94,7 @@ test('L8 rejects floating layers and removal/move of supports, without consuming
   await page.getByRole('button', {name: '1층 편집 2행 2열', exact: true}).click();
   await expect(page.getByRole('button', {name: '1층 편집 2행 2열', exact: true})).toHaveAttribute('aria-pressed', 'true');
   await page.getByLabel('현재 층만 보기').selectOption('1');
-  let point = await centre(page); await page.mouse.click(point.x, point.y);
+  const point = await centre(page); await page.mouse.click(point.x, point.y);
   await page.getByRole('button', {name: '선택 블록 삭제'}).click();
   await expect(page.getByText('위에 쌓기나무가 있어서 먼저 위쪽 블록을 옮겨야 해요.', {exact: true})).toBeVisible();
   await page.getByLabel('가로', {exact: true}).fill('3');

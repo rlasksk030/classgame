@@ -3,12 +3,13 @@ import BlockWorld from '../../components/world/BlockWorld';
 import { ProjectionGrid } from '../../components/world/ProjectionGrid';
 import Representations from './Representations';
 import ReviewSummary from './ReviewSummary';
-import { fromHeightMap, fromLayers, project, toHeightMap, toLayers, usedHeight } from '../../../shared/blocks.ts';
+import { blocksEqual, fromHeightMap, fromLayers, project, toHeightMap, toLayers, usedHeight } from '../../../shared/blocks.ts';
 import type { BlockCoord, Grid2D, HeightMap, ViewPreset } from '../../../shared/types.ts';
 import { CONSTRAINT_EXAMPLES, CONSTRAINT_GRID, CONSTRAINT_TARGET, EXPLORATION_GRID, HEIGHT_EDIT_GRID, INFORMATION_MODELS, START_BLOCKS, editExplorationLayer, matchesExplorationConditions, type ExplorationKind } from './explorationActivities';
 
 export default function GuidedExploration({kind}:{kind:ExplorationKind}) {
  const [blocks,setBlocks]=useState<BlockCoord[]>(kind==='constraints'?[]:START_BLOCKS);
+ const [history,setHistory]=useState<BlockCoord[][]>([]);
  const [selected,setSelected]=useState<BlockCoord|null>(null);
  const [preset,setPreset]=useState<ViewPreset>('home');
  const [face,setFace]=useState<'top'|'front'|'side'>('top');
@@ -18,16 +19,25 @@ export default function GuidedExploration({kind}:{kind:ExplorationKind}) {
  const grid=kind==='constraints'?CONSTRAINT_GRID:kind==='height-edit'||kind==='connections'?HEIGHT_EDIT_GRID:EXPLORATION_GRID;
  const shown=kind==='information'?INFORMATION_MODELS[example]:blocks;
  const heights=toHeightMap(shown,grid), layers=toLayers(shown,grid), projections=project(shown,{...grid,maxHeight:Math.max(1,usedHeight(shown))});
- // Numeric maps allow 0..9, but frame the current model rather than nine empty floors.
- const displayGrid=kind==='height-edit'||kind==='connections'?{...grid,maxHeight:Math.max(3,usedHeight(shown))}:grid;
- const editable=['count','height-layers','constraints'].includes(kind);
- const change=(next:BlockCoord[])=>{setBlocks(next);setSelected(null);setCompare(false);};
+ const buildingMaps=kind==='height-edit'||kind==='layer-edit';
+ // Keep the numeric-map view compact, with room for the next block up to its 9-floor limit.
+ const displayGrid=kind==='height-edit'||kind==='connections'?{...grid,maxHeight:Math.min(grid.maxHeight,Math.max(3,usedHeight(shown)+(kind==='height-edit'?1:0)))}:grid;
+ const editable=buildingMaps||['count','height-layers','constraints'].includes(kind);
+ const change=(next:BlockCoord[])=>{
+  if(buildingMaps){if(blocksEqual(blocks,next))return;setHistory(previous=>[...previous.slice(-99),blocks]);}
+  setBlocks(next);setSelected(null);setCompare(false);
+ };
+ const undo=()=>{
+  const previous=history.at(-1);if(!previous)return;
+  setBlocks(previous);setHistory(history.slice(0,-1));setSelected(null);setMessage('한 번 전 모양으로 되돌렸어요.');
+ };
  const world=<BlockWorld grid={displayGrid} blocks={shown} selected={selected} layerMax={null} preset={preset} onPreset={setPreset}
   allowedViews={kind==='viewpoints'?['home','front','back','left','right','top']:undefined}
   disabled={!editable} onBlocksChange={change} onSelect={setSelected} onMessage={m=>setMessage(m??'')} />;
  const map=<ProjectionGrid title="높이 지도" rows={heights} orientation="floor" valueType="number" editable={kind==='height-edit'||kind==='connections'} onChange={next=>change(fromHeightMap(next as HeightMap))}/>;
  return <div className="stack" data-exploration-kind={kind}>
   <p className="muted">탐구 조작은 문제 답안이나 점수로 기록되지 않아요.</p>
+  {buildingMaps&&<div className="stack"><h3>내가 만드는 탐구 모형</h3><p>처음 모양에서 자유롭게 바꿔 보세요. 블록을 쌓거나 지도를 바꾸면 두 모습이 함께 바뀌어요.</p><div><button className="btn" disabled={!history.length} onClick={undo}>되돌리기</button></div></div>}
   {kind==='information' && <>
    <ProjectionGrid title="주어진 앞모습" rows={project(INFORMATION_MODELS[0],grid).front} reverseRows valueType="boolean" editable={false} onChange={()=>undefined}/>
    <p>앞모습만으로 전체 블록 수를 정할 수 있을까요?</p>
