@@ -43,16 +43,19 @@ export function buildDataRecovery(plan:InstallerPlan,history:string[],catalog:Ca
     const normalized=normalizeEquivalentCatalog(plan,catalog,permissions);
     if (!normalized) return deny('UNSAFE_STRUCTURE');
     const fingerprints=catalogFingerprints(normalized);
-    // A reviewed manual installation has no migration-prefix identity. Accept
-    // only complete, explicitly reviewed structures, never an older/resume profile.
-    const profile=plan.databaseBaseline?.profiles.find(p=>p.kind==='RELEASE'
+    // Keep the three exact previous release catalogs eligible for the existing
+    // consent-gated data correction before their additive schema update.
+    const previousReviewedRelease=(p:{name:string;kind:string;prefix:number})=>p.kind==='RESUME'&&p.prefix===24&&['history-prefix-24','manual-required-progress-contract','manual-live-v4-contract'].includes(p.name);
+    const profile=plan.databaseBaseline?.profiles.find(p=>(p.kind==='RELEASE'||previousReviewedRelease(p))
       && ((p.name===`history-prefix-${plan.migrations.length}` && p.prefix===plan.migrations.length)
-        || (['manual-required-progress-contract','manual-live-v4-contract'].includes(p.name) && p.prefix===0))
+        || previousReviewedRelease(p)
+        || (['manual-required-progress-activities-contract','manual-live-v4-activities-contract'].includes(p.name) && p.prefix===plan.migrations.length))
       && equal(p.objects,fingerprints));
-    const transition=profile ? plan.legacyRecovery?.transitions.find(t=>t.from===profile.name && t.to===profile.name) : undefined;
+    const destination=profile&&previousReviewedRelease(profile)?(profile.name==='history-prefix-24'?`history-prefix-${plan.migrations.length}`:profile.name.replace('-contract','-activities-contract')):profile?.name;
+    const transition=profile ? plan.legacyRecovery?.transitions.find(t=>t.from===profile.name&&t.to===destination) : undefined;
     if (!profile || !transition) return deny('UNSAFE_STRUCTURE');
     const names=new Set(plan.migrations.map(m=>m.name));
-    if (new Set(history).size!==history.length || history.some(name=>!names.has(name))) return deny('HISTORY_MISMATCH');
+    if (new Set(history).size!==history.length || history.some(name=>!names.has(name)||(previousReviewedRelease(profile)&&plan.migrations.findIndex(m=>m.name===name)>=24))) return deny('HISTORY_MISMATCH');
     const changes:DataRecoveryChange[]=[{code:'L1-03',fields:['answer','updated_at'],historicalFeedbackChanges:true,referenceCounts:Object.fromEntries(seedReferenceFields.map(k=>[k,detail[k]])) as Omit<OutdatedSeedDetail,'code'>}];
     const catalogQuery=readFileSync(new URL('./catalog.sql',import.meta.url),'utf8').trim().replace(/;$/,'');
     const permissionQuery=readFileSync(new URL('./permission-audit.sql',import.meta.url),'utf8').trim().replace(/;$/,'');

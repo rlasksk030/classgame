@@ -41,13 +41,23 @@ const manual = await createFixture();
 try {
   await capture(manual, 'manual-previous-contract', 'MANUAL_DELTA_REQUIRED', 20);
   await manual.exec(await readFile('qa/live-required-progress/sql/20261003051402_actual_use_required_progress_delta.sql', 'utf8'));
-  await capture(manual, 'manual-required-progress-contract', 'RELEASE', 0);
+  await capture(manual, 'manual-required-progress-contract', 'RESUME', 24);
   // Reviewed real-world sequence: the existing manual delta followed by the
   // four shipped October migrations. Capture the WHOLE schema, not eight
   // ignored differences. The live-v4 RPC and tighter ACLs must stay intact.
-  for (const migration of migrations.slice(20)) await manual.exec(migration.query);
-  await capture(manual, 'manual-live-v4-contract', 'RELEASE', 0);
+  // Capture historical profiles unchanged before the additive activity release.
+  for (const migration of migrations.slice(24)) await manual.exec(migration.query);
+  await capture(manual, 'manual-required-progress-activities-contract', 'RELEASE', migrations.length);
+  // Reconstruct the other shipped profile independently: never replay old SQL on an upgraded DB.
 } finally { await manual.close(); }
+const liveManual=await createFixture();
+try {
+  await liveManual.exec(await readFile('qa/live-required-progress/sql/20261003051402_actual_use_required_progress_delta.sql','utf8'));
+  for (const migration of migrations.slice(20,24)) await liveManual.exec(migration.query);
+  await capture(liveManual, 'manual-live-v4-contract', 'RESUME', 24);
+  for (const migration of migrations.slice(24)) await liveManual.exec(migration.query);
+  await capture(liveManual, 'manual-live-v4-activities-contract', 'RELEASE', migrations.length);
+} finally { await liveManual.close(); }
 await writeFile('scripts/installer/database-baseline.json', JSON.stringify(result, null, 2) + '\n');
 await writeFile('scripts/installer/legacy-recovery.json', JSON.stringify(await compileRecovery(captured, result.migrationHashes, query), null, 2) + '\n');
 // Only trusted offline fixtures provide ACL repair targets. Never reconstruct

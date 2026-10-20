@@ -85,7 +85,7 @@ test('P1 live lesson10 save and lesson11 restore use same server record',async({
  const api=await liveApi();try{
  await connect(page,api);await login(page);await page.goto('/lesson/10/project');
  await page.getByLabel('건축물 이름',{exact:true}).fill('합성 수학관');await page.getByLabel('설계 이유',{exact:true}).fill('모양을 살펴봐요');await stack(page,[{x:0,y:0,z:0}]);
- await page.getByRole('button',{name:'10차시 설계 저장',exact:true}).click();await expect(page.getByRole('status').first()).toHaveText('설계를 저장했어요.');
+ await page.getByRole('button',{name:'10차시 설계 저장',exact:true}).click();await expect(page.getByRole('status').first()).toHaveText('저장 완료! 다른 기기에서도 이어서 할 수 있어요');
  await page.goto('/lesson/11/project');await expect(page.getByRole('heading',{name:'합성 수학관',exact:true})).toBeVisible();await page.reload();await expect(page.getByRole('heading',{name:'합성 수학관',exact:true})).toBeVisible();
  const r=await api.pg.query<{grid_width:number;blocks:unknown[]}>('select grid_width,blocks from sb_projects where student_id=$1',[STUDENTS[0]]);expect(r.rows[0].grid_width).toBe(10);expect(r.rows[0].blocks).toHaveLength(1);
  await page.screenshot({path:'test-results/live-lesson11.png',fullPage:true});

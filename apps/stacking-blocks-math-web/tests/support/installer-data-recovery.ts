@@ -20,9 +20,11 @@ export async function createDataRecoveryFixture(label = 'data-recovery', profile
   await db.exec(schemaDelta(await readCatalog(db), manualCatalog));
   await db.exec(readFileSync('qa/live-required-progress/sql/20261003051402_actual_use_required_progress_delta.sql','utf8'));
   if (profile === 'manual-live-v4-contract') for (const migration of plan.migrations.slice(20)) await db.exec(migration.query);
-  const transition=plan.legacyRecovery!.transitions.find(t=>t.from===profile && t.to===profile)!;
+  if(profile==='manual-required-progress-contract') for(const m of plan.migrations.slice(24)) await db.exec(m.query);
+  const currentProfile=profile.replace('-contract','-activities-contract');
+  const transition=plan.legacyRecovery!.transitions.find(t=>t.from===currentProfile && t.to===currentProfile)!;
   await db.exec(transition.query);
-  assert.deepEqual(catalogFingerprints(await readCatalog(db)),plan.databaseBaseline!.profiles.find(p=>p.name===profile)!.objects,'HTTP/browser fixture must exactly match the actual-use manual profile');
+  assert.deepEqual(catalogFingerprints(await readCatalog(db)),plan.databaseBaseline!.profiles.find(p=>p.name===currentProfile)!.objects,'HTTP/browser fixture must exactly match the actual-use manual profile');
   await seedProtectedRows(db);
   await db.exec(`insert into sb_student_progress(student_id,lesson,completed,completed_at)
     values ('33333333-3333-4333-8333-333333333333',9,false,null),

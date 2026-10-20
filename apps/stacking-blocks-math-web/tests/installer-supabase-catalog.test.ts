@@ -20,7 +20,7 @@ test('Supabase defaults reproduce all 22 reported object names: ACL only; real b
     const state=await inspectMigrationState(backend,target,plan);
     assert.equal(state.drift,true);
     assertSupabaseDefaultDrift(plan,await readCatalog(db),'historical-defaults');
-    assert.equal(state.review?.comparisonBaseline,'manual-live-v4-contract');
+    assert.equal(state.review?.comparisonBaseline,'manual-live-v4-activities-contract');
     for(const object of state.review!.objects) {
       assert.deepEqual(object.attributes!.filter(a=>a.state==='DIFFERENT').map(a=>a.name),['acl'],object.key);
       assert.ok(object.attributes!.filter(a=>a.name!=='acl').every(a=>a.state==='SAME'));
@@ -45,8 +45,8 @@ test('Supabase defaults reproduce all 22 reported object names: ACL only; real b
   }finally{await db.close();}
 });
 
-test('generated attribute data matches all 28 profiles and only stores digests',async()=>{
-  const plan=await readMathInstallerPlan(process.cwd());assert.equal(plan.databaseBaseline!.profiles.length,28);
+test('generated attribute data matches all 31 profiles and only stores digests',async()=>{
+  const plan=await readMathInstallerPlan(process.cwd());assert.equal(plan.databaseBaseline!.profiles.length,31);
   for(const profile of plan.databaseBaseline!.profiles){
     assert.deepEqual(Object.keys(profile.attributes!).sort(),Object.keys(profile.objects).sort());
     for(const attrs of Object.values(profile.attributes!)) for(const hash of Object.values(attrs)) assert.match(hash,/^[a-f0-9]{64}$/);

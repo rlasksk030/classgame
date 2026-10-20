@@ -22,7 +22,7 @@ function hostedGraph() {
 test('exact hosted executor graph permits known manual data correction while preserving permission classification',async()=>{
   const f=await createDataRecoveryFixture('hosted-proof');
   try {
-    const profile='manual-required-progress-contract';
+    const profile='manual-required-progress-activities-contract';
     const expected=expectedPermissionProfile(profile,f.plan.databaseBaseline!.migrationHashes)!;
     const actual={...expected,defaultPrivileges:[],roles:{...expected.roles,postgres:{superuser:false,bypassRls:true,inherit:true,memberships:9}},executorGraph:hostedGraph()};
     const classify=(snapshot:unknown,structural=false)=>classifyPermissionDifference({profile,key:'tables::sb_students:',migrationHashes:f.plan.databaseBaseline!.migrationHashes,actual:snapshot,structural});

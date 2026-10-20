@@ -32,11 +32,11 @@ test('lesson 9 score is two points without hint and one after hint', () => {
   assert.equal(challengeScore(false, false, false), 0);
 });
 
-test('architecture project requires complete text, three floors and a third floor block', () => {
+test('architecture project requires complete text and descriptions for used floors', () => {
   const complete = { ...EMPTY_BUILDING, building_name: '과학관', reason: '만들고 싶어서', description: '세 층 건물', layer_notes: ['VR\n체험', '로봇\n전시', '드론\n교육'], blocks: [{ x: 0, y: 0, z: 0 }, { x: 0, y: 1, z: 0 }, { x: 0, y: 2, z: 0 }] };
   assert.equal(validBuilding(complete, true), true);
   assert.equal(validBuilding({ ...complete, description: '' }, true), false);
-  assert.equal(validBuilding({ ...complete, blocks: complete.blocks.slice(0, 2) }, true), false);
+  assert.equal(validBuilding({ ...complete, blocks: complete.blocks.slice(0, 2) }, true), true);
 });
 
 test('practice generator is deterministic and scales by lesson', () => {
@@ -145,7 +145,7 @@ test('appearance metadata is sanitized independently from mathematical coordinat
 });
 
 test('교과서 옆 기준은 오른쪽 관찰(+x)이고 신규 건축판은 10×10이다', () => {
-  assert.deepEqual(ARCHITECTURE_GRID, { gridWidth: 10, gridDepth: 10, maxHeight: 3 });
+  assert.deepEqual(ARCHITECTURE_GRID, { gridWidth: 10, gridDepth: 10, maxHeight: 10 });
   const fixture = [
     { x: 0, y: 0, z: 0 },
     { x: 0, y: 1, z: 0 },

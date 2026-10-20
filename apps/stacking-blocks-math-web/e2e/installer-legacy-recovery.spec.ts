@@ -15,7 +15,7 @@ async function consent(page: Page) {
 for (const scenario of ['legacy','latest','drift'] as const) test(`real setup / PostgreSQL: ${scenario} with missing history`,async({page},info)=>{
   test.setTimeout(90000);
   const plan=await readMathInstallerPlan(process.cwd()); const db=await emptyLegacyDb();
-  for(const m of plan.migrations.slice(0,scenario==='legacy'?17:24)) await db.exec(m.query.replace('create extension if not exists "pgcrypto";', ''));
+  for(const m of plan.migrations.slice(0,scenario==='legacy'?17:plan.migrations.length)) await db.exec(m.query.replace('create extension if not exists "pgcrypto";', ''));
   if(scenario==='drift') await db.exec('alter table sb_students alter column name drop not null');
   const backend=legacyBackend(db,plan,[]);let now=Date.now();
   const server=await reconnectServer(false,{plan,backend,now:()=>now});
@@ -50,7 +50,7 @@ for (const scenario of ['legacy','latest','drift'] as const) test(`real setup / 
         await page.getByRole('button',{name:'기존 설치 계속하기',exact:true}).click();
       }
       await expect(page.getByRole('button',{name:'교사 확인으로 계속',exact:true})).toBeEnabled();
-      await expect(page.getByText('데이터베이스 준비: 24/24',{exact:true})).toBeVisible();
+      await expect(page.getByText(`데이터베이스 준비: ${plan.migrations.length}/${plan.migrations.length}`,{exact:true})).toBeVisible();
       await page.screenshot({path:info.outputPath(`${scenario}-installed.png`),fullPage:true});
       await page.reload();
       await expect(page.getByRole('button',{name:'교사 확인으로 계속',exact:true})).toBeEnabled();

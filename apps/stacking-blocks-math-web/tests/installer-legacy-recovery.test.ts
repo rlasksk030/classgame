@@ -14,7 +14,7 @@ test('Every known prefix: full/missing/holey history safely upgrades without his
   const plan=await readMathInstallerPlan(process.cwd());
   const source=await emptyLegacyDb();
   try {
-    for(let n=0;n<=24;n++) {
+    for(let n=0;n<=plan.migrations.length;n++) {
       if(n) await source.exec(plan.migrations[n-1].query.replace('create extension if not exists "pgcrypto";', ''));
       const archive=await source.dumpDataDir();
       await t.test(`profile ${n}`,async()=>{
@@ -36,10 +36,10 @@ test('Every known prefix: full/missing/holey history safely upgrades without his
           const backend=legacyBackend(db,plan,[]);
           const result=await runInstaller({target,plan,backend});
           assert.equal(result.status,'COMPLETE');
-          assert.equal(backend.calls.filter(c=>c.startsWith('applyMigration')).length,n===0?24:0);
+          assert.equal(backend.calls.filter(c=>c.startsWith('applyMigration')).length,n===0?plan.migrations.length:0);
           const state=await inspectMigrationState(backend,target,plan);
           assert.equal(state.drift,false); assert.equal(state.recovery,undefined);
-          const latest=plan.databaseBaseline!.profiles.find(p=>p.name==='history-prefix-24')!;
+          const latest=plan.databaseBaseline!.profiles.find(p=>p.name===`history-prefix-${plan.migrations.length}`)!;
           assert.deepEqual(catalogFingerprints(await readCatalog(db)),latest.objects);
           const writes=backend.calls.filter(c=>/^(apply|deploy|setSecrets)/.test(c)).length;
           await runInstaller({target,plan,backend});
@@ -65,7 +65,7 @@ test('Manual reviewed delta uses existing safe transition, retry is no-op, drift
     const backend=legacyBackend(db,plan,[]);
     assert.equal((await inspectMigrationState(backend,target,plan)).recovery,'LEGACY_RESUME_CANDIDATE');
     await runInstaller({target,plan,backend});
-    assert.deepEqual(catalogFingerprints(await readCatalog(db)),plan.databaseBaseline!.profiles.find(p=>p.name==='manual-required-progress-contract')!.objects);
+    assert.deepEqual(catalogFingerprints(await readCatalog(db)),plan.databaseBaseline!.profiles.find(p=>p.name==='manual-required-progress-activities-contract')!.objects);
     assert.equal(backend.calls.filter(c=>c.startsWith('applyMigration')).length,0);
     const calls=backend.calls.filter(c=>c==='applyLegacyTransition').length;
     await runInstaller({target,plan,backend}); assert.equal(backend.calls.filter(c=>c==='applyLegacyTransition').length,calls);
@@ -104,7 +104,7 @@ test('Transaction protection rolls back PIN mutation; latest normalization promo
   try {
     for(const m of plan.migrations) await db.exec(m.query.replace('create extension if not exists "pgcrypto";',''));
     await seedProtectedRows(db);
-    const transition=plan.legacyRecovery!.transitions.find(t=>t.from==='history-prefix-24')!;
+    const transition=plan.legacyRecovery!.transitions.find(t=>t.from===`history-prefix-${plan.migrations.length}`)!;
     const before=(await db.query<{hash:string}>('select md5(pin_hash) hash from sb_students')).rows[0].hash;
     const tampered=transition.query.replace('do $preserve$',"update sb_students set pin_hash='synthetic-unwanted-change'; do $preserve$");
     await assert.rejects(db.exec(tampered),/INSTALLER_DATA_PRESERVATION_FAILED/);

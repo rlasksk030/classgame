@@ -140,7 +140,7 @@ test('13 synthetic students in the manual contract retain PIN/answers/completion
     const backend=legacyBackend(db,plan,[]);
     await runInstaller({target,plan,backend});
     const assessment=await inspectMigrationState(backend,target,plan);
-    assert.equal(assessment.baseline,'manual-required-progress-contract');assert.equal(assessment.drift,false);assert.equal(assessment.evidence!.classProblemCount,1);assert.equal(assessment.evidence!.dataConflict,0);
+    assert.equal(assessment.baseline,'manual-required-progress-activities-contract');assert.equal(assessment.drift,false);assert.equal(assessment.evidence!.classProblemCount,1);assert.equal(assessment.evidence!.dataConflict,0);
     assert.equal((await db.query<{count:number}>('select count(*)::int count from sb_students')).rows[0].count,13);assert.equal(await studentHash(),before);
     assert.equal((await db.query<{completed:boolean}>('select completed from sb_student_progress where lesson=1')).rows[0].completed,true);
     assert.equal((await db.query<{total_xp:number}>('select total_xp from sb_student_rewards')).rows[0].total_xp,999);
@@ -167,7 +167,7 @@ test('consented ACL recovery then pending progress repair reaches COMPLETE and r
     const backend=legacyBackend(db,plan,history);backend.inspectDatabasePermissions=permissions;
     const state=await inspectMigrationState(backend,target,plan);
     assert.equal(state.drift,false);assert.equal(state.recovery,'LEGACY_RESUME_CANDIDATE');assert.equal(state.evidence!.progressMissing,2);
-    const transition=plan.legacyRecovery!.transitions.find(t=>t.from==='history-prefix-24')!;
+    const transition=plan.legacyRecovery!.transitions.find(t=>t.from===`history-prefix-${plan.migrations.length}`)!;
     const guarded=prepareEquivalentLegacyTransition(plan,transition,beforeCatalog,beforeRights);assert.ok(guarded);
     await db.exec('grant truncate on sb_students to anon');
     assert.equal(prepareEquivalentLegacyTransition(plan,transition,await readCatalog(db),await permissions()),undefined,'broader privilege cannot enter the equivalent wrapper');

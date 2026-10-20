@@ -80,6 +80,7 @@ test('new Edge prerequisites match a fresh install: columns, constraints, indexe
   const live=await liveV4Db(); const fresh=await setupRequiredProgressDb();
   try {
     await live.exec(compatibilitySql());
+    for(const file of readdirSync('supabase/migrations').sort().filter(f=>f>'20261002104459_live_v4_compatibility.sql')) await live.exec(readFileSync(`supabase/migrations/${file}`,'utf8'));
     const queries=[
       "select table_name,column_name,udt_name,is_nullable,column_default from information_schema.columns where table_schema='public' and table_name like 'sb_%' order by 1,2",
       "select c.relname,k.conname,pg_get_constraintdef(k.oid) definition from pg_constraint k join pg_class c on c.oid=k.conrelid where c.relnamespace='public'::regnamespace and c.relname like 'sb_%' order by 1,2",
@@ -91,7 +92,7 @@ test('new Edge prerequisites match a fresh install: columns, constraints, indexe
     for(const query of queries) assert.deepEqual((await live.query(query)).rows,(await fresh.query(query)).rows,query);
     const sources=['supabase/functions/student-api/index.ts','supabase/functions/_shared/activities.ts','src/pages/TeacherStudentRecord.tsx'];
     const rpcNames=new Set(sources.flatMap(file=>[...readFileSync(file,'utf8').matchAll(/\.rpc\(\s*['"]([^'"]+)['"]/g)].map(m=>m[1])));
-    assert.equal(rpcNames.size,6);
+    assert.equal(rpcNames.size,9);
     for(const name of rpcNames) {
       const query="select pg_get_function_identity_arguments(oid) signature, pg_get_function_result(oid) result,prosecdef,proconfig,has_function_privilege('anon',oid,'execute') anon,has_function_privilege('authenticated',oid,'execute') authenticated,has_function_privilege('service_role',oid,'execute') service from pg_proc where pronamespace='public'::regnamespace and proname=$1";
       const expected=(await fresh.query(query,[name])).rows;

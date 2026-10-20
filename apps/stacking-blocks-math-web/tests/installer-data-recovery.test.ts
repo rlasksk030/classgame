@@ -13,23 +13,24 @@ import { applyAttempt } from '../shared/attempts.ts';
 
 const target={environment:'TEST' as const,projectRef:'synthetic-data-consent',projectUrl:'https://synthetic-data-consent.supabase.co',publishableKey:'sb_publishable_synthetic_fixture',release:'test'};
 const permissionSql=readFileSync('scripts/installer/permission-audit.sql','utf8');
-async function fixture(manual: boolean | 'live-v4'=false) {
+async function fixture(manual: boolean | 'live-v4'=false,previousRelease=false) {
   const plan=await readMathInstallerPlan(process.cwd()),db=await (manual ? createFixture() : emptyLegacyDb());
   if(manual) {
     await db.exec(storageStub);
     await db.exec(readFileSync('qa/live-required-progress/sql/20261003051402_actual_use_required_progress_delta.sql','utf8'));
     if(manual==='live-v4') for(const m of plan.migrations.slice(20)) await db.exec(m.query);
-  } else for(const m of plan.migrations) await db.exec(m.query.replace('create extension if not exists "pgcrypto";',''));
+  } else for(const m of (previousRelease?plan.migrations.slice(0,24):plan.migrations)) await db.exec(m.query.replace('create extension if not exists "pgcrypto";',''));
   await seedProtectedRows(db);
-  const profile=manual==='live-v4' ? 'manual-live-v4-contract' : manual ? 'manual-required-progress-contract' : `history-prefix-${plan.migrations.length}`;
-  const history=manual ? [] : plan.migrations.map(m=>m.name),backend=legacyBackend(db,plan,history);
-  await runInstaller({target,plan,backend});
+  const profile=manual==='live-v4' ? 'manual-live-v4-activities-contract' : manual ? 'manual-required-progress-activities-contract' : `history-prefix-${previousRelease?24:plan.migrations.length}`;
+  const history=manual ? [] : (previousRelease?plan.migrations.slice(0,24):plan.migrations).map(m=>m.name),backend=legacyBackend(db,plan,history);
+  if(!previousRelease)await runInstaller({target,plan,backend});
+  else await db.exec("insert into sb_student_progress(student_id,lesson,completed,completed_at) values('33333333-3333-4333-8333-333333333333',9,false,null),('33333333-3333-4333-8333-333333333333',10,true,'2026-01-01'),('33333333-3333-4333-8333-333333333333',11,true,'2026-01-01') on conflict(student_id,lesson) do update set completed=sb_student_progress.completed or excluded.completed,completed_at=coalesce(sb_student_progress.completed_at,excluded.completed_at)");
   await db.exec(`insert into sb_students(id,class_id,name,student_no,pin_hash) select gen_random_uuid(),'22222222-2222-4222-8222-222222222222','합성보존학생'||n,10+n,'synthetic-hash-'||n from generate_series(1,12) n;
 insert into sb_problem_attempts(student_id,problem_id,lesson,completed,attempt_count,stars,xp_earned) select id,'95dd8f12-9215-430b-893c-d830c0368798',1,true,2,2,20 from sb_students;
 insert into sb_block_snapshots(student_id,problem_id,lesson,blocks) select id,'95dd8f12-9215-430b-893c-d830c0368798',1,'[{"x":0,"y":0,"z":0}]'::jsonb from sb_students;
 insert into sb_student_progress(student_id,lesson,last_problem_id) select id,1,'95dd8f12-9215-430b-893c-d830c0368798' from sb_students on conflict(student_id,lesson) do update set last_problem_id=excluded.last_problem_id;
 update sb_problems set answer='{"kind":"count","value":6}' where code='L1-03';`);
-  const transition=plan.legacyRecovery!.transitions.find(t=>t.from===profile && t.to===profile)!;
+  const transition=plan.legacyRecovery!.transitions.find(t=>t.from===profile && (previousRelease||t.to===profile))!;
   const evidence=async()=>await backend.inspectDataEvidence!(target,transition.evidenceQuery) as DataEvidence;
   const permissions=async()=>(await db.query<{snapshot:PermissionSnapshot}>(permissionSql)).rows[0].snapshot;
   const build=async()=>buildDataRecovery(plan,history,await readCatalog(db),await permissions(),await evidence());
@@ -115,4 +116,13 @@ test('old/new L1-03 use identical real FREE_BUILD grade and reward outcomes; pub
       assert.deepEqual(applyAttempt(previous,old.correct,true),applyAttempt(previous,fixed.correct,true));
     }
   }
+});
+
+test('previous full release retains explicit-consent seed correction before additive upgrade',async()=>{
+ const f=await fixture(false,true);try{
+  const before=await readCatalog(f.db),recovery=await f.build();assert.equal(recovery.recoverable,true);if(!recovery.recoverable)throw Error(recovery.reason);
+  assert.equal(recovery.profile,'history-prefix-24');await f.db.exec(recovery.query);assert.deepEqual(await readCatalog(f.db),before);assert.equal((await f.evidence()).seedOutdated,0);
+  const backend=legacyBackend(f.db,f.plan,f.history);await runInstaller({target,plan:f.plan,backend});
+  assert.equal(backend.calls.filter(c=>c.startsWith('applyMigration')).length,0);assert.equal((await f.db.query('select sb_activity_contract() v')).rows[0].v,2);
+ }finally{await f.db.close();}
 });

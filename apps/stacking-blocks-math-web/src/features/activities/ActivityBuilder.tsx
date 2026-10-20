@@ -11,11 +11,11 @@ export default function ActivityBuilder({blocks,onChange,disabled=false,answer,g
  const blockChangeInProgress = useRef(false);
  const [selected,setSelected]=useState<BlockCoord|null>(null),[preset,setPreset]=useState<ViewPreset>(cameraPolicy?.initialView??'home'),[message,setMessage]=useState<string|null>(null);
  const [history,setHistory]=useState<BuilderSnapshot[]>([]),[future,setFuture]=useState<BuilderSnapshot[]>([]);
- const change=(next:BlockCoord[])=>{setHistory(h=>[...h,snapshot()]);setFuture([]);blockChangeInProgress.current=true;onChange(next);};
- const appearanceChange=(next:Record<string,RewardMaterial>)=>{if (!blockChangeInProgress.current) { setHistory(h=>[...h,snapshot()]); setFuture([]); } blockChangeInProgress.current=false; onAppearanceChange?.(next);};
+ const change=(next:BlockCoord[])=>{setHistory(h=>[...h.slice(-99),snapshot()]);setFuture([]);blockChangeInProgress.current=true;onChange(next);};
+ const appearanceChange=(next:Record<string,RewardMaterial>)=>{if (!blockChangeInProgress.current) { setHistory(h=>[...h.slice(-99),snapshot()]); setFuture([]); } blockChangeInProgress.current=false; onAppearanceChange?.(next);};
  return <section className="stack"><div className="toolbar-row"><span>쌓기나무 {blocks.length}개</span>
  <button className="btn" disabled={disabled||!history.length} onClick={()=>{const previous=history[history.length-1];setFuture(f=>[snapshot(),...f]);restore(previous);setHistory(history.slice(0,-1));}}>되돌리기</button>
- <button className="btn" disabled={disabled||!future.length} onClick={()=>{const next=future[0];setHistory(h=>[...h,snapshot()]);restore(next);setFuture(future.slice(1));}}>다시 실행</button>
+ <button className="btn" disabled={disabled||!future.length} onClick={()=>{const next=future[0];setHistory(h=>[...h.slice(-99),snapshot()]);restore(next);setFuture(future.slice(1));}}>다시 실행</button>
  <button className="btn" disabled={disabled} onClick={()=>{if(window.confirm('현재 쌓은 모양을 모두 지울까요?'))change([]);}}>전체 초기화</button></div>
  <BlockWorld grid={grid} blocks={blocks} selected={selected} layerMax={null} preset={preset} onPreset={setPreset} onBlocksChange={change} onSelect={setSelected} onMessage={setMessage} disabled={disabled} answerGhost={answer} appearance={appearance} onAppearanceChange={appearanceChange} allowedMaterials={allowedMaterials} activeMaterial={activeMaterial} onActiveMaterialChange={onActiveMaterialChange} allowRotate={cameraPolicy?.kind!=='fixed'} allowedViews={cameraPolicy?.allowedViews}/>
  {message&&<p role="status">{message}</p>}</section>;
