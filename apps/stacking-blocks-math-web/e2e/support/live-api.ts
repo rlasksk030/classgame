@@ -34,7 +34,7 @@ export async function liveApi(options:{liveStages?:boolean;students?:Array<{id:s
    return resolve({data:single?result.rows[0]??null:result.rows,error:null});
   }catch(e){return resolve({data:null,error:{message:String(e)}});}})();}};return q;
  }
- const db={from:table,rpc:async(name:string,args:Row)=>{try{const keys=Object.keys(args);const r=await pg.query<Row>(`select ${ident(name)}(${keys.map((k,i)=>`${ident(k)}:=$${i+1}`).join(',')}) as result`,keys.map(k=>args[k]));return {data:r.rows[0]?.result,error:null};}catch(e){return {data:null,error:{message:String(e)}};}}};
+ const db={from:table,rpc:async(name:string,args:Row={})=>{try{const keys=Object.keys(args);const r=await pg.query<Row>(`select ${ident(name)}(${keys.map((k,i)=>`${ident(k)}:=$${i+1}`).join(',')}) as result`,keys.map(k=>args[k]));return {data:r.rows[0]?.result,error:null};}catch(e){return {data:null,error:{message:String(e)}};}}};
  const tokens=new Map<string,string>();
  const attempts=new Map<string,ReturnType<typeof applyAttempt>['state']>();
  const snapshots=new Map<string,unknown>();const positions=new Map<string,string>();const submissions:Row[]=[];
