@@ -42,8 +42,8 @@ export function compileKnownSeedCorrection(profiles:CapturedProfile[], full:Capt
 
 
 export async function compileRecovery(profiles: CapturedProfile[], hashes: string[], catalogSql: string): Promise<LegacyRecovery> {
-  const full = profiles.find(p => p.name === 'history-prefix-24')!;
-  const manual = profiles.find(p => p.name === 'manual-required-progress-contract')!;
+  const full = profiles.filter(p=>p.name.startsWith('history-prefix-')).sort((a,b)=>b.prefix-a.prefix)[0];
+  const manual = profiles.find(p => p.name === 'manual-required-progress-activities-contract')!;
   const previous = profiles.find(p => p.name === 'manual-previous-contract')!;
   const originalDelta = await readFile('qa/live-required-progress/sql/20261003051402_actual_use_required_progress_delta.sql', 'utf8');
   const releaseMigration = await readFile('supabase/migrations/20261002104459_live_v4_compatibility.sql', 'utf8');
@@ -95,7 +95,7 @@ export async function compileRecovery(profiles: CapturedProfile[], hashes: strin
   for (const p of profiles.filter(p => p.name !== 'fresh-empty')) {
     // This complete, reviewed manual/live-v4 combination is a self-transition.
     // Never restore the old wider authenticated ACL or default-size RPC.
-    const target = p.name === 'manual-live-v4-contract' ? p : p.name.startsWith('manual-') ? manual : full;
+    const target = p.name.startsWith('manual-live-v4') ? profiles.find(q=>q.name==='manual-live-v4-activities-contract')! : p.name.startsWith('manual-') ? manual : full;
     const hasProgressEvidence = ['sb_challenge_solves', 'sb_projects'].every(n => p.catalog.tables.some(t => t.name === n)) && p.catalog.columns.some(c => c.table === 'sb_problems' && c.name === 'class_id');
     // Older profiles legitimately lack the Phase 5 tables. Only a proven absent
     // table means zero; an unexpected column contract yields unknown, not zero.
@@ -112,7 +112,7 @@ export async function compileRecovery(profiles: CapturedProfile[], hashes: strin
     const ddl = p.name === previous.name
       // Preserve the already reviewed manual RPC bodies/defaults, apply the exact
       // existing delta inside our stronger whole-catalog transaction guard.
-      ? originalDelta.replace(/^begin;$/m, '').replace(/^commit;$/m, '')
+      ? originalDelta.replace(/^begin;$/m, '').replace(/^commit;$/m, '') + '\n' + schemaDelta(profiles.find(q=>q.name==='manual-required-progress-contract')!.catalog,target.catalog)
       : schemaDelta(p.catalog, target.catalog);
     const protect = preservationGuard(p.catalog);
     const locks = p.catalog.tables.map(t => `public.${identifier(t.name)}`).sort().join(',');

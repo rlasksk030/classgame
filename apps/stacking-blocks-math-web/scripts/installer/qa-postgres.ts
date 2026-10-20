@@ -140,8 +140,10 @@ sql(schemaDelta(catalog(),manual));
 assertProfile('manual-previous-contract');
 sql(readFileSync('qa/live-required-progress/sql/20261003051402_actual_use_required_progress_delta.sql','utf8'));
 assertProfile('manual-required-progress-contract');
-for (const migration of plan.migrations.slice(20)) sql(migration.query);
+for (const migration of plan.migrations.slice(20,24)) sql(migration.query);
 assertProfile('manual-live-v4-contract');
+for (const migration of plan.migrations.slice(24)) sql(migration.query);
+assertProfile('manual-live-v4-activities-contract');
 
 for (const {mode,hosted} of [{mode:'historical-defaults',hosted:false},{mode:'crud-opt-out',hosted:false},{mode:'historical-defaults',hosted:true}] as const) {
   resetOwnedFixture();
@@ -203,13 +205,14 @@ alter default privileges for role postgres in schema public grant all on functio
 }
 // The one explicitly reviewed answer correction must keep linked historical
 // answers/completion/rewards and all other app rows, even across a failed write.
-for(const {dataProfile,hosted} of [{dataProfile:latest,hosted:false},{dataProfile:'manual-required-progress-contract',hosted:false},{dataProfile:'manual-required-progress-contract',hosted:true},{dataProfile:'manual-live-v4-contract',hosted:false},{dataProfile:'manual-live-v4-contract',hosted:true}]) {
+for(const {dataProfile,hosted} of [{dataProfile:latest,hosted:false},{dataProfile:'manual-required-progress-activities-contract',hosted:false},{dataProfile:'manual-required-progress-activities-contract',hosted:true},{dataProfile:'manual-live-v4-activities-contract',hosted:false},{dataProfile:'manual-live-v4-activities-contract',hosted:true}]) {
 resetOwnedFixture();
 if(dataProfile===latest) for (const m of plan.migrations) sql(m.query);
 else {
   sql(schemaDelta(catalog(),manual));
   sql(readFileSync('qa/live-required-progress/sql/20261003051402_actual_use_required_progress_delta.sql','utf8'));
-  if(dataProfile==='manual-live-v4-contract') for (const migration of plan.migrations.slice(20)) sql(migration.query);
+  if(dataProfile==='manual-live-v4-activities-contract') for (const migration of plan.migrations.slice(20,24)) sql(migration.query);
+  for(const migration of plan.migrations.slice(24)) sql(migration.query);
 }
 assertProfile(dataProfile);
 const dataTransition=plan.legacyRecovery!.transitions.find(t=>t.from===dataProfile && t.to===dataProfile)!;

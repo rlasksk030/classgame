@@ -19,7 +19,7 @@ export function assertSupabaseDefaultDrift(plan: InstallerPlan, catalog: Catalog
   // The added exact manual/live-v4 model is closer, but never authorizes
   // broader defaults. Keep the independent 22-object release check above.
   const expected=[...rpcKeys,...(mode==='historical-defaults' ? oldTables.filter(t=>t!=='sb_student_sessions').map(t=>`tables::${t}:`) : [])].map(key=>({key,attributes:['acl']}));
-  assert.equal(state.review!.comparisonBaseline,'manual-live-v4-contract');
+  assert.equal(state.review!.comparisonBaseline,'manual-live-v4-activities-contract');
   assert.deepEqual(state.review!.objects.map(o=>({key:o.key,attributes:o.attributes!.filter(a=>a.state==='DIFFERENT').map(a=>a.name)})).sort((a,b)=>a.key.localeCompare(b.key)),expected.sort((a,b)=>a.key.localeCompare(b.key)));
   return state;
 }

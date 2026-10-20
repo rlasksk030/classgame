@@ -28,7 +28,7 @@ const writes = (calls: string[]) => calls.filter(c => /^(applyMigration|applyLeg
 before(async () => {
   plan = await readMathInstallerPlan(process.cwd());
   manual = await createFixture(); previous = await catalog(manual);
-  await manual.exec(delta); latest = await catalog(manual);
+  await manual.exec(delta); for(const m of plan.migrations.slice(24)) await manual.exec(m.query); latest = await catalog(manual);
 });
 after(async () => { await manual?.close(); });
 
@@ -50,11 +50,11 @@ test('A/B fresh project installs all migrations and Edge; exact history resumes 
     const apply = backend.applyMigration.bind(backend);
     backend.applyMigration = async (t, m) => { await db.exec(m.query.replace('create extension if not exists "pgcrypto";', '')); await apply(t, m); };
     const empty = await inspectMigrationState(backend, target, plan);
-    assert.equal(empty.drift, false); assert.equal(empty.migrations.filter(m => m.status === "PENDING").length, 24);
+    assert.equal(empty.drift, false); assert.equal(empty.migrations.filter(m => m.status === "PENDING").length, 25);
     // An interrupted fresh installation must match the exact prefix before resuming.
     for (const m of plan.migrations.slice(0, 7)) await backend.applyMigration(target, m);
     const partial = await inspectMigrationState(backend, target, plan);
-    assert.equal(partial.drift, false); assert.equal(partial.migrations.filter(m => m.status === 'PENDING').length, 17);
+    assert.equal(partial.drift, false); assert.equal(partial.migrations.filter(m => m.status === 'PENDING').length, 18);
     // Same schema, missing history: diagnose provenance separately from schema
     // differences. Do not silently opt a teacher into replaying old SQL.
     const missingHistory = await inspectMigrationState(backend, target, plan, []);
@@ -76,14 +76,14 @@ test('A/B fresh project installs all migrations and Edge; exact history resumes 
   } finally { await db.close(); }
 });
 for (const [name, size] of [['C no history', 0], ['D partial history', 9], ['G original 20-history regression', 20]] as const) {
-  test(`${name}: manual minimum delta satisfies all 24 migrations; replay 0, API/auth/secret updates 0`, async () => {
+  test(`${name}: manual minimum delta satisfies all release migrations; replay 0, API/auth/secret updates 0`, async () => {
     const history = plan.migrations.slice(0, size).map(m => m.name);
-    if (size === 20) assert.equal(plan.migrations.filter(m => !history.includes(m.name)).length, 4, "original failure remains reproduced by history-only planner");
+    if (size === 20) assert.equal(plan.migrations.filter(m => !history.includes(m.name)).length, 5, "original failure remains reproduced by history-only planner");
     const backend = backendFor(latest, history);
     const assessment = await inspectMigrationState(backend, target, plan);
     assert.equal(assessment.drift, false);
     assert.equal(assessment.migrations.filter(m => m.status === 'PENDING').length, 0);
-    assert.equal(assessment.migrations.filter(m => m.status === 'SATISFIED_BY_STATE').length, 24 - size);
+    assert.equal(assessment.migrations.filter(m => m.status === 'SATISFIED_BY_STATE').length, 25 - size);
     assert.equal((await runInstaller({ target, plan, backend })).status, 'COMPLETE');
     assert.deepEqual(writes(backend.calls), []);
   });
@@ -205,14 +205,14 @@ test('HTTP status/plan/update/install/repair agree: fully satisfied installed, d
     await fetch(base + '/credential', { method: 'POST', headers: { cookie, 'content-type': 'application/json' }, body: JSON.stringify({ pat: 'synthetic-pat' }) });
     const req = (path: string, method = 'GET') => fetch(base + path, { method, headers: { cookie } });
     const status = await (await req('/status')).json(); assert.equal(status.status, 'INSTALLED'); assert.equal(status.missingMigrations.length, 0);
-    const proposed = await (await req('/plan', 'POST')).json(); assert.equal(proposed.action, 'NO_RUNTIME_CHANGES'); assert.equal(proposed.migrations.filter((m: { status: string }) => m.status === 'SATISFIED_BY_STATE').length, 4);
+    const proposed = await (await req('/plan', 'POST')).json(); assert.equal(proposed.action, 'NO_RUNTIME_CHANGES'); assert.equal(proposed.migrations.filter((m: { status: string }) => m.status === 'SATISFIED_BY_STATE').length, 5);
     assert.equal((await req('/update', 'POST')).status, 200); assert.deepEqual(writes(backend.calls), []);
     current = structuredClone(latest);
     current.columns.find(c => c.table === 'sb_students' && c.name === 'name')!.nullable = 'YES';
     const review = await (await req('/status')).json();
     assert.equal(review.status, 'DRIFT_REQUIRES_REVIEW');
     assert.equal(review.databaseReview.reason, 'UNRECOGNIZED_SCHEMA');
-    assert.equal(review.databaseReview.baseline, 'manual-required-progress-contract');
+    assert.equal(review.databaseReview.baseline, 'manual-required-progress-activities-contract');
     assert.equal(JSON.stringify(review).includes('CREATE OR REPLACE FUNCTION'), false);
     assert.equal((await (await req('/plan', 'POST')).json()).action, 'DRIFT_REQUIRES_REVIEW');
     for (const path of ['/update', '/install', '/repair']) {
