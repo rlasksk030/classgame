@@ -1,0 +1,49 @@
+name: Spatial math 2027 source master export
+on:
+  push:
+    branches:
+      - backup/2027-spatial-math-master-20261020
+    paths:
+      - .github/workflows/spatial-math-master-export.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  archive:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout isolated backup branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+          persist-credentials: false
+      - name: Export exact audited release source, without secrets or runtime data
+        shell: bash
+        run: |
+          set -euo pipefail
+          SHA=8a4bb02d55704ccc1acabb38c79b6d778f313aaa
+          git cat-file -e "${SHA}^{commit}"
+          git rev-parse "${SHA}^{commit}" | grep -Fx "$SHA"
+          mkdir -p backup
+          git archive --format=tar --output=backup/spatial-math-source.tar "$SHA" \
+            apps/stacking-blocks-math-web \
+            render.yaml \
+            README.md \
+            .github/workflows/ci.yml \
+            .github/workflows/stacking-blocks.yml
+          tar -tf backup/spatial-math-source.tar | grep -Fx "apps/stacking-blocks-math-web/shared/attempts.ts"
+          tar -tf backup/spatial-math-source.tar | grep -Fx "apps/stacking-blocks-math-web/shared/grading.ts"
+          tar -tf backup/spatial-math-source.tar | grep -Fx "apps/stacking-blocks-math-web/supabase/migrations/20261020012936_activity_save_height_share.sql"
+          tar -tf backup/spatial-math-source.tar | grep -Fx "apps/stacking-blocks-math-web/package-lock.json"
+          sha256sum backup/spatial-math-source.tar > backup/source-tar.sha256
+          printf '%s\n' "$SHA" > backup/production-commit.txt
+          printf '%s\n' 'This archive is pinned source only. Private student data and account secrets are not included.' > backup/README.txt
+      - name: Upload 2027 reconstruction source
+        uses: actions/upload-artifact@v4
+        with:
+          name: spatial-math-2027-full-source-8a4bb02d
+          path: backup/
+          if-no-files-found: error
+          retention-days: 14
+          compression-level: 6
