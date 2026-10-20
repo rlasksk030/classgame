@@ -1,0 +1,41 @@
+name: One-time Offline Master Backup
+on:
+  push:
+    branches:
+      - backup/master-recovery-2026-10-20
+permissions:
+  contents: read
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout pinned production snapshot with Git history
+        uses: actions/checkout@v4
+        with:
+          ref: 8a4bb02d55704ccc1acabb38c79b6d778f313aaa
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Create full offline source tree and Git bundle
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/offline-master/classgame-source"
+          git archive 8a4bb02d55704ccc1acabb38c79b6d778f313aaa | tar -x -C "$RUNNER_TEMP/offline-master/classgame-source"
+          git remote set-branches origin '*'
+          git -c http.version=HTTP/1.1 fetch origin '+refs/heads/*:refs/remotes/origin/*' --tags --force --quiet
+          git bundle create "$RUNNER_TEMP/offline-master/classgame-history.bundle" --all
+          git bundle verify "$RUNNER_TEMP/offline-master/classgame-history.bundle"
+          test "$(git rev-parse HEAD)" = '8a4bb02d55704ccc1acabb38c79b6d778f313aaa'
+          printf 'SOURCE_SHA=8a4bb02d55704ccc1acabb38c79b6d778f313aaa\nSOURCE_REPO=https://github.com/rlasksk030/classgame\nBUILT_ON=GitHub_Actions\n' > "$RUNNER_TEMP/offline-master/SOURCE_INFO.txt"
+          (cd "$RUNNER_TEMP/offline-master" && find classgame-source -type f -print0 | sort -z | xargs -0 sha256sum > SOURCE_SHA256SUMS.txt)
+          (cd "$RUNNER_TEMP/offline-master" && zip -qr -9 "$RUNNER_TEMP/offline-master-raw.zip" .)
+          unzip -t "$RUNNER_TEMP/offline-master-raw.zip" | tail -1
+          du -h "$RUNNER_TEMP/offline-master-raw.zip"
+      - name: Upload exact-source offline backup
+        uses: actions/upload-artifact@v4
+        with:
+          name: classgame-offline-master-8a4bb02d
+          path: ${{ runner.temp }}/offline-master-raw.zip
+          if-no-files-found: error
+          retention-days: 7
