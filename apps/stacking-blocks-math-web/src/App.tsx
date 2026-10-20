@@ -21,6 +21,7 @@ const TeacherLessonPreview = lazy(() => import('./pages/TeacherLessonPreview'));
 const PrintStudentLoginSheet = lazy(() => import('./pages/PrintStudentLoginSheet'));
 const TeacherStudentRecord = lazy(() => import('./pages/TeacherStudentRecord'));
 const PeerChallengePage = lazy(() => import('./pages/PeerChallengePage'));
+const SharedBuildingPage = lazy(() => import('./pages/SharedBuildingPage'));
 const ArchitecturePage = lazy(() => import('./pages/ArchitecturePage'));
 function LessonRoute(){const {lesson}=useParams();return lesson==="10"||lesson==="11"?<ArchitecturePage/>:<LessonPage/>;}
 function InstallationSwitchPrompt(){
@@ -45,6 +46,7 @@ export default function App() {
     <Route path="/" element={<StudentLogin />} />
     <Route path="/world" element={<StudentWorld />} />
     <Route path="/world/rewards" element={<RewardsPage />} />
+    <Route path="/gallery/:slug" element={<SharedBuildingPage />} />
     <Route path="/lesson/9" element={<PeerChallengePage />} />
     <Route path="/lesson/:lesson/project" element={<ArchitecturePage />} />
     <Route path="/lesson/:lesson/learn" element={<LessonLearnPage />} />

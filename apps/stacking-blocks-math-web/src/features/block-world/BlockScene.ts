@@ -182,8 +182,17 @@ export class BlockScene {
     });
   }
 
+  private framedHeight = 0;
   update(state: SceneState) {
     this.state = state;
+    if (this.grid.maxHeight === 10) {
+      const height=Math.max(1,...state.blocks.map(b=>b.y+1));
+      if(height!==this.framedHeight){
+        this.framedHeight=height;
+        this.camera.setTarget(new Vector3(this.grid.gridWidth/2,height/2,this.grid.gridDepth/2));
+        this.camera.radius=this.frameRadius()*1.4;
+      }
+    }
     if (state.disabled) { this.paletteArmed = false; this.finish(); }
     if (state.allowRotate === false) this.camera.detachControl();
     else if (!this.drag) this.camera.attachControl(this.canvas, true);
@@ -231,7 +240,7 @@ export class BlockScene {
 
   private frameRadius() {
     const footprint = Math.max(this.grid.gridWidth, this.grid.gridDepth);
-    return Math.max(4.8, footprint * 1.2);
+    return Math.max(4.8, footprint * 1.2, this.grid.maxHeight===10?Math.max(1,...this.state.blocks.map(b=>b.y+1))*1.4:0);
   }
 
   private updateOrtho() {
